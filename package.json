@@ -1,0 +1,19 @@
+{
+  "name": "commerce",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:commerce": "npm -w apps/commerce run dev",
+    "dev:admin": "npm -w apps/admin run dev",
+    "build:commerce": "npm -w apps/commerce run build",
+    "build:admin": "npm -w apps/admin run build",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
