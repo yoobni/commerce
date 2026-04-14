@@ -2,6 +2,8 @@
  * @commerce/shared — Common Utilities
  */
 
+export * from './storage';
+
 import type { Currency, Locale } from '@commerce/types';
 
 // ─── Currency Formatting ──────────────────────────────────────────────────────
