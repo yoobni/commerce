@@ -234,5 +234,14 @@
       "signUp": "Konto erstellt! Bitte überprüfe deine E-Mail zur Verifizierung.",
       "signIn": "Willkommen zurück!"
     }
+  },
+  "search": {
+    "title": "Suche",
+    "metaTitle": "Suche — RAVI",
+    "metaTitleWithQuery": "„{query}" — RAVI Suche",
+    "placeholder": "Produkte suchen",
+    "resultsTitle": "Ergebnisse für „{query}"",
+    "resultCount": "{count} Produkte gefunden",
+    "sortRelevance": "Relevanz"
   }
 }

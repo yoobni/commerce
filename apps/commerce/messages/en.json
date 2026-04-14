@@ -234,5 +234,14 @@
       "signUp": "Account created! Please check your email to verify.",
       "signIn": "Welcome back!"
     }
+  },
+  "search": {
+    "title": "Search",
+    "metaTitle": "Search — RAVI",
+    "metaTitleWithQuery": "\"{query}\" — RAVI Search",
+    "placeholder": "Enter keywords to search products",
+    "resultsTitle": "Results for \"{query}\"",
+    "resultCount": "{count} products found",
+    "sortRelevance": "Relevance"
   }
 }

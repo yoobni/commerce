@@ -234,5 +234,14 @@
       "signUp": "계정이 생성되었습니다! 이메일을 확인해 인증을 완료해 주세요.",
       "signIn": "환영합니다!"
     }
+  },
+  "search": {
+    "title": "검색",
+    "metaTitle": "검색 — RAVI",
+    "metaTitleWithQuery": "\"{query}\" 검색 결과 — RAVI",
+    "placeholder": "상품명을 검색해보세요",
+    "resultsTitle": "\"{query}\" 검색 결과",
+    "resultCount": "{count}개 상품",
+    "sortRelevance": "관련도순"
   }
 }

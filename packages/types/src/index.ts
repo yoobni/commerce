@@ -539,6 +539,23 @@ export interface AuditLog {
   created_at: ISODateTime;
 }
 
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+export interface SearchProductsParams {
+  query: string;
+  locale?: Locale;
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular' | 'relevance';
+  page?: number;
+  per_page?: number;
+}
+
+export interface SearchSuggestion {
+  product_id: UUID;
+  name: string;
+  slug: string;
+  thumbnail_url: string;
+}
+
 // ─── API Response Wrappers ────────────────────────────────────────────────────
 
 export interface PaginatedResponse<T> {
