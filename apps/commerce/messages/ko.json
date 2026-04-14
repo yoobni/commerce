@@ -119,6 +119,31 @@
       "action": "쇼핑하기"
     }
   },
+  "plp": {
+    "title": "상품",
+    "all": "전체",
+    "sortNewest": "최신순",
+    "sortPriceAsc": "낮은 가격순",
+    "sortPriceDesc": "높은 가격순",
+    "sortPopular": "인기순",
+    "size": "사이즈",
+    "color": "색상",
+    "price": "가격",
+    "minPrice": "최소 금액",
+    "maxPrice": "최대 금액",
+    "clearFilters": "필터 초기화",
+    "results": "{count}개 상품",
+    "noResults": "조건에 맞는 상품이 없습니다",
+    "noResultsHint": "필터를 변경해 보세요",
+    "filterTitle": "필터",
+    "showFilters": "필터 보기",
+    "hideFilters": "필터 닫기",
+    "prevPage": "이전",
+    "nextPage": "다음",
+    "pageOf": "{page} / {total}",
+    "new": "신상품",
+    "featured": "추천"
+  },
   "auth": {
     "signIn": "로그인",
     "signOut": "로그아웃",

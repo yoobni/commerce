@@ -1,18 +1,34 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-// TODO: Replace with Supabase session check once Auth is wired up
 const PUBLIC_PATHS = ['/login'];
+const COOKIE_NAME = 'admin_session';
 
-export function middleware(request: NextRequest) {
+function getSecret(): Uint8Array {
+  const secret = process.env.ADMIN_JWT_SECRET ?? '';
+  return new TextEncoder().encode(secret);
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public paths
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  // Placeholder: allow all for now — replace with real session check
-  return NextResponse.next();
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  try {
+    await jwtVerify(token, getSecret());
+    return NextResponse.next();
+  } catch {
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete(COOKIE_NAME);
+    return response;
+  }
 }
 
 export const config = {

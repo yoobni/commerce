@@ -13,6 +13,10 @@ export interface ProductListParams {
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular';
   page?: number;
   per_page?: number;
+  size_labels?: string[];
+  colors?: string[];
+  min_price_krw?: number;
+  max_price_krw?: number;
 }
 
 const SORT_MAP: Record<NonNullable<ProductListParams['sort']>, { column: string; ascending: boolean }> = {
@@ -32,6 +36,10 @@ export async function listProducts(
     sort = 'newest',
     page = 1,
     per_page = 20,
+    size_labels,
+    colors,
+    min_price_krw,
+    max_price_krw,
   } = params;
 
   const supabase = await createClient();
@@ -40,13 +48,56 @@ export async function listProducts(
   // Resolve category_id from slug upfront to avoid subquery complexity
   let categoryId: string | undefined;
   if (category_slug) {
-    const { data: cat } = await supabase
-      .from('categories')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: cat } = await (supabase.from('categories') as any)
       .select('id')
       .eq('slug', category_slug)
       .single();
     if (!cat) return { data: [], total: 0, page, per_page, has_next: false };
     categoryId = (cat as { id: string }).id;
+  }
+
+  // Resolve product_ids that match size filter
+  let sizeFilteredIds: string[] | undefined;
+  if (size_labels && size_labels.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: sizeRows } = await (supabase.from('sizes') as any)
+      .select('id')
+      .in('label', size_labels);
+    const sizeIds = ((sizeRows ?? []) as { id: string }[]).map((r) => r.id);
+    if (sizeIds.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: optRows } = await (supabase.from('product_options') as any)
+      .select('product_id')
+      .in('size_id', sizeIds)
+      .eq('is_active', true);
+    const ids = [...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id))];
+    if (ids.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
+    sizeFilteredIds = ids;
+  }
+
+  // Resolve product_ids that match color filter
+  let colorFilteredIds: string[] | undefined;
+  if (colors && colors.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: optRows } = await (supabase.from('product_options') as any)
+      .select('product_id')
+      .in('color', colors)
+      .eq('is_active', true);
+    const ids = [...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id))];
+    if (ids.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
+    colorFilteredIds = ids;
+  }
+
+  // Intersect size + color filtered IDs if both applied
+  let combinedIds: string[] | undefined;
+  if (sizeFilteredIds && colorFilteredIds) {
+    const set = new Set(colorFilteredIds);
+    combinedIds = sizeFilteredIds.filter((id) => set.has(id));
+    if (combinedIds.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
+  } else {
+    combinedIds = sizeFilteredIds ?? colorFilteredIds;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,6 +107,9 @@ export async function listProducts(
 
   if (categoryId) query = query.eq('category_id', categoryId);
   if (featured !== undefined) query = query.eq('is_featured', featured);
+  if (combinedIds) query = query.in('id', combinedIds);
+  if (min_price_krw !== undefined) query = query.gte('base_price_krw', min_price_krw);
+  if (max_price_krw !== undefined) query = query.lte('base_price_krw', max_price_krw);
 
   const { column, ascending } = SORT_MAP[sort];
   query = query.order(column, { ascending }).range(offset, offset + per_page - 1);
@@ -110,4 +164,31 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
   const result = await listProducts({ featured: true, per_page: limit });
   return result.data;
+}
+
+export interface ColorOption {
+  name: string;
+  hex: string;
+}
+
+/** Returns unique colors available across active product options. */
+export async function listAvailableColors(): Promise<ColorOption[]> {
+  const supabase = await createClient();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('product_options') as any)
+    .select('color, color_hex')
+    .eq('is_active', true);
+
+  if (error || !data) return [];
+
+  const seen = new Set<string>();
+  const colors: ColorOption[] = [];
+  for (const row of data as { color: string; color_hex: string | null }[]) {
+    if (!seen.has(row.color)) {
+      seen.add(row.color);
+      colors.push({ name: row.color, hex: row.color_hex ?? '#cccccc' });
+    }
+  }
+  return colors;
 }
