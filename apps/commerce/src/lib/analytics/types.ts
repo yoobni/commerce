@@ -10,6 +10,12 @@ export type DeviceType = 'mobile' | 'tablet' | 'desktop';
 export type UserType = 'guest' | 'member' | 'first_purchase' | 'returning';
 export type Locale = 'ko' | 'en' | 'ja' | 'de';
 export type Currency = 'KRW' | 'USD' | 'JPY' | 'EUR';
+/** Mirrors board_type ENUM in supabase/migrations/20260414000001_enums.sql */
+export type BoardType = 'DAILY' | 'STYLE' | 'TIP' | 'QUESTION';
+/** Mirrors like_target_type ENUM */
+export type LikeTargetType = 'POST' | 'COMMENT';
+/** Mirrors report_reason ENUM */
+export type ReportReason = 'SPAM' | 'HATE' | 'SEXUAL' | 'VIOLENCE' | 'ETC';
 
 /** Injected automatically on every event — do not pass manually */
 export interface GlobalEventProperties {
@@ -165,14 +171,19 @@ export interface EventMap {
   };
 
   // ─── Wishlist / Coupon / Points ───────────────────────────────────────
-  wishlist_add: {
+  /**
+   * Single unified event for both add and remove.
+   * source_position: 1-based index within the list (null when source is not a list, e.g. PDP)
+   * source_section:  where the toggle was triggered from
+   */
+  wishlist_toggled: {
     product_id: string;
     product_name: string;
     price: number;
     category: string;
-  };
-  wishlist_remove: {
-    product_id: string;
+    action: 'add' | 'remove';
+    source_position: number | null;
+    source_section: 'plp' | 'pdp' | 'wishlist' | 'cart';
   };
   coupon_apply: {
     coupon_code: string;
@@ -207,19 +218,114 @@ export interface EventMap {
     product_id: string;
     review_id: string;
   };
+
+  /**
+   * 게시판 목록 진입 (board_type별 탭 전환 포함)
+   * KPI: 게시판별 DAU, 세션당 게시판 체류 비율
+   */
+  community_board_view: {
+    board_type: BoardType;
+    sort_by: 'latest' | 'popular' | null;
+    page_number: number;
+  };
+
+  /**
+   * 게시글 작성 완료
+   * KPI: 게시판별 글 생성율, 사진/태그 첨부율
+   */
   community_post_create: {
-    category: string;
+    board_type: BoardType;
     has_photo: boolean;
+    has_text: boolean;
     product_tag_count: number;
   };
+
+  /**
+   * 게시글 수정 완료
+   * KPI: 수정율, 수정 필드 분포 (콘텐츠 품질 지표)
+   */
+  community_post_edit: {
+    post_id: string;
+    board_type: BoardType;
+    fields_changed: string[];
+  };
+
+  /**
+   * 게시글 삭제
+   * KPI: 자진 삭제율 (신고 대비 자진 삭제 비율)
+   */
+  community_post_delete: {
+    post_id: string;
+    board_type: BoardType;
+  };
+
+  /**
+   * 게시글 상세 조회
+   * KPI: 게시판별 게시글 조회수, 커뮤니티→상품 유입률
+   */
   community_post_view: {
     post_id: string;
-    category: string;
+    board_type: BoardType;
     from_product_page: boolean;
+    like_count: number;
+    comment_count: number;
+    is_author: boolean;
   };
+
+  /**
+   * 댓글/대댓글 작성 완료
+   * KPI: 게시글당 댓글수, 대댓글 비율 (토론 깊이)
+   */
+  community_comment_create: {
+    post_id: string;
+    comment_id: string;
+    board_type: BoardType;
+    is_reply: boolean;
+  };
+
+  /**
+   * 댓글 삭제
+   * KPI: 댓글 자진 삭제율
+   */
+  community_comment_delete: {
+    post_id: string;
+    comment_id: string;
+    board_type: BoardType;
+  };
+
+  /**
+   * 좋아요 토글 (POST/COMMENT 공통)
+   * KPI: 게시판별 좋아요율, 댓글 vs 게시글 좋아요 비율
+   */
+  community_like_toggle: {
+    target_type: LikeTargetType;
+    target_id: string;
+    post_id: string;
+    board_type: BoardType;
+    action: 'like' | 'unlike';
+  };
+
+  /**
+   * 신고 제출
+   * KPI: 신고율, 신고 사유 분포 (모더레이션 부하 지표)
+   * 주의: post_id는 COMMENT 신고 시에도 상위 게시글 ID를 포함 (컨텍스트 보존)
+   */
+  community_report_submit: {
+    target_type: LikeTargetType;
+    target_id: string;
+    post_id: string;
+    board_type: BoardType;
+    reason: ReportReason;
+  };
+
+  /**
+   * 커뮤니티 게시글 내 상품 태그 클릭 → PDP 이동
+   * KPI: 커뮤니티 → 커머스 전환율 (핵심 퍼널 연결 지표)
+   */
   community_to_product_click: {
     post_id: string;
     product_id: string;
+    board_type: BoardType;
   };
 }
 

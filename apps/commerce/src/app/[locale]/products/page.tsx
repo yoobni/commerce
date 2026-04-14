@@ -21,6 +21,8 @@ import { listProducts } from '@/lib/queries/products';
 import { listCategories } from '@/lib/queries/categories';
 import { listSizes } from '@/lib/queries/sizes';
 import { listAvailableColors } from '@/lib/queries/products';
+import { getWishlistProductIds } from '@/lib/queries/wishlist';
+import { createClient } from '@/lib/supabase/server';
 import type { ProductListParams } from '@/lib/queries/products';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -99,11 +101,16 @@ export default async function ProductsPage({ params, searchParams }: Props) {
     ...(maxPrice !== undefined && { max_price_krw: maxPrice }),
   };
 
-  const [categoriesData, sizesData, colorsData, productsData] = await Promise.all([
+  // Fetch session user to conditionally load wishlist state
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [categoriesData, sizesData, colorsData, productsData, wishlistIds] = await Promise.all([
     listCategories(),
     listSizes(),
     listAvailableColors(),
     listProducts(queryParams),
+    user ? getWishlistProductIds(user.id) : Promise.resolve(new Set<string>()),
   ]);
 
   const { data: products, total } = productsData;
@@ -261,6 +268,8 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                         newLabel={t('new')}
                         featuredLabel={t('featured')}
                         outOfStockLabel={tProduct('outOfStock')}
+                        isWishlisted={wishlistIds.has(product.id)}
+                        sourceSection="plp"
                       />
                     </li>
                   );

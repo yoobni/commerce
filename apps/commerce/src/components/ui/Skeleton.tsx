@@ -85,6 +85,36 @@ export function CommunityCardSkeleton() {
   );
 }
 
+// ─── PDP Skeleton ─────────────────────────────────────────────────────────────
+
+export function PDPSkeleton() {
+  return (
+    <div className="lg:grid lg:grid-cols-2 lg:gap-12" aria-hidden="true">
+      {/* Gallery */}
+      <div className="flex flex-col gap-3 md:flex-row-reverse md:gap-4">
+        <Skeleton className="flex-1 aspect-square rounded-lg" />
+        <div className="flex flex-row gap-2 md:flex-col md:w-[72px]">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="shrink-0 w-16 h-16 md:w-full md:h-[72px] rounded" />
+          ))}
+        </div>
+      </div>
+      {/* Info */}
+      <div className="mt-8 lg:mt-0 space-y-4">
+        <Skeleton className="h-3 w-20 rounded" />
+        <Skeleton className="h-8 w-4/5 rounded" />
+        <Skeleton className="h-8 w-3/5 rounded" />
+        <Skeleton className="h-8 w-28 rounded" />
+        <Skeleton className="h-11 w-full rounded mt-4" />
+        <div className="flex gap-3">
+          <Skeleton className="h-[52px] flex-1 rounded" />
+          <Skeleton className="h-[52px] w-[52px] rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Text Skeleton ────────────────────────────────────────────────────────────
 
 export function TextSkeleton({ lines = 3 }: { lines?: number }) {

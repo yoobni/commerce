@@ -69,7 +69,29 @@
     "description": "Beschreibung",
     "details": "Details",
     "reviews": "Bewertungen",
-    "relatedProducts": "Das könnte dir auch gefallen"
+    "relatedProducts": "Das könnte dir auch gefallen",
+    "new": "Neu",
+    "featured": "Empfohlen"
+  },
+  "pdp": {
+    "breadcrumbHome": "Startseite",
+    "selectColor": "Farbe wählen",
+    "inStock": "Auf Lager",
+    "lowStock": "Nur noch {count} verfügbar",
+    "addingToCart": "Wird hinzugefügt...",
+    "removeFromWishlist": "Von Wunschliste entfernen",
+    "selectOptionFirst": "Bitte Farbe und Größe auswählen",
+    "errorAddToCart": "Fehler beim Hinzufügen. Bitte erneut versuchen.",
+    "loginRequired": "Bitte melde dich an, um Artikel zu merken.",
+    "sizeGuideTitle": "Größentabelle",
+    "sizeLabel": "Größe",
+    "chest": "Brustumfang (cm)",
+    "backLength": "Rückenlänge (cm)",
+    "neck": "Halsumfang (cm)",
+    "weight": "Gewicht (kg)",
+    "breedExamples": "Passende Rassen",
+    "material": "Material",
+    "careInstruction": "Pflege"
   },
   "cart": {
     "title": "Warenkorb",

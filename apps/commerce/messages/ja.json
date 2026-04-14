@@ -69,7 +69,29 @@
     "description": "商品説明",
     "details": "詳細情報",
     "reviews": "レビュー",
-    "relatedProducts": "こちらもおすすめ"
+    "relatedProducts": "こちらもおすすめ",
+    "new": "新着",
+    "featured": "おすすめ"
+  },
+  "pdp": {
+    "breadcrumbHome": "ホーム",
+    "selectColor": "カラーを選択",
+    "inStock": "在庫あり",
+    "lowStock": "残り{count}点",
+    "addingToCart": "追加中...",
+    "removeFromWishlist": "お気に入りを解除",
+    "selectOptionFirst": "カラーとサイズを選択してください",
+    "errorAddToCart": "カートへの追加に失敗しました。もう一度お試しください。",
+    "loginRequired": "お気に入りに追加するにはログインが必要です。",
+    "sizeGuideTitle": "サイズガイド",
+    "sizeLabel": "サイズ",
+    "chest": "胸囲 (cm)",
+    "backLength": "背丈 (cm)",
+    "neck": "首回り (cm)",
+    "weight": "体重 (kg)",
+    "breedExamples": "適合犬種",
+    "material": "素材",
+    "careInstruction": "お手入れ"
   },
   "cart": {
     "title": "カート",

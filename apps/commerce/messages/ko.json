@@ -69,7 +69,29 @@
     "description": "상품 설명",
     "details": "상세 정보",
     "reviews": "리뷰",
-    "relatedProducts": "이런 상품은 어떠세요"
+    "relatedProducts": "이런 상품은 어떠세요",
+    "new": "신상품",
+    "featured": "추천"
+  },
+  "pdp": {
+    "breadcrumbHome": "홈",
+    "selectColor": "색상 선택",
+    "inStock": "재고 있음",
+    "lowStock": "재고 {count}개 남음",
+    "addingToCart": "담는 중...",
+    "removeFromWishlist": "찜 취소",
+    "selectOptionFirst": "색상과 사이즈를 선택해 주세요",
+    "errorAddToCart": "장바구니 담기에 실패했습니다. 다시 시도해 주세요.",
+    "loginRequired": "찜하기는 로그인이 필요합니다.",
+    "sizeGuideTitle": "사이즈 가이드",
+    "sizeLabel": "사이즈",
+    "chest": "가슴둘레 (cm)",
+    "backLength": "등 길이 (cm)",
+    "neck": "목둘레 (cm)",
+    "weight": "체중 (kg)",
+    "breedExamples": "해당 견종",
+    "material": "소재",
+    "careInstruction": "세탁 방법"
   },
   "cart": {
     "title": "장바구니",

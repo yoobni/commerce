@@ -417,6 +417,8 @@ export interface Wishlist {
   id: UUID;
   user_id: UUID;
   product_id: UUID;
+  /** Timestamp of the most recent "add" operation — updated on each re-add */
+  wishlist_added_at: ISODateTime;
   created_at: ISODateTime;
   /** Resolved relation */
   product?: Product;

@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { cn } from '@/lib/cn';
 import { formatPrice, getProductName, isWithinDays } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
+import { WishlistButton } from './WishlistButton';
 import type { Product, Category, Locale } from '@commerce/types';
 
 // ─── Star rating ──────────────────────────────────────────────────────────────
@@ -73,6 +74,10 @@ export interface ProductCardProps {
   newLabel: string;
   featuredLabel: string;
   outOfStockLabel: string;
+  /** Whether this product is in the current user's wishlist (server-fetched) */
+  isWishlisted?: boolean;
+  /** Which UI section this card is rendered in — for analytics */
+  sourceSection?: 'plp' | 'pdp' | 'wishlist' | 'cart';
 }
 
 export function ProductCard({
@@ -84,6 +89,8 @@ export function ProductCard({
   newLabel,
   featuredLabel,
   outOfStockLabel,
+  isWishlisted = false,
+  sourceSection = 'plp',
 }: ProductCardProps) {
   const track = useTrack();
 
@@ -133,6 +140,18 @@ export function ProductCard({
           {isSoldOut && <Badge label={outOfStockLabel} variant="soldout" />}
           {!isSoldOut && isNew && <Badge label={newLabel} variant="new" />}
           {!isSoldOut && !isNew && product.is_featured && <Badge label={featuredLabel} variant="featured" />}
+
+          {/* Wishlist toggle — top-right corner */}
+          <WishlistButton
+            productId={product.id}
+            productName={name}
+            price={product.base_price_krw}
+            category={category.slug}
+            isWishlisted={isWishlisted}
+            sourcePosition={position}
+            sourceSection={sourceSection}
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity duration-150"
+          />
         </div>
 
         {/* Info */}

@@ -69,7 +69,29 @@
     "description": "Description",
     "details": "Details",
     "reviews": "Reviews",
-    "relatedProducts": "You might also like"
+    "relatedProducts": "You might also like",
+    "new": "New",
+    "featured": "Featured"
+  },
+  "pdp": {
+    "breadcrumbHome": "Home",
+    "selectColor": "Select Color",
+    "inStock": "In Stock",
+    "lowStock": "Only {count} left",
+    "addingToCart": "Adding...",
+    "removeFromWishlist": "Remove from Wishlist",
+    "selectOptionFirst": "Please select color and size",
+    "errorAddToCart": "Failed to add to cart. Please try again.",
+    "loginRequired": "Please sign in to save to wishlist.",
+    "sizeGuideTitle": "Size Guide",
+    "sizeLabel": "Size",
+    "chest": "Chest (cm)",
+    "backLength": "Back Length (cm)",
+    "neck": "Neck (cm)",
+    "weight": "Weight (kg)",
+    "breedExamples": "Breed Examples",
+    "material": "Material",
+    "careInstruction": "Care"
   },
   "cart": {
     "title": "Shopping Cart",

@@ -203,17 +203,29 @@
 
 ## 9. 이벤트 목록 — 리뷰/커뮤니티
 
+### 9-1. 리뷰
+
 | 이벤트 | 설명 | 발화 시점 | 고유 속성 |
 |--------|------|-----------|-----------|
-| `review_create` | 리뷰 작성 완료 | 리뷰 제출 | `product_id`, `rating`, `has_photo`: boolean, `has_size_info`: boolean, `review_length`: number |
-| `review_view` | 리뷰 상세 조회 | 개별 리뷰 클릭/확장 | `product_id`, `review_id`, `rating` |
-| `review_helpful` | 리뷰 도움됨 | 도움됨 버튼 클릭 | `review_id`, `product_id` |
-| `community_post_create` | 커뮤니티 게시물 작성 | 게시물 제출 | `post_type`: `"photo"` \| `"question"` \| `"tip"`, `has_product_tag`: boolean, `tagged_product_ids`: array |
-| `community_post_view` | 커뮤니티 게시물 조회 | 게시물 상세 진입 | `post_id`, `post_type`, `has_product_tag`: boolean |
-| `community_post_like` | 게시물 좋아요 | 좋아요 클릭 | `post_id` |
-| `community_comment_create` | 댓글 작성 | 댓글 제출 | `post_id`, `comment_length`: number |
-| `community_to_product` | 커뮤니티→상품 이동 | 게시물 내 상품 태그/링크 클릭 | `post_id`, `product_id`, `click_source`: `"tag"` \| `"link"` \| `"review"` |
-| `community_feed_view` | 커뮤니티 피드 진입 | 피드 페이지 로드 | `feed_type`: `"all"` \| `"popular"` \| `"following"` |
+| `review_create` | 리뷰 작성 완료 | 리뷰 제출 | `product_id`, `rating`, `has_photo`: boolean, `has_text`: boolean, `size_purchased`: string \| null |
+| `review_view` | 리뷰 상세 조회 | 개별 리뷰 클릭/확장 | `product_id`, `review_id` |
+
+### 9-2. 커뮤니티 게시판 (C11/D07)
+
+`board_type` ENUM: `"DAILY"` \| `"STYLE"` \| `"TIP"` \| `"QUESTION"`
+
+| 이벤트 | 설명 | 발화 시점 | 고유 속성 |
+|--------|------|-----------|-----------|
+| `community_board_view` | 게시판 목록 진입 (탭 전환 포함) | 게시판 페이지 로드 / 탭 클릭 | `board_type`, `sort_by`: `"latest"` \| `"popular"` \| null, `page_number` |
+| `community_post_create` | 게시글 작성 완료 | 게시글 제출 | `board_type`, `has_photo`: boolean, `has_text`: boolean, `product_tag_count`: number |
+| `community_post_edit` | 게시글 수정 완료 | 수정 제출 | `post_id`, `board_type`, `fields_changed`: string[] |
+| `community_post_delete` | 게시글 삭제 | 삭제 확인 | `post_id`, `board_type` |
+| `community_post_view` | 게시글 상세 조회 | 게시글 상세 진입 | `post_id`, `board_type`, `from_product_page`: boolean, `like_count`: number, `comment_count`: number, `is_author`: boolean |
+| `community_comment_create` | 댓글/대댓글 작성 완료 | 댓글 제출 | `post_id`, `comment_id`, `board_type`, `is_reply`: boolean |
+| `community_comment_delete` | 댓글 삭제 | 삭제 확인 | `post_id`, `comment_id`, `board_type` |
+| `community_like_toggle` | 좋아요 토글 (게시글/댓글) | 좋아요 버튼 클릭 | `target_type`: `"POST"` \| `"COMMENT"`, `target_id`, `post_id`, `board_type`, `action`: `"like"` \| `"unlike"` |
+| `community_report_submit` | 신고 제출 | 신고 폼 제출 | `target_type`: `"POST"` \| `"COMMENT"`, `target_id`, `post_id`, `board_type`, `reason`: `"SPAM"` \| `"HATE"` \| `"SEXUAL"` \| `"VIOLENCE"` \| `"ETC"` |
+| `community_to_product_click` | 커뮤니티 내 상품 태그 클릭 → PDP | 상품 태그/링크 클릭 | `post_id`, `product_id`, `board_type` |
 
 ---
 
@@ -306,16 +318,51 @@
 | **포인트 사용률** | 구매 중 포인트 사용 비율 | — |
 | **캠페인별 ROI** | 캠페인별 매출/비용 | utm_campaign |
 
-### 13-4. 커뮤니티 KPI
+### 13-4. 커뮤니티 KPI (C11/D07 기준)
+
+#### 참여 지표
+
+| KPI | 정의 | 계산 | 세분화 기준 |
+|-----|------|------|-------------|
+| **게시판별 DAU** | 게시판 유형별 일별 활성 사용자 | DISTINCT user_id per `community_board_view` | board_type |
+| **게시글 생성율** | 조회 대비 게시글 작성 비율 | `community_post_create` / `community_board_view` | board_type |
+| **댓글 참여율** | 게시글 조회 대비 댓글 작성 비율 | `community_comment_create` / `community_post_view` | board_type |
+| **좋아요율** | 조회 대비 좋아요 비율 | `community_like_toggle(action=like)` / `community_post_view` | board_type, target_type |
+| **대댓글 비율** | 전체 댓글 중 대댓글 비율 | is_reply=true / 전체 `community_comment_create` | board_type |
+| **사진 첨부율** | 게시글 중 사진 포함 비율 | has_photo=true / `community_post_create` | board_type |
+| **상품 태그 첨부율** | 게시글 중 상품 태그 포함 비율 | product_tag_count > 0 / `community_post_create` | board_type |
+
+#### 커머스 연결 지표
 
 | KPI | 정의 | 계산 |
 |-----|------|------|
-| **커뮤니티→상품 전환율** | 커뮤니티 경유 상세 진입 비율 | community_to_product / community_post_view |
+| **커뮤니티→상품 CTR** | 게시글 조회 대비 상품 태그 클릭 비율 | `community_to_product_click` / `community_post_view` |
 | **커뮤니티 경유 구매율** | 커뮤니티 inflow 구매 비율 | community_inflow purchase / 전체 purchase |
 | **커뮤니티 경유 AOV** | 커뮤니티 경유 구매의 평균 주문금액 | community_inflow AOV vs non-inflow AOV |
-| **게시물 생성 수** | 일별 게시물 수 | COUNT(`community_post_create`) |
+| **STYLE 게시판 구매 기여율** | board_type=STYLE 경유 purchase 비율 | STYLE board inflow purchase / 전체 purchase |
+
+#### 모더레이션 지표
+
+| KPI | 정의 | 계산 |
+|-----|------|------|
+| **신고율** | 게시글 대비 신고 건수 | `community_report_submit` / `community_post_view` |
+| **신고 사유 분포** | 사유별 신고 비율 | COUNT by reason / 전체 신고 |
+| **자진 삭제율** | 신고 없이 삭제된 게시글 비율 | `community_post_delete` without report / 전체 delete |
+
+#### 리뷰 지표
+
+| KPI | 정의 | 계산 |
+|-----|------|------|
 | **리뷰 작성률** | 구매 대비 리뷰 작성 비율 | review_create / purchase |
 | **포토 리뷰 비율** | 전체 리뷰 중 포토 리뷰 | has_photo review / 전체 review |
+
+#### 실험 포인트 (A/B 테스트 후보)
+
+| 실험 | 측정 지표 |
+|------|-----------|
+| 게시판 정렬 기본값: latest vs popular | `community_post_view` 수, `community_to_product_click` CTR |
+| 상품 태그 입력 UX 개선 (자동완성 등) | `product_tag_count > 0` 비율 |
+| 댓글 입력창 위치 (하단 고정 vs 스크롤) | `community_comment_create` 비율 |
 
 ### 13-5. 상품 KPI
 
