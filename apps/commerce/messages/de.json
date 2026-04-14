@@ -14,6 +14,7 @@
     "viewAll": "Alle anzeigen"
   },
   "nav": {
+    "home": "Startseite",
     "shop": "Shop",
     "collections": "Kollektionen",
     "community": "Community",
@@ -21,7 +22,12 @@
     "search": "Suche",
     "cart": "Warenkorb",
     "account": "Konto",
-    "wishlist": "Wunschliste"
+    "wishlist": "Wunschliste",
+    "menu": "Menü",
+    "closeMenu": "Menü schließen",
+    "switchLanguage": "Sprache wechseln",
+    "signIn": "Anmelden",
+    "myPage": "Mein Konto"
   },
   "error": {
     "title": "Ein Fehler ist aufgetreten",
@@ -118,6 +124,24 @@
       "description": "Kaufe diesen Artikel und hinterlasse eine Bewertung.",
       "action": "Jetzt einkaufen"
     }
+  },
+  "footer": {
+    "tagline": "Premium-Mode für große Hunde.",
+    "shop": "Shop",
+    "collections": "Kollektionen",
+    "sizeGuide": "Größentabelle",
+    "about": "Über uns",
+    "community": "Community",
+    "contact": "Kontakt",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "copyright": "© 2025 RAVI. Alle Rechte vorbehalten."
+  },
+  "languages": {
+    "en": "English",
+    "ko": "한국어",
+    "ja": "日本語",
+    "de": "Deutsch"
   },
   "auth": {
     "signIn": "Anmelden",

@@ -14,6 +14,7 @@
     "viewAll": "View All"
   },
   "nav": {
+    "home": "Home",
     "shop": "Shop",
     "collections": "Collections",
     "community": "Community",
@@ -21,7 +22,12 @@
     "search": "Search",
     "cart": "Cart",
     "account": "Account",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "switchLanguage": "Switch language",
+    "signIn": "Sign In",
+    "myPage": "My page"
   },
   "error": {
     "title": "Something went wrong",
@@ -118,6 +124,24 @@
       "description": "Purchase this item to leave a review.",
       "action": "Shop Now"
     }
+  },
+  "footer": {
+    "tagline": "Premium apparel for large dogs.",
+    "shop": "Shop",
+    "collections": "Collections",
+    "sizeGuide": "Size Guide",
+    "about": "About",
+    "community": "Community",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© 2025 RAVI. All rights reserved."
+  },
+  "languages": {
+    "en": "English",
+    "ko": "한국어",
+    "ja": "日本語",
+    "de": "Deutsch"
   },
   "auth": {
     "signIn": "Sign In",

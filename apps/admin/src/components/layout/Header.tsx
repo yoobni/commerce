@@ -1,5 +1,7 @@
 'use client';
 
+import { logout } from '@/lib/auth/actions';
+
 interface HeaderProps {
   onMenuToggle: () => void;
   adminName?: string;
@@ -8,11 +10,6 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle, adminName = '관리자', adminEmail }: HeaderProps) {
   const initials = adminName.slice(0, 2).toUpperCase();
-
-  const handleLogout = async () => {
-    // TODO: Supabase Auth signOut 연결 (Auth 태스크 완료 후)
-    window.location.href = '/login';
-  };
 
   return (
     <header
@@ -52,16 +49,18 @@ export function Header({ onMenuToggle, adminName = '관리자', adminEmail }: He
         </div>
 
         {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-red-50 rounded-md transition-colors"
-          aria-label="로그아웃"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span className="hidden sm:inline">로그아웃</span>
-        </button>
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-red-50 rounded-md transition-colors"
+            aria-label="로그아웃"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+              <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="hidden sm:inline">로그아웃</span>
+          </button>
+        </form>
       </div>
     </header>
   );

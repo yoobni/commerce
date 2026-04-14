@@ -14,6 +14,7 @@
     "viewAll": "すべて見る"
   },
   "nav": {
+    "home": "ホーム",
     "shop": "ショップ",
     "collections": "コレクション",
     "community": "コミュニティ",
@@ -21,7 +22,12 @@
     "search": "検索",
     "cart": "カート",
     "account": "アカウント",
-    "wishlist": "お気に入り"
+    "wishlist": "お気に入り",
+    "menu": "メニュー",
+    "closeMenu": "メニューを閉じる",
+    "switchLanguage": "言語を切り替える",
+    "signIn": "ログイン",
+    "myPage": "マイページ"
   },
   "error": {
     "title": "エラーが発生しました",
@@ -118,6 +124,24 @@
       "description": "購入後にレビューを書いてください。",
       "action": "ショッピングする"
     }
+  },
+  "footer": {
+    "tagline": "大型犬のためのプレミアムウェア。",
+    "shop": "ショップ",
+    "collections": "コレクション",
+    "sizeGuide": "サイズガイド",
+    "about": "について",
+    "community": "コミュニティ",
+    "contact": "お問い合わせ",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "copyright": "© 2025 RAVI. All rights reserved."
+  },
+  "languages": {
+    "en": "English",
+    "ko": "한국어",
+    "ja": "日本語",
+    "de": "Deutsch"
   },
   "auth": {
     "signIn": "ログイン",

@@ -7,9 +7,11 @@ import { Header } from './Header';
 
 interface DashboardShellProps {
   children: React.ReactNode;
+  adminName?: string;
+  adminEmail?: string;
 }
 
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ children, adminName, adminEmail }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
@@ -78,7 +80,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
       {/* Main area — lg:ml-60 matches --sidebar-width: 240px */}
       <div className="flex flex-col flex-1 lg:ml-60">
 
-        <Header onMenuToggle={handleToggle} />
+        <Header onMenuToggle={handleToggle} adminName={adminName} adminEmail={adminEmail} />
 
         <main className="flex-1 p-4 md:p-6">
           {children}
