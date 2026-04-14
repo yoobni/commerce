@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "siteName": "RAVI",
+    "title": "RAVI — Premium Large Dog Apparel",
+    "description": "Thoughtfully designed apparel for large dogs. Premium quality, perfect fit."
+  },
+  "home": {
+    "headline": "Made for the Big Ones",
+    "subheadline": "Premium apparel designed specifically for large breeds.",
+    "shopNow": "Shop Now",
+    "newArrivals": "New Arrivals",
+    "featuredCollection": "Featured Collection",
+    "community": "Community",
+    "viewAll": "View All"
+  },
+  "nav": {
+    "shop": "Shop",
+    "collections": "Collections",
+    "community": "Community",
+    "about": "About",
+    "search": "Search",
+    "cart": "Cart",
+    "account": "Account",
+    "wishlist": "Wishlist"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "We encountered an unexpected error. Please try again.",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Back to home"
+  },
+  "common": {
+    "loading": "Loading",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "clear": "Clear",
+    "apply": "Apply",
+    "required": "Required",
+    "optional": "Optional",
+    "currency": {
+      "usd": "USD",
+      "krw": "KRW",
+      "jpy": "JPY",
+      "eur": "EUR"
+    }
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "addToWishlist": "Add to Wishlist",
+    "outOfStock": "Out of Stock",
+    "sizeGuide": "Size Guide",
+    "selectSize": "Select Size",
+    "shipping": "Shipping",
+    "returns": "Returns",
+    "description": "Description",
+    "details": "Details",
+    "reviews": "Reviews",
+    "relatedProducts": "You might also like"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "quantity": "Qty"
+  },
+  "empty": {
+    "cart": {
+      "title": "Your cart is empty",
+      "description": "Add items to get started.",
+      "action": "Start Shopping"
+    },
+    "wishlist": {
+      "title": "Your wishlist is empty",
+      "description": "Save items you love.",
+      "action": "Explore Products"
+    },
+    "orders": {
+      "title": "No orders yet",
+      "description": "Your order history will appear here.",
+      "action": "Browse Products"
+    },
+    "search": {
+      "title": "No results found",
+      "description": "Try different keywords or browse all products.",
+      "action": "Browse All"
+    },
+    "filter": {
+      "title": "No products match",
+      "description": "Try removing some filters.",
+      "action": "Reset Filters"
+    },
+    "community": {
+      "title": "No posts yet",
+      "description": "Be the first to share your experience.",
+      "action": "Write a Post"
+    },
+    "reviews": {
+      "title": "No reviews yet",
+      "description": "Purchase this item to leave a review.",
+      "action": "Shop Now"
+    }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signUp": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google"
+  }
+}

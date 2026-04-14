@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "siteName": "RAVI",
+    "title": "RAVI — Premium-Kleidung für große Hunde",
+    "description": "Sorgfältig gestaltete Kleidung für große Hunde. Premiumqualität, perfekter Sitz."
+  },
+  "home": {
+    "headline": "Für die Großen",
+    "subheadline": "Premium-Mode, speziell für große Hunderassen entworfen.",
+    "shopNow": "Jetzt einkaufen",
+    "newArrivals": "Neuheiten",
+    "featuredCollection": "Empfohlene Kollektion",
+    "community": "Community",
+    "viewAll": "Alle anzeigen"
+  },
+  "nav": {
+    "shop": "Shop",
+    "collections": "Kollektionen",
+    "community": "Community",
+    "about": "Über uns",
+    "search": "Suche",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "wishlist": "Wunschliste"
+  },
+  "error": {
+    "title": "Ein Fehler ist aufgetreten",
+    "description": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
+    "retry": "Erneut versuchen"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "goHome": "Zurück zur Startseite"
+  },
+  "common": {
+    "loading": "Wird geladen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "clear": "Zurücksetzen",
+    "apply": "Anwenden",
+    "required": "Pflichtfeld",
+    "optional": "Optional",
+    "currency": {
+      "usd": "USD",
+      "krw": "KRW",
+      "jpy": "JPY",
+      "eur": "EUR"
+    }
+  },
+  "product": {
+    "addToCart": "In den Warenkorb",
+    "addToWishlist": "Auf die Wunschliste",
+    "outOfStock": "Ausverkauft",
+    "sizeGuide": "Größentabelle",
+    "selectSize": "Größe wählen",
+    "shipping": "Versand",
+    "returns": "Rückgabe",
+    "description": "Beschreibung",
+    "details": "Details",
+    "reviews": "Bewertungen",
+    "relatedProducts": "Das könnte dir auch gefallen"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Dein Warenkorb ist leer",
+    "continueShopping": "Weiter einkaufen",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versandkosten",
+    "total": "Gesamt",
+    "checkout": "Zur Kasse",
+    "remove": "Entfernen",
+    "quantity": "Anz."
+  },
+  "empty": {
+    "cart": {
+      "title": "Dein Warenkorb ist leer",
+      "description": "Füge Artikel hinzu, um loszulegen.",
+      "action": "Einkaufen"
+    },
+    "wishlist": {
+      "title": "Deine Wunschliste ist leer",
+      "description": "Speichere Artikel, die dir gefallen.",
+      "action": "Produkte entdecken"
+    },
+    "orders": {
+      "title": "Noch keine Bestellungen",
+      "description": "Deine Bestellhistorie erscheint hier.",
+      "action": "Produkte ansehen"
+    },
+    "search": {
+      "title": "Keine Ergebnisse gefunden",
+      "description": "Versuche andere Begriffe oder stöbere durch alle Produkte.",
+      "action": "Alle ansehen"
+    },
+    "filter": {
+      "title": "Keine passenden Produkte",
+      "description": "Versuche, Filter zu entfernen.",
+      "action": "Filter zurücksetzen"
+    },
+    "community": {
+      "title": "Noch keine Beiträge",
+      "description": "Sei der Erste, der etwas teilt.",
+      "action": "Beitrag schreiben"
+    },
+    "reviews": {
+      "title": "Noch keine Bewertungen",
+      "description": "Kaufe diesen Artikel und hinterlasse eine Bewertung.",
+      "action": "Jetzt einkaufen"
+    }
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "signUp": "Konto erstellen",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "or": "oder",
+    "continueWithGoogle": "Mit Google fortfahren"
+  }
+}

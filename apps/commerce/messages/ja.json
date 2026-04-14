@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "siteName": "RAVI",
+    "title": "RAVI — 大型犬プレミアムウェア",
+    "description": "大型犬のために丁寧にデザインされたウェア。プレミアム品質、完璧なフィット。"
+  },
+  "home": {
+    "headline": "大きな子たちのために",
+    "subheadline": "大型犬のために特別に設計されたプレミアムウェア。",
+    "shopNow": "ショッピングする",
+    "newArrivals": "新着",
+    "featuredCollection": "おすすめコレクション",
+    "community": "コミュニティ",
+    "viewAll": "すべて見る"
+  },
+  "nav": {
+    "shop": "ショップ",
+    "collections": "コレクション",
+    "community": "コミュニティ",
+    "about": "について",
+    "search": "検索",
+    "cart": "カート",
+    "account": "アカウント",
+    "wishlist": "お気に入り"
+  },
+  "error": {
+    "title": "エラーが発生しました",
+    "description": "予期しないエラーが発生しました。もう一度お試しください。",
+    "retry": "再試行"
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "お探しのページは存在しないか、移動されました。",
+    "goHome": "ホームへ戻る"
+  },
+  "common": {
+    "loading": "読み込み中",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "delete": "削除",
+    "edit": "編集",
+    "search": "検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "clear": "クリア",
+    "apply": "適用",
+    "required": "必須",
+    "optional": "任意",
+    "currency": {
+      "usd": "USD",
+      "krw": "KRW",
+      "jpy": "円",
+      "eur": "EUR"
+    }
+  },
+  "product": {
+    "addToCart": "カートに追加",
+    "addToWishlist": "お気に入りに追加",
+    "outOfStock": "売り切れ",
+    "sizeGuide": "サイズガイド",
+    "selectSize": "サイズを選択",
+    "shipping": "配送",
+    "returns": "返品・交換",
+    "description": "商品説明",
+    "details": "詳細情報",
+    "reviews": "レビュー",
+    "relatedProducts": "こちらもおすすめ"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートは空です",
+    "continueShopping": "ショッピングを続ける",
+    "subtotal": "小計",
+    "shipping": "送料",
+    "total": "合計",
+    "checkout": "レジへ進む",
+    "remove": "削除",
+    "quantity": "数量"
+  },
+  "empty": {
+    "cart": {
+      "title": "カートは空です",
+      "description": "お気に入りの商品を追加してください。",
+      "action": "ショッピングする"
+    },
+    "wishlist": {
+      "title": "お気に入りがありません",
+      "description": "気に入った商品を保存しておきましょう。",
+      "action": "商品を見る"
+    },
+    "orders": {
+      "title": "注文履歴がありません",
+      "description": "注文履歴はここに表示されます。",
+      "action": "商品を見る"
+    },
+    "search": {
+      "title": "検索結果が見つかりません",
+      "description": "別のキーワードで検索するか、全商品をご覧ください。",
+      "action": "全て見る"
+    },
+    "filter": {
+      "title": "条件に合う商品がありません",
+      "description": "フィルターを調整してみてください。",
+      "action": "リセット"
+    },
+    "community": {
+      "title": "まだ投稿がありません",
+      "description": "最初の投稿をしてみましょう。",
+      "action": "投稿する"
+    },
+    "reviews": {
+      "title": "まだレビューがありません",
+      "description": "購入後にレビューを書いてください。",
+      "action": "ショッピングする"
+    }
+  },
+  "auth": {
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "signUp": "アカウント作成",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "or": "または",
+    "continueWithGoogle": "Googleで続ける"
+  }
+}

@@ -23,7 +23,7 @@
 - 빌드: `npm run build:commerce` / `npm run build:admin`
 
 ## 코드 규칙
-- 영어 코드, 다국어 UI (en 기본, ko/ja 지원)
+- 영어 코드, 다국어 UI (ko 기본, en/ja/de 지원)
 - `npx tsc --noEmit` 0에러 후 커밋
 - .env / node_modules / dist / .next 커밋 금지
 - optional 필드는 null 기본값

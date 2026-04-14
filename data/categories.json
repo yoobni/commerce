@@ -1,0 +1,62 @@
+[
+  {
+    "id": "cat-outer",
+    "parent_id": null,
+    "slug": "outer",
+    "name_ko": "아우터",
+    "name_en": "Outerwear",
+    "name_ja": "アウター",
+    "name_de": "Oberbekleidung",
+    "sort_order": 1,
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-tops",
+    "parent_id": null,
+    "slug": "tops",
+    "name_ko": "상의",
+    "name_en": "Tops",
+    "name_ja": "トップス",
+    "name_de": "Oberteile",
+    "sort_order": 2,
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-onepiece",
+    "parent_id": null,
+    "slug": "onepiece",
+    "name_ko": "올인원",
+    "name_en": "One-piece",
+    "name_ja": "オールインワン",
+    "name_de": "Overall",
+    "sort_order": 3,
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-raincoat",
+    "parent_id": null,
+    "slug": "raincoat",
+    "name_ko": "레인코트",
+    "name_en": "Raincoat",
+    "name_ja": "レインコート",
+    "name_de": "Regenmantel",
+    "sort_order": 4,
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-accessories",
+    "parent_id": null,
+    "slug": "accessories",
+    "name_ko": "액세서리",
+    "name_en": "Accessories",
+    "name_ja": "アクセサリー",
+    "name_de": "Zubehör",
+    "sort_order": 5,
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00Z"
+  }
+]
