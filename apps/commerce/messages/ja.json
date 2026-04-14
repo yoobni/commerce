@@ -119,6 +119,90 @@
       "action": "ショッピングする"
     }
   },
+  "plp": {
+    "title": "商品一覧",
+    "all": "すべて",
+    "sortNewest": "新着順",
+    "sortPriceAsc": "価格の安い順",
+    "sortPriceDesc": "価格の高い順",
+    "sortPopular": "人気順",
+    "size": "サイズ",
+    "color": "カラー",
+    "price": "価格",
+    "minPrice": "最低価格",
+    "maxPrice": "最高価格",
+    "clearFilters": "フィルターをリセット",
+    "results": "{count}件の商品",
+    "noResults": "条件に合う商品がありません",
+    "noResultsHint": "フィルターを変更してみてください",
+    "filterTitle": "フィルター",
+    "showFilters": "フィルターを表示",
+    "hideFilters": "フィルターを閉じる",
+    "prevPage": "前へ",
+    "nextPage": "次へ",
+    "pageOf": "{page} / {total}",
+    "new": "新着",
+    "featured": "おすすめ"
+  },
+  "checkout": {
+    "title": "お支払い",
+    "paying": "処理中...",
+    "pay": "支払う",
+    "terms": "購入を完了することで、利用規約に同意したものとみなされます。",
+    "shipping": {
+      "title": "配送情報",
+      "recipientName": "お名前",
+      "recipientNamePlaceholder": "例：山田 太郎",
+      "phone": "電話番号",
+      "phonePlaceholder": "例：090-1234-5678",
+      "postalCode": "郵便番号",
+      "postalCodePlaceholder": "例：123-4567",
+      "address": "住所",
+      "addressPlaceholder": "都道府県・市区町村・番地",
+      "addressDetail": "建物名・部屋番号",
+      "addressDetailPlaceholder": "マンション名・号室など（任意）",
+      "memo": "配送メモ",
+      "memoPlaceholder": "配送に関するご要望（任意）"
+    },
+    "payment": {
+      "title": "お支払い方法",
+      "card": "クレジット／デビットカード",
+      "cardDesc": "Visa、Mastercard など",
+      "poweredBy": "TossPaymentsで安全に決済"
+    },
+    "summary": {
+      "title": "注文概要",
+      "qty": "数量",
+      "subtotal": "小計",
+      "shipping": "送料",
+      "free": "無料",
+      "discount": "割引",
+      "total": "合計"
+    },
+    "error": {
+      "nameRequired": "お名前を入力してください。",
+      "phoneRequired": "電話番号を入力してください。",
+      "postalRequired": "郵便番号を入力してください。",
+      "addressRequired": "住所を入力してください。",
+      "cancelled": "決済がキャンセルされました。",
+      "generic": "決済中にエラーが発生しました。もう一度お試しください。"
+    },
+    "success": {
+      "title": "ご注文完了！",
+      "subtitle": "ご購入ありがとうございます。発送時にご連絡いたします。",
+      "orderNumber": "注文番号",
+      "paymentMethod": "お支払い方法",
+      "totalAmount": "合計金額",
+      "viewOrders": "注文履歴を見る",
+      "continueShopping": "ショッピングを続ける",
+      "errorTitle": "決済失敗",
+      "retryPayment": "再試行",
+      "goHome": "ホームへ戻る",
+      "missingParams": "決済パラメータが不足しています。",
+      "invalidAmount": "無効な決済金額です。",
+      "confirmFailed": "決済の確認に失敗しました。サポートにお問い合わせください。"
+    }
+  },
   "auth": {
     "signIn": "ログイン",
     "signOut": "ログアウト",

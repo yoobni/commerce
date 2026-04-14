@@ -119,6 +119,90 @@
       "action": "Shop Now"
     }
   },
+  "plp": {
+    "title": "Products",
+    "all": "All",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortPopular": "Most Popular",
+    "size": "Size",
+    "color": "Color",
+    "price": "Price",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "clearFilters": "Clear filters",
+    "results": "{count} products",
+    "noResults": "No products match your filters",
+    "noResultsHint": "Try adjusting the filters",
+    "filterTitle": "Filter",
+    "showFilters": "Show filters",
+    "hideFilters": "Hide filters",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "{page} of {total}",
+    "new": "New",
+    "featured": "Featured"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "paying": "Processing...",
+    "pay": "Pay",
+    "terms": "By completing your purchase you agree to our Terms & Conditions.",
+    "shipping": {
+      "title": "Shipping Information",
+      "recipientName": "Recipient Name",
+      "recipientNamePlaceholder": "Full name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g. 010-1234-5678",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "e.g. 12345",
+      "address": "Address",
+      "addressPlaceholder": "Street address",
+      "addressDetail": "Address Detail",
+      "addressDetailPlaceholder": "Apartment, suite, etc. (optional)",
+      "memo": "Delivery Note",
+      "memoPlaceholder": "Special delivery instructions (optional)"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "card": "Credit / Debit Card",
+      "cardDesc": "Visa, Mastercard, and more",
+      "poweredBy": "Secured by TossPayments"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "qty": "Qty",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "free": "Free",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "error": {
+      "nameRequired": "Please enter the recipient name.",
+      "phoneRequired": "Please enter a phone number.",
+      "postalRequired": "Please enter a postal code.",
+      "addressRequired": "Please enter an address.",
+      "cancelled": "Payment was cancelled.",
+      "generic": "An error occurred during payment. Please try again."
+    },
+    "success": {
+      "title": "Order Placed!",
+      "subtitle": "Thank you for your purchase. We'll notify you when your order ships.",
+      "orderNumber": "Order Number",
+      "paymentMethod": "Payment Method",
+      "totalAmount": "Total Amount",
+      "viewOrders": "View My Orders",
+      "continueShopping": "Continue Shopping",
+      "errorTitle": "Payment Failed",
+      "retryPayment": "Try Again",
+      "goHome": "Go to Home",
+      "missingParams": "Required payment parameters are missing.",
+      "invalidAmount": "Invalid payment amount.",
+      "confirmFailed": "Failed to confirm payment. Please contact support."
+    }
+  },
   "auth": {
     "signIn": "Sign In",
     "signOut": "Sign Out",

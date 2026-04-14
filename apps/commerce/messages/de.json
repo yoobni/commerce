@@ -119,6 +119,90 @@
       "action": "Jetzt einkaufen"
     }
   },
+  "plp": {
+    "title": "Produkte",
+    "all": "Alle",
+    "sortNewest": "Neueste",
+    "sortPriceAsc": "Preis aufsteigend",
+    "sortPriceDesc": "Preis absteigend",
+    "sortPopular": "Beliebteste",
+    "size": "Größe",
+    "color": "Farbe",
+    "price": "Preis",
+    "minPrice": "Mindestpreis",
+    "maxPrice": "Höchstpreis",
+    "clearFilters": "Filter zurücksetzen",
+    "results": "{count} Produkte",
+    "noResults": "Keine Produkte gefunden",
+    "noResultsHint": "Passe die Filter an",
+    "filterTitle": "Filter",
+    "showFilters": "Filter anzeigen",
+    "hideFilters": "Filter schließen",
+    "prevPage": "Zurück",
+    "nextPage": "Weiter",
+    "pageOf": "{page} von {total}",
+    "new": "Neu",
+    "featured": "Empfohlen"
+  },
+  "checkout": {
+    "title": "Kasse",
+    "paying": "Wird verarbeitet...",
+    "pay": "Bezahlen",
+    "terms": "Mit dem Abschluss deines Kaufs stimmst du unseren AGB zu.",
+    "shipping": {
+      "title": "Lieferinformationen",
+      "recipientName": "Name des Empfängers",
+      "recipientNamePlaceholder": "Vor- und Nachname",
+      "phone": "Telefonnummer",
+      "phonePlaceholder": "z.B. 0151 12345678",
+      "postalCode": "Postleitzahl",
+      "postalCodePlaceholder": "z.B. 10115",
+      "address": "Adresse",
+      "addressPlaceholder": "Straße und Hausnummer",
+      "addressDetail": "Adresszusatz",
+      "addressDetailPlaceholder": "Wohnung, Etage usw. (optional)",
+      "memo": "Lieferhinweis",
+      "memoPlaceholder": "Besondere Lieferanweisungen (optional)"
+    },
+    "payment": {
+      "title": "Zahlungsmethode",
+      "card": "Kredit- / Debitkarte",
+      "cardDesc": "Visa, Mastercard und mehr",
+      "poweredBy": "Gesichert durch TossPayments"
+    },
+    "summary": {
+      "title": "Bestellübersicht",
+      "qty": "Menge",
+      "subtotal": "Zwischensumme",
+      "shipping": "Versand",
+      "free": "Kostenlos",
+      "discount": "Rabatt",
+      "total": "Gesamt"
+    },
+    "error": {
+      "nameRequired": "Bitte gib den Namen des Empfängers ein.",
+      "phoneRequired": "Bitte gib eine Telefonnummer ein.",
+      "postalRequired": "Bitte gib eine Postleitzahl ein.",
+      "addressRequired": "Bitte gib eine Adresse ein.",
+      "cancelled": "Zahlung wurde abgebrochen.",
+      "generic": "Beim Bezahlen ist ein Fehler aufgetreten. Bitte versuche es erneut."
+    },
+    "success": {
+      "title": "Bestellung aufgegeben!",
+      "subtitle": "Danke für deinen Kauf. Wir benachrichtigen dich, wenn deine Bestellung versendet wird.",
+      "orderNumber": "Bestellnummer",
+      "paymentMethod": "Zahlungsmethode",
+      "totalAmount": "Gesamtbetrag",
+      "viewOrders": "Meine Bestellungen",
+      "continueShopping": "Weiter einkaufen",
+      "errorTitle": "Zahlung fehlgeschlagen",
+      "retryPayment": "Erneut versuchen",
+      "goHome": "Zur Startseite",
+      "missingParams": "Erforderliche Zahlungsparameter fehlen.",
+      "invalidAmount": "Ungültiger Zahlungsbetrag.",
+      "confirmFailed": "Zahlung konnte nicht bestätigt werden. Bitte kontaktiere den Support."
+    }
+  },
   "auth": {
     "signIn": "Anmelden",
     "signOut": "Abmelden",
