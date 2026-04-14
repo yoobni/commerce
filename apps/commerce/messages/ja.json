@@ -125,8 +125,30 @@
     "signUp": "アカウント作成",
     "email": "メールアドレス",
     "password": "パスワード",
+    "confirmPassword": "パスワード（確認）",
+    "name": "お名前",
     "forgotPassword": "パスワードをお忘れですか？",
     "or": "または",
-    "continueWithGoogle": "Googleで続ける"
+    "continueWithGoogle": "Googleで続ける",
+    "loginTitle": "おかえりなさい",
+    "loginSubtitle": "アカウントにサインインしてください",
+    "signUpTitle": "RAVIに参加する",
+    "signUpSubtitle": "アカウントを作成してください",
+    "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "termsAgreement": "アカウントを作成することで、利用規約およびプライバシーポリシーに同意したものとみなされます。",
+    "error": {
+      "invalidEmail": "有効なメールアドレスを入力してください。",
+      "weakPassword": "パスワードは8文字以上にしてください。",
+      "passwordMismatch": "パスワードが一致しません。",
+      "emailInUse": "このメールアドレスはすでに登録されています。",
+      "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+      "generic": "エラーが発生しました。もう一度お試しください。",
+      "nameRequired": "お名前を入力してください。"
+    },
+    "success": {
+      "signUp": "アカウントが作成されました！メールを確認して認証を完了してください。",
+      "signIn": "ようこそ！"
+    }
   }
 }

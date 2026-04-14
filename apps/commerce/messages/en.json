@@ -125,8 +125,30 @@
     "signUp": "Create Account",
     "email": "Email",
     "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Name",
     "forgotPassword": "Forgot password?",
     "or": "or",
-    "continueWithGoogle": "Continue with Google"
+    "continueWithGoogle": "Continue with Google",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
+    "signUpTitle": "Join RAVI",
+    "signUpSubtitle": "Create your account",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "termsAgreement": "By creating an account, you agree to our Terms of Service and Privacy Policy.",
+    "error": {
+      "invalidEmail": "Please enter a valid email address.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "emailInUse": "This email is already registered.",
+      "invalidCredentials": "Invalid email or password.",
+      "generic": "Something went wrong. Please try again.",
+      "nameRequired": "Name is required."
+    },
+    "success": {
+      "signUp": "Account created! Please check your email to verify.",
+      "signIn": "Welcome back!"
+    }
   }
 }
