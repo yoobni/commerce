@@ -207,6 +207,7 @@ export type OrderItemStatus =
   | 'CONFIRMED'
   | 'RETURN_REQUESTED'
   | 'RETURNED'
+  | 'REFUND_REQUESTED'
   | 'REFUNDED'
   | 'CANCELLED';
 
@@ -450,19 +451,22 @@ export interface Review {
 
 // ─── Community ────────────────────────────────────────────────────────────────
 
+export type BoardType = 'DAILY' | 'STYLE' | 'TIP' | 'QUESTION';
 export type PostStatus = 'ACTIVE' | 'HIDDEN' | 'DELETED';
 
 export interface Post {
   id: UUID;
   user_id: UUID;
-  category: string;
+  board_type: BoardType;
   title: string;
   content: string;
   images: string[] | null;
-  product_tags: UUID[];
+  product_ids: UUID[];
+  dog_breed: string | null;
   like_count: number;
   comment_count: number;
   view_count: number;
+  is_pinned: boolean;
   status: PostStatus;
   created_at: ISODateTime;
   updated_at: ISODateTime;
@@ -486,38 +490,37 @@ export interface Comment {
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
-export type AdminStatus = 'ACTIVE' | 'SUSPENDED';
+export type AdminRole = 'SUPER_ADMIN' | 'ADMIN' | 'OPERATOR' | 'CS' | 'VIEWER';
+export type AdminStatus = 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
 
 export interface Admin {
   id: UUID;
   email: string;
   name: string;
-  role_id: UUID;
+  role: AdminRole;
   status: AdminStatus;
   last_login_at: ISODateTime | null;
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }
 
-export interface Role {
-  id: UUID;
-  name: string;
-  description: string | null;
-  permissions: string[];
-  created_at: ISODateTime;
-}
-
 // ─── CountryConfig ────────────────────────────────────────────────────────────
 
 export interface CountryConfig {
-  country: Country;
-  currency: Currency;
-  locale: Locale;
-  shipping_fee: number;
+  id: UUID;
+  country_code: Country;
+  default_locale: Locale;
+  default_currency: Currency;
+  shipping_available: boolean;
   free_shipping_threshold: number | null;
+  base_shipping_fee: number;
   estimated_delivery_days_min: number;
   estimated_delivery_days_max: number;
+  tax_rate: number;
+  tax_included: boolean;
+  return_period_days: number;
   is_active: boolean;
+  updated_at: ISODateTime;
 }
 
 // ─── AuditLog / EventLog ──────────────────────────────────────────────────────
@@ -526,11 +529,13 @@ export interface AuditLog {
   id: UUID;
   admin_id: UUID;
   action: string;
-  resource_type: string;
-  resource_id: UUID;
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
-  ip_address: string | null;
+  target_type: string;
+  target_id: UUID;
+  before_value: Record<string, unknown> | null;
+  after_value: Record<string, unknown> | null;
+  ip_address: string;
+  user_agent: string;
+  memo: string | null;
   created_at: ISODateTime;
 }
 
