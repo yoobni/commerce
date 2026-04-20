@@ -21,7 +21,8 @@
     "search": "Suche",
     "cart": "Warenkorb",
     "account": "Konto",
-    "wishlist": "Wunschliste"
+    "wishlist": "Wunschliste",
+    "home": "Startseite"
   },
   "error": {
     "title": "Ein Fehler ist aufgetreten",
@@ -51,6 +52,7 @@
     "apply": "Anwenden",
     "required": "Pflichtfeld",
     "optional": "Optional",
+    "zoom": "Vergrößern",
     "currency": {
       "usd": "USD",
       "krw": "KRW",
@@ -69,18 +71,39 @@
     "description": "Beschreibung",
     "details": "Details",
     "reviews": "Bewertungen",
-    "relatedProducts": "Das könnte dir auch gefallen"
+    "relatedProducts": "Das könnte dir auch gefallen",
+    "addedToCart": "In den Warenkorb gelegt",
+    "lowStock": "Nur noch {count} verfügbar",
+    "selectOption": "Farbe und Größe wählen",
+    "color": "Farbe",
+    "selectColor": "Farbe wählen",
+    "removeFromWishlist": "Aus Wunschliste entfernen",
+    "sizeLabel": "Größe",
+    "sizeChest": "Brust (cm)",
+    "sizeBack": "Rückenlänge (cm)",
+    "sizeNeck": "Hals (cm)",
+    "sizeWeight": "Gewicht (kg)",
+    "sizeUnit": "* Einheit: cm / kg",
+    "sizeBreedExamples": "Rassenbeispiele",
+    "sizeTipTitle": "Anleitung",
+    "sizeTip": "Messen Sie die breiteste Stelle mit einem Maßband. Wir empfehlen 1-2cm mehr als gemessen für Komfort.",
+    "shippingContent": "Kostenloser Versand ab 50€. Internationaler Versand verfügbar — Preise je nach Region.",
+    "returnsContent": "30 Tage Rückgaberecht. Artikel muss unbenutzt und in originalem Zustand sein."
   },
   "cart": {
     "title": "Warenkorb",
     "empty": "Dein Warenkorb ist leer",
+    "emptyDescription": "Füge Artikel hinzu, um loszulegen.",
     "continueShopping": "Weiter einkaufen",
     "subtotal": "Zwischensumme",
     "shipping": "Versandkosten",
     "total": "Gesamt",
     "checkout": "Zur Kasse",
     "remove": "Entfernen",
-    "quantity": "Anz."
+    "quantity": "Anz.",
+    "freeShipping": "Kostenlos",
+    "freeShippingThreshold": "Noch {amount} bis zum kostenlosen Versand",
+    "taxIncluded": "Inkl. MwSt."
   },
   "empty": {
     "cart": {

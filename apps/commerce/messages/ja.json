@@ -21,7 +21,8 @@
     "search": "検索",
     "cart": "カート",
     "account": "アカウント",
-    "wishlist": "お気に入り"
+    "wishlist": "お気に入り",
+    "home": "ホーム"
   },
   "error": {
     "title": "エラーが発生しました",
@@ -51,6 +52,7 @@
     "apply": "適用",
     "required": "必須",
     "optional": "任意",
+    "zoom": "拡大",
     "currency": {
       "usd": "USD",
       "krw": "KRW",
@@ -69,18 +71,39 @@
     "description": "商品説明",
     "details": "詳細情報",
     "reviews": "レビュー",
-    "relatedProducts": "こちらもおすすめ"
+    "relatedProducts": "こちらもおすすめ",
+    "addedToCart": "カートに追加しました",
+    "lowStock": "残り{count}点",
+    "selectOption": "カラーとサイズを選択してください",
+    "color": "カラー",
+    "selectColor": "カラーを選択",
+    "removeFromWishlist": "お気に入りから削除",
+    "sizeLabel": "サイズ",
+    "sizeChest": "胸囲 (cm)",
+    "sizeBack": "背丈 (cm)",
+    "sizeNeck": "首回り (cm)",
+    "sizeWeight": "体重 (kg)",
+    "sizeUnit": "* 単位: cm / kg",
+    "sizeBreedExamples": "犬種の例",
+    "sizeTipTitle": "測定方法",
+    "sizeTip": "最も太い部分をメジャーで測ってください。快適さのため、測定値より1〜2cm大きいサイズをお勧めします。",
+    "shippingContent": "5,000円以上のご注文で送料無料。国際配送は地域によって送料が異なります。",
+    "returnsContent": "7日以内の返品可能。未使用かつ元の状態の商品に限ります。"
   },
   "cart": {
     "title": "カート",
     "empty": "カートは空です",
+    "emptyDescription": "お気に入りの商品を追加してください。",
     "continueShopping": "ショッピングを続ける",
     "subtotal": "小計",
     "shipping": "送料",
     "total": "合計",
     "checkout": "レジへ進む",
     "remove": "削除",
-    "quantity": "数量"
+    "quantity": "数量",
+    "freeShipping": "無料",
+    "freeShippingThreshold": "あと{amount}で送料無料",
+    "taxIncluded": "税込み価格です。"
   },
   "empty": {
     "cart": {

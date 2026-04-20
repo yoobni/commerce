@@ -21,7 +21,8 @@
     "search": "Search",
     "cart": "Cart",
     "account": "Account",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "home": "Home"
   },
   "error": {
     "title": "Something went wrong",
@@ -51,6 +52,7 @@
     "apply": "Apply",
     "required": "Required",
     "optional": "Optional",
+    "zoom": "Zoom",
     "currency": {
       "usd": "USD",
       "krw": "KRW",
@@ -69,18 +71,39 @@
     "description": "Description",
     "details": "Details",
     "reviews": "Reviews",
-    "relatedProducts": "You might also like"
+    "relatedProducts": "You might also like",
+    "addedToCart": "Added to Cart",
+    "lowStock": "Only {count} left",
+    "selectOption": "Select color and size",
+    "color": "Color",
+    "selectColor": "Select Color",
+    "removeFromWishlist": "Remove from Wishlist",
+    "sizeLabel": "Size",
+    "sizeChest": "Chest (cm)",
+    "sizeBack": "Back Length (cm)",
+    "sizeNeck": "Neck (cm)",
+    "sizeWeight": "Weight (kg)",
+    "sizeUnit": "* Unit: cm / kg",
+    "sizeBreedExamples": "Breed Examples",
+    "sizeTipTitle": "How to Measure",
+    "sizeTip": "Use a measuring tape around the widest part. We recommend choosing 1-2cm larger than measured for comfort.",
+    "shippingContent": "Free shipping on orders over $50. International shipping available — rates vary by region.",
+    "returnsContent": "30-day return policy. Item must be unused and in its original condition."
   },
   "cart": {
     "title": "Shopping Cart",
     "empty": "Your cart is empty",
+    "emptyDescription": "Add items to get started.",
     "continueShopping": "Continue Shopping",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "total": "Total",
     "checkout": "Proceed to Checkout",
     "remove": "Remove",
-    "quantity": "Qty"
+    "quantity": "Qty",
+    "freeShipping": "Free",
+    "freeShippingThreshold": "Add {amount} more for free shipping",
+    "taxIncluded": "Tax included."
   },
   "empty": {
     "cart": {
