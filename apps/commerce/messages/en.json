@@ -160,6 +160,15 @@
     "alreadyHaveAccount": "Already have an account?",
     "noAccount": "Don't have an account?",
     "termsAgreement": "By creating an account, you agree to our Terms of Service and Privacy Policy.",
+    "forgotPasswordTitle": "Forgot password",
+    "forgotPasswordSubtitle": "Enter your email and we'll send you a reset link",
+    "sendResetLink": "Send Reset Link",
+    "resetLinkSent": "Check your email for a password reset link.",
+    "backToLogin": "Back to sign in",
+    "resetPasswordTitle": "Set new password",
+    "resetPasswordSubtitle": "Enter your new password below",
+    "updatePassword": "Update Password",
+    "updatePasswordSuccess": "Password updated successfully",
     "error": {
       "invalidEmail": "Please enter a valid email address.",
       "weakPassword": "Password must be at least 8 characters.",
@@ -172,6 +181,63 @@
     "success": {
       "signUp": "Account created! Please check your email to verify.",
       "signIn": "Welcome back!"
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "nav": {
+      "profile": "Profile",
+      "addresses": "Addresses",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Edit Profile",
+      "namePlaceholder": "Your name",
+      "phonePlaceholder": "Phone number",
+      "marketing": "Receive marketing emails",
+      "saveSuccess": "Profile saved",
+      "emailReadOnly": "Email cannot be changed"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "add": "Add Address",
+      "defaultBadge": "Default",
+      "setDefault": "Set as Default",
+      "deleteConfirm": "Delete this address?",
+      "saveSuccess": "Address saved",
+      "deleteSuccess": "Address deleted",
+      "empty": "No saved addresses",
+      "emptyDescription": "Add an address for faster checkout.",
+      "form": {
+        "addTitle": "Add Address",
+        "editTitle": "Edit Address",
+        "label": "Label (e.g. Home, Work)",
+        "recipientName": "Recipient",
+        "phone": "Phone",
+        "country": "Country",
+        "postalCode": "Postal Code",
+        "stateProvince": "State / Province",
+        "city": "City",
+        "addressLine1": "Address",
+        "addressLine2": "Address Line 2 (optional)",
+        "setAsDefault": "Set as default address"
+      }
+    },
+    "security": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "changePasswordSuccess": "Password changed",
+      "oauthNoPassword": "Your account uses {provider} sign-in. Password change is not available.",
+      "withdrawTitle": "Delete Account",
+      "withdrawDescription": "This action is permanent and cannot be undone. All your data will be deleted.",
+      "withdrawConfirmLabel": "Type DELETE to confirm",
+      "withdrawConfirmKeyword": "DELETE",
+      "withdrawConfirmPlaceholder": "DELETE",
+      "withdrawButton": "Delete Account",
+      "withdrawSuccess": "Your account has been deleted"
     }
   }
 }

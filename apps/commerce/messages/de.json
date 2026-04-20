@@ -172,6 +172,72 @@
     "success": {
       "signUp": "Konto erstellt! Bitte überprüfe deine E-Mail zur Verifizierung.",
       "signIn": "Willkommen zurück!"
+    },
+    "forgotPasswordTitle": "Passwort vergessen",
+    "forgotPasswordSubtitle": "Gib deine E-Mail-Adresse ein, um einen Reset-Link zu erhalten",
+    "sendResetLink": "Reset-Link senden",
+    "resetLinkSent": "Bitte überprüfe deine E-Mail für den Reset-Link.",
+    "backToLogin": "Zurück zum Login",
+    "resetPasswordTitle": "Neues Passwort festlegen",
+    "resetPasswordSubtitle": "Gib dein neues Passwort ein",
+    "updatePassword": "Passwort aktualisieren",
+    "updatePasswordSuccess": "Passwort erfolgreich aktualisiert"
+  },
+  "account": {
+    "title": "Mein Konto",
+    "nav": {
+      "profile": "Profil",
+      "addresses": "Adressen",
+      "security": "Sicherheit"
+    },
+    "profile": {
+      "title": "Profil bearbeiten",
+      "namePlaceholder": "Dein Name",
+      "phonePlaceholder": "Telefonnummer",
+      "marketing": "Marketing-E-Mails erhalten",
+      "saveSuccess": "Profil gespeichert",
+      "emailReadOnly": "E-Mail kann nicht geändert werden"
+    },
+    "addresses": {
+      "title": "Adressen",
+      "add": "Adresse hinzufügen",
+      "defaultBadge": "Standard",
+      "setDefault": "Als Standard festlegen",
+      "deleteConfirm": "Diese Adresse löschen?",
+      "saveSuccess": "Adresse gespeichert",
+      "deleteSuccess": "Adresse gelöscht",
+      "empty": "Keine gespeicherten Adressen",
+      "emptyDescription": "Füge eine Adresse hinzu, um schneller bezahlen zu können.",
+      "form": {
+        "addTitle": "Adresse hinzufügen",
+        "editTitle": "Adresse bearbeiten",
+        "label": "Bezeichnung (z.B. Zuhause, Büro)",
+        "recipientName": "Empfänger",
+        "phone": "Telefon",
+        "country": "Land",
+        "postalCode": "Postleitzahl",
+        "stateProvince": "Bundesland",
+        "city": "Stadt",
+        "addressLine1": "Adresse",
+        "addressLine2": "Adresszusatz (optional)",
+        "setAsDefault": "Als Standardadresse festlegen"
+      }
+    },
+    "security": {
+      "title": "Sicherheit",
+      "changePassword": "Passwort ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "changePasswordSuccess": "Passwort geändert",
+      "oauthNoPassword": "Dein Konto verwendet {provider} zum Anmelden. Passwortänderung ist nicht verfügbar.",
+      "withdrawTitle": "Konto löschen",
+      "withdrawDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden dauerhaft gelöscht.",
+      "withdrawConfirmLabel": "Gib LÖSCHEN zur Bestätigung ein",
+      "withdrawConfirmKeyword": "LÖSCHEN",
+      "withdrawConfirmPlaceholder": "LÖSCHEN",
+      "withdrawButton": "Konto löschen",
+      "withdrawSuccess": "Dein Konto wurde gelöscht"
     }
   }
 }

@@ -172,6 +172,72 @@
     "success": {
       "signUp": "アカウントが作成されました！メールを確認して認証を完了してください。",
       "signIn": "ようこそ！"
+    },
+    "forgotPasswordTitle": "パスワードを忘れた方",
+    "forgotPasswordSubtitle": "メールアドレスを入力すると、リセットリンクをお送りします",
+    "sendResetLink": "リセットリンクを送る",
+    "resetLinkSent": "メールをご確認ください。リセットリンクを送信しました。",
+    "backToLogin": "ログインに戻る",
+    "resetPasswordTitle": "新しいパスワードを設定",
+    "resetPasswordSubtitle": "新しいパスワードを入力してください",
+    "updatePassword": "パスワードを更新",
+    "updatePasswordSuccess": "パスワードが更新されました"
+  },
+  "account": {
+    "title": "マイアカウント",
+    "nav": {
+      "profile": "プロフィール",
+      "addresses": "住所録",
+      "security": "セキュリティ"
+    },
+    "profile": {
+      "title": "プロフィール編集",
+      "namePlaceholder": "お名前",
+      "phonePlaceholder": "電話番号",
+      "marketing": "マーケティングメールを受け取る",
+      "saveSuccess": "プロフィールを保存しました",
+      "emailReadOnly": "メールアドレスは変更できません"
+    },
+    "addresses": {
+      "title": "住所録",
+      "add": "住所を追加",
+      "defaultBadge": "デフォルト",
+      "setDefault": "デフォルトに設定",
+      "deleteConfirm": "この住所を削除しますか？",
+      "saveSuccess": "住所を保存しました",
+      "deleteSuccess": "住所を削除しました",
+      "empty": "保存済みの住所がありません",
+      "emptyDescription": "住所を追加すると、スムーズに購入できます。",
+      "form": {
+        "addTitle": "住所を追加",
+        "editTitle": "住所を編集",
+        "label": "ラベル（例：自宅、職場）",
+        "recipientName": "受取人",
+        "phone": "電話番号",
+        "country": "国",
+        "postalCode": "郵便番号",
+        "stateProvince": "都道府県",
+        "city": "市区町村",
+        "addressLine1": "住所",
+        "addressLine2": "建物名・部屋番号（任意）",
+        "setAsDefault": "デフォルト住所に設定"
+      }
+    },
+    "security": {
+      "title": "セキュリティ",
+      "changePassword": "パスワード変更",
+      "currentPassword": "現在のパスワード",
+      "newPassword": "新しいパスワード",
+      "confirmNewPassword": "新しいパスワード（確認）",
+      "changePasswordSuccess": "パスワードが変更されました",
+      "oauthNoPassword": "{provider}アカウントでログインしています。パスワード変更はできません。",
+      "withdrawTitle": "アカウント削除",
+      "withdrawDescription": "この操作は取り消せません。すべてのデータが完全に削除されます。",
+      "withdrawConfirmLabel": "確認のため「退会」と入力してください",
+      "withdrawConfirmKeyword": "退会",
+      "withdrawConfirmPlaceholder": "退会",
+      "withdrawButton": "アカウントを削除",
+      "withdrawSuccess": "アカウントを削除しました"
     }
   }
 }
