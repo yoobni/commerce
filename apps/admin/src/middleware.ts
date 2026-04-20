@@ -5,7 +5,8 @@ const PUBLIC_PATHS = ['/login'];
 const COOKIE_NAME = 'admin_session';
 
 function getSecret(): Uint8Array {
-  const secret = process.env.ADMIN_JWT_SECRET ?? '';
+  const secret = process.env.ADMIN_JWT_SECRET;
+  if (!secret) throw new Error('ADMIN_JWT_SECRET is not set');
   return new TextEncoder().encode(secret);
 }
 
