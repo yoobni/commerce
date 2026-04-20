@@ -221,6 +221,23 @@ export interface EventMap {
     post_id: string;
     product_id: string;
   };
+
+  // ─── Account / My Page ────────────────────────────────────────────────────
+  profile_update: {
+    fields_changed: string[];
+  };
+  address_add: {
+    country: string;
+    is_default: boolean;
+  };
+  address_edit: {
+    country: string;
+  };
+  address_delete: Record<string, never>;
+  address_set_default: Record<string, never>;
+  password_change: Record<string, never>;
+  account_withdraw: Record<string, never>;
+  password_reset_request: Record<string, never>;
 }
 
 export type EventName = keyof EventMap;
