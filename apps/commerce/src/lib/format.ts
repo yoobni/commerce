@@ -1,4 +1,4 @@
-import type { Locale, Product, Category } from '@commerce/types';
+import type { Locale, Product, Category, ProductOption } from '@commerce/types';
 
 // ─── Price ────────────────────────────────────────────────────────────────────
 
@@ -30,6 +30,25 @@ export function formatRawPrice(amount: number, locale: Locale): string {
   }).format(amount);
 }
 
+/** Returns the additional price for an option in the current locale. */
+export function getOptionAdditionalPrice(option: ProductOption, locale: Locale): number {
+  switch (locale) {
+    case 'ko': return option.additional_price_krw;
+    case 'en': return option.additional_price_usd;
+    case 'ja': return option.additional_price_jpy;
+    case 'de': return option.additional_price_eur;
+    default:   return option.additional_price_usd;
+  }
+}
+
+/** Returns base price + option additional price in the current locale. */
+export function getTotalPrice(product: Product, option: ProductOption | null, locale: Locale): number {
+  const { field } = PRICE_FORMATS[locale] ?? PRICE_FORMATS.en;
+  const base = product[field] as number;
+  if (!option) return base;
+  return base + getOptionAdditionalPrice(option, locale);
+}
+
 // ─── Locale-aware text ────────────────────────────────────────────────────────
 
 export function getProductName(product: Product, locale: Locale): string {
@@ -39,6 +58,16 @@ export function getProductName(product: Product, locale: Locale): string {
     case 'ja': return product.name_ja;
     case 'de': return product.name_de;
     default:   return product.name_en;
+  }
+}
+
+export function getProductDescription(product: Product, locale: Locale): string {
+  switch (locale) {
+    case 'ko': return product.description_ko;
+    case 'en': return product.description_en;
+    case 'ja': return product.description_ja;
+    case 'de': return product.description_de;
+    default:   return product.description_en;
   }
 }
 

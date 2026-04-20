@@ -195,9 +195,22 @@
 
 | 이벤트 | 설명 | 발화 시점 | 고유 속성 |
 |--------|------|-----------|-----------|
-| `wishlist_add` | 찜하기 | 찜 버튼 클릭 | `product_id`, `product_name`, `category`, `price`, `source_page`: `"list"` \| `"detail"` \| `"community"` |
-| `wishlist_remove` | 찜 해제 | 찜 해제 클릭 | `product_id` |
+| `wishlist_add` | 찜하기 | 찜 버튼 클릭(로그인 상태) | `product_id`, `product_name`, `category`, `price`, `source_page`: `"list"` \| `"detail"` \| `"community"` \| `"wishlist"`, `source_position`: number \| null (PLP/검색 내 순서, 상세 등에서는 null) |
+| `wishlist_remove` | 찜 해제 | 찜 해제 클릭(로그인 상태) | `product_id`, `source_page`: `"list"` \| `"detail"` \| `"wishlist"` |
 | `wishlist_view` | 찜 목록 조회 | 찜 목록 페이지 진입 | `item_count` |
+| `wishlist_login_prompt` | 비로그인 찜 유도 | 비로그인 유저 찜 클릭 시 로그인 유도 모달/페이지 노출 | `product_id`, `source_page`: `"list"` \| `"detail"` \| `"community"` |
+
+### 위시리스트 전환 퍼널
+
+```
+[비로그인] 찜 클릭 → wishlist_login_prompt → login_complete → wishlist_add
+[로그인]   찜 클릭 → wishlist_add → (나중에) purchase
+```
+
+### 비로그인 유도 측정 목적
+- `wishlist_login_prompt` 후 `login_complete` 전환율 → 로그인 유도 효과 측정
+- `login_complete` 후 `wishlist_add` 재시도율 → 가입 후 찜 의도 복원율
+- `wishlist_add` → `purchase` 전환율 → 위시리스트 구매 기여도
 
 ---
 
@@ -328,6 +341,18 @@
 | **찜 수** | 상품별 찜 수 | product_id |
 | **카테고리별 GMV** | 카테고리별 매출 | category, subcategory |
 
+### 13-7. 위시리스트 KPI
+
+| KPI | 정의 | 계산 | 세분화 기준 |
+|-----|------|------|-------------|
+| **위시리스트 추가율** | 상품 상세 조회 대비 찜 추가 비율 | wishlist_add / product_detail_view | product_id, source_page |
+| **위시리스트 → 구매 전환율** | 찜한 상품을 나중에 구매한 비율 | purchase (with wishlisted product) / wishlist_add | country |
+| **비로그인 유도 전환율** | 로그인 유도 후 실제 로그인 비율 | login_complete after wishlist_login_prompt / wishlist_login_prompt | source_page |
+| **로그인 후 찜 복원율** | 로그인 후 찜 의도를 실제 실행한 비율 | wishlist_add within 5min of login_complete / (login after wishlist_login_prompt) | — |
+| **위시리스트 목록 → 장바구니** | 찜 목록 조회 후 장바구니 추가 비율 | add_to_cart within same session as wishlist_view / wishlist_view | — |
+| **source_page별 찜 비율** | 어디서 찜이 가장 많이 발생하는지 | COUNT(wishlist_add) by source_page | source_page |
+| **PLP 위치별 찜 패턴** | 리스트 내 어느 위치 상품이 찜되는지 | AVG(source_position) of wishlist_add where source_page='list' | — |
+
 ### 13-6. 국가별 KPI (글로벌 운영)
 
 | KPI | 세분화 기준 |
@@ -419,8 +444,8 @@ MVP에서 반드시 구현해야 하는 이벤트 (★)와 2차에서 추가할 
 **회원 (3개)**
 `signup_complete`, `login_complete`, `pet_profile_create`
 
-**전환 보조 (7개)**
-`size_guide_view`, `search_submit`, `search_result_view`, `wishlist_add`, `coupon_apply`, `point_use`, `review_create`
+**전환 보조 (9개)**
+`size_guide_view`, `search_submit`, `search_result_view`, `wishlist_add`, `wishlist_view`, `wishlist_login_prompt`, `coupon_apply`, `point_use`, `review_create`
 
 **커뮤니티 전환 (4개)**
 `community_post_view`, `community_to_product`, `community_post_create`, `community_feed_view`
@@ -430,4 +455,4 @@ MVP에서 반드시 구현해야 하는 이벤트 (★)와 2차에서 추가할 
 
 ### ☆ 2차 추가 (나머지)
 
-`product_list_item_click`, `search_result_click`, `filter_apply`, `sort_change`, `product_image_view`, `product_review_section_view`, `product_option_select`, `remove_from_cart`, `cart_quantity_change`, `coupon_apply_fail`, `signup_start`, `logout`, `profile_update`, `account_delete`, `wishlist_remove`, `wishlist_view`, `review_view`, `review_helpful`, `community_post_like`, `community_comment_create`, `order_detail_view`, `order_cancel_request`, `refund_request`, `share`, `newsletter_subscribe`, `language_change`, `currency_change`
+`product_list_item_click`, `search_result_click`, `filter_apply`, `sort_change`, `product_image_view`, `product_review_section_view`, `product_option_select`, `remove_from_cart`, `cart_quantity_change`, `coupon_apply_fail`, `signup_start`, `logout`, `profile_update`, `account_delete`, `wishlist_remove`, `review_view`, `review_helpful`, `community_post_like`, `community_comment_create`, `order_detail_view`, `order_cancel_request`, `refund_request`, `share`, `newsletter_subscribe`, `language_change`, `currency_change`

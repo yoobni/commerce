@@ -170,9 +170,24 @@ export interface EventMap {
     product_name: string;
     price: number;
     category: string;
+    /** 찜 버튼을 누른 페이지 컨텍스트 */
+    source_page: 'list' | 'detail' | 'community' | 'wishlist';
+    /** PLP/검색결과 내 상품 순서 (list 외 페이지는 null) */
+    source_position: number | null;
   };
   wishlist_remove: {
     product_id: string;
+    /** 찜 해제한 페이지 컨텍스트 */
+    source_page: 'list' | 'detail' | 'wishlist';
+  };
+  /** 위시리스트 목록 페이지 진입 */
+  wishlist_view: {
+    item_count: number;
+  };
+  /** 비로그인 유저가 찜하기 클릭 → 로그인 유도 모달/페이지 노출 */
+  wishlist_login_prompt: {
+    product_id: string;
+    source_page: 'list' | 'detail' | 'community';
   };
   coupon_apply: {
     coupon_code: string;
