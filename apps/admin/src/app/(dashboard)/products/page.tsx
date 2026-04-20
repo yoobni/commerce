@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { adminListProducts, type AdminProductRow } from '@/lib/queries/products';
+import { adminListProducts, type AdminProductListParams, type AdminProductRow } from '@/lib/queries/products';
 import { adminListCategories } from '@/lib/queries/categories';
 import { deleteProduct } from '@/lib/actions/products';
 import { getSession } from '@/lib/auth/session';
@@ -76,7 +76,7 @@ export default async function ProductsPage({
 
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? '1'));
-  const status = (sp.status ?? 'ALL') as Parameters<typeof adminListProducts>[0]['status'];
+  const status = (sp.status ?? 'ALL') as AdminProductListParams['status'];
   const category_id = sp.category_id;
   const search = sp.search;
 

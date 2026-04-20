@@ -165,14 +165,33 @@ export interface EventMap {
   };
 
   // ─── Wishlist / Coupon / Points ───────────────────────────────────────
+  /**
+   * wishlist_toggled: 찜 버튼 단일 토글 이벤트 (add/remove 통합)
+   * - source_position: PLP 내 상품 순서 (0-based). list 외 진입 시 null
+   * - source_section: 노출 섹션 식별자 (예: "new-arrivals", "featured", "search-results"). 없으면 null
+   */
+  wishlist_toggled: {
+    product_id: string;
+    product_name: string;
+    price: number;
+    category: string;
+    is_wishlisted: boolean;
+    source_page: 'list' | 'detail' | 'community';
+    source_position: number | null;
+    source_section: string | null;
+  };
   wishlist_add: {
     product_id: string;
     product_name: string;
     price: number;
     category: string;
+    source_page: 'list' | 'detail' | 'community';
+    source_position: number | null;
+    source_section: string | null;
   };
   wishlist_remove: {
     product_id: string;
+    source_page: 'list' | 'detail' | 'community';
   };
   coupon_apply: {
     coupon_code: string;

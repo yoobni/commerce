@@ -195,9 +195,13 @@
 
 | 이벤트 | 설명 | 발화 시점 | 고유 속성 |
 |--------|------|-----------|-----------|
-| `wishlist_add` | 찜하기 | 찜 버튼 클릭 | `product_id`, `product_name`, `category`, `price`, `source_page`: `"list"` \| `"detail"` \| `"community"` |
-| `wishlist_remove` | 찜 해제 | 찜 해제 클릭 | `product_id` |
+| `wishlist_toggled` | 찜 토글 (add/remove 통합) | 찜 버튼 클릭 | `product_id`, `product_name`, `category`, `price`, `is_wishlisted`: boolean, `source_page`: `"list"` \| `"detail"` \| `"community"`, `source_position`: number \| null (PLP 내 0-based 순서), `source_section`: string \| null (노출 섹션 식별자) |
+| `wishlist_add` | 찜하기 | 찜 추가 완료 | `product_id`, `product_name`, `category`, `price`, `source_page`: `"list"` \| `"detail"` \| `"community"`, `source_position`: number \| null, `source_section`: string \| null |
+| `wishlist_remove` | 찜 해제 | 찜 해제 클릭 | `product_id`, `source_page`: `"list"` \| `"detail"` \| `"community"` |
 | `wishlist_view` | 찜 목록 조회 | 찜 목록 페이지 진입 | `item_count` |
+
+> **`source_position`**: PLP에서 찜 버튼 클릭 시 해당 상품의 목록 내 순서 (0-based). PDP/커뮤니티에서 클릭 시 `null`.
+> **`source_section`**: 상품이 노출된 섹션 식별자 (예: `"new-arrivals"`, `"featured"`, `"search-results"`, `"recommendations"`). 섹션 구분 없는 단순 목록은 `null`.
 
 ---
 
