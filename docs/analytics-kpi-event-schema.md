@@ -407,11 +407,208 @@
 
 ---
 
+## 18. D08 쿠폰 / D09 포인트 애널리틱스 (상세)
+
+> 최종 수정: 2026-04-22 — Lua (data)
+> 도메인 참조: `docs/domain-model.md` § 4.10 쿠폰, § 4.11 포인트
+
+---
+
+### 18-1. 신규 이벤트 — D08 쿠폰
+
+#### 클라이언트 이벤트
+
+| 이벤트 | 설명 | 발화 시점 | 고유 속성 |
+|--------|------|-----------|-----------|
+| `coupon_list_view` | 쿠폰함 진입 | 마이페이지 쿠폰함 로드 완료 | `coupon_count`, `usable_count`, `expiring_soon_count` (7일 이내 만료) |
+| `coupon_download` | 쿠폰 다운로드 | 프로모션/이벤트 페이지에서 발급 클릭 | `coupon_id`, `coupon_code`, `coupon_discount_type`: `"FIXED_AMOUNT"` \| `"PERCENTAGE"`, `discount_value`, `source_page` |
+| `coupon_code_input` | 쿠폰 코드 수동 입력 시도 | 체크아웃 내 코드 입력 완료 (적용 버튼 클릭 전) | `coupon_code` |
+| `coupon_remove` | 쿠폰 적용 취소 | 체크아웃 내 쿠폰 제거 클릭 | `coupon_code`, `coupon_discount_type`, `discount_amount` |
+
+#### 서버사이드 전용 이벤트
+
+| 이벤트 | 설명 | 발화 시점 | 고유 속성 |
+|--------|------|-----------|-----------|
+| `coupon_issued` | 쿠폰 발급 | 관리자 수동 발급 / 자동 발급 (가입 축하 등) | `coupon_id`, `coupon_code`, `issue_type`: `"admin_manual"` \| `"auto_signup"` \| `"auto_purchase"` \| `"campaign"` |
+| `coupon_expire_batch` | 쿠폰 만료 배치 처리 | 매일 00:00 배치 | `expired_count` (집계 전용, user_id 없음) |
+
+#### 기존 이벤트 속성 확장
+
+**`coupon_apply` 확장 속성:**
+
+| 추가 속성 | 타입 | 설명 |
+|-----------|------|------|
+| `coupon_discount_type` | string | `"FIXED_AMOUNT"` \| `"PERCENTAGE"` (도메인 type 매핑) |
+| `applicable_scope` | string | `"all"` \| `"category"` \| `"product"` |
+| `points_also_used` | boolean | 포인트 동시 사용 여부 |
+| `order_subtotal` | number | 쿠폰 적용 전 주문금액 |
+| `effective_discount_rate` | number | 실제 할인율 = `discount_amount / order_subtotal` (0~1) |
+
+**`coupon_apply_fail` 확장 — `fail_reason` 값 추가:**
+
+| 값 | 설명 |
+|----|------|
+| `"expired"` | 기존 — 만료 |
+| `"invalid"` | 기존 — 존재하지 않는 코드 |
+| `"min_order"` | 기존 — 최소 주문금액 미달 |
+| `"already_used"` | 기존 — 이미 사용 |
+| `"not_applicable"` | **신규** — 적용 불가 카테고리/상품 |
+| `"revoked"` | **신규** — 관리자가 회수한 쿠폰 |
+
+---
+
+### 18-2. 신규 이벤트 — D09 포인트
+
+#### 클라이언트 이벤트
+
+| 이벤트 | 설명 | 발화 시점 | 고유 속성 |
+|--------|------|-----------|-----------|
+| `point_balance_view` | 포인트 잔액 조회 | 마이페이지 포인트 영역 진입 | `balance`, `expiring_soon_amount`, `expiring_soon_date` (YYYY-MM-DD, 가장 빠른 만료일) |
+| `point_history_view` | 포인트 내역 조회 | 포인트 이력 페이지 로드 완료 | `transaction_count`, `filter_type`: `"all"` \| `"earn"` \| `"use"` \| `"expire"` |
+| `point_use_cancel` | 포인트 사용 취소 | 체크아웃 내 포인트 사용 취소 클릭 | `points_cancelled`, `balance_after` |
+
+#### 서버사이드 전용 이벤트
+
+| 이벤트 | 설명 | 발화 시점 | 고유 속성 |
+|--------|------|-----------|-----------|
+| `point_earn` | 포인트 적립 | 구매 확정 / 리뷰 작성 / 관리자 지급 시 서버에서 발화 | `points_earned`, `earn_type`: `"purchase"` \| `"review_text"` \| `"review_photo"` \| `"admin_grant"`, `reference_id` (order_id / review_id / null), `balance_after` |
+| `point_expire_batch` | 포인트 만료 배치 처리 | 매일 00:00 배치 | `expired_points_total`, `affected_user_count` (집계 전용) |
+
+#### 기존 이벤트 속성 확장
+
+**`point_use` 확장 속성:**
+
+| 추가 속성 | 타입 | 설명 |
+|-----------|------|------|
+| `balance_before` | number | 사용 전 포인트 잔액 |
+| `balance_after` | number | 사용 후 포인트 잔액 |
+| `use_rate` | number | 사용 포인트 / 최대 사용 가능 포인트 (0~1). 최대 30% 정책 반영 |
+| `coupon_also_applied` | boolean | 쿠폰 동시 적용 여부 |
+
+---
+
+### 18-3. KPI — D08/D09 전용
+
+#### 쿠폰 KPI
+
+| KPI | 산식 | 목표 기준 | 세분화 기준 |
+|-----|------|----------|-------------|
+| **쿠폰 발급 수** | COUNT(`coupon_issued`) | — | `issue_type`, `coupon_code` |
+| **쿠폰 사용률** | 사용 완료 발급건 / 전체 발급건 | 캠페인별 설정 | `coupon_code`, `issue_type` |
+| **쿠폰 만료율** | 만료 발급건 / 전체 발급건 | < 30% | `coupon_code` |
+| **쿠폰 적용 전환율** | `purchase` with coupon / `coupon_apply` | > 70% | `coupon_discount_type`, `country` |
+| **쿠폰 적용 실패율** | `coupon_apply_fail` / (`coupon_apply` + `coupon_apply_fail`) | < 15% | `fail_reason` |
+| **쿠폰 할인 비율** | SUM(coupon_discount) / GMV | 캠페인별 관리 | `coupon_discount_type`, `coupon_code` |
+| **쿠폰 사용 구매 AOV** | AOV(coupon_code ≠ null) vs AOV(coupon_code = null) | — | `coupon_discount_type` |
+| **첫구매 쿠폰 기여율** | first_purchase with coupon / 전체 first_purchase | — | `issue_type` |
+
+#### 포인트 KPI
+
+| KPI | 산식 | 목표 기준 | 세분화 기준 |
+|-----|------|----------|-------------|
+| **포인트 적립 총액** | SUM(`point_earn.points_earned`) | — | `earn_type` |
+| **포인트 사용률** | SUM(USE 트랜잭션 금액) / SUM(EARN 트랜잭션 금액) | > 40% | `country` |
+| **포인트 만료율** | SUM(EXPIRE 트랜잭션) / SUM(EARN 트랜잭션) | < 20% | — |
+| **포인트 사용 구매 AOV** | AOV(points_used > 0) vs AOV(points_used = 0) | — | `country` |
+| **포인트 사용→재구매율** | 포인트 사용 후 재구매 유저 / 포인트 사용 유저 전체 | — | — |
+| **리뷰 포인트 비율** | review_text + review_photo earn / 전체 earn | — | `earn_type` |
+| **만료 임박 사용률** | 만료 7일 전 사용된 포인트 / 만료된 포인트 | — | — |
+
+---
+
+### 18-4. 퍼널 플로우
+
+#### 쿠폰 퍼널
+
+```
+coupon_issued (서버)
+  └──→ coupon_list_view          [ 발급→인지율 ]
+        └──→ begin_checkout
+              └──→ coupon_code_input  or  coupon_download 경로
+                    ├── coupon_apply (성공)   [ 입력→성공률 ]
+                    │     └──→ purchase       [ 적용→구매율 ]
+                    └── coupon_apply_fail     [ 실패 원인별 분포 ]
+```
+
+**드롭 포인트 해석:**
+- 발급 후 `coupon_list_view` 미진입 → 쿠폰 발급 알림/뱃지 UX 개선
+- `coupon_list_view` 후 `begin_checkout` 미진행 → 쿠폰 만료일 강조, 연계 상품 추천
+- 코드 입력 후 `fail_reason: "min_order"` → 최소 주문금액 달성 유도 배너
+- 코드 입력 후 `fail_reason: "expired"` → 대안 쿠폰 제시 UX 검토
+
+#### 포인트 퍼널
+
+```
+point_earn (서버 — 구매 확정 / 리뷰 작성)
+  └──→ point_balance_view        [ 적립 후 인지율 ]
+        └──→ begin_checkout
+              └──→ point_use     [ 체크아웃 내 포인트 사용 전환율 ]
+                    └──→ purchase
+```
+
+**드롭 포인트 해석:**
+- 적립 후 `point_balance_view` 미진입 → 마이페이지 포인트 노출 강화, 적립 완료 푸시
+- 체크아웃에서 포인트 미사용 → 만료 임박 포인트 강조 배너
+- `point_use_cancel` 빈도 높음 → 포인트 사용 UX 재검토 (최대 사용 기본 적용 등)
+
+---
+
+### 18-5. 대시보드 구성
+
+#### 쿠폰 대시보드
+
+| 패널 | 데이터 소스 | 주기 |
+|------|-------------|------|
+| 발급 / 사용 / 만료 추이 | `coupon_issued`, CouponIssuance 상태 집계 | 일 |
+| 쿠폰 코드별 사용률 순위 | coupon_code × (used / issued) | 실시간 |
+| 발급 채널별 구매 전환율 | `issue_type` × `purchase` 연계 | 주 |
+| 적용 실패 원인 분포 | `fail_reason` 파이차트 | 주 |
+| 쿠폰 할인 총액 vs GMV 비율 | 시계열 | 월 |
+| 첫구매 쿠폰 기여율 | `first_purchase` × coupon 사용 여부 | 월 |
+
+#### 포인트 대시보드
+
+| 패널 | 데이터 소스 | 주기 |
+|------|-------------|------|
+| 적립 / 사용 / 만료 추이 | PointTransaction 유형별 집계 | 일 |
+| 적립 유형별 비율 | `earn_type` 파이차트 | 주 |
+| 포인트 사용 전환율 | `point_use` / `begin_checkout` | 주 |
+| 포인트 사용 AOV 비교 | points_used > 0 vs = 0 | 월 |
+| 만료 임박 규모 | 7일 / 14일 / 30일 내 만료 예정 총액 | 실시간 |
+| 포인트 재구매 기여 코호트 | 포인트 사용 첫 달 기준 재구매율 추이 | 월 |
+
+---
+
+### 18-6. 실험 포인트 (A/B Test 후보)
+
+| 실험 ID | 가설 | 측정 지표 | 최소 기간 |
+|---------|------|----------|----------|
+| EXP-C01 | 쿠폰 배너 체크아웃 상단 노출 시 적용률 ↑ | `coupon_apply` / `begin_checkout` | 2주 |
+| EXP-C02 | 쿠폰 표현 "₩6,000 할인" vs "15% 할인" → 금액 표현 클릭률 ↑ | `coupon_download`, `coupon_apply` | 2주 |
+| EXP-P01 | 포인트 잔액 장바구니 페이지 노출 vs 체크아웃 첫 화면 노출 → 사용률 차이 | `point_use` / `cart_view` | 2주 |
+| EXP-P02 | 만료 임박 포인트 알림 7일 vs 14일 전 → 만료 전 사용률 ↑ | `point_expire_batch.expired_points_total` 감소 | 4주 |
+| EXP-P03 | 포인트 적립 메시지 "1% 적립" vs "₩XXX 적립 예정" → 구매 전환율 ↑ | `purchase`, `point_earn` | 2주 |
+
+---
+
+### 18-7. 서버사이드 이벤트 수집 정책 (D08/D09)
+
+| 이벤트 | 수집 방식 | 이유 |
+|--------|----------|------|
+| `coupon_apply` | 서버사이드 **필수** | 할인금액 정합성 보장 (클라이언트 조작 방지) |
+| `point_use` | 서버사이드 **필수** | 포인트 잔액 정합성 보장 |
+| `point_earn` | 서버사이드 전용 | 구매 확정 배치 처리 시점 발화 |
+| `coupon_issued` | 서버사이드 전용 | 관리자 발급 / 자동 발급 모두 서버 처리 |
+| `point_expire_batch`, `coupon_expire_batch` | 서버사이드 전용 (집계) | 배치 결과 집계, user_id 불포함 |
+| 나머지 쿠폰/포인트 이벤트 | 클라이언트 | UX 행동 추적 |
+
+---
+
 ## 부록 A. MVP 이벤트 우선순위
 
 MVP에서 반드시 구현해야 하는 이벤트 (★)와 2차에서 추가할 이벤트 (☆)를 구분한다.
 
-### ★ MVP 필수 (27개)
+### ★ MVP 필수 (31개)
 
 **퍼널 핵심 (11개)**
 `landing_view`, `home_view`, `collection_view`, `product_list_view`, `product_detail_view`, `add_to_cart`, `cart_view`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase`
@@ -428,6 +625,13 @@ MVP에서 반드시 구현해야 하는 이벤트 (★)와 2차에서 추가할 
 **이탈/에러 (2개)**
 `checkout_abandon`, `error_view`
 
+**쿠폰/포인트 — D08/D09 필수 (4개)**
+`coupon_list_view`, `point_balance_view`, `point_earn` (서버사이드), `coupon_issued` (서버사이드)
+
 ### ☆ 2차 추가 (나머지)
 
-`product_list_item_click`, `search_result_click`, `filter_apply`, `sort_change`, `product_image_view`, `product_review_section_view`, `product_option_select`, `remove_from_cart`, `cart_quantity_change`, `coupon_apply_fail`, `signup_start`, `logout`, `profile_update`, `account_delete`, `wishlist_remove`, `wishlist_view`, `review_view`, `review_helpful`, `community_post_like`, `community_comment_create`, `order_detail_view`, `order_cancel_request`, `refund_request`, `share`, `newsletter_subscribe`, `language_change`, `currency_change`
+**기존**
+`product_list_item_click`, `search_result_click`, `filter_apply`, `sort_change`, `product_image_view`, `product_review_section_view`, `product_option_select`, `remove_from_cart`, `cart_quantity_change`, `signup_start`, `logout`, `profile_update`, `account_delete`, `wishlist_remove`, `wishlist_view`, `review_view`, `review_helpful`, `community_post_like`, `community_comment_create`, `order_detail_view`, `order_cancel_request`, `refund_request`, `share`, `newsletter_subscribe`, `language_change`, `currency_change`
+
+**D08/D09 2차**
+`coupon_apply_fail`, `coupon_download`, `coupon_code_input`, `coupon_remove`, `point_history_view`, `point_use_cancel`, `coupon_expire_batch`, `point_expire_batch`
