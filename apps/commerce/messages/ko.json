@@ -201,6 +201,57 @@
       "KLARNA": "Klarna"
     }
   },
+  "review": {
+    "title": "리뷰",
+    "writeReview": "리뷰 작성",
+    "rating": "별점",
+    "content": "리뷰 내용",
+    "contentPlaceholder": "상품 사용 후기를 자세히 남겨주세요. (최소 10자)",
+    "sizeFeedback": {
+      "title": "사이즈 피드백",
+      "SMALL": "작아요",
+      "PERFECT": "딱 맞아요",
+      "LARGE": "커요"
+    },
+    "dogInfo": "강아지 정보 (선택)",
+    "dogBreed": "견종",
+    "dogBreedPlaceholder": "예) 골든 리트리버",
+    "dogWeight": "체중 (kg)",
+    "images": "사진 첨부",
+    "imagesHint": "최대 5장, 각 5MB 이하",
+    "addPhotos": "사진 추가",
+    "removePhoto": "사진 삭제",
+    "submit": "리뷰 등록",
+    "submitting": "등록 중...",
+    "success": "리뷰가 등록되었습니다!",
+    "successDesc": "소중한 리뷰 감사합니다.",
+    "purchasedSize": "구매 사이즈",
+    "verifiedPurchase": "구매 인증",
+    "photoReview": "포토 리뷰",
+    "bestReview": "베스트",
+    "backToOrders": "주문 내역으로",
+    "backToProduct": "상품으로 돌아가기",
+    "empty": "아직 등록된 리뷰가 없습니다.",
+    "prevPage": "이전",
+    "nextPage": "다음",
+    "stats": {
+      "avgRating": "평균 평점",
+      "totalReviews": "{count}개 리뷰",
+      "noReviews": "리뷰가 없습니다"
+    },
+    "error": {
+      "ratingRequired": "별점을 선택해 주세요.",
+      "sizeFeedbackRequired": "사이즈 피드백을 선택해 주세요.",
+      "contentTooShort": "리뷰 내용은 최소 10자 이상 입력해 주세요.",
+      "notAuthenticated": "로그인 후 리뷰를 작성할 수 있습니다.",
+      "notEligible": "구매한 상품만 리뷰를 작성할 수 있습니다.",
+      "alreadyReviewed": "이미 리뷰를 작성한 상품입니다.",
+      "imageFileTooLarge": "파일 크기가 5MB를 초과합니다.",
+      "imageTypeNotAllowed": "JPEG, PNG, WebP 형식만 업로드 가능합니다.",
+      "maxImagesReached": "사진은 최대 5장까지 첨부 가능합니다.",
+      "generic": "리뷰 등록에 실패했습니다. 다시 시도해 주세요."
+    }
+  },
   "plp": {
     "title": "상품",
     "all": "전체",

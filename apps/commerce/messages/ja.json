@@ -201,6 +201,57 @@
       "KLARNA": "Klarna"
     }
   },
+  "review": {
+    "title": "レビュー",
+    "writeReview": "レビューを書く",
+    "rating": "評価",
+    "content": "レビュー内容",
+    "contentPlaceholder": "商品の使用感を詳しく教えてください。（最低10文字）",
+    "sizeFeedback": {
+      "title": "サイズ感",
+      "SMALL": "小さめ",
+      "PERFECT": "ちょうどいい",
+      "LARGE": "大きめ"
+    },
+    "dogInfo": "愛犬の情報（任意）",
+    "dogBreed": "犬種",
+    "dogBreedPlaceholder": "例）ゴールデンレトリバー",
+    "dogWeight": "体重（kg）",
+    "images": "写真添付",
+    "imagesHint": "最大5枚、各5MB以下",
+    "addPhotos": "写真を追加",
+    "removePhoto": "写真を削除",
+    "submit": "レビューを投稿",
+    "submitting": "投稿中...",
+    "success": "レビューを投稿しました！",
+    "successDesc": "レビューありがとうございます。",
+    "purchasedSize": "購入サイズ",
+    "verifiedPurchase": "購入確認済み",
+    "photoReview": "フォトレビュー",
+    "bestReview": "ベスト",
+    "backToOrders": "注文一覧へ戻る",
+    "backToProduct": "商品へ戻る",
+    "empty": "まだレビューはありません。",
+    "prevPage": "前へ",
+    "nextPage": "次へ",
+    "stats": {
+      "avgRating": "平均評価",
+      "totalReviews": "{count}件のレビュー",
+      "noReviews": "レビューなし"
+    },
+    "error": {
+      "ratingRequired": "評価を選択してください。",
+      "sizeFeedbackRequired": "サイズ感を選択してください。",
+      "contentTooShort": "レビューは最低10文字以上入力してください。",
+      "notAuthenticated": "レビューを書くにはサインインしてください。",
+      "notEligible": "購入した商品のみレビューできます。",
+      "alreadyReviewed": "この商品はすでにレビュー済みです。",
+      "imageFileTooLarge": "ファイルサイズが5MBを超えています。",
+      "imageTypeNotAllowed": "JPEG、PNG、WebP形式のみアップロード可能です。",
+      "maxImagesReached": "写真は最大5枚まで添付できます。",
+      "generic": "レビューの投稿に失敗しました。再度お試しください。"
+    }
+  },
   "auth": {
     "signIn": "ログイン",
     "signOut": "ログアウト",

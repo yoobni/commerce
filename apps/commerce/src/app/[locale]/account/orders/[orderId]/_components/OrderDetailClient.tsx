@@ -8,6 +8,8 @@ import type { Locale } from '@/i18n/routing';
 import type { OrderDetailDisplay } from '@/lib/orders/queries';
 import { analytics } from '@/lib/analytics';
 
+const REVIEWABLE_STATUSES = new Set(['DELIVERED', 'CONFIRMED']);
+
 interface Props {
   locale: Locale;
   order: OrderDetailDisplay;
@@ -71,6 +73,7 @@ function formatDate(isoStr: string, locale: string): string {
 
 export function OrderDetailClient({ locale, order }: Props) {
   const t = useTranslations('orders');
+  const tReview = useTranslations('review');
 
   useEffect(() => {
     analytics.track('order_detail_view', {
@@ -276,6 +279,16 @@ export function OrderDetailClient({ locale, order }: Props) {
                     {formatAmount(item.total_price, order.currency)}
                   </p>
                 </div>
+                {REVIEWABLE_STATUSES.has(item.status) && item.snapshot_product_id && (
+                  <div className="mt-2">
+                    <Link
+                      href={`/${locale}/account/reviews/write?orderItemId=${encodeURIComponent(item.id)}&productId=${encodeURIComponent(item.snapshot_product_id)}&productName=${encodeURIComponent(item.snapshot_name)}&productThumbnail=${encodeURIComponent(item.snapshot_thumbnail_url)}&purchasedSize=${encodeURIComponent(item.snapshot_size)}`}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)] border border-[var(--color-primary)]/30 rounded-lg px-2.5 py-1 hover:bg-[var(--color-primary)]/5 transition-colors"
+                    >
+                      {tReview('writeReview')}
+                    </Link>
+                  </div>
+                )}
               </div>
             </li>
           ))}

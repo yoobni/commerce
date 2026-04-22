@@ -201,6 +201,57 @@
       "KLARNA": "Klarna"
     }
   },
+  "review": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "rating": "Rating",
+    "content": "Review",
+    "contentPlaceholder": "Share your experience with this product. (min. 10 characters)",
+    "sizeFeedback": {
+      "title": "Size Feedback",
+      "SMALL": "Runs Small",
+      "PERFECT": "True to Size",
+      "LARGE": "Runs Large"
+    },
+    "dogInfo": "About Your Dog (Optional)",
+    "dogBreed": "Breed",
+    "dogBreedPlaceholder": "e.g. Golden Retriever",
+    "dogWeight": "Weight (kg)",
+    "images": "Photos",
+    "imagesHint": "Up to 5 photos, 5MB each",
+    "addPhotos": "Add Photo",
+    "removePhoto": "Remove Photo",
+    "submit": "Submit Review",
+    "submitting": "Submitting...",
+    "success": "Review Submitted!",
+    "successDesc": "Thank you for your review.",
+    "purchasedSize": "Purchased Size",
+    "verifiedPurchase": "Verified Purchase",
+    "photoReview": "Photo Review",
+    "bestReview": "Best",
+    "backToOrders": "Back to Orders",
+    "backToProduct": "Back to Product",
+    "empty": "No reviews yet.",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "stats": {
+      "avgRating": "Average Rating",
+      "totalReviews": "{count} reviews",
+      "noReviews": "No reviews yet"
+    },
+    "error": {
+      "ratingRequired": "Please select a rating.",
+      "sizeFeedbackRequired": "Please select size feedback.",
+      "contentTooShort": "Review must be at least 10 characters.",
+      "notAuthenticated": "Please sign in to write a review.",
+      "notEligible": "You can only review items you've purchased.",
+      "alreadyReviewed": "You've already reviewed this item.",
+      "imageFileTooLarge": "File size exceeds 5MB.",
+      "imageTypeNotAllowed": "Only JPEG, PNG, and WebP images are allowed.",
+      "maxImagesReached": "Maximum 5 images allowed.",
+      "generic": "Failed to submit review. Please try again."
+    }
+  },
   "auth": {
     "signIn": "Sign In",
     "signOut": "Sign Out",

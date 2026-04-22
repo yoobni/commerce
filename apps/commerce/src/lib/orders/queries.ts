@@ -27,6 +27,7 @@ export interface OrderItemDisplay {
   snapshot_thumbnail_url: string;
   snapshot_size: string;
   snapshot_color: string;
+  snapshot_product_id: string;
 }
 
 export interface OrderDetailDisplay {
@@ -173,6 +174,7 @@ export async function getOrderById(orderId: string): Promise<OrderDetailDisplay 
         snapshot_thumbnail_url: (snap?.thumbnail_url as string) ?? '',
         snapshot_size: (snap?.size as string) ?? '',
         snapshot_color: (snap?.color as string) ?? '',
+        snapshot_product_id: (snap?.product_id as string) ?? '',
       };
     }
   );

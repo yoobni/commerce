@@ -201,6 +201,57 @@
       "KLARNA": "Klarna"
     }
   },
+  "review": {
+    "title": "Bewertungen",
+    "writeReview": "Bewertung schreiben",
+    "rating": "Bewertung",
+    "content": "Bewertungstext",
+    "contentPlaceholder": "Teile deine Erfahrung mit diesem Produkt. (mind. 10 Zeichen)",
+    "sizeFeedback": {
+      "title": "Größenfeedback",
+      "SMALL": "Fällt klein aus",
+      "PERFECT": "Größe stimmt",
+      "LARGE": "Fällt groß aus"
+    },
+    "dogInfo": "Über deinen Hund (Optional)",
+    "dogBreed": "Rasse",
+    "dogBreedPlaceholder": "z.B. Golden Retriever",
+    "dogWeight": "Gewicht (kg)",
+    "images": "Fotos",
+    "imagesHint": "Bis zu 5 Fotos, je 5MB",
+    "addPhotos": "Foto hinzufügen",
+    "removePhoto": "Foto entfernen",
+    "submit": "Bewertung absenden",
+    "submitting": "Wird gesendet...",
+    "success": "Bewertung eingereicht!",
+    "successDesc": "Vielen Dank für deine Bewertung.",
+    "purchasedSize": "Gekaufte Größe",
+    "verifiedPurchase": "Verifizierter Kauf",
+    "photoReview": "Fotobewertung",
+    "bestReview": "Best",
+    "backToOrders": "Zurück zu den Bestellungen",
+    "backToProduct": "Zurück zum Produkt",
+    "empty": "Noch keine Bewertungen.",
+    "prevPage": "Zurück",
+    "nextPage": "Weiter",
+    "stats": {
+      "avgRating": "Durchschnittsbewertung",
+      "totalReviews": "{count} Bewertungen",
+      "noReviews": "Keine Bewertungen"
+    },
+    "error": {
+      "ratingRequired": "Bitte wähle eine Bewertung aus.",
+      "sizeFeedbackRequired": "Bitte wähle ein Größenfeedback.",
+      "contentTooShort": "Die Bewertung muss mindestens 10 Zeichen lang sein.",
+      "notAuthenticated": "Bitte melde dich an, um eine Bewertung zu schreiben.",
+      "notEligible": "Du kannst nur Artikel bewerten, die du gekauft hast.",
+      "alreadyReviewed": "Du hast diesen Artikel bereits bewertet.",
+      "imageFileTooLarge": "Die Dateigröße überschreitet 5MB.",
+      "imageTypeNotAllowed": "Nur JPEG-, PNG- und WebP-Bilder sind erlaubt.",
+      "maxImagesReached": "Maximal 5 Bilder erlaubt.",
+      "generic": "Bewertung konnte nicht übermittelt werden. Bitte versuche es erneut."
+    }
+  },
   "auth": {
     "signIn": "Anmelden",
     "signOut": "Abmelden",
