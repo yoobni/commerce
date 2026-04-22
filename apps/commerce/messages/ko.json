@@ -218,6 +218,155 @@
       "likeFailed": "좋아요 처리에 실패했습니다"
     }
   },
+  "checkout": {
+    "title": "주문하기",
+    "steps": {
+      "shipping": "배송 정보",
+      "payment": "결제 수단",
+      "confirm": "주문 확인"
+    },
+    "shipping": {
+      "title": "배송 정보",
+      "recipient": "수령인",
+      "recipientPlaceholder": "이름을 입력해 주세요",
+      "phone": "연락처",
+      "phonePlaceholder": "숫자만 입력해 주세요",
+      "address": "주소",
+      "addressSearch": "주소 검색",
+      "addressDetail": "상세 주소",
+      "addressDetailPlaceholder": "동, 호수 등을 입력해 주세요",
+      "deliveryNote": "배송 메시지",
+      "deliveryNotePlaceholder": "배송 시 요청사항을 입력해 주세요 (선택)",
+      "useRegisteredAddress": "등록된 주소 사용"
+    },
+    "payment": {
+      "title": "결제 수단",
+      "creditCard": "신용카드 / 체크카드",
+      "bankTransfer": "무통장입금",
+      "kakaoPay": "카카오페이",
+      "naverPay": "네이버페이",
+      "cardNumber": "카드 번호",
+      "expiry": "유효 기간",
+      "cvv": "CVV",
+      "cardHolder": "카드 소유자 이름"
+    },
+    "coupon": {
+      "title": "쿠폰 / 포인트",
+      "couponCode": "쿠폰 코드",
+      "couponPlaceholder": "쿠폰 코드를 입력해 주세요",
+      "apply": "적용",
+      "applied": "적용됨",
+      "remove": "제거",
+      "invalidCode": "유효하지 않은 쿠폰입니다",
+      "points": "포인트",
+      "availablePoints": "사용 가능 포인트",
+      "useAll": "전액 사용"
+    },
+    "summary": {
+      "title": "주문 요약",
+      "items": "상품 {count}개",
+      "subtotal": "상품 금액",
+      "shippingFee": "배송비",
+      "discount": "할인",
+      "couponDiscount": "쿠폰 할인",
+      "pointDiscount": "포인트 할인",
+      "total": "최종 결제 금액",
+      "freeShipping": "무료",
+      "placeOrder": "결제하기"
+    },
+    "success": {
+      "title": "주문이 완료되었습니다",
+      "orderNumber": "주문 번호",
+      "message": "주문 확인 이메일을 발송했습니다.",
+      "estimatedDelivery": "예상 배송일",
+      "continueShopping": "쇼핑 계속하기",
+      "viewOrders": "주문 내역 보기"
+    },
+    "error": {
+      "paymentFailed": "결제에 실패했습니다. 다시 시도해 주세요.",
+      "outOfStock": "일부 상품이 품절되었습니다.",
+      "addressRequired": "배송 주소를 입력해 주세요.",
+      "paymentRequired": "결제 수단을 선택해 주세요."
+    }
+  },
+  "account": {
+    "title": "마이페이지",
+    "nav": {
+      "profile": "프로필",
+      "orders": "주문 내역",
+      "addresses": "배송 주소",
+      "wishlist": "찜 목록",
+      "points": "포인트",
+      "coupons": "쿠폰",
+      "withdrawal": "회원 탈퇴"
+    },
+    "profile": {
+      "title": "프로필",
+      "name": "이름",
+      "email": "이메일",
+      "phone": "연락처",
+      "phonePlaceholder": "숫자만 입력해 주세요",
+      "marketingConsent": "마케팅 수신 동의",
+      "edit": "프로필 수정",
+      "save": "저장",
+      "updated": "프로필이 업데이트되었습니다."
+    },
+    "orders": {
+      "title": "주문 내역",
+      "orderNumber": "주문 번호",
+      "orderDate": "주문 일자",
+      "status": {
+        "pending": "결제 대기",
+        "paid": "결제 완료",
+        "preparing": "상품 준비 중",
+        "shipped": "배송 중",
+        "delivered": "배송 완료",
+        "cancelled": "취소됨",
+        "refunded": "환불 완료"
+      },
+      "total": "결제 금액",
+      "viewDetail": "주문 상세",
+      "trackPackage": "배송 조회",
+      "cancelOrder": "주문 취소"
+    },
+    "addresses": {
+      "title": "배송 주소",
+      "add": "주소 추가",
+      "edit": "수정",
+      "delete": "삭제",
+      "setDefault": "기본 주소로 설정",
+      "default": "기본 주소",
+      "recipient": "수령인",
+      "phone": "연락처",
+      "noAddresses": "등록된 주소가 없습니다."
+    },
+    "wishlist": {
+      "title": "찜 목록"
+    },
+    "points": {
+      "title": "포인트",
+      "balance": "보유 포인트",
+      "history": "포인트 내역",
+      "earned": "적립",
+      "used": "사용",
+      "expires": "소멸 예정"
+    },
+    "coupons": {
+      "title": "쿠폰",
+      "available": "사용 가능",
+      "used": "사용 완료",
+      "expired": "기간 만료",
+      "discount": "할인",
+      "validUntil": "유효기간",
+      "noCoupons": "보유 쿠폰이 없습니다."
+    },
+    "withdrawal": {
+      "title": "회원 탈퇴",
+      "warning": "탈퇴 시 모든 데이터가 삭제됩니다.",
+      "confirm": "탈퇴하기",
+      "reason": "탈퇴 사유"
+    }
+  },
   "auth": {
     "signIn": "로그인",
     "signOut": "로그아웃",

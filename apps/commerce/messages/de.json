@@ -193,6 +193,180 @@
       "likeFailed": "Like konnte nicht aktualisiert werden"
     }
   },
+  "plp": {
+    "title": "Produkte",
+    "all": "Alle",
+    "sortNewest": "Neueste",
+    "sortPriceAsc": "Preis: aufsteigend",
+    "sortPriceDesc": "Preis: absteigend",
+    "sortPopular": "Beliebteste",
+    "size": "Größe",
+    "color": "Farbe",
+    "price": "Preis",
+    "minPrice": "Mindestpreis",
+    "maxPrice": "Höchstpreis",
+    "clearFilters": "Filter zurücksetzen",
+    "results": "{count} Produkte",
+    "noResults": "Keine Produkte entsprechen deinen Kriterien",
+    "noResultsHint": "Versuche, die Filter zu ändern",
+    "filterTitle": "Filter",
+    "showFilters": "Filter anzeigen",
+    "hideFilters": "Filter ausblenden",
+    "prevPage": "Zurück",
+    "nextPage": "Weiter",
+    "pageOf": "{page} von {total}",
+    "new": "Neu",
+    "featured": "Empfohlen"
+  },
+  "checkout": {
+    "title": "Bestellung",
+    "steps": {
+      "shipping": "Versand",
+      "payment": "Zahlung",
+      "confirm": "Bestätigung"
+    },
+    "shipping": {
+      "title": "Versandinformationen",
+      "recipient": "Empfänger",
+      "recipientPlaceholder": "Name eingeben",
+      "phone": "Telefon",
+      "phonePlaceholder": "Nur Ziffern",
+      "address": "Adresse",
+      "addressSearch": "Adresse suchen",
+      "addressDetail": "Adresszusatz",
+      "addressDetailPlaceholder": "Wohnung, Stockwerk usw.",
+      "deliveryNote": "Lieferhinweis",
+      "deliveryNotePlaceholder": "Besondere Anweisungen für die Lieferung (optional)",
+      "useRegisteredAddress": "Gespeicherte Adresse verwenden"
+    },
+    "payment": {
+      "title": "Zahlungsmethode",
+      "creditCard": "Kredit- / Debitkarte",
+      "bankTransfer": "Überweisung",
+      "kakaoPay": "Kakao Pay",
+      "naverPay": "Naver Pay",
+      "cardNumber": "Kartennummer",
+      "expiry": "Ablaufdatum",
+      "cvv": "CVV",
+      "cardHolder": "Karteninhaber"
+    },
+    "coupon": {
+      "title": "Gutschein / Punkte",
+      "couponCode": "Gutscheincode",
+      "couponPlaceholder": "Gutscheincode eingeben",
+      "apply": "Einlösen",
+      "applied": "Eingelöst",
+      "remove": "Entfernen",
+      "invalidCode": "Ungültiger Gutscheincode",
+      "points": "Punkte",
+      "availablePoints": "Verfügbare Punkte",
+      "useAll": "Alle verwenden"
+    },
+    "summary": {
+      "title": "Bestellübersicht",
+      "items": "{count} Artikel",
+      "subtotal": "Zwischensumme",
+      "shippingFee": "Versandkosten",
+      "discount": "Rabatt",
+      "couponDiscount": "Gutscheinrabatt",
+      "pointDiscount": "Punkterabatt",
+      "total": "Gesamtsumme",
+      "freeShipping": "Kostenlos",
+      "placeOrder": "Jetzt bestellen"
+    },
+    "success": {
+      "title": "Bestellung aufgegeben!",
+      "orderNumber": "Bestellnummer",
+      "message": "Eine Bestätigungs-E-Mail wurde gesendet.",
+      "estimatedDelivery": "Voraussichtliche Lieferung",
+      "continueShopping": "Weiter einkaufen",
+      "viewOrders": "Bestellungen anzeigen"
+    },
+    "error": {
+      "paymentFailed": "Zahlung fehlgeschlagen. Bitte versuche es erneut.",
+      "outOfStock": "Einige Artikel sind nicht mehr verfügbar.",
+      "addressRequired": "Bitte gib eine Lieferadresse ein.",
+      "paymentRequired": "Bitte wähle eine Zahlungsmethode."
+    }
+  },
+  "account": {
+    "title": "Mein Konto",
+    "nav": {
+      "profile": "Profil",
+      "orders": "Bestellungen",
+      "addresses": "Adressen",
+      "wishlist": "Wunschliste",
+      "points": "Punkte",
+      "coupons": "Gutscheine",
+      "withdrawal": "Konto löschen"
+    },
+    "profile": {
+      "title": "Profil",
+      "name": "Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "phonePlaceholder": "Nur Ziffern",
+      "marketingConsent": "Marketing-E-Mails erhalten",
+      "edit": "Profil bearbeiten",
+      "save": "Speichern",
+      "updated": "Profil erfolgreich aktualisiert."
+    },
+    "orders": {
+      "title": "Bestellverlauf",
+      "orderNumber": "Bestellung #",
+      "orderDate": "Bestelldatum",
+      "status": {
+        "pending": "Zahlung ausstehend",
+        "paid": "Bezahlt",
+        "preparing": "In Vorbereitung",
+        "shipped": "Versendet",
+        "delivered": "Geliefert",
+        "cancelled": "Storniert",
+        "refunded": "Erstattet"
+      },
+      "total": "Gesamt",
+      "viewDetail": "Details anzeigen",
+      "trackPackage": "Sendung verfolgen",
+      "cancelOrder": "Bestellung stornieren"
+    },
+    "addresses": {
+      "title": "Gespeicherte Adressen",
+      "add": "Adresse hinzufügen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "setDefault": "Als Standard festlegen",
+      "default": "Standard",
+      "recipient": "Empfänger",
+      "phone": "Telefon",
+      "noAddresses": "Keine gespeicherten Adressen."
+    },
+    "wishlist": {
+      "title": "Wunschliste"
+    },
+    "points": {
+      "title": "Punkte",
+      "balance": "Verfügbare Punkte",
+      "history": "Punkteverlauf",
+      "earned": "Erhalten",
+      "used": "Verwendet",
+      "expires": "Läuft bald ab"
+    },
+    "coupons": {
+      "title": "Gutscheine",
+      "available": "Verfügbar",
+      "used": "Verwendet",
+      "expired": "Abgelaufen",
+      "discount": "Rabatt",
+      "validUntil": "Gültig bis",
+      "noCoupons": "Keine Gutscheine verfügbar."
+    },
+    "withdrawal": {
+      "title": "Konto löschen",
+      "warning": "Alle deine Daten werden dauerhaft gelöscht.",
+      "confirm": "Konto löschen",
+      "reason": "Grund für die Kündigung"
+    }
+  },
   "auth": {
     "signIn": "Anmelden",
     "signOut": "Abmelden",

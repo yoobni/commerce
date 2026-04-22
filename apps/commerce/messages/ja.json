@@ -193,6 +193,180 @@
       "likeFailed": "いいねの処理に失敗しました"
     }
   },
+  "plp": {
+    "title": "商品",
+    "all": "すべて",
+    "sortNewest": "新着順",
+    "sortPriceAsc": "価格の安い順",
+    "sortPriceDesc": "価格の高い順",
+    "sortPopular": "人気順",
+    "size": "サイズ",
+    "color": "カラー",
+    "price": "価格",
+    "minPrice": "最低価格",
+    "maxPrice": "最高価格",
+    "clearFilters": "フィルターをリセット",
+    "results": "{count}件の商品",
+    "noResults": "条件に合う商品がありません",
+    "noResultsHint": "フィルターを変更してみてください",
+    "filterTitle": "フィルター",
+    "showFilters": "フィルターを表示",
+    "hideFilters": "フィルターを閉じる",
+    "prevPage": "前へ",
+    "nextPage": "次へ",
+    "pageOf": "{page} / {total}",
+    "new": "新着",
+    "featured": "おすすめ"
+  },
+  "checkout": {
+    "title": "注文する",
+    "steps": {
+      "shipping": "配送情報",
+      "payment": "お支払い方法",
+      "confirm": "注文確認"
+    },
+    "shipping": {
+      "title": "配送情報",
+      "recipient": "お受取人",
+      "recipientPlaceholder": "お名前を入力してください",
+      "phone": "電話番号",
+      "phonePlaceholder": "数字のみ入力してください",
+      "address": "住所",
+      "addressSearch": "住所検索",
+      "addressDetail": "住所詳細",
+      "addressDetailPlaceholder": "マンション名・部屋番号など",
+      "deliveryNote": "配送メモ",
+      "deliveryNotePlaceholder": "配送時のご要望をご記入ください（任意）",
+      "useRegisteredAddress": "登録住所を使用"
+    },
+    "payment": {
+      "title": "お支払い方法",
+      "creditCard": "クレジット / デビットカード",
+      "bankTransfer": "銀行振込",
+      "kakaoPay": "カカオペイ",
+      "naverPay": "ネイバーペイ",
+      "cardNumber": "カード番号",
+      "expiry": "有効期限",
+      "cvv": "CVV",
+      "cardHolder": "カード名義人"
+    },
+    "coupon": {
+      "title": "クーポン / ポイント",
+      "couponCode": "クーポンコード",
+      "couponPlaceholder": "クーポンコードを入力してください",
+      "apply": "適用",
+      "applied": "適用済み",
+      "remove": "削除",
+      "invalidCode": "無効なクーポンコードです",
+      "points": "ポイント",
+      "availablePoints": "利用可能ポイント",
+      "useAll": "全額使用"
+    },
+    "summary": {
+      "title": "注文内容",
+      "items": "商品 {count}点",
+      "subtotal": "小計",
+      "shippingFee": "送料",
+      "discount": "割引",
+      "couponDiscount": "クーポン割引",
+      "pointDiscount": "ポイント割引",
+      "total": "合計",
+      "freeShipping": "無料",
+      "placeOrder": "注文を確定する"
+    },
+    "success": {
+      "title": "ご注文ありがとうございます",
+      "orderNumber": "注文番号",
+      "message": "注文確認メールをお送りしました。",
+      "estimatedDelivery": "配送予定日",
+      "continueShopping": "ショッピングを続ける",
+      "viewOrders": "注文履歴を見る"
+    },
+    "error": {
+      "paymentFailed": "決済に失敗しました。もう一度お試しください。",
+      "outOfStock": "一部の商品が在庫切れになりました。",
+      "addressRequired": "配送先住所を入力してください。",
+      "paymentRequired": "お支払い方法を選択してください。"
+    }
+  },
+  "account": {
+    "title": "マイページ",
+    "nav": {
+      "profile": "プロフィール",
+      "orders": "注文履歴",
+      "addresses": "配送先住所",
+      "wishlist": "お気に入り",
+      "points": "ポイント",
+      "coupons": "クーポン",
+      "withdrawal": "退会"
+    },
+    "profile": {
+      "title": "プロフィール",
+      "name": "お名前",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "phonePlaceholder": "数字のみ入力してください",
+      "marketingConsent": "マーケティングメールの受信",
+      "edit": "プロフィール編集",
+      "save": "保存",
+      "updated": "プロフィールを更新しました。"
+    },
+    "orders": {
+      "title": "注文履歴",
+      "orderNumber": "注文番号",
+      "orderDate": "注文日",
+      "status": {
+        "pending": "入金待ち",
+        "paid": "入金完了",
+        "preparing": "準備中",
+        "shipped": "発送済み",
+        "delivered": "配達完了",
+        "cancelled": "キャンセル済み",
+        "refunded": "返金済み"
+      },
+      "total": "合計",
+      "viewDetail": "詳細を見る",
+      "trackPackage": "配送追跡",
+      "cancelOrder": "注文をキャンセル"
+    },
+    "addresses": {
+      "title": "配送先住所",
+      "add": "住所を追加",
+      "edit": "編集",
+      "delete": "削除",
+      "setDefault": "デフォルトに設定",
+      "default": "デフォルト",
+      "recipient": "お受取人",
+      "phone": "電話番号",
+      "noAddresses": "登録された住所がありません。"
+    },
+    "wishlist": {
+      "title": "お気に入り"
+    },
+    "points": {
+      "title": "ポイント",
+      "balance": "保有ポイント",
+      "history": "ポイント履歴",
+      "earned": "獲得",
+      "used": "使用",
+      "expires": "まもなく失効"
+    },
+    "coupons": {
+      "title": "クーポン",
+      "available": "利用可能",
+      "used": "使用済み",
+      "expired": "期限切れ",
+      "discount": "割引",
+      "validUntil": "有効期限",
+      "noCoupons": "利用可能なクーポンがありません。"
+    },
+    "withdrawal": {
+      "title": "退会",
+      "warning": "退会するとすべてのデータが削除されます。",
+      "confirm": "退会する",
+      "reason": "退会理由"
+    }
+  },
   "auth": {
     "signIn": "ログイン",
     "signOut": "ログアウト",

@@ -193,6 +193,180 @@
       "likeFailed": "Failed to update like"
     }
   },
+  "plp": {
+    "title": "Products",
+    "all": "All",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortPopular": "Popular",
+    "size": "Size",
+    "color": "Color",
+    "price": "Price",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "clearFilters": "Clear Filters",
+    "results": "{count} products",
+    "noResults": "No products match your criteria",
+    "noResultsHint": "Try changing the filters",
+    "filterTitle": "Filters",
+    "showFilters": "Show Filters",
+    "hideFilters": "Hide Filters",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "{page} of {total}",
+    "new": "New",
+    "featured": "Featured"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "steps": {
+      "shipping": "Shipping",
+      "payment": "Payment",
+      "confirm": "Confirmation"
+    },
+    "shipping": {
+      "title": "Shipping Information",
+      "recipient": "Recipient",
+      "recipientPlaceholder": "Enter recipient name",
+      "phone": "Phone",
+      "phonePlaceholder": "Numbers only",
+      "address": "Address",
+      "addressSearch": "Search address",
+      "addressDetail": "Address detail",
+      "addressDetailPlaceholder": "Apt, suite, unit, etc.",
+      "deliveryNote": "Delivery note",
+      "deliveryNotePlaceholder": "Special instructions for delivery (optional)",
+      "useRegisteredAddress": "Use saved address"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "creditCard": "Credit / Debit Card",
+      "bankTransfer": "Bank Transfer",
+      "kakaoPay": "Kakao Pay",
+      "naverPay": "Naver Pay",
+      "cardNumber": "Card number",
+      "expiry": "Expiry date",
+      "cvv": "CVV",
+      "cardHolder": "Cardholder name"
+    },
+    "coupon": {
+      "title": "Coupon / Points",
+      "couponCode": "Coupon code",
+      "couponPlaceholder": "Enter coupon code",
+      "apply": "Apply",
+      "applied": "Applied",
+      "remove": "Remove",
+      "invalidCode": "Invalid coupon code",
+      "points": "Points",
+      "availablePoints": "Available points",
+      "useAll": "Use all"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "items": "{count} item(s)",
+      "subtotal": "Subtotal",
+      "shippingFee": "Shipping",
+      "discount": "Discount",
+      "couponDiscount": "Coupon discount",
+      "pointDiscount": "Points discount",
+      "total": "Total",
+      "freeShipping": "Free",
+      "placeOrder": "Place Order"
+    },
+    "success": {
+      "title": "Order Placed!",
+      "orderNumber": "Order number",
+      "message": "A confirmation email has been sent.",
+      "estimatedDelivery": "Estimated delivery",
+      "continueShopping": "Continue Shopping",
+      "viewOrders": "View Orders"
+    },
+    "error": {
+      "paymentFailed": "Payment failed. Please try again.",
+      "outOfStock": "Some items are no longer available.",
+      "addressRequired": "Please enter a shipping address.",
+      "paymentRequired": "Please select a payment method."
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "nav": {
+      "profile": "Profile",
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "wishlist": "Wishlist",
+      "points": "Points",
+      "coupons": "Coupons",
+      "withdrawal": "Delete Account"
+    },
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "phonePlaceholder": "Numbers only",
+      "marketingConsent": "Receive marketing emails",
+      "edit": "Edit Profile",
+      "save": "Save",
+      "updated": "Profile updated successfully."
+    },
+    "orders": {
+      "title": "Order History",
+      "orderNumber": "Order #",
+      "orderDate": "Order date",
+      "status": {
+        "pending": "Pending Payment",
+        "paid": "Payment Complete",
+        "preparing": "Preparing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "total": "Total",
+      "viewDetail": "View Details",
+      "trackPackage": "Track Package",
+      "cancelOrder": "Cancel Order"
+    },
+    "addresses": {
+      "title": "Saved Addresses",
+      "add": "Add Address",
+      "edit": "Edit",
+      "delete": "Delete",
+      "setDefault": "Set as default",
+      "default": "Default",
+      "recipient": "Recipient",
+      "phone": "Phone",
+      "noAddresses": "No saved addresses."
+    },
+    "wishlist": {
+      "title": "Wishlist"
+    },
+    "points": {
+      "title": "Points",
+      "balance": "Available Points",
+      "history": "Points History",
+      "earned": "Earned",
+      "used": "Used",
+      "expires": "Expiring soon"
+    },
+    "coupons": {
+      "title": "Coupons",
+      "available": "Available",
+      "used": "Used",
+      "expired": "Expired",
+      "discount": "Discount",
+      "validUntil": "Valid until",
+      "noCoupons": "No coupons available."
+    },
+    "withdrawal": {
+      "title": "Delete Account",
+      "warning": "All your data will be permanently deleted.",
+      "confirm": "Delete Account",
+      "reason": "Reason for leaving"
+    }
+  },
   "auth": {
     "signIn": "Sign In",
     "signOut": "Sign Out",
