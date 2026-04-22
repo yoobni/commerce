@@ -11,7 +11,9 @@
     "build:commerce": "npm -w apps/commerce run build",
     "build:admin": "npm -w apps/admin run build",
     "lint": "npm run lint --workspaces",
-    "typecheck": "npm run typecheck --workspaces"
+    "typecheck": "npm run typecheck --workspaces",
+    "i18n:qa": "npx tsx scripts/i18n-qa.ts",
+    "i18n:qa:strict": "npx tsx scripts/i18n-qa.ts --strict --fix-hint"
   },
   "engines": {
     "node": ">=20"
