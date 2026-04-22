@@ -222,6 +222,12 @@ export interface EventMap {
     product_id: string;
   };
 
+  // ─── Order History ────────────────────────────────────────────────────────
+  order_detail_view: {
+    order_id: string;
+    order_status: string;
+  };
+
   // ─── Account / My Page ────────────────────────────────────────────────────
   profile_update: {
     fields_changed: string[];
