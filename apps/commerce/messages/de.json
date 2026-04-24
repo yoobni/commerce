@@ -410,5 +410,10 @@
       "signIn": "Willkommen zurück!",
       "resetEmailSent": "Reset-Link gesendet. Bitte überprüfe dein Postfach."
     }
+  },
+  "search": {
+    "title": "Suche",
+    "placeholder": "Produkte suchen...",
+    "results": "{count} Ergebnisse"
   }
 }

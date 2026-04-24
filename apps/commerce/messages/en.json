@@ -410,5 +410,10 @@
       "signIn": "Welcome back!",
       "resetEmailSent": "Reset link sent. Please check your inbox."
     }
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products...",
+    "results": "{count} results"
   }
 }

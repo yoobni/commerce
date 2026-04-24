@@ -17,6 +17,7 @@ export interface ProductListParams {
   colors?: string[];
   min_price_krw?: number;
   max_price_krw?: number;
+  q?: string; // free-text search against name_ko / name_en
 }
 
 const SORT_MAP: Record<NonNullable<ProductListParams['sort']>, { column: string; ascending: boolean }> = {
@@ -40,6 +41,7 @@ export async function listProducts(
     colors,
     min_price_krw,
     max_price_krw,
+    q,
   } = params;
 
   const supabase = await createClient();
@@ -110,6 +112,10 @@ export async function listProducts(
   if (combinedIds) query = query.in('id', combinedIds);
   if (min_price_krw !== undefined) query = query.gte('base_price_krw', min_price_krw);
   if (max_price_krw !== undefined) query = query.lte('base_price_krw', max_price_krw);
+  if (q && q.trim()) {
+    const term = `%${q.trim()}%`;
+    query = query.or(`name_ko.ilike.${term},name_en.ilike.${term}`);
+  }
 
   const { column, ascending } = SORT_MAP[sort];
   query = query.order(column, { ascending }).range(offset, offset + per_page - 1);

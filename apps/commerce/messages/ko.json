@@ -410,5 +410,10 @@
       "signIn": "환영합니다!",
       "resetEmailSent": "재설정 링크가 이메일로 발송되었습니다. 받은 메일함을 확인해 주세요."
     }
+  },
+  "search": {
+    "title": "검색",
+    "placeholder": "상품 검색...",
+    "results": "{count}개 결과"
   }
 }
