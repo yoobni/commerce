@@ -21,7 +21,7 @@ export type Currency = 'KRW' | 'USD' | 'JPY' | 'EUR';
 // ─── User ─────────────────────────────────────────────────────────────────────
 
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
-export type AuthProvider = 'email' | 'google' | 'apple' | 'kakao';
+export type AuthProvider = 'email' | 'google' | 'apple' | 'kakao' | 'naver' | 'twitter';
 
 export interface User {
   id: UUID;

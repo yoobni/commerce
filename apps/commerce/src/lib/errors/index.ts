@@ -15,10 +15,14 @@ export type ErrorCode =
   | 'FORBIDDEN'
   | 'VALIDATION'
   | 'PAYMENT_FAILED'
+  | 'PAYMENT_CANCELLED'
+  | 'PAYMENT_REQUIRES_ACTION'
+  | 'PAYMENT_INTENT_FAILED'
   | 'OUT_OF_STOCK'
   | 'COUPON_INVALID'
   | 'COUPON_EXPIRED'
-  | 'ORDER_CONFLICT';
+  | 'ORDER_CONFLICT'
+  | 'OAUTH_ERROR';
 
 export class AppError extends Error {
   readonly code: ErrorCode;

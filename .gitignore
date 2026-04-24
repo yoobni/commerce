@@ -7,10 +7,12 @@ dist/
 out/
 build/
 
-# Environment
+# Environment (실제 시크릿 — 절대 커밋 금지)
 .env
 .env.local
 .env.*.local
+# .env.development 는 안전한 로컬 기본값이므로 커밋 허용
+# .env.staging.example, .env.example 은 템플릿이므로 커밋 허용
 
 # IDE
 .vscode/
