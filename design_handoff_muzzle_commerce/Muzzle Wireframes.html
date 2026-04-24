@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Muzzle · Wireframes</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; overflow: hidden; }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+  /* Magazine header — sits above canvas */
+  #mast {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 14px 24px 12px; background: #f0eee9;
+    border-bottom: 1px solid rgba(42,36,32,0.55);
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
+  #mast .left, #mast .right { font-size: 11px; letter-spacing: 0.26em; color: #5a5048; text-transform: uppercase; font-family: Inter, sans-serif; }
+  #mast .title { font-size: 24px; letter-spacing: -0.01em; font-style: italic; color: #2a2420; }
+  #mast .title em { font-style: normal; color: #7a2e2e; }
+  #canvas-root { position: absolute; inset: 54px 0 0 0; }
+</style>
+</head>
+<body>
+
+<div id="mast">
+  <div class="left">Muzzle · Wireframes &nbsp;/&nbsp; Vol. 04</div>
+  <div class="title">The <em>Large-Hound</em> Commerce, in rough</div>
+  <div class="right">Sketchy · 23 mobile · 4 desktop · 04·26</div>
+</div>
+
+<div id="canvas-root"></div>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Starters + primitives + screens -->
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="browser-window.jsx"></script>
+<script type="text/babel" src="wire-primitives.jsx"></script>
+<script type="text/babel" src="mobile-screens-a.jsx"></script>
+<script type="text/babel" src="mobile-screens-b.jsx"></script>
+<script type="text/babel" src="mobile-screens-c.jsx"></script>
+<script type="text/babel" src="desktop-screens.jsx"></script>
+
+<script type="text/babel">
+const IPH_W = 390, IPH_H = 844;
+
+// Wrap a mobile screen in iOS frame
+function Phone({ children, dark = false }) {
+  return (
+    <IOSDevice width={IPH_W} height={IPH_H} dark={dark}>
+      {children}
+    </IOSDevice>
+  );
+}
+
+// Wrap a desktop screen in browser chrome; chrome adds ~84px vertical
+function Desk({ url = 'muzzle.atelier', children, h = 900, w = 1280 }) {
+  return (
+    <ChromeWindow url={url} tabs={[{ title: 'Muzzle — ' + url }]} width={w} height={h}>
+      {children}
+    </ChromeWindow>
+  );
+}
+
+// Section intro — magazine spread
+function Intro({ chapter, num, title, kicker, lede }) {
+  return (
+    <div style={{
+      width: 980, padding: '28px 32px', background: WIRE.paper,
+      border: `1px solid ${WIRE.rule}`,
+      display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: WIRE.sans, fontSize: 10, letterSpacing: '0.24em', color: WIRE.inkSoft, textTransform: 'uppercase' }}>
+        <span>{chapter}</span>
+        <span>N°  {num}</span>
+      </div>
+      <div style={{ fontFamily: WIRE.serif, fontSize: 62, lineHeight: 0.95, letterSpacing: '-0.02em', marginTop: 8 }}>
+        {title}
+      </div>
+      {kicker && <div style={{ fontFamily: WIRE.serif, fontSize: 22, fontStyle: 'italic', color: WIRE.accent }}>— {kicker}</div>}
+      {lede && <div style={{ fontFamily: WIRE.sans, fontSize: 13, color: WIRE.inkSoft, maxWidth: 720, lineHeight: 1.6, marginTop: 8 }}>{lede}</div>}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas minScale={0.1} maxScale={2}>
+
+      {/* ── OVERVIEW / SPREAD ─────────────────────────────────── */}
+      <DCSection id="intro" title="Muzzle — The Wireframes" subtitle="Editorial commerce for large-breed dogs · sketchy / magazine · mobile + desktop">
+        <DCArtboard id="cover" label="Cover · The Masthead" width={980} height={560}>
+          <div className="wire" style={{ width: '100%', height: '100%', background: WIRE.paper, padding: '40px 48px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontFamily: WIRE.sans, fontSize: 10, letterSpacing: '0.3em', color: WIRE.inkSoft }}>WIREFRAMES · VOL 04 · KR / EN</div>
+              <div style={{ fontFamily: WIRE.sans, fontSize: 10, letterSpacing: '0.3em', color: WIRE.inkSoft }}>04·26</div>
+            </div>
+            <div>
+              <div style={{ fontFamily: WIRE.serif, fontSize: 14, letterSpacing: '0.16em', fontStyle: 'italic', color: WIRE.accent }}>— M U Z Z L E —</div>
+              <div style={{ fontFamily: WIRE.serif, fontSize: 160, lineHeight: 0.85, letterSpacing: '-0.035em', marginTop: 18 }}>
+                A <span style={{ fontStyle: 'italic' }}>wardrobe</span><br/>
+                for the <span style={{ fontStyle: 'italic', color: WIRE.accent }}>larger</span><br/>
+                hound.
+              </div>
+              <div style={{ display: 'flex', gap: 24, fontFamily: WIRE.serif, fontSize: 13, marginTop: 26, color: WIRE.inkSoft }}>
+                <span><em style={{ color: WIRE.ink }}>01</em> · Auth & Onboarding</span>
+                <span><em style={{ color: WIRE.ink }}>02</em> · Browse & Search</span>
+                <span><em style={{ color: WIRE.ink }}>03</em> · PDP & Reviews</span>
+                <span><em style={{ color: WIRE.ink }}>04</em> · Cart, Pay, Ship</span>
+                <span><em style={{ color: WIRE.ink }}>05</em> · Account · Desktop</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${WIRE.rule}`, paddingTop: 12, fontFamily: WIRE.sans, fontSize: 10, color: WIRE.inkSoft, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+              <span>Design System · Sketchy · Low-Fi</span>
+              <span>23 Mobile · 4 Desktop Screens</span>
+              <span>User Flow → Arrows</span>
+            </div>
+          </div>
+        </DCArtboard>
+
+        <DCArtboard id="legend" label="Legend · How to read this" width={520} height={560}>
+          <div className="wire" style={{ width: '100%', height: '100%', padding: '28px 28px', background: WIRE.paper, display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div>
+              <Eyebrow>Legend</Eyebrow>
+              <div style={{ fontFamily: WIRE.serif, fontSize: 28, letterSpacing: '-0.02em' }}>How to read these spreads</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[
+                ['⌐ ⌐', 'Placeholder image — final art will be editorial photography of the breeds.'],
+                ['▬▬', 'Text bar — copy placeholder; actual copy follows magazine tone.'],
+                ['✦ L', 'Fit badge — personalized to the registered dog profile (Hana · Golden · L).'],
+                ['→ →', 'User flow arrow — hand-drawn, shows next step in the journey.'],
+                ['   ✎', 'Yellow sticky — design note / reasoning for reviewer.'],
+              ].map(([k, d], i) => (
+                <div key={i} style={{ display: 'flex', gap: 14 }}>
+                  <div style={{ fontFamily: WIRE.hand, fontSize: 20, color: WIRE.accent, width: 40 }}>{k}</div>
+                  <div style={{ fontSize: 12, color: WIRE.ink, lineHeight: 1.45 }}>{d}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 'auto', padding: 14, border: `1px solid ${WIRE.rule}`, background: WIRE.fill, fontFamily: WIRE.hand, fontSize: 15, color: WIRE.inkSoft, lineHeight: 1.3 }}>
+              ↳ 체형 진단, 견종 큐레이션, 사이즈 별 재고 — 대형견 특화 기능은 <em style={{ color: WIRE.accent, fontStyle: 'normal' }}>가운데 띠</em>에 모았어요.
+            </div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 1 · AUTH + ONBOARDING ─────────────────────── */}
+      <DCSection id="ch1" title="Ch 1 · Auth & Onboarding" subtitle="Splash → Login → 4-step dog profile (breed / body-type / measurements)">
+        <DCArtboard id="s01" label="01 · Splash" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone dark><M01_Splash/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s02" label="02 · Login" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M02_Login/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s03" label="03 · Onboarding · Intro" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M03_OnbIntro/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s04" label="04 · Onboarding · Breed" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M04_OnbBreed/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s05" label="05 · Onboarding · Body-type" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M05_OnbBody/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s06" label="06 · Onboarding · Measurements" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M06_OnbMeasure/></Phone>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 2 · BROWSE ────────────────────────────────── */}
+      <DCSection id="ch2" title="Ch 2 · Browse, Search, Discover" subtitle="Home → PLP → Search (empty + autocomplete) → Filter sheet">
+        <DCArtboard id="s07" label="07 · Home" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M07_Home/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s08" label="08 · Category · PLP" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M08_Category/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s09" label="09 · Filter + Sort sheet" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M09_FilterSheet/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s10" label="10 · Search · empty" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M10_Search/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s11" label="11 · Search · autocomplete" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M11_SearchType/></Phone>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 3 · PDP + REVIEWS ─────────────────────────── */}
+      <DCSection id="ch3" title="Ch 3 · Product detail & Reviews" subtitle="PDP → Size guide → Reviews (photo + dog body stats) → Write review → Q&A">
+        <DCArtboard id="s12" label="12 · Product detail (PDP)" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M12_PDP/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s14" label="14 · Size guide" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M14_SizeGuide/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s13" label="13 · Reviews · photo + dog stats" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M13_Reviews/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s15" label="15 · Write review" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M15_WriteReview/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s22" label="22 · Product Q&A" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M22_QnA/></Phone>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 4 · CART, CHECKOUT, SHIP ──────────────────── */}
+      <DCSection id="ch4" title="Ch 4 · Bag, Pay, Ship" subtitle="Wishlist → Cart → Checkout → Order confirmed → Tracking → Return">
+        <DCArtboard id="s17" label="17 · Wishlist · Saved" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M17_Wishlist/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s16" label="16 · Cart / Bag" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M16_Cart/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s18" label="18 · Checkout" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M18_Checkout/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s19" label="19 · Order confirmed" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M19_OrderDone/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s20" label="20 · Shipment tracking" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M20_Tracking/></Phone>
+        </DCArtboard>
+        <DCArtboard id="s23" label="23 · Return / Refund request" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M23_Refund/></Phone>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 5 · ACCOUNT ───────────────────────────────── */}
+      <DCSection id="ch5" title="Ch 5 · My Muzzle" subtitle="Dog profile · orders · points · coupons · tier">
+        <DCArtboard id="s21" label="21 · My page" width={IPH_W + 40} height={IPH_H + 120}>
+          <Phone><M21_MyPage/></Phone>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── CHAPTER 6 · DESKTOP ───────────────────────────────── */}
+      <DCSection id="ch6" title="Ch 6 · Desktop" subtitle="Home · PLP · PDP · Checkout — magazine editorial layout">
+        <DCArtboard id="d1" label="D1 · Home · Desktop" width={1320} height={1900}>
+          <Desk url="muzzle.atelier" w={1280} h={1816}><D1_Home/></Desk>
+        </DCArtboard>
+        <DCArtboard id="d2" label="D2 · Category / PLP · Desktop" width={1320} height={1700}>
+          <Desk url="muzzle.atelier/outerwear" w={1280} h={1616}><D2_PLP/></Desk>
+        </DCArtboard>
+        <DCArtboard id="d3" label="D3 · Product detail · Desktop" width={1320} height={1700}>
+          <Desk url="muzzle.atelier/field-trench-oat" w={1280} h={1616}><D3_PDP/></Desk>
+        </DCArtboard>
+        <DCArtboard id="d4" label="D4 · Checkout · Desktop" width={1320} height={1000}>
+          <Desk url="muzzle.atelier/checkout" w={1280} h={916}><D4_Checkout/></Desk>
+        </DCArtboard>
+      </DCSection>
+
+      {/* ── FLOW MAP ──────────────────────────────────────────── */}
+      <DCSection id="flow" title="User flow · arrows" subtitle="Core journey — discover → decide → buy → receive">
+        <DCArtboard id="flowmap" label="The journey · sketched" width={1400} height={760}>
+          <FlowMap/>
+        </DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+// ── FLOW MAP ─────────────────────────────────────────────────
+function FlowMap() {
+  const nodes = [
+    // row 1
+    { id: 'splash', x: 30, y: 40, w: 110, h: 60, label: '① Splash' },
+    { id: 'login',  x: 170, y: 40, w: 110, h: 60, label: '② Login' },
+    { id: 'onb',    x: 310, y: 40, w: 140, h: 60, label: '③ Onboarding\n(breed · body · size)' },
+    { id: 'home',   x: 490, y: 40, w: 110, h: 60, label: '④ Home', hero: true },
+    { id: 'search', x: 640, y: 40, w: 110, h: 60, label: '⑤ Search' },
+    { id: 'plp',    x: 790, y: 40, w: 110, h: 60, label: '⑥ PLP +\nfilters' },
+    { id: 'pdp',    x: 940, y: 40, w: 110, h: 60, label: '⑦ PDP', hero: true },
+    // row 2 (PDP branches)
+    { id: 'size',   x: 790, y: 170, w: 110, h: 54, label: '⓫ Size guide' },
+    { id: 'rev',    x: 940, y: 170, w: 110, h: 54, label: '⓬ Reviews' },
+    { id: 'qa',     x: 1080,y: 170, w: 110, h: 54, label: '⓭ Q&A' },
+    { id: 'wish',   x: 1220,y: 100, w: 110, h: 54, label: '⑧ Wishlist' },
+    // row 3 (bag → done)
+    { id: 'bag',    x: 940, y: 290, w: 110, h: 60, label: '⑨ Cart', hero: true },
+    { id: 'ship',   x: 790, y: 290, w: 110, h: 60, label: 'Checkout' },
+    { id: 'pay',    x: 640, y: 290, w: 110, h: 60, label: '⑩ Pay' },
+    { id: 'done',   x: 490, y: 290, w: 110, h: 60, label: 'Done ✓', hero: true },
+    { id: 'track',  x: 310, y: 290, w: 110, h: 60, label: 'Tracking' },
+    { id: 'mypage', x: 170, y: 290, w: 110, h: 60, label: 'My page' },
+    { id: 'refund', x: 30,  y: 290, w: 110, h: 60, label: 'Return' },
+    // row 4 (write review loop)
+    { id: 'writerev', x: 30, y: 410, w: 120, h: 54, label: 'Write review' },
+  ];
+  const find = (id) => nodes.find(n => n.id === id);
+  const ptOf = (id, side) => {
+    const n = find(id);
+    if (side === 'r') return { x: n.x + n.w, y: n.y + n.h/2 };
+    if (side === 'l') return { x: n.x, y: n.y + n.h/2 };
+    if (side === 't') return { x: n.x + n.w/2, y: n.y };
+    if (side === 'b') return { x: n.x + n.w/2, y: n.y + n.h };
+    return { x: n.x + n.w/2, y: n.y + n.h/2 };
+  };
+  const arrows = [
+    ['splash','r','login','l', -10, ''],
+    ['login','r','onb','l', -10, ''],
+    ['onb','r','home','l', -10, ''],
+    ['home','r','search','l', -10, '탭/검색'],
+    ['search','r','plp','l', -10, ''],
+    ['plp','r','pdp','l', -10, '상세'],
+    ['home','b','pdp','t', -30, 'hero·추천'],
+    ['pdp','b','size','t',  15, '사이즈?'],
+    ['pdp','b','rev','t',   0,  '리뷰'],
+    ['pdp','b','qa','t',    -15,'문의'],
+    ['pdp','r','wish','l',  -10, '♡'],
+    ['pdp','b','bag','t',   30, 'Add to bag'],
+    ['bag','l','ship','r',  10, ''],
+    ['ship','l','pay','r',  10, ''],
+    ['pay','l','done','r',  10, ''],
+    ['done','l','track','r', 10, ''],
+    ['track','l','mypage','r', 10, ''],
+    ['mypage','l','refund','r', 10, '반품'],
+    ['mypage','b','writerev','t', 0, '후기 작성'],
+    ['wish','b','bag','t', 40, 'add to bag'],
+  ];
+
+  return (
+    <div className="wire" style={{ width: '100%', height: '100%', background: WIRE.paper, position: 'relative', padding: 24 }}>
+      <Eyebrow>The Journey · mobile-first</Eyebrow>
+      <div style={{ fontFamily: WIRE.serif, fontSize: 42, letterSpacing: '-0.02em', lineHeight: 1 }}>
+        From <span style={{ fontStyle: 'italic', color: WIRE.accent }}>launch</span> to their tail wagging at the door.
+      </div>
+
+      <div style={{ position: 'relative', marginTop: 40, height: 520 }}>
+        {/* nodes */}
+        {nodes.map(n => (
+          <div key={n.id} style={{
+            position: 'absolute', left: n.x, top: n.y, width: n.w, height: n.h,
+            border: `${n.hero ? 1.5 : 1}px solid ${n.hero ? WIRE.ink : WIRE.rule}`,
+            background: n.hero ? WIRE.ink : WIRE.paper,
+            color: n.hero ? WIRE.paper : WIRE.ink,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+            fontFamily: WIRE.serif, fontSize: 13, lineHeight: 1.2, padding: 6,
+            whiteSpace: 'pre-line',
+          }}>
+            {n.label}
+          </div>
+        ))}
+        {/* arrows */}
+        {arrows.map(([a, as, b, bs, curve, label], i) => {
+          const from = ptOf(a, as), to = ptOf(b, bs);
+          return <HandArrow key={i} from={from} to={to} curve={curve} label={label}/>;
+        })}
+
+        <StickyNote style={{ position: 'absolute', right: 8, top: 420, maxWidth: 220 }} rotate={-2}>
+          핵심 분기: PDP에서 <em style={{ fontStyle: 'normal', color: WIRE.accent }}>사이즈 확신</em>이 서야 장바구니로 — 그래서 Fit 뱃지·Size guide·Reviews를 가깝게 둠.
+        </StickyNote>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('canvas-root')).render(<App/>);
+</script>
+
+</body>
+</html>
