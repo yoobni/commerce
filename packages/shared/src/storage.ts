@@ -2,18 +2,20 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ─── Bucket Types & Constraints ───────────────────────────────────────────────
 
-export type StorageBucket = 'products' | 'reviews' | 'avatars';
+export type StorageBucket = 'products' | 'reviews' | 'avatars' | 'posts';
 
 const FILE_SIZE_LIMITS: Record<StorageBucket, number> = {
   products: 10 * 1024 * 1024, // 10 MB
   reviews:   5 * 1024 * 1024, //  5 MB
   avatars:   2 * 1024 * 1024, //  2 MB
+  posts:     5 * 1024 * 1024, //  5 MB
 };
 
 const ALLOWED_MIME_TYPES: Record<StorageBucket, readonly string[]> = {
   products: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
   reviews:  ['image/jpeg', 'image/png', 'image/webp'],
   avatars:  ['image/jpeg', 'image/png', 'image/webp'],
+  posts:    ['image/jpeg', 'image/png', 'image/webp'],
 };
 
 // ─── Error ────────────────────────────────────────────────────────────────────
@@ -92,6 +94,28 @@ export async function uploadReviewImage(
   const path = `${userId}/${reviewId}/${filename}`;
   const { error } = await client.storage
     .from('reviews')
+    .upload(path, file, { upsert: false, contentType: file.type });
+  if (error) throw new StorageError(error.message, 'UPLOAD_FAILED');
+  return path;
+}
+
+/**
+ * Upload a community post image.
+ * Requires authenticated client. userId must match auth.uid().
+ * Path: posts/{userId}/{postId}/{filename}
+ * Returns the storage path.
+ */
+export async function uploadPostImage(
+  client: SupabaseClient,
+  file: File,
+  userId: string,
+  postId: string,
+  filename: string,
+): Promise<string> {
+  validateFile('posts', file);
+  const path = `${userId}/${postId}/${filename}`;
+  const { error } = await client.storage
+    .from('posts')
     .upload(path, file, { upsert: false, contentType: file.type });
   if (error) throw new StorageError(error.message, 'UPLOAD_FAILED');
   return path;

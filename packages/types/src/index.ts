@@ -21,7 +21,7 @@ export type Currency = 'KRW' | 'USD' | 'JPY' | 'EUR';
 // ─── User ─────────────────────────────────────────────────────────────────────
 
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
-export type AuthProvider = 'email' | 'google' | 'apple' | 'kakao';
+export type AuthProvider = 'email' | 'google' | 'apple' | 'kakao' | 'naver' | 'twitter';
 
 export interface User {
   id: UUID;
@@ -228,6 +228,8 @@ export interface Order {
   status: OrderStatus;
   memo: string | null;
   admin_memo: string | null;
+  cancel_reason: string | null;
+  return_reason: string | null;
   ordered_at: ISODateTime;
   created_at: ISODateTime;
   updated_at: ISODateTime;
