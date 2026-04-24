@@ -70,25 +70,36 @@ export default function LoginPage() {
 
   if (loading) return null;
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-neutral-50)] px-4">
-      <div className="w-full max-w-[400px] bg-white rounded-xl border border-[var(--color-border)] p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-1">
-          {t('loginTitle')}
-        </h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-8">
-          {t('loginSubtitle')}
-        </p>
+  // Direction B Login spec:
+  // Full-height bone-white page. Centered card (max-w 400px).
+  // Serif "Welcome back." heading. Floating label inputs. Primary 56px CTA.
+  // Muted "Forgot password?" below submit. Divider OR → social ghost buttons.
 
+  return (
+    <div className="min-h-[calc(100vh-56px)] flex items-center justify-center bg-[var(--mz-bg)] px-5 py-10">
+      <div className="w-full max-w-[400px]">
+
+        {/* Heading */}
+        <div className="mb-8">
+          <h1 className="font-serif text-[28px] md:text-[32px] font-[500] leading-[1.12] tracking-[-0.02em] text-[var(--mz-ink)] mb-2">
+            {t('loginTitle')}
+          </h1>
+          <p className="text-[13px] text-[var(--mz-ink-mute)]">
+            {t('loginSubtitle')}
+          </p>
+        </div>
+
+        {/* Error */}
         {error && (
           <div
             role="alert"
-            className="mb-5 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-red-600 text-sm"
+            className="mb-5 px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-error)]/20 bg-[var(--color-error)]/5 text-[var(--color-error)] text-[13px]"
           >
             {error}
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
             label={t('email')}
@@ -97,6 +108,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+            floatingLabel
           />
           <PasswordInput
             label={t('password')}
@@ -104,39 +116,42 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
+            floatingLabel
           />
 
-          <div className="flex justify-end -mt-1">
+          <div className="flex justify-center">
             <Link
               href="/auth/forgot-password"
-              className="text-xs text-[var(--color-text-secondary)] hover:underline"
+              className="text-[12px] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors"
             >
               {t('forgotPassword')}
             </Link>
           </div>
 
-          <Button type="submit" size="lg" className="w-full mt-1" loading={submitting}>
+          <Button type="submit" size="lg" fullWidth loading={submitting}>
             {t('signIn')}
           </Button>
         </form>
 
+        {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[var(--color-border)]" />
+            <div className="w-full border-t border-[var(--mz-line)]" />
           </div>
           <div className="relative flex justify-center">
-            <span className="px-3 bg-white text-xs text-[var(--color-text-tertiary)]">
+            <span className="px-3 bg-[var(--mz-bg)] text-[11px] font-medium tracking-[0.08em] uppercase text-[var(--mz-ink-mute)]">
               {t('or')}
             </span>
           </div>
         </div>
 
+        {/* Social buttons */}
         <div className="flex flex-col gap-3">
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="lg"
-            className="w-full"
+            fullWidth
             onClick={handleGoogle}
             leadingIcon={<GoogleIcon />}
           >
@@ -146,9 +161,9 @@ export default function LoginPage() {
           {locale === 'ko' && (
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="lg"
-              className="w-full"
+              fullWidth
               onClick={handleKakao}
               leadingIcon={<KakaoIcon />}
             >
@@ -159,9 +174,9 @@ export default function LoginPage() {
           {locale === 'ja' && (
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="lg"
-              className="w-full"
+              fullWidth
               onClick={handleNaver}
               leadingIcon={<NaverIcon />}
             >
@@ -172,9 +187,9 @@ export default function LoginPage() {
           {(locale === 'en' || locale === 'de') && (
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="lg"
-              className="w-full"
+              fullWidth
               onClick={handleTwitter}
               leadingIcon={<TwitterIcon />}
             >
@@ -183,11 +198,12 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
+        {/* Sign up link */}
+        <p className="mt-7 text-center text-[13px] text-[var(--mz-ink-mute)]">
           {t('noAccount')}{' '}
           <Link
             href="/auth/sign-up"
-            className="font-medium text-[var(--color-brand-primary)] hover:underline"
+            className="font-medium text-[var(--mz-ink)] underline underline-offset-2 hover:text-[var(--mz-ink-soft)] transition-colors"
           >
             {t('signUp')}
           </Link>

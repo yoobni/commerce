@@ -5,7 +5,15 @@ import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/cn';
 import { getProductName, getProductPrice, formatPrice } from '@/lib/format';
 import { WishlistButton } from './WishlistButton';
+import { FitBadge } from '@/components/ui/Badge';
 import type { Product, Locale } from '@commerce/types';
+
+// Spec: Direction B — Product Card
+// Image block: bgDeep, 1:1 ratio (changed from 3:4), radius 10, relative
+// Top-left: accent "★ FIT L" badge (pill, white) — Fit matching products only
+// Top-right: heart icon 28×28 circular surface-colored
+// Meta: Fraunces 14/500 (name) · Inter 11/400/inkMute (color) · Fraunces 13/600 (price)
+// Gap from image to meta: 8px
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +21,8 @@ interface ProductCardProps {
   isAuthenticated: boolean;
   priority?: boolean;
   className?: string;
+  /** Hound's recommended size from Fit-for-Hana profile — shows ★ FIT badge */
+  fitSize?: string | null;
 }
 
 export function ProductCard({
@@ -21,46 +31,58 @@ export function ProductCard({
   isAuthenticated,
   priority = false,
   className,
+  fitSize = null,
 }: ProductCardProps) {
   const name = getProductName(product, locale);
   const price = getProductPrice(product, locale);
   const formattedPrice = formatPrice(price, locale);
+  const isSoldOut = product.status === 'SOLD_OUT';
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
-      {/* Image container */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-[var(--color-neutral-100)]">
+      {/* ── Image container — 1:1 aspect ratio ── */}
+      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)]">
         <Link href={`/products/${product.slug}`} className="block w-full h-full" aria-label={name}>
           <Image
             src={product.thumbnail_url}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className={cn(
+              'object-cover transition-transform duration-500',
+              !isSoldOut && 'group-hover:scale-[1.03]',
+              isSoldOut && 'opacity-60'
+            )}
             priority={priority}
           />
         </Link>
 
-        {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none">
-          {product.is_featured && (
-            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
-              FEATURED
-            </span>
-          )}
-          {isNew(product.published_at) && (
-            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide bg-[var(--color-brand-primary)] text-white">
+        {/* Fit badge — top-left, only when Fit profile matches */}
+        {fitSize && !isSoldOut && (
+          <div className="absolute top-2.5 left-2.5 pointer-events-none">
+            <FitBadge size={fitSize} />
+          </div>
+        )}
+
+        {/* New badge — top-left when no Fit badge */}
+        {!fitSize && isNew(product.published_at) && !isSoldOut && (
+          <div className="absolute top-2.5 left-2.5 pointer-events-none">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em] bg-[var(--mz-ink)] text-[var(--mz-bg)]">
               NEW
             </span>
-          )}
-          {product.status === 'SOLD_OUT' && (
-            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide bg-[var(--color-neutral-700)] text-white">
-              SOLD OUT
-            </span>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Wishlist button */}
+        {/* Sold out overlay */}
+        {isSoldOut && (
+          <div className="absolute inset-0 flex items-end pb-3 justify-center pointer-events-none">
+            <span className="px-3 py-1 rounded-[var(--radius-pill)] text-[10px] font-semibold tracking-wide bg-[var(--mz-surface)] text-[var(--mz-ink-mute)] uppercase">
+              Sold out
+            </span>
+          </div>
+        )}
+
+        {/* Wishlist button — top-right, 28×28 circular */}
         <div className="absolute top-2.5 right-2.5">
           <WishlistButton
             productId={product.id}
@@ -69,24 +91,38 @@ export function ProductCard({
             category={product.category_id}
             locale={locale}
             isAuthenticated={isAuthenticated}
-            className="w-9 h-9 shadow-sm"
+            className="w-7 h-7 shadow-sm rounded-full bg-[var(--mz-surface)]"
           />
         </div>
       </div>
 
-      {/* Product info */}
-      <div className="mt-3 flex flex-col gap-0.5">
+      {/* ── Product meta — gap 8px from image ── */}
+      <div className="mt-2 flex flex-col gap-0.5">
+        {/* Name — Fraunces 14/500 */}
         <Link
           href={`/products/${product.slug}`}
-          className="text-sm font-medium text-[var(--color-text-primary)] line-clamp-2 hover:text-[var(--color-brand-primary)] transition-colors"
+          className={cn(
+            'text-[14px] font-[500] leading-[18px] font-serif',
+            'text-[var(--mz-ink)] line-clamp-2',
+            'hover:text-[var(--mz-ink-soft)] transition-colors duration-150'
+          )}
         >
           {name}
         </Link>
-        <p className="text-sm text-[var(--color-text-secondary)]">{formattedPrice}</p>
+
+        {/* Price — Fraunces 13/600 */}
+        <p className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">
+          {formattedPrice}
+        </p>
+
+        {/* Rating — Inter 11/400/inkMute */}
         {product.review_count > 0 && (
-          <div className="flex items-center gap-1 mt-0.5" aria-label={`Rating ${product.review_avg_rating.toFixed(1)} out of 5`}>
+          <div
+            className="flex items-center gap-1 mt-0.5"
+            aria-label={`Rating ${product.review_avg_rating.toFixed(1)} out of 5`}
+          >
             <StarIcon />
-            <span className="text-xs text-[var(--color-text-tertiary)]">
+            <span className="text-[11px] text-[var(--mz-ink-mute)]">
               {product.review_avg_rating.toFixed(1)}
               <span className="ml-0.5">({product.review_count})</span>
             </span>
@@ -105,7 +141,7 @@ function isNew(publishedAt: string | null): boolean {
 
 function StarIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--color-brand-accent)]" aria-hidden="true">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--mz-accent)]" aria-hidden="true">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );

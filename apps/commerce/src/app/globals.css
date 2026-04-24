@@ -1,30 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand */
-  --color-brand-primary: #3d3530;
-  --color-brand-secondary: #7a6e66;
-  --color-brand-accent: #c8a96e;
-  --color-bg: #faf9f7;
-  --color-surface: #ffffff;
+  /* ===== Muzzle Color Tokens ===== */
+  /* Tailwind utilities: bg-mz-ink, text-mz-accent, etc. */
+  --color-mz-bg: #F7F6F3;
+  --color-mz-bg-deep: #EFEDE7;
+  --color-mz-surface: #FFFFFF;
+  --color-mz-ink: #0E0E0C;
+  --color-mz-ink-soft: #4D4D48;
+  --color-mz-ink-mute: #8F8F88;
+  --color-mz-accent: #6B2020;
+  --color-mz-accent-soft: #F1E5E0;
+  --color-mz-accent-ink: #4A1818;
 
-  /* Text */
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #6b6760;
-  --color-text-tertiary: #9e9b96;
-
-  /* Semantic */
+  /* System colors */
   --color-error: #c0392b;
   --color-success: #27ae60;
   --color-warning: #d68910;
   --color-info: #2563eb;
-
-  /* Border */
-  --color-border: #e8e5e0;
-  --color-border-subtle: #f0ede8;
-
-  /* CTA */
-  --color-cta: #1a1a1a;
 
   /* Neutral scale */
   --color-neutral-0: #ffffff;
@@ -47,53 +40,113 @@
   --breakpoint-2xl: 1440px;
 }
 
-/*
-  SSR/SSG/Streaming Strategy Summary
-  ─────────────────────────────────────────────────────────────────────────
-  Route                   Strategy        Revalidate  Notes
-  /[locale]               SSG + ISR       3600s       Hero, featured products
-  /[locale]/products      SSR             –           Dynamic filters, SEO
-  /[locale]/products/[s]  SSG + ISR       900s        SEO critical, PDPs
-  /[locale]/collections   SSG + ISR       3600s       Curated content
-  /[locale]/cart          CSR only        –           No SSR, user-specific
-  /[locale]/checkout/*    CSR only        –           Sensitive, no cache
-  /[locale]/account/*     CSR only        –           Auth-gated
-  /[locale]/community     SSR + Stream    –           Dynamic, UGC
-  ─────────────────────────────────────────────────────────────────────────
-*/
-
 :root {
-  /* Brand colors — tokens, actual values finalized by Vivian */
-  --color-bg: #faf9f7;          /* warm off-white */
-  --color-surface: #ffffff;
-  --color-text-primary: #1a1a1a;   /* near-charcoal */
-  --color-text-secondary: #6b6760; /* warm gray */
-  --color-text-tertiary: #9e9b96;
-  --color-brand-primary: #3d3530;  /* placeholder: deep warm brown */
-  --color-brand-secondary: #7a6e66;
-  --color-cta: #1a1a1a;
+  /* ===== Muzzle Design Tokens (--mz-*) ===== */
+  /* Direction B · Modern — Burgundy accent — confirmed 2026-04-24 */
+
+  /* Background */
+  --mz-bg: #F7F6F3;          /* bone white — page background */
+  --mz-bg-deep: #EFEDE7;     /* image/card backdrop */
+  --mz-surface: #FFFFFF;     /* cards, inputs above bg */
+
+  /* Ink */
+  --mz-ink: #0E0E0C;         /* primary text, primary button */
+  --mz-ink-soft: #4D4D48;    /* body prose */
+  --mz-ink-mute: #8F8F88;    /* meta, labels */
+
+  /* Lines */
+  --mz-line: rgba(14, 14, 12, 0.08);      /* dividers */
+  --mz-line-strong: rgba(14, 14, 12, 0.18); /* input border, chip outline */
+
+  /* Accent — Burgundy (신호용, 장식 아님) */
+  --mz-accent: #6B2020;
+  --mz-accent-soft: #F1E5E0;
+  --mz-accent-ink: #4A1818;
+
+  /* System */
   --color-error: #c0392b;
   --color-success: #27ae60;
   --color-warning: #d68910;
-  --color-border: #e8e5e0;
-  --color-border-subtle: #f0ede8;
+  --color-info: #2563eb;
 
-  /* Typography */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-inter), system-ui, -apple-system, sans-serif;
+  /* ===== Typography ===== */
+  /* Fraunces: display/title/product/price  */
+  /* Inter: body/UI/label/button/form */
+  /* Pretendard Variable: Korean fallback */
+  /* JetBrains Mono: order numbers, timestamps, specs */
+  --font-sans: var(--font-inter), 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: var(--font-fraunces), 'Pretendard Variable', 'Noto Sans JP', Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'Courier New', monospace;
 
-  /* Spacing */
+  /* ===== Spacing Scale (4-base) ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 22px;
+  --space-2xl: 32px;
+  --space-3xl: 44px;
+
+  /* ===== Radii ===== */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* ===== Layout ===== */
   --container-max: 1280px;
-  --container-padding: 1.25rem;   /* 20px */
-  --container-padding-md: 2rem;   /* 32px */
-  --container-padding-lg: 3rem;   /* 48px */
+  --container-padding: 1.25rem;    /* 20px — mobile */
+  --container-padding-md: 2rem;    /* 32px — tablet */
+  --container-padding-lg: 3rem;    /* 48px — desktop */
 
-  /* Animation */
+  /* ===== Motion ===== */
   --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
+  --transition-base: 250ms ease-out;
   --transition-slow: 400ms ease;
+
+  /* ===== Legacy aliases — backward compat for existing components ===== */
+  --color-bg: var(--mz-bg);
+  --color-surface: var(--mz-surface);
+  --color-text-primary: var(--mz-ink);
+  --color-text-secondary: var(--mz-ink-soft);
+  --color-text-tertiary: var(--mz-ink-mute);
+  --color-brand-primary: var(--mz-ink);
+  --color-brand-secondary: var(--mz-ink-soft);
+  --color-brand-accent: var(--mz-accent);
+  --color-border: var(--mz-line);
+  --color-border-subtle: var(--mz-bg-deep);
+  --color-cta: var(--mz-ink);
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f8f6f2;
+  --color-neutral-100: #f0ede8;
+  --color-neutral-200: #e5e1da;
+  --color-neutral-300: #ccc8c0;
+  --color-neutral-400: #9d998f;
+  --color-neutral-500: #6e6b63;
+  --color-neutral-600: #4a4843;
+  --color-neutral-700: #2e2c29;
+  --color-neutral-800: #1a1a1a;
+  --color-neutral-900: #0d0d0d;
 }
 
+/* ===== Keyframes ===== */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes mz-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes mz-fade-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Base Reset ===== */
 *,
 *::before,
 *::after {
@@ -108,33 +161,28 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
+  background-color: var(--mz-bg);
+  color: var(--mz-ink);
   font-family: var(--font-sans);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus visible — accessibility */
+/* ===== Focus visible — WCAG 2.1 AA ===== */
 :focus-visible {
-  outline: 2px solid var(--color-brand-primary);
+  outline: 2px solid var(--mz-ink);
   outline-offset: 2px;
 }
 
-/* Skeleton loading */
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
+/* ===== Skeleton ===== */
 .skeleton {
-  background-color: var(--color-border);
-  border-radius: 4px;
+  background-color: var(--mz-bg-deep);
+  border-radius: var(--radius-sm);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* Visually hidden (accessibility) */
+/* ===== Visually hidden (accessibility) ===== */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -147,19 +195,50 @@ body {
   border-width: 0;
 }
 
-/* Long German words — overflow protection */
+/* ===== Typography helpers ===== */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Eyebrow text style */
+.text-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ===== i18n overrides ===== */
 :lang(de) {
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }
 
-/* Japanese line height */
 :lang(ja) {
   line-height: 1.8;
 }
 
-/* Korean line height */
 :lang(ko) {
   line-height: 1.7;
 }
+
+/*
+  SSR/SSG/Streaming Strategy Summary
+  ─────────────────────────────────────────────────────────────────────────
+  Route                   Strategy        Revalidate  Notes
+  /[locale]               SSG + ISR       3600s       Hero, featured products
+  /[locale]/products      SSR             –           Dynamic filters, SEO
+  /[locale]/products/[s]  SSG + ISR       900s        SEO critical, PDPs
+  /[locale]/collections   SSG + ISR       3600s       Curated content
+  /[locale]/cart          CSR only        –           No SSR, user-specific
+  /[locale]/checkout/*    CSR only        –           Sensitive, no cache
+  /[locale]/account/*     CSR only        –           Auth-gated
+  /[locale]/community     SSR + Stream    –           Dynamic, UGC
+  ─────────────────────────────────────────────────────────────────────────
+*/

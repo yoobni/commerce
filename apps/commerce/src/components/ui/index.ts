@@ -1,11 +1,20 @@
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 
-export { Badge, Tag } from './Badge';
+export { Badge, FitBadge, Tag } from './Badge';
 export type { BadgeProps, BadgeVariant, TagProps } from './Badge';
 
 export { Input, PasswordInput } from './Input';
 export type { InputProps } from './Input';
+
+export { Chip, ChipGroup } from './Chip';
+export type { ChipProps, ChipVariant } from './Chip';
+
+export { SizeSelector } from './SizeSelector';
+export type { SizeOption } from './SizeSelector';
+
+export { FitForHanaCard } from './FitForHanaCard';
+export type { FitForHanaCardProps, HoundProfile } from './FitForHanaCard';
 
 export {
   Skeleton,

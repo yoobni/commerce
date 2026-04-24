@@ -7,6 +7,7 @@ import { AnalyticsProvider } from '@/components/providers/AnalyticsProvider';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { TabBar } from '@/components/layout/TabBar';
 
 type Props = {
   children: React.ReactNode;
@@ -55,12 +56,14 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider locale={locale as Locale} messages={messages}>
       <AuthProvider>
         <AnalyticsProvider locale={locale as Locale}>
-          <div className="flex flex-col min-h-screen bg-[var(--color-bg)]">
+          <div className="flex flex-col min-h-screen bg-[var(--mz-bg)]">
             <Header />
-            <main className="flex-1">
+            {/* pb-14 md:pb-0: clear fixed TabBar on mobile */}
+            <main className="flex-1 pb-14 md:pb-0">
               {children}
             </main>
             <Footer />
+            <TabBar />
           </div>
         </AnalyticsProvider>
       </AuthProvider>

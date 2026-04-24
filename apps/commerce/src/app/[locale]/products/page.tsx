@@ -11,6 +11,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { Container } from '@/components/layout/Container';
 import { Link } from '@/i18n/navigation';
 import { getCategoryName } from '@/lib/format';
+import { cn } from '@/lib/cn';
 import type { ProductListParams } from '@/lib/queries/products';
 
 // SSR — dynamic filters
@@ -87,6 +88,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   ]);
 
   const totalPages = Math.ceil(result.total / PER_PAGE);
+  const hasActiveFilters = !!(currentCategory || currentSizes.length > 0 || currentColors.length > 0 || currentMinPrice || currentMaxPrice);
 
   function buildUrl(overrides: Record<string, string | undefined>) {
     const merged: Record<string, string | undefined> = {
@@ -106,11 +108,71 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="bg-[var(--color-bg)] min-h-screen">
+    <div className="bg-[var(--mz-bg)] min-h-screen">
+
+      {/* ── Mobile: sticky horizontal Chip filter strip ─────────────────── */}
+      {/* Direction B spec: "Sticky filter strip: Fit chip active → sort/color/price chips" */}
+      <div className="lg:hidden sticky top-14 z-20 bg-[var(--mz-surface)] border-b border-[var(--mz-line)]">
+        <div
+          className="flex items-center gap-2 overflow-x-auto scrollbar-none [-webkit-overflow-scrolling:touch] px-5 py-3"
+          role="group"
+          aria-label="Product filters"
+        >
+          {/* All */}
+          <Link
+            href={buildUrl({ category: undefined })}
+            className={chipClass(!currentCategory && !featuredOnly)}
+            aria-current={!currentCategory && !featuredOnly ? 'true' : undefined}
+          >
+            {t('all')}
+          </Link>
+
+          {/* Category chips */}
+          {categories.filter((c) => !c.parent_id).map((cat) => (
+            <Link
+              key={cat.id}
+              href={buildUrl({ category: cat.slug })}
+              className={chipClass(currentCategory === cat.slug)}
+              aria-current={currentCategory === cat.slug ? 'true' : undefined}
+            >
+              {getCategoryName(cat, locale as Locale)}
+            </Link>
+          ))}
+
+          {/* Size chips */}
+          {SIZE_OPTIONS.map((size) => {
+            const active = currentSizes.includes(size);
+            const newSizes = active
+              ? currentSizes.filter((s) => s !== size)
+              : [...currentSizes, size];
+            return (
+              <Link
+                key={size}
+                href={buildUrl({ size: newSizes.join(',') || undefined })}
+                className={chipClass(active)}
+                aria-current={active ? 'true' : undefined}
+              >
+                {size}
+              </Link>
+            );
+          })}
+
+          {/* Clear — only when active filters */}
+          {hasActiveFilters && (
+            <Link
+              href="/products"
+              className="shrink-0 text-[11px] font-medium text-[var(--mz-accent)] underline underline-offset-2 px-1 whitespace-nowrap"
+            >
+              {t('clearFilters')}
+            </Link>
+          )}
+        </div>
+      </div>
+
       <Container className="py-8 md:py-12">
         {/* Page title */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="font-serif text-[26px] md:text-[32px] font-[500] leading-[1.15] tracking-[-0.02em] text-[var(--mz-ink)]">
             {currentCategory
               ? (categories.find((c) => c.slug === currentCategory)
                   ? getCategoryName(categories.find((c) => c.slug === currentCategory)!, locale as Locale)
@@ -118,29 +180,25 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               : t('title')}
           </h1>
           {result.total > 0 && (
-            <p className="text-sm text-[var(--color-text-tertiary)] mt-1">
+            <p className="text-[12px] text-[var(--mz-ink-mute)] mt-1.5">
               {t('results', { count: result.total })}
             </p>
           )}
         </div>
 
         <div className="flex gap-8">
-          {/* Sidebar filters — desktop */}
-          <aside className="hidden lg:block w-56 shrink-0 space-y-7">
+          {/* ── Desktop sidebar filters ──────────────────────────────── */}
+          <aside className="hidden lg:block w-52 shrink-0 space-y-7">
             {/* Categories */}
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-3">
-                {t('title')}
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
+                Category
               </h3>
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 <li>
                   <Link
                     href={buildUrl({ category: undefined, page: undefined })}
-                    className={`block text-sm py-1.5 px-2 rounded transition-colors ${
-                      !currentCategory
-                        ? 'font-semibold text-[var(--color-brand-primary)] bg-[var(--color-neutral-100)]'
-                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)]'
-                    }`}
+                    className={sidebarLinkClass(!currentCategory)}
                   >
                     {t('all')}
                   </Link>
@@ -149,11 +207,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   <li key={cat.id}>
                     <Link
                       href={buildUrl({ category: cat.slug, page: undefined })}
-                      className={`block text-sm py-1.5 px-2 rounded transition-colors ${
-                        currentCategory === cat.slug
-                          ? 'font-semibold text-[var(--color-brand-primary)] bg-[var(--color-neutral-100)]'
-                          : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)]'
-                      }`}
+                      className={sidebarLinkClass(currentCategory === cat.slug)}
                     >
                       {getCategoryName(cat, locale as Locale)}
                     </Link>
@@ -164,10 +218,10 @@ export default async function ProductsPage({ params, searchParams }: Props) {
 
             {/* Size filter */}
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-3">
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
                 {t('size')}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {SIZE_OPTIONS.map((size) => {
                   const active = currentSizes.includes(size);
                   const newSizes = active
@@ -177,11 +231,12 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     <Link
                       key={size}
                       href={buildUrl({ size: newSizes.join(',') || undefined, page: undefined })}
-                      className={`inline-flex items-center justify-center min-w-[44px] h-9 px-2.5 rounded border text-sm font-medium transition-colors ${
+                      className={cn(
+                        'inline-flex items-center justify-center min-w-[44px] h-9 px-2.5 rounded-[var(--radius-md)] border text-[12px] font-medium transition-colors duration-150',
                         active
-                          ? 'bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]'
-                          : 'bg-white text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[var(--color-brand-primary)]'
-                      }`}
+                          ? 'bg-[var(--mz-ink)] text-[var(--mz-bg)] border-[var(--mz-ink)]'
+                          : 'bg-[var(--mz-surface)] text-[var(--mz-ink)] border-[var(--mz-line-strong)] hover:border-[var(--mz-ink)]'
+                      )}
                     >
                       {size}
                     </Link>
@@ -193,7 +248,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             {/* Color filter */}
             {availableColors.length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-3">
+                <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
                   {t('color')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -207,9 +262,11 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                         key={name}
                         href={buildUrl({ color: newColors.join(',') || undefined, page: undefined })}
                         aria-label={name}
-                        className={`w-7 h-7 rounded-full border-2 transition-all ${
-                          active ? 'border-[var(--color-brand-primary)] scale-110' : 'border-transparent hover:scale-105'
-                        }`}
+                        aria-pressed={active}
+                        className={cn(
+                          'w-7 h-7 rounded-full border-2 transition-all duration-150',
+                          active ? 'border-[var(--mz-ink)] scale-110' : 'border-[var(--mz-line)] hover:scale-105 hover:border-[var(--mz-ink-mute)]'
+                        )}
                         style={{ backgroundColor: hex }}
                         title={name}
                       />
@@ -220,37 +277,33 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             )}
 
             {/* Clear filters */}
-            {(currentCategory || currentSizes.length > 0 || currentColors.length > 0 || currentMinPrice || currentMaxPrice) && (
+            {hasActiveFilters && (
               <Link
                 href="/products"
-                className="text-sm text-[var(--color-brand-accent)] hover:underline underline-offset-2"
+                className="text-[12px] font-medium text-[var(--mz-accent)] hover:underline underline-offset-2 block"
               >
                 {t('clearFilters')}
               </Link>
             )}
           </aside>
 
-          {/* Main content */}
+          {/* ── Main content ──────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
-            {/* Sort + mobile filter bar */}
+            {/* Sort bar */}
             <div className="flex items-center justify-between mb-6 gap-3">
-              {/* Mobile: show filter count */}
-              <div className="flex items-center gap-2 lg:hidden">
-                <span className="text-sm text-[var(--color-text-secondary)]">
-                  {result.total > 0 ? t('results', { count: result.total }) : ''}
-                </span>
-              </div>
+              <span className="text-[12px] text-[var(--mz-ink-mute)] lg:hidden">
+                {result.total > 0 ? t('results', { count: result.total }) : ''}
+              </span>
 
-              {/* Sort select */}
               <div className="flex items-center gap-2 ml-auto">
-                <label htmlFor="sort-select" className="text-sm text-[var(--color-text-secondary)] shrink-0">
+                <label htmlFor="sort-select" className="text-[12px] text-[var(--mz-ink-mute)] shrink-0">
                   {t('sort') ?? 'Sort'}:
                 </label>
                 <div className="relative">
                   <select
                     id="sort-select"
                     defaultValue={currentSort}
-                    className="appearance-none h-9 pl-3 pr-8 rounded border border-[var(--color-border)] bg-white text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
+                    className="appearance-none h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] bg-[var(--mz-surface)] text-[12px] text-[var(--mz-ink)] focus:outline-none focus:border-[var(--mz-ink)] cursor-pointer transition-colors duration-150"
                     onChange={(e) => {
                       window.location.href = buildUrl({ sort: e.target.value, page: undefined });
                     }}
@@ -261,7 +314,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                       </option>
                     ))}
                   </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]">
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--mz-ink-mute)]">
                     <ChevronIcon />
                   </span>
                 </div>
@@ -271,18 +324,20 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             {/* Product grid */}
             {result.data.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <p className="text-4xl mb-4">🐾</p>
-                <p className="text-[var(--color-text-primary)] font-medium mb-1">{t('noResults')}</p>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-6">{t('noResultsHint')}</p>
+                <div className="w-12 h-12 rounded-full bg-[var(--mz-bg-deep)] flex items-center justify-center mb-4" aria-hidden="true">
+                  <PawIcon />
+                </div>
+                <p className="text-[var(--mz-ink)] font-medium text-[14px] mb-1">{t('noResults')}</p>
+                <p className="text-[12px] text-[var(--mz-ink-mute)] mb-6">{t('noResultsHint')}</p>
                 <Link
                   href="/products"
-                  className="text-sm text-[var(--color-brand-accent)] hover:underline underline-offset-2"
+                  className="text-[12px] text-[var(--mz-accent)] hover:underline underline-offset-2"
                 >
                   {t('clearFilters')}
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {result.data.map((product, i) => (
                   <ProductCard
                     key={product.id}
@@ -301,18 +356,18 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 {currentPage > 1 && (
                   <Link
                     href={buildUrl({ page: String(currentPage - 1) })}
-                    className="h-10 px-4 rounded border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)] transition-colors"
+                    className="h-10 px-4 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] text-[12px] font-medium text-[var(--mz-ink)] hover:bg-[var(--mz-bg-deep)] transition-colors"
                   >
                     {t('prevPage')}
                   </Link>
                 )}
-                <span className="text-sm text-[var(--color-text-secondary)]">
+                <span className="text-[12px] text-[var(--mz-ink-mute)]">
                   {t('pageOf', { page: currentPage, total: totalPages })}
                 </span>
                 {currentPage < totalPages && (
                   <Link
                     href={buildUrl({ page: String(currentPage + 1) })}
-                    className="h-10 px-4 rounded border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)] transition-colors"
+                    className="h-10 px-4 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] text-[12px] font-medium text-[var(--mz-ink)] hover:bg-[var(--mz-bg-deep)] transition-colors"
                   >
                     {t('nextPage')}
                   </Link>
@@ -326,10 +381,47 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   );
 }
 
+// ── Chip class helper (server-side link chips) ────────────────────────────────
+
+function chipClass(selected: boolean): string {
+  return cn(
+    'shrink-0 inline-flex items-center px-3.5 py-[7px]',
+    'rounded-full text-[12px] font-medium border',
+    'whitespace-nowrap transition-colors duration-150',
+    selected
+      ? 'bg-[var(--mz-ink)] border-[var(--mz-ink)] text-[var(--mz-bg)]'
+      : 'bg-[var(--mz-surface)] border-[var(--mz-line-strong)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]'
+  );
+}
+
+// ── Sidebar link class helper ─────────────────────────────────────────────────
+
+function sidebarLinkClass(active: boolean): string {
+  return cn(
+    'block text-[13px] py-1.5 px-2.5 rounded-[var(--radius-sm)] transition-colors duration-150',
+    active
+      ? 'font-semibold text-[var(--mz-ink)] bg-[var(--mz-bg-deep)]'
+      : 'text-[var(--mz-ink-soft)] hover:text-[var(--mz-ink)] hover:bg-[var(--mz-bg-deep)]'
+  );
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
 function ChevronIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+function PawIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--mz-ink-mute)]" aria-hidden="true">
+      <circle cx="12" cy="16" r="5" />
+      <circle cx="6" cy="9" r="2.5" />
+      <circle cx="12" cy="7" r="2.5" />
+      <circle cx="18" cy="9" r="2.5" />
     </svg>
   );
 }
