@@ -17,6 +17,8 @@ export interface ProductListParams {
   colors?: string[];
   min_price_krw?: number;
   max_price_krw?: number;
+  /** Free-text search across all name_* fields (case-insensitive ilike) */
+  search?: string;
 }
 
 const SORT_MAP: Record<NonNullable<ProductListParams['sort']>, { column: string; ascending: boolean }> = {
@@ -40,6 +42,7 @@ export async function listProducts(
     colors,
     min_price_krw,
     max_price_krw,
+    search,
   } = params;
 
   const supabase = await createClient();
@@ -110,6 +113,13 @@ export async function listProducts(
   if (combinedIds) query = query.in('id', combinedIds);
   if (min_price_krw !== undefined) query = query.gte('base_price_krw', min_price_krw);
   if (max_price_krw !== undefined) query = query.lte('base_price_krw', max_price_krw);
+  if (search) {
+    // Escape ilike special characters to prevent injection
+    const s = search.replace(/[%_\\]/g, '\\$&');
+    query = query.or(
+      `name_ko.ilike.%${s}%,name_en.ilike.%${s}%,name_ja.ilike.%${s}%,name_de.ilike.%${s}%`
+    );
+  }
 
   const { column, ascending } = SORT_MAP[sort];
   query = query.order(column, { ascending }).range(offset, offset + per_page - 1);

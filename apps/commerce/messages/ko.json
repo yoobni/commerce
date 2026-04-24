@@ -142,6 +142,11 @@
       "action": "쇼핑하기"
     }
   },
+  "search": {
+    "title": "검색",
+    "placeholder": "검색어를 입력해 주세요...",
+    "queryLabel": "'{q}' 검색 결과"
+  },
   "plp": {
     "title": "상품",
     "all": "전체",

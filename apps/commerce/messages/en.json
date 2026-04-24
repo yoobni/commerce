@@ -193,6 +193,11 @@
       "likeFailed": "Failed to update like"
     }
   },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products...",
+    "queryLabel": "Results for '{q}'"
+  },
   "plp": {
     "title": "Products",
     "all": "All",

@@ -193,6 +193,11 @@
       "likeFailed": "いいねの処理に失敗しました"
     }
   },
+  "search": {
+    "title": "検索",
+    "placeholder": "商品を検索...",
+    "queryLabel": "'{q}' の検索結果"
+  },
   "plp": {
     "title": "商品",
     "all": "すべて",

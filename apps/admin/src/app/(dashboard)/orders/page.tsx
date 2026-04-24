@@ -3,9 +3,16 @@ import type { OrderStatus } from '@commerce/types';
 import {
   adminListOrders,
   ORDER_STATUS_LABEL,
-  ORDER_STATUS_BADGE,
   type OrderStatusFilter,
 } from '@/lib/queries/orders';
+import {
+  PageHeader,
+  StatusTabs,
+  SearchBar,
+  SectionCard,
+  Pagination,
+  Badge,
+} from '@/components/ui';
 
 export const metadata = { title: '주문 관리' };
 
@@ -23,6 +30,22 @@ const STATUS_TABS: Array<{ value: OrderStatusFilter; label: string }> = [
   { value: 'REFUND_REQUESTED', label: '환불 요청' },
   { value: 'CANCELLED', label: '취소' },
 ];
+
+// ─── Badge variant map ─────────────────────────────────────────────────────────
+
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'purple' | 'accent';
+
+const ORDER_STATUS_VARIANT: Partial<Record<OrderStatus, BadgeVariant>> = {
+  PAID: 'success',
+  DELIVERED: 'success',
+  CONFIRMED: 'success',
+  PREPARING: 'info',
+  SHIPPED: 'info',
+  PENDING_PAYMENT: 'neutral',
+  RETURN_REQUESTED: 'warning',
+  REFUND_REQUESTED: 'warning',
+  CANCELLED: 'danger',
+};
 
 // ─── Currency formatter ───────────────────────────────────────────────────────
 
@@ -56,139 +79,107 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   const result = await adminListOrders({ status, search: search || undefined, page });
 
+  function buildTabHref(value: OrderStatusFilter) {
+    const q = new URLSearchParams({ status: value });
+    if (search) q.set('search', search);
+    return `/orders?${q.toString()}`;
+  }
+
+  function buildPageHref(p: number) {
+    const q = new URLSearchParams({ status, page: String(p) });
+    if (search) q.set('search', search);
+    return `/orders?${q.toString()}`;
+  }
+
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6">주문 관리</h1>
+      <PageHeader title="주문 관리" />
 
-      {/* Status tabs — scrollable on small screens */}
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-lg mb-4 overflow-x-auto">
-        {STATUS_TABS.map((tab) => (
-          <Link
-            key={tab.value}
-            href={`/orders?status=${tab.value}${search ? `&search=${search}` : ''}`}
-            className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap ${
-              status === tab.value
-                ? 'bg-white text-[var(--color-text-primary)] shadow-sm'
-                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* Search */}
-      <form method="GET" className="flex gap-2 mb-6">
-        <input
-          type="text"
-          name="search"
+      {/* Filters row */}
+      <div className="flex flex-wrap items-start gap-3 mb-6">
+        <StatusTabs
+          tabs={STATUS_TABS}
+          current={status}
+          buildHref={buildTabHref}
+        />
+        <SearchBar
           defaultValue={search}
           placeholder="주문번호 검색"
-          className="px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          hiddenFields={[{ name: 'status', value: status }]}
+          resetHref={`/orders?status=${status}`}
         />
-        <input type="hidden" name="status" value={status} />
-        <button
-          type="submit"
-          className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90"
-        >
-          검색
-        </button>
-        {search && (
-          <Link
-            href={`/orders?status=${status}`}
-            className="px-4 py-1.5 text-sm border border-[var(--color-border)] rounded-lg hover:bg-gray-50 text-[var(--color-text-secondary)]"
-          >
-            초기화
-          </Link>
-        )}
-      </form>
-
-      {/* Table */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문번호</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">고객</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">결제금액</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">상태</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문일</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {result.data.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-[var(--color-text-tertiary)]">
-                  해당 주문이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              result.data.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/orders/${order.id}`}
-                      className="font-mono text-xs text-blue-600 hover:underline"
-                    >
-                      {order.order_number}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    {order.user ? (
-                      <div>
-                        <p className="font-medium text-[var(--color-text-primary)]">{order.user.name}</p>
-                        <p className="text-xs text-[var(--color-text-secondary)]">{order.user.email}</p>
-                      </div>
-                    ) : (
-                      <span className="text-[var(--color-text-tertiary)]">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-[var(--color-text-primary)]">
-                    {formatAmount(order.total_amount, order.currency)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        ORDER_STATUS_BADGE[order.status as OrderStatus] ?? 'bg-gray-100 text-gray-500'
-                      }`}
-                    >
-                      {ORDER_STATUS_LABEL[order.status as OrderStatus] ?? order.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {new Date(order.ordered_at).toLocaleDateString('ko-KR')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
       </div>
 
-      {/* Pagination */}
-      {result.total > result.per_page && (
-        <div className="flex items-center justify-between mt-4 text-sm text-[var(--color-text-secondary)]">
-          <span>총 {result.total.toLocaleString()}건 · {page}페이지</span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <Link
-                href={`/orders?status=${status}&search=${search}&page=${page - 1}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                이전
-              </Link>
-            )}
-            {result.has_next && (
-              <Link
-                href={`/orders?status=${status}&search=${search}&page=${page + 1}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                다음
-              </Link>
-            )}
-          </div>
+      {/* Table */}
+      <SectionCard noPadding>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[var(--color-surface-muted)] border-b border-[var(--color-border)]">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문번호</th>
+                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">고객</th>
+                <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">결제금액</th>
+                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">상태</th>
+                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문일</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border)]">
+              {result.data.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center text-[var(--color-text-tertiary)]">
+                    해당 주문이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                result.data.map((order) => {
+                  const orderStatus = order.status as OrderStatus;
+                  return (
+                    <tr key={order.id} className="hover:bg-[var(--color-surface-muted)] transition-colors">
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="font-mono text-xs text-[var(--color-link)] hover:underline font-medium"
+                        >
+                          {order.order_number}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3">
+                        {order.user ? (
+                          <div>
+                            <p className="font-medium text-[var(--color-text-primary)]">{order.user.name}</p>
+                            <p className="text-xs text-[var(--color-text-secondary)]">{order.user.email}</p>
+                          </div>
+                        ) : (
+                          <span className="text-[var(--color-text-tertiary)]">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-[var(--color-text-primary)]">
+                        {formatAmount(order.total_amount, order.currency)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={ORDER_STATUS_VARIANT[orderStatus] ?? 'neutral'}>
+                          {ORDER_STATUS_LABEL[orderStatus] ?? order.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-[var(--color-text-secondary)]">
+                        {new Date(order.ordered_at).toLocaleDateString('ko-KR')}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </SectionCard>
+
+      <Pagination
+        page={page}
+        total={result.total}
+        perPage={result.per_page}
+        hasNext={result.has_next}
+        buildHref={buildPageHref}
+      />
     </div>
   );
 }

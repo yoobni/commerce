@@ -193,6 +193,11 @@
       "likeFailed": "Like konnte nicht aktualisiert werden"
     }
   },
+  "search": {
+    "title": "Suche",
+    "placeholder": "Produkte suchen...",
+    "queryLabel": "Ergebnisse für '{q}'"
+  },
   "plp": {
     "title": "Produkte",
     "all": "Alle",
