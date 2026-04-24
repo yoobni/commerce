@@ -11,6 +11,27 @@
 -- ============================================================
 
 -- ─────────────────────────────────────────────────────────────
+-- 0. Admins (개발용 초기 관리자 계정)
+-- ─────────────────────────────────────────────────────────────
+-- ⚠ DEV ONLY — 운영 환경에서는 반드시 교체할 것
+-- email   : admin@ravidog.com
+-- password: admin1234!  (bcrypt 10 rounds)
+-- UUID key: uuid5(DNS_NAMESPACE, 'admin:super@ravidog.com')
+-- ─────────────────────────────────────────────────────────────
+INSERT INTO admins (id, email, password_hash, name, role, status, created_at, updated_at)
+VALUES (
+  '476f493e-bacf-5a60-89a4-69c5ebd7b5eb',
+  'admin@ravidog.com',
+  '$2a$10$bIq0UTm4pYbGrk6FylNtVeV5Rl5odEesYCpLdinJusvM2kXhC4tLm',
+  'Super Admin',
+  'SUPER_ADMIN',
+  'ACTIVE',
+  '2026-01-01T00:00:00Z',
+  '2026-01-01T00:00:00Z'
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────
 -- 1. Sizes (사이즈 기준표)
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO sizes (id, label, chest_cm_min, chest_cm_max, back_length_cm_min, back_length_cm_max, neck_cm_min, neck_cm_max, weight_kg_min, weight_kg_max, breed_examples, sort_order, created_at)
