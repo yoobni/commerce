@@ -378,6 +378,17 @@
     "forgotPassword": "Forgot password?",
     "or": "or",
     "continueWithGoogle": "Continue with Google",
+    "continueWithKakao": "Continue with Kakao",
+    "continueWithNaver": "Continue with Naver",
+    "continueWithTwitter": "Continue with X (Twitter)",
+    "forgotPasswordTitle": "Forgot password",
+    "forgotPasswordSubtitle": "We'll send a reset link to your email.",
+    "sendResetLink": "Send reset link",
+    "backToLogin": "Back to sign in",
+    "resetPasswordTitle": "Set new password",
+    "resetPasswordSubtitle": "Enter your new password below.",
+    "newPassword": "New password",
+    "updatePassword": "Update password",
     "loginTitle": "Welcome back",
     "loginSubtitle": "Sign in to your account",
     "signUpTitle": "Join RAVI",
@@ -396,7 +407,8 @@
     },
     "success": {
       "signUp": "Account created! Please check your email to verify.",
-      "signIn": "Welcome back!"
+      "signIn": "Welcome back!",
+      "resetEmailSent": "Reset link sent. Please check your inbox."
     }
   }
 }

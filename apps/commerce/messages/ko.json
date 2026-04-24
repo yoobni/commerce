@@ -378,6 +378,17 @@
     "forgotPassword": "비밀번호 찾기",
     "or": "또는",
     "continueWithGoogle": "Google로 계속하기",
+    "continueWithKakao": "카카오로 계속하기",
+    "continueWithNaver": "네이버로 계속하기",
+    "continueWithTwitter": "X(Twitter)로 계속하기",
+    "forgotPasswordTitle": "비밀번호 찾기",
+    "forgotPasswordSubtitle": "가입한 이메일로 재설정 링크를 발송해드립니다.",
+    "sendResetLink": "재설정 링크 받기",
+    "backToLogin": "로그인으로 돌아가기",
+    "resetPasswordTitle": "새 비밀번호 설정",
+    "resetPasswordSubtitle": "새로운 비밀번호를 입력해 주세요.",
+    "newPassword": "새 비밀번호",
+    "updatePassword": "비밀번호 변경",
     "loginTitle": "다시 오셨군요",
     "loginSubtitle": "계정에 로그인하세요",
     "signUpTitle": "RAVI에 오신 것을 환영합니다",
@@ -396,7 +407,8 @@
     },
     "success": {
       "signUp": "계정이 생성되었습니다! 이메일을 확인해 인증을 완료해 주세요.",
-      "signIn": "환영합니다!"
+      "signIn": "환영합니다!",
+      "resetEmailSent": "재설정 링크가 이메일로 발송되었습니다. 받은 메일함을 확인해 주세요."
     }
   }
 }

@@ -13,7 +13,7 @@ export default function LoginPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading, signIn, signInWithGoogle } = useAuth();
+  const { user, loading, signIn, signInWithGoogle, signInWithKakao, signInWithNaver, signInWithTwitter } = useAuth();
 
   const next = searchParams.get('next') ?? `/${locale}`;
   const hasOAuthError = searchParams.get('error') != null;
@@ -47,6 +47,24 @@ export default function LoginPage() {
   async function handleGoogle() {
     setError(null);
     const { error: authError } = await signInWithGoogle(next);
+    if (authError) setError(t('error.generic'));
+  }
+
+  async function handleKakao() {
+    setError(null);
+    const { error: authError } = await signInWithKakao(next);
+    if (authError) setError(t('error.generic'));
+  }
+
+  async function handleNaver() {
+    setError(null);
+    const { error: authError } = await signInWithNaver(next);
+    if (authError) setError(t('error.generic'));
+  }
+
+  async function handleTwitter() {
+    setError(null);
+    const { error: authError } = await signInWithTwitter(next);
     if (authError) setError(t('error.generic'));
   }
 
@@ -113,16 +131,57 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          className="w-full"
-          onClick={handleGoogle}
-          leadingIcon={<GoogleIcon />}
-        >
-          {t('continueWithGoogle')}
-        </Button>
+        <div className="flex flex-col gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={handleGoogle}
+            leadingIcon={<GoogleIcon />}
+          >
+            {t('continueWithGoogle')}
+          </Button>
+
+          {locale === 'ko' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              onClick={handleKakao}
+              leadingIcon={<KakaoIcon />}
+            >
+              {t('continueWithKakao')}
+            </Button>
+          )}
+
+          {locale === 'ja' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              onClick={handleNaver}
+              leadingIcon={<NaverIcon />}
+            >
+              {t('continueWithNaver')}
+            </Button>
+          )}
+
+          {(locale === 'en' || locale === 'de') && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              onClick={handleTwitter}
+              leadingIcon={<TwitterIcon />}
+            >
+              {t('continueWithTwitter')}
+            </Button>
+          )}
+        </div>
 
         <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
           {t('noAccount')}{' '}
@@ -156,6 +215,40 @@ function GoogleIcon() {
       <path
         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
         fill="#EA4335"
+      />
+    </svg>
+  );
+}
+
+function KakaoIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 3C6.48 3 2 6.48 2 10.8c0 2.7 1.6 5.07 4.05 6.51L5.1 21l4.77-2.52c.69.1 1.4.15 2.13.15 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"
+        fill="#3C1E1E"
+      />
+    </svg>
+  );
+}
+
+function NaverIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <rect width="24" height="24" rx="4" fill="#03C75A" />
+      <path
+        d="M13.74 12.27L10.1 6H7v12h3.26v-6.27L14 18H17V6h-3.26z"
+        fill="#fff"
+      />
+    </svg>
+  );
+}
+
+function TwitterIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+        fill="currentColor"
       />
     </svg>
   );

@@ -15,6 +15,10 @@ interface AuthContextValue {
   ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   signInWithGoogle: (redirectTo?: string) => Promise<{ error: string | null }>;
+  signInWithKakao: (redirectTo?: string) => Promise<{ error: string | null }>;
+  signInWithNaver: (redirectTo?: string) => Promise<{ error: string | null }>;
+  signInWithTwitter: (redirectTo?: string) => Promise<{ error: string | null }>;
+  resetPassword: (email: string, locale: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -75,9 +79,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error?.message ?? null };
   }, []);
 
+  const signInWithKakao = useCallback(async (redirectTo?: string) => {
+    const supabase = createClient();
+    const next = redirectTo ?? '/';
+    const callbackUrl = `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'kakao',
+      options: { redirectTo: callbackUrl },
+    });
+    return { error: error?.message ?? null };
+  }, []);
+
+  const signInWithNaver = useCallback(async (redirectTo?: string) => {
+    const next = redirectTo ?? '/';
+    // Naver is not a native Supabase provider — use custom OAuth flow
+    window.location.href = `/api/auth/naver/connect?next=${encodeURIComponent(next)}`;
+    return { error: null };
+  }, []);
+
+  const signInWithTwitter = useCallback(async (redirectTo?: string) => {
+    const supabase = createClient();
+    const next = redirectTo ?? '/';
+    const callbackUrl = `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: { redirectTo: callbackUrl },
+    });
+    return { error: error?.message ?? null };
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, locale: string) => {
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/api/auth/callback?next=/${locale}/auth/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    return { error: error?.message ?? null };
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signUp, signOut, signInWithGoogle }}
+      value={{
+        user,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        signInWithGoogle,
+        signInWithKakao,
+        signInWithNaver,
+        signInWithTwitter,
+        resetPassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -378,6 +378,17 @@
     "forgotPassword": "Passwort vergessen?",
     "or": "oder",
     "continueWithGoogle": "Mit Google fortfahren",
+    "continueWithKakao": "Mit Kakao fortfahren",
+    "continueWithNaver": "Mit Naver fortfahren",
+    "continueWithTwitter": "Mit X (Twitter) fortfahren",
+    "forgotPasswordTitle": "Passwort vergessen",
+    "forgotPasswordSubtitle": "Wir senden dir einen Reset-Link an deine E-Mail.",
+    "sendResetLink": "Reset-Link senden",
+    "backToLogin": "Zurück zur Anmeldung",
+    "resetPasswordTitle": "Neues Passwort festlegen",
+    "resetPasswordSubtitle": "Gib dein neues Passwort ein.",
+    "newPassword": "Neues Passwort",
+    "updatePassword": "Passwort aktualisieren",
     "loginTitle": "Willkommen zurück",
     "loginSubtitle": "Melde dich bei deinem Konto an",
     "signUpTitle": "RAVI beitreten",
@@ -396,7 +407,8 @@
     },
     "success": {
       "signUp": "Konto erstellt! Bitte überprüfe deine E-Mail zur Verifizierung.",
-      "signIn": "Willkommen zurück!"
+      "signIn": "Willkommen zurück!",
+      "resetEmailSent": "Reset-Link gesendet. Bitte überprüfe dein Postfach."
     }
   }
 }
