@@ -159,13 +159,24 @@ export default async function OrderDetailPage({ params }: Props) {
       {/* Action buttons */}
       {order.status === 'SHIPPED' && (
         <div className="flex gap-3">
+          {/*
+           * [나중에 구현] 배송 추적 버튼 활성화
+           * 계획서: docs/shipping-tracking-plan.md § 5 Phase 4
+           *
+           * 구현 순서:
+           *   1. apps/commerce/src/lib/queries/orders.ts → getOrderById()에 shipment join 추가
+           *      (tracking_number, carrier, external_tracker_id 포함)
+           *   2. 이 버튼을 disabled에서 클릭 가능으로 변경
+           *   3. 클릭 시: 택배사 공식 추적 URL로 외부 이동 (새 탭)
+           *      또는 모달로 tracking_events JSONB 이벤트 이력 표시
+           *   4. 택배사별 외부 추적 URL 매핑은 docs/shipping-tracking-plan.md § 9 참고
+           */}
           <button
             type="button"
             disabled
             className="h-10 px-5 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-tertiary)] cursor-not-allowed"
             title="배송 추적 기능 준비 중"
           >
-            {/* 배송 추적: 추후 구현 — docs/shipping-tracking-plan.md 참고 */}
             {t('trackPackage')}
           </button>
         </div>

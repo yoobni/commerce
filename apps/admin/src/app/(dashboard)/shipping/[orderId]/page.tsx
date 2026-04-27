@@ -5,6 +5,20 @@ import { adminGetShippingOrder } from '@/lib/queries/shipments';
 import { ShipmentInputForm } from './_components/ShipmentInputForm';
 import { ShipmentStatusUpdater } from './_components/ShipmentStatusUpdater';
 
+// ─── 배송 추적 외부 API 연동 계획 ─────────────────────────────────────────────
+// docs/shipping-tracking-plan.md 참고
+//
+// [나중에 구현] 이 페이지에서 외부 API 실시간 이벤트를 표시하려면:
+//   1. adminGetShippingOrder() 쿼리에 tracking_events JSONB 컬럼 포함
+//      → apps/admin/src/lib/queries/shipments.ts § adminGetShippingOrder()
+//   2. 아래 타임라인 섹션(Step timeline) 아래에 이벤트 목록 컴포넌트 추가
+//      → 각 이벤트: { timestamp, location, message, raw_status }
+//   3. "외부 조회" 버튼 추가 → POST /api/admin/shipments/[id]/sync 로 수동 동기화
+//      → apps/admin/src/app/api/admin/shipments/[id]/sync/route.ts 신규 작성
+//
+// Webhook 수신 엔드포인트: apps/commerce/src/app/api/webhooks/tracking/route.ts
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
 const CARRIER_LABEL: Partial<Record<Carrier, string>> = {
