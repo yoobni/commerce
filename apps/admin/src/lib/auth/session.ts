@@ -45,7 +45,7 @@ export async function verifySession(token: string): Promise<AdminSession | null>
       id: payload['id'] as string,
       email: payload['email'] as string,
       name: payload['name'] as string,
-      role: payload['role'] as string,
+      role: payload['role'] as AdminRole,
     };
   } catch {
     return null;

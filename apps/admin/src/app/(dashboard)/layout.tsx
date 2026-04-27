@@ -18,7 +18,7 @@ export default async function DashboardLayout({
         className="fixed inset-y-0 left-0 z-20 flex flex-col"
         style={{ width: 'var(--sidebar-width)' }}
       >
-        <Sidebar />
+        <Sidebar role={session.role} />
       </aside>
 
       {/* Main area */}

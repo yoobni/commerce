@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
 import { createServiceClient } from '@/lib/supabase/service';
-import { signSession, COOKIE_NAME } from './session';
+import { signSession, COOKIE_NAME, type AdminRole } from './session';
 
 export interface LoginState {
   error: string | null;
@@ -51,7 +51,7 @@ export async function login(
     id: admin.id as string,
     email: admin.email as string,
     name: admin.name as string,
-    role: admin.role as string,
+    role: admin.role as AdminRole,
   });
 
   const cookieStore = await cookies();
