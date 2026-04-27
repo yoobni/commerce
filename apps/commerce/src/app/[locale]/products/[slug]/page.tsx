@@ -16,6 +16,30 @@ import { CategoryBreadcrumb } from '@/components/product/CategoryBreadcrumb';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductGridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { PDPClient } from './_components/PDPClient';
+import { JsonLd, buildProductSchema, buildBreadcrumbSchema } from '@/components/seo/JsonLd';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ravidog.com';
+
+const LOCALE_CURRENCY: Record<Locale, string> = {
+  ko: 'KRW',
+  en: 'USD',
+  ja: 'JPY',
+  de: 'EUR',
+};
+
+export async function generateStaticParams() {
+  try {
+    const result = await listProducts({ status: 'ACTIVE', per_page: 200 });
+    return routing.locales.flatMap((locale) =>
+      result.data.map((p) => ({ locale, slug: p.slug }))
+    );
+  } catch {
+    return [];
+  }
+}
+
+export const dynamicParams = true;
+export const revalidate = 3600;
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -26,11 +50,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductBySlug(slug);
   if (!product) return {};
   const name = getProductName(product, locale as Locale);
+  const ogImage = product.images[0] ?? product.thumbnail_url;
   return {
     title: name,
     description: getProductDescription(product, locale as Locale).slice(0, 160),
     openGraph: {
-      images: product.images[0] ? [{ url: product.images[0] }] : [],
+      type: 'website',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: name }] : [],
     },
   };
 }
@@ -66,8 +92,31 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const relatedProducts = relatedResult.data.filter((p) => p.id !== product.id).slice(0, 4);
 
+  const productUrl = `${BASE_URL}/${locale}/products/${product.slug}`;
+  const breadcrumbItems = [
+    { name: tNav('home'), url: `${BASE_URL}/${locale}` },
+    { name: tNav('shop'), url: `${BASE_URL}/${locale}/products` },
+    ...(product.category
+      ? [{ name: getCategoryName(product.category, locale as Locale), url: `${BASE_URL}/${locale}/products?category=${product.category.slug}` }]
+      : []),
+    { name: productName, url: productUrl },
+  ];
+
   return (
     <div className="bg-[var(--color-bg)] min-h-screen">
+      <JsonLd data={buildProductSchema({
+        name: productName,
+        description: getProductDescription(product, locale as Locale).slice(0, 500),
+        image: product.images.length > 0 ? product.images : [product.thumbnail_url],
+        url: productUrl,
+        sku: product.slug,
+        price: price,
+        currency: LOCALE_CURRENCY[locale as Locale],
+        availability: product.status === 'ACTIVE' ? 'InStock' : 'OutOfStock',
+        ratingValue: product.review_avg_rating,
+        reviewCount: product.review_count,
+      })} />
+      <JsonLd data={buildBreadcrumbSchema(breadcrumbItems)} />
       <Container className="py-6 md:py-10">
         {/* Breadcrumb */}
         <div className="mb-6">

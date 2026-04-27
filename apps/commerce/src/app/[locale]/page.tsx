@@ -12,6 +12,7 @@ import { Container } from '@/components/layout/Container';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { FitForHanaCard } from '@/components/ui/FitForHanaCard';
 import { Button } from '@/components/ui';
+import { JsonLd, buildOrganizationSchema } from '@/components/seo/JsonLd';
 
 // SSG + ISR — revalidate every hour
 export const revalidate = 3600;
@@ -40,8 +41,11 @@ export default async function HomePage({ params }: Props) {
     listProducts({ sort: 'newest', per_page: 8 }),
   ]);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ravidog.com';
+
   return (
     <div className="bg-[var(--mz-bg)]">
+      <JsonLd data={buildOrganizationSchema(siteUrl)} />
 
       {/* ── Hero — full-bleed, serif display, eyebrow ───────────────────── */}
       <section
