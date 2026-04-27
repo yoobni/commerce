@@ -5,6 +5,7 @@ import { adminGetOrder, ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/que
 import { Badge } from '@/components/ui/Badge';
 import { OrderStatusActions } from './_components/OrderStatusActions';
 import { AdminMemoForm } from './_components/AdminMemoForm';
+import { RefundForm } from './_components/RefundForm';
 
 export const metadata = { title: '주문 상세' };
 
@@ -142,6 +143,33 @@ export default async function OrderDetailPage({
           <SectionCard title="상태 변경">
             <OrderStatusActions orderId={order.id} currentStatus={order.status as OrderStatus} />
           </SectionCard>
+
+          {/* Payment info + Refund */}
+          {order.payment && (
+            <SectionCard title="결제 정보">
+              <dl className="space-y-0 mb-4">
+                <InfoRow label="결제 수단">{order.payment.method}</InfoRow>
+                <InfoRow label="PG사">{order.payment.provider}</InfoRow>
+                <InfoRow label="결제 상태">{order.payment.status}</InfoRow>
+                <InfoRow label="결제 금액">{formatAmount(order.payment.amount, order.currency)}</InfoRow>
+                {order.payment.refund_amount != null && order.payment.refund_amount > 0 && (
+                  <InfoRow label="환불 금액">
+                    <span className="text-red-500">{formatAmount(order.payment.refund_amount, order.currency)}</span>
+                  </InfoRow>
+                )}
+                {order.payment.paid_at && (
+                  <InfoRow label="결제일">{new Date(order.payment.paid_at).toLocaleString('ko-KR')}</InfoRow>
+                )}
+              </dl>
+              {order.status === 'REFUND_REQUESTED' && (
+                <RefundForm
+                  orderId={order.id}
+                  maxRefundable={order.payment.amount - (order.payment.refund_amount ?? 0)}
+                  currency={order.currency}
+                />
+              )}
+            </SectionCard>
+          )}
 
           {/* Admin memo */}
           <SectionCard title="관리자 메모">
