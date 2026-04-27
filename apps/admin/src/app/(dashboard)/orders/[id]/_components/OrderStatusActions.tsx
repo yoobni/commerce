@@ -7,6 +7,8 @@ import { ORDER_STATUS_LABEL } from '@/lib/queries/orders';
 
 // ─── Valid next transitions (must match server-side actions/orders.ts) ────────
 
+// NOTE: REFUND_REQUESTED → REFUNDED is handled by <RefundForm> (PG + side-effects).
+// Keep it out of this component to prevent bypassing payment cancellation.
 const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PENDING_PAYMENT: ['CANCELLED'],
   PAID: ['PREPARING', 'CANCELLED'],
@@ -15,7 +17,7 @@ const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   DELIVERED: ['CONFIRMED', 'RETURN_REQUESTED'],
   RETURN_REQUESTED: ['RETURNED', 'PREPARING'],
   RETURNED: ['REFUND_REQUESTED'],
-  REFUND_REQUESTED: ['REFUNDED'],
+  REFUND_REQUESTED: [], // handled by RefundForm — do not show a direct button here
   DELIVERY_FAILED: ['RETURN_REQUESTED', 'CANCELLED'],
 };
 

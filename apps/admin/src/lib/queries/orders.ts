@@ -6,6 +6,7 @@ import type {
   Order,
   OrderItem,
   OrderStatus,
+  Payment,
   User,
   PaginatedResponse,
 } from '@commerce/types';
@@ -26,6 +27,7 @@ export interface OrderRow {
 export interface OrderDetail extends Order {
   user: Pick<User, 'id' | 'name' | 'email' | 'phone'> | null;
   items: OrderItem[];
+  payment: Payment | null;
 }
 
 // ─── Status label & badge ─────────────────────────────────────────────────────
@@ -115,11 +117,17 @@ export async function adminGetOrder(orderId: string): Promise<OrderDetail | null
     .select(
       `*,
       user:users!user_id(id, name, email, phone),
-      items:order_items(*)`
+      items:order_items(*),
+      payment:payments!order_id(*)`
     )
     .eq('id', orderId)
     .single();
 
   if (error || !data) return null;
-  return data as OrderDetail;
+
+  const row = data as OrderDetail & { payment: Payment | Payment[] | null };
+  return {
+    ...row,
+    payment: Array.isArray(row.payment) ? (row.payment[0] ?? null) : row.payment,
+  };
 }

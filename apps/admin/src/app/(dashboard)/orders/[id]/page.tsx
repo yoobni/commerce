@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import type { OrderStatus } from '@commerce/types';
+import type { OrderStatus, PaymentStatus } from '@commerce/types';
 import { adminGetOrder, ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
 import { Badge } from '@/components/ui/Badge';
 import { OrderStatusActions } from './_components/OrderStatusActions';
 import { AdminMemoForm } from './_components/AdminMemoForm';
+import { RefundForm } from './_components/RefundForm';
 
 export const metadata = { title: '주문 상세' };
 
@@ -19,6 +20,24 @@ function formatAmount(amount: number, currency: string): string {
     return `${amount.toLocaleString()} ${currency}`;
   }
 }
+
+const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
+  PENDING: '결제 대기',
+  PAID: '결제 완료',
+  FAILED: '결제 실패',
+  CANCELLED: '결제 취소',
+  PARTIALLY_REFUNDED: '부분 환불',
+  FULLY_REFUNDED: '전액 환불',
+};
+
+const PAYMENT_STATUS_BADGE: Record<PaymentStatus, string> = {
+  PENDING: 'bg-yellow-100 text-yellow-700',
+  PAID: 'bg-blue-100 text-blue-700',
+  FAILED: 'bg-red-100 text-red-700',
+  CANCELLED: 'bg-gray-100 text-gray-500',
+  PARTIALLY_REFUNDED: 'bg-orange-100 text-orange-700',
+  FULLY_REFUNDED: 'bg-gray-100 text-gray-500',
+};
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -137,6 +156,48 @@ export default async function OrderDetailPage({
               </InfoRow>
             </dl>
           </SectionCard>
+
+          {/* Payment info */}
+          {order.payment && (
+            <SectionCard title="결제 정보">
+              <dl className="space-y-0">
+                <InfoRow label="결제 수단">{order.payment.method}</InfoRow>
+                <InfoRow label="결제 상태">
+                  <Badge className={PAYMENT_STATUS_BADGE[order.payment.status as PaymentStatus]}>
+                    {PAYMENT_STATUS_LABEL[order.payment.status as PaymentStatus]}
+                  </Badge>
+                </InfoRow>
+                {order.payment.paid_at && (
+                  <InfoRow label="결제 일시">
+                    {new Date(order.payment.paid_at).toLocaleString('ko-KR')}
+                  </InfoRow>
+                )}
+                {order.payment.refund_amount != null && order.payment.refund_amount > 0 && (
+                  <InfoRow label="환불 금액">
+                    <span className="text-red-500">
+                      {formatAmount(order.payment.refund_amount, order.currency)}
+                    </span>
+                  </InfoRow>
+                )}
+                {order.payment.refunded_at && (
+                  <InfoRow label="환불 일시">
+                    {new Date(order.payment.refunded_at).toLocaleString('ko-KR')}
+                  </InfoRow>
+                )}
+              </dl>
+            </SectionCard>
+          )}
+
+          {/* Refund processing — only shown when refund is requested */}
+          {order.status === 'REFUND_REQUESTED' && (
+            <SectionCard title="환불 처리">
+              <RefundForm
+                orderId={order.id}
+                totalAmount={order.total_amount}
+                currency={order.currency}
+              />
+            </SectionCard>
+          )}
 
           {/* Status actions */}
           <SectionCard title="상태 변경">
