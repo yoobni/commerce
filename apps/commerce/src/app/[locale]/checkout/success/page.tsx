@@ -1,14 +1,23 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/layout/Container';
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ order_id?: string }>;
+  searchParams: Promise<{
+    // Toss Payments redirects with these params after payment
+    paymentKey?: string;
+    orderId?: string;   // Toss orderId = our order_number
+    amount?: string;
+    // Our custom params passed in successUrl
+    order_id?: string;  // our internal order UUID
+    cart_id?: string;
+    order_number?: string;
+  }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,10 +31,45 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   if (!hasLocale(routing.locales, locale)) notFound();
 
   const sp = await searchParams;
-  const orderId = sp.order_id;
+  const internalOrderId = sp.order_id;
+  const cartId = sp.cart_id;
+
+  // Toss redirect params (paymentKey + orderId are added by Toss to our successUrl)
+  const tossPaymentKey = sp.paymentKey;
+  const tossAmount = sp.amount ? parseInt(sp.amount, 10) : null;
 
   const t = await getTranslations({ locale, namespace: 'checkout' });
   const tAccount = await getTranslations({ locale, namespace: 'account' });
+
+  let displayOrderNumber: string | null = sp.order_number ?? null;
+
+  // ── Confirm payment with Toss (server-side) ────────────────────────────────
+  if (tossPaymentKey && internalOrderId && tossAmount != null) {
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+      const confirmRes = await fetch(`${siteUrl}/api/payments/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentKey: tossPaymentKey,
+          orderId: internalOrderId,
+          amount: tossAmount,
+          cartId,
+        }),
+        cache: 'no-store',
+      });
+
+      if (!confirmRes.ok) {
+        // Payment confirmation failed — redirect to fail page
+        redirect(`/${locale}/checkout/fail?order_id=${internalOrderId}&error=confirm_failed`);
+      }
+
+      const confirmData = (await confirmRes.json()) as { orderNumber?: string };
+      displayOrderNumber = confirmData.orderNumber ?? displayOrderNumber;
+    } catch {
+      redirect(`/${locale}/checkout/fail?order_id=${internalOrderId}&error=confirm_error`);
+    }
+  }
 
   return (
     <div className="bg-[var(--color-bg)] min-h-screen flex items-center justify-center">
@@ -57,9 +101,12 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
           {t('success.message')}
         </p>
 
-        {orderId && (
+        {displayOrderNumber && (
           <p className="text-sm text-[var(--color-text-tertiary)] mb-6">
-            {t('success.orderNumber')}: <span className="font-mono font-medium text-[var(--color-text-primary)]">{orderId}</span>
+            {t('success.orderNumber')}:{' '}
+            <span className="font-mono font-medium text-[var(--color-text-primary)]">
+              {displayOrderNumber}
+            </span>
           </p>
         )}
 

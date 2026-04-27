@@ -248,7 +248,8 @@
       "cardNumber": "Card number",
       "expiry": "Expiry date",
       "cvv": "CVV",
-      "cardHolder": "Cardholder name"
+      "cardHolder": "Cardholder name",
+      "tossPay": "Toss Pay"
     },
     "coupon": {
       "title": "Coupon / Points",
@@ -287,6 +288,13 @@
       "outOfStock": "Some items are no longer available.",
       "addressRequired": "Please enter a shipping address.",
       "paymentRequired": "Please select a payment method."
+    },
+    "fail": {
+      "title": "Payment Failed",
+      "message": "An error occurred during payment. Please try again.",
+      "errorCode": "Error code",
+      "backToCart": "Back to Cart",
+      "continueShopping": "Continue Shopping"
     }
   },
   "account": {
@@ -415,5 +423,34 @@
     "title": "Search",
     "placeholder": "Search products...",
     "results": "{count} results"
+  },
+  "review": {
+    "write": "Write a review",
+    "writeReview": "Write review",
+    "ratingLabel": "Rating",
+    "ratingRequired": "Please select a rating",
+    "sizeFeedback": "Size fit",
+    "sizeFeedbackSmall": "Runs small",
+    "sizeFeedbackPerfect": "True to size",
+    "sizeFeedbackLarge": "Runs large",
+    "sizeFeedbackRequired": "Please select a size fit",
+    "content": "Review",
+    "contentPlaceholder": "How did it fit your large dog? Share your honest feedback",
+    "dogInfo": "Dog info (optional)",
+    "dogBreed": "Breed",
+    "dogBreedPlaceholder": "e.g. Malamute, Great Dane",
+    "dogWeight": "Weight (kg)",
+    "dogWeightPlaceholder": "e.g. 35",
+    "submit": "Submit review",
+    "submitSuccess": "Review submitted. Thank you!",
+    "submitError": "Failed to submit review. Please try again.",
+    "loginToReview": "Please sign in to write a review",
+    "purchaseRequired": "You can only review items you've purchased",
+    "alreadyReviewed": "You've already reviewed this product",
+    "loadMore": "Load more reviews",
+    "noReviews": "No reviews yet",
+    "photoOnly": "Photo reviews",
+    "total": "{count} reviews",
+    "sizeFitSummary": "Size feedback from buyers"
   }
 }

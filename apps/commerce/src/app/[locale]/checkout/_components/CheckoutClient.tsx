@@ -11,14 +11,45 @@ import type { CartDisplay } from '@/lib/cart/queries';
 import type { Address, Locale } from '@commerce/types';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
+import { createOrderAction } from '@/lib/orders/actions';
+
+// ─── Toss Payments SDK (loaded via CDN) ────────────────────────────────────
+// ref: https://docs.tosspayments.com/sdk/js-sdk
+// TODO: Phase 2 — replace with @tosspayments/payment-widget-sdk npm package
+//       for full widget embed (card input, easy pay list, etc.)
+//       npm install @tosspayments/payment-widget-sdk
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TossPayments: (clientKey: string) => any;
+  }
+}
+
+async function loadTossPayments() {
+  if (typeof window === 'undefined') return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const w = window as any;
+  if (w.TossPayments) return w.TossPayments as (clientKey: string) => unknown;
+
+  // Load SDK via script tag; resolve with void to avoid Promise<function> TS issue
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://js.tosspayments.com/v1';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('toss_sdk_load_failed'));
+    document.head.appendChild(script);
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).TossPayments as ((clientKey: string) => unknown) | undefined ?? null;
+}
+
+// ─── Types ─────────────────────────────────────────────────────────────────
 
 type Step = 'shipping' | 'payment' | 'confirm';
-
-interface CheckoutClientProps {
-  cart: CartDisplay;
-  addresses: Address[];
-  locale: Locale;
-}
+type PayMethod = 'card' | 'kakao' | 'naver' | 'toss';
 
 const STEP_ORDER: Step[] = ['shipping', 'payment', 'confirm'];
 
@@ -28,10 +59,9 @@ const DELIVERY_NOTES = [
   { ko: '부재 시 연락주세요', en: 'Call if absent' },
 ];
 
-function getProductName(
-  item: CartDisplay['items'][number],
-  locale: Locale
-): string {
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+function getProductName(item: CartDisplay['items'][number], locale: Locale): string {
   if (locale === 'ko') return item.product_name_ko;
   if (locale === 'ja') return item.product_name_ja;
   if (locale === 'de') return item.product_name_de;
@@ -52,12 +82,44 @@ function getItemPrice(item: CartDisplay['items'][number], locale: Locale): numbe
   return (base + extra) * item.quantity;
 }
 
+function localeToCurrency(locale: Locale) {
+  return locale === 'ko' ? 'KRW' : locale === 'ja' ? 'JPY' : locale === 'de' ? 'EUR' : 'USD';
+}
+
+function payMethodToTossMethod(method: PayMethod): string {
+  // Toss Payments v1 method strings
+  switch (method) {
+    case 'card':  return '카드';
+    case 'kakao': return '카카오페이';
+    case 'naver': return '네이버페이';
+    case 'toss':  return '토스페이';
+  }
+}
+
+function payMethodToEnum(method: PayMethod): 'CARD' | 'KAKAO_PAY' | 'NAVER_PAY' | 'TOSS_PAY' {
+  switch (method) {
+    case 'card':  return 'CARD';
+    case 'kakao': return 'KAKAO_PAY';
+    case 'naver': return 'NAVER_PAY';
+    case 'toss':  return 'TOSS_PAY';
+  }
+}
+
+// ─── Component ─────────────────────────────────────────────────────────────
+
+interface CheckoutClientProps {
+  cart: CartDisplay;
+  addresses: Address[];
+  locale: Locale;
+}
+
 export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps) {
   const t = useTranslations('checkout');
   const router = useRouter();
   const track = useTrack();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>('shipping');
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   // Shipping form state
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0];
@@ -72,17 +134,22 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   const [deliveryNote, setDeliveryNote] = useState('');
 
   // Payment state
-  type PayMethod = 'card' | 'kakao' | 'naver' | 'transfer';
   const [payMethod, setPayMethod] = useState<PayMethod>('card');
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
 
+  // Pricing
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
-  const shippingFee = subtotal >= (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50) ? 0 : (locale === 'ko' ? 3000 : locale === 'en' ? 10 : locale === 'ja' ? 1000 : 8);
+  const shippingFee =
+    subtotal >= (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50)
+      ? 0
+      : locale === 'ko' ? 3000 : locale === 'en' ? 10 : locale === 'ja' ? 1000 : 8;
   const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shippingFee - couponDiscount;
+
+  const currency = localeToCurrency(locale);
 
   function handleAddressSelect(addr: Address) {
     setSelectedAddressId(addr.id);
@@ -94,6 +161,8 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   }
 
   function handleApplyCoupon() {
+    // TODO: validate coupon code against DB via Server Action
+    // For now, client-side mock — real validation happens in createOrderAction
     if (couponCode.toUpperCase() === 'RAVI10') {
       setCouponApplied(true);
     }
@@ -116,10 +185,33 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   }
 
   function handlePlaceOrder() {
+    setOrderError(null);
     startTransition(async () => {
-      // TossPayments 연동 예정
-      // TODO: /api/payments/confirm 엔드포인트 연결
-      // ref: docs/payment-integration-plan.md
+      // ── Step 1: Create order in DB ────────────────────────────────────
+      const result = await createOrderAction({
+        cartId: cart.id,
+        savedAddressId: selectedAddressId,
+        recipient,
+        phone,
+        postalCode,
+        addressLine1,
+        addressLine2,
+        deliveryNote,
+        paymentMethod: payMethodToEnum(payMethod),
+        currency,
+        locale,
+        couponCode: couponApplied ? couponCode : null,
+        pointAmount: 0,
+      });
+
+      if (!result.success) {
+        setOrderError(result.error);
+        return;
+      }
+
+      const { orderId, orderNumber, totalAmount } = result;
+
+      // ── Step 2: Analytics ─────────────────────────────────────────────
       track('begin_checkout', {
         items: cart.items.map((item) => ({
           product_id: item.product_id,
@@ -128,14 +220,45 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           price: getItemPrice(item, locale) / item.quantity,
           category: '',
         })),
-        total_value: total,
+        total_value: totalAmount,
         coupon_applied: couponApplied,
         coupon_code: couponApplied ? couponCode : null,
         point_used: 0,
       });
 
-      // Simulate order placement
-      router.push('/checkout/success?order_id=demo');
+      // ── Step 3: Load Toss SDK + request payment ────────────────────────
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+      if (!clientKey) {
+        // Dev fallback — skip PG and go to success page directly
+        // TODO: Remove this fallback before production deploy
+        router.push(`/checkout/success?order_id=${orderId}&order_number=${orderNumber}&cart_id=${cart.id}`);
+        return;
+      }
+
+      try {
+        const TossPayments = await loadTossPayments();
+        if (!TossPayments) throw new Error('toss_sdk_unavailable');
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tossPayments = TossPayments(clientKey) as any;
+        const origin = window.location.origin;
+
+        await tossPayments.requestPayment(payMethodToTossMethod(payMethod), {
+          amount: Math.round(totalAmount),
+          // orderId passed to Toss = our orderNumber (human-readable, meets Toss constraints)
+          orderId: orderNumber,
+          orderName: getProductName(cart.items[0], locale) +
+            (cart.items.length > 1 ? ` 외 ${cart.items.length - 1}건` : ''),
+          customerName: recipient,
+          successUrl: `${origin}/${locale}/checkout/success?order_id=${orderId}&cart_id=${cart.id}`,
+          failUrl: `${origin}/${locale}/checkout/fail?order_id=${orderId}`,
+        });
+        // Note: requestPayment() triggers a browser redirect — code below won't execute
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'payment_init_failed';
+        setOrderError(msg);
+        // Order stays PENDING_PAYMENT — user can retry or it will be cancelled by batch job
+      }
     });
   }
 
@@ -189,6 +312,16 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
             })}
           </ol>
         </nav>
+
+        {/* Error banner */}
+        {orderError && (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {t(`error.${orderError}`, { defaultValue: t('error.paymentFailed') })}
+          </div>
+        )}
 
         {/* Step: Shipping */}
         {step === 'shipping' && (
@@ -338,11 +471,11 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
             <div className="grid grid-cols-2 gap-3">
               {(
                 [
-                  { key: 'card', label: t('payment.creditCard') },
-                  { key: 'kakao', label: t('payment.kakaoPay') },
-                  { key: 'naver', label: t('payment.naverPay') },
-                  { key: 'transfer', label: t('payment.bankTransfer') },
-                ] as { key: PayMethod; label: string }[]
+                  { key: 'card' as PayMethod, label: t('payment.creditCard') },
+                  { key: 'kakao' as PayMethod, label: t('payment.kakaoPay') },
+                  { key: 'naver' as PayMethod, label: t('payment.naverPay') },
+                  { key: 'toss' as PayMethod, label: t('payment.tossPay') },
+                ]
               ).map(({ key, label }) => (
                 <button
                   key={key}
@@ -443,7 +576,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 {payMethod === 'card' && t('payment.creditCard')}
                 {payMethod === 'kakao' && t('payment.kakaoPay')}
                 {payMethod === 'naver' && t('payment.naverPay')}
-                {payMethod === 'transfer' && t('payment.bankTransfer')}
+                {payMethod === 'toss' && t('payment.tossPay')}
               </p>
             </div>
 
@@ -506,17 +639,11 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           {/* Price breakdown */}
           <div className="space-y-2 border-t border-[var(--color-border)] pt-4">
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">
-                {t('summary.subtotal')}
-              </span>
-              <span className="text-[var(--color-text-primary)]">
-                {formatPrice(subtotal, locale)}
-              </span>
+              <span className="text-[var(--color-text-secondary)]">{t('summary.subtotal')}</span>
+              <span className="text-[var(--color-text-primary)]">{formatPrice(subtotal, locale)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">
-                {t('summary.shippingFee')}
-              </span>
+              <span className="text-[var(--color-text-secondary)]">{t('summary.shippingFee')}</span>
               <span className="text-[var(--color-text-primary)]">
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
               </span>
@@ -528,12 +655,8 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
               </div>
             )}
             <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
-              <span className="text-[var(--color-text-primary)]">
-                {t('summary.total')}
-              </span>
-              <span className="text-[var(--color-brand-primary)]">
-                {formatPrice(total, locale)}
-              </span>
+              <span className="text-[var(--color-text-primary)]">{t('summary.total')}</span>
+              <span className="text-[var(--color-brand-primary)]">{formatPrice(total, locale)}</span>
             </div>
           </div>
         </div>

@@ -38,6 +38,32 @@ export async function removeCartItemAction(
   return { success: true };
 }
 
+export async function clearCartAction(
+  cartId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'not_authenticated' };
+
+  // Verify cart belongs to user
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: cart } = await (supabase.from('carts') as any)
+    .select('id')
+    .eq('id', cartId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (!cart) return { success: false, error: 'cart_not_found' };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('cart_items') as any)
+    .delete()
+    .eq('cart_id', cartId);
+
+  if (error) return { success: false, error: (error as { message?: string }).message };
+  return { success: true };
+}
+
 interface CartActionResult {
   success: boolean;
   error?: string;

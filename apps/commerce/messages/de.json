@@ -248,7 +248,8 @@
       "cardNumber": "Kartennummer",
       "expiry": "Ablaufdatum",
       "cvv": "CVV",
-      "cardHolder": "Karteninhaber"
+      "cardHolder": "Karteninhaber",
+      "tossPay": "Toss Pay"
     },
     "coupon": {
       "title": "Gutschein / Punkte",
@@ -287,6 +288,13 @@
       "outOfStock": "Einige Artikel sind nicht mehr verfügbar.",
       "addressRequired": "Bitte gib eine Lieferadresse ein.",
       "paymentRequired": "Bitte wähle eine Zahlungsmethode."
+    },
+    "fail": {
+      "title": "Zahlung fehlgeschlagen",
+      "message": "Bei der Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "errorCode": "Fehlercode",
+      "backToCart": "Zurück zum Warenkorb",
+      "continueShopping": "Weiter einkaufen"
     }
   },
   "account": {
@@ -415,5 +423,34 @@
     "title": "Suche",
     "placeholder": "Produkte suchen...",
     "results": "{count} Ergebnisse"
+  },
+  "review": {
+    "write": "Bewertung schreiben",
+    "writeReview": "Bewertung schreiben",
+    "ratingLabel": "Bewertung",
+    "ratingRequired": "Bitte geben Sie eine Bewertung ab.",
+    "sizeFeedback": "Passform",
+    "sizeFeedbackSmall": "Zu klein",
+    "sizeFeedbackPerfect": "Perfekt",
+    "sizeFeedbackLarge": "Zu groß",
+    "sizeFeedbackRequired": "Bitte wählen Sie eine Passform aus.",
+    "content": "Bewertungstext",
+    "contentPlaceholder": "Teilen Sie Ihre Erfahrungen mit diesem Produkt...",
+    "dogInfo": "Info zu Ihrem Hund (optional)",
+    "dogBreed": "Rasse",
+    "dogBreedPlaceholder": "z. B. Labrador",
+    "dogWeight": "Gewicht (kg)",
+    "dogWeightPlaceholder": "z. B. 30",
+    "submit": "Bewertung abgeben",
+    "submitSuccess": "Ihre Bewertung wurde erfolgreich eingereicht.",
+    "submitError": "Fehler beim Einreichen der Bewertung.",
+    "loginToReview": "Bitte melden Sie sich an, um eine Bewertung zu schreiben.",
+    "purchaseRequired": "Sie müssen dieses Produkt kaufen, bevor Sie eine Bewertung schreiben können.",
+    "alreadyReviewed": "Sie haben dieses Produkt bereits bewertet.",
+    "loadMore": "Mehr laden",
+    "noReviews": "Noch keine Bewertungen.",
+    "photoOnly": "Nur Foto-Bewertungen",
+    "total": "{count} Bewertungen",
+    "sizeFitSummary": "{small}% zu klein · {perfect}% perfekt · {large}% zu groß"
   }
 }

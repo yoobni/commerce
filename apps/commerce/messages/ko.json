@@ -248,7 +248,8 @@
       "cardNumber": "카드 번호",
       "expiry": "유효 기간",
       "cvv": "CVV",
-      "cardHolder": "카드 소유자 이름"
+      "cardHolder": "카드 소유자 이름",
+      "tossPay": "토스페이"
     },
     "coupon": {
       "title": "쿠폰 / 포인트",
@@ -287,6 +288,13 @@
       "outOfStock": "일부 상품이 품절되었습니다.",
       "addressRequired": "배송 주소를 입력해 주세요.",
       "paymentRequired": "결제 수단을 선택해 주세요."
+    },
+    "fail": {
+      "title": "결제가 실패했습니다",
+      "message": "결제 중 오류가 발생했습니다. 다시 시도해 주세요.",
+      "errorCode": "오류 코드",
+      "backToCart": "장바구니로 돌아가기",
+      "continueShopping": "쇼핑 계속하기"
     }
   },
   "account": {
@@ -415,5 +423,34 @@
     "title": "검색",
     "placeholder": "상품 검색...",
     "results": "{count}개 결과"
+  },
+  "review": {
+    "write": "리뷰 작성",
+    "writeReview": "리뷰 쓰기",
+    "ratingLabel": "별점",
+    "ratingRequired": "별점을 선택해 주세요",
+    "sizeFeedback": "사이즈 피드백",
+    "sizeFeedbackSmall": "작아요",
+    "sizeFeedbackPerfect": "딱 맞아요",
+    "sizeFeedbackLarge": "커요",
+    "sizeFeedbackRequired": "사이즈 피드백을 선택해 주세요",
+    "content": "리뷰 내용",
+    "contentPlaceholder": "대형견에게 어떠셨나요? 솔직하게 남겨주세요",
+    "dogInfo": "반려견 정보 (선택)",
+    "dogBreed": "견종",
+    "dogBreedPlaceholder": "예: 말라뮤트, 그레이트 데인",
+    "dogWeight": "체중 (kg)",
+    "dogWeightPlaceholder": "예: 35",
+    "submit": "리뷰 등록",
+    "submitSuccess": "리뷰가 등록되었습니다. 감사합니다!",
+    "submitError": "리뷰 등록에 실패했습니다. 다시 시도해 주세요.",
+    "loginToReview": "리뷰를 작성하려면 로그인이 필요합니다",
+    "purchaseRequired": "구매한 상품에만 리뷰를 작성할 수 있습니다",
+    "alreadyReviewed": "이미 리뷰를 작성하셨습니다",
+    "loadMore": "리뷰 더 보기",
+    "noReviews": "아직 리뷰가 없습니다",
+    "photoOnly": "포토 리뷰",
+    "total": "총 {count}개 리뷰",
+    "sizeFitSummary": "구매자 사이즈 피드백"
   }
 }

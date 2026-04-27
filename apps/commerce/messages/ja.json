@@ -248,7 +248,8 @@
       "cardNumber": "カード番号",
       "expiry": "有効期限",
       "cvv": "CVV",
-      "cardHolder": "カード名義人"
+      "cardHolder": "カード名義人",
+      "tossPay": "Toss Pay"
     },
     "coupon": {
       "title": "クーポン / ポイント",
@@ -287,6 +288,13 @@
       "outOfStock": "一部の商品が在庫切れになりました。",
       "addressRequired": "配送先住所を入力してください。",
       "paymentRequired": "お支払い方法を選択してください。"
+    },
+    "fail": {
+      "title": "お支払いに失敗しました",
+      "message": "決済中にエラーが発生しました。もう一度お試しください。",
+      "errorCode": "エラーコード",
+      "backToCart": "カートに戻る",
+      "continueShopping": "ショッピングを続ける"
     }
   },
   "account": {
@@ -415,5 +423,34 @@
     "title": "検索",
     "placeholder": "商品を検索...",
     "results": "{count}件の結果"
+  },
+  "review": {
+    "write": "レビューを書く",
+    "writeReview": "レビュー投稿",
+    "ratingLabel": "評価",
+    "ratingRequired": "評価を選択してください",
+    "sizeFeedback": "サイズ感",
+    "sizeFeedbackSmall": "小さめ",
+    "sizeFeedbackPerfect": "ぴったり",
+    "sizeFeedbackLarge": "大きめ",
+    "sizeFeedbackRequired": "サイズ感を選択してください",
+    "content": "レビュー本文",
+    "contentPlaceholder": "大型犬にはどうでしたか？率直なご意見をお聞かせください",
+    "dogInfo": "愛犬情報（任意）",
+    "dogBreed": "犬種",
+    "dogBreedPlaceholder": "例: マラミュート、グレートデーン",
+    "dogWeight": "体重 (kg)",
+    "dogWeightPlaceholder": "例: 35",
+    "submit": "レビューを投稿",
+    "submitSuccess": "レビューを投稿しました。ありがとうございます！",
+    "submitError": "レビューの投稿に失敗しました。もう一度お試しください。",
+    "loginToReview": "レビューを書くにはログインが必要です",
+    "purchaseRequired": "ご購入いただいた商品のみレビューできます",
+    "alreadyReviewed": "すでにレビューを投稿済みです",
+    "loadMore": "レビューをもっと見る",
+    "noReviews": "まだレビューがありません",
+    "photoOnly": "写真レビュー",
+    "total": "{count}件のレビュー",
+    "sizeFitSummary": "購入者のサイズフィードバック"
   }
 }
