@@ -117,9 +117,6 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
 
   function handlePlaceOrder() {
     startTransition(async () => {
-      // TossPayments 연동 예정
-      // TODO: /api/payments/confirm 엔드포인트 연결
-      // ref: docs/payment-integration-plan.md
       track('begin_checkout', {
         items: cart.items.map((item) => ({
           product_id: item.product_id,
@@ -134,7 +131,39 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
         point_used: 0,
       });
 
-      // Simulate order placement
+      // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
+      // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
+      // 환경변수: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+      //
+      // 1) PaymentIntent 생성 (서버)
+      //    POST /api/payments/create-intent → { clientSecret }
+      //
+      // 2) Stripe Elements로 결제 진행 (클라이언트)
+      //    import { loadStripe } from '@stripe/stripe-js';
+      //    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+      //    const res = await fetch('/api/payments/create-intent', {
+      //      method: 'POST',
+      //      headers: { 'Content-Type': 'application/json' },
+      //      body: JSON.stringify({
+      //        amount: total,
+      //        currency: locale === 'ko' ? 'krw' : locale === 'ja' ? 'jpy' : locale === 'de' ? 'eur' : 'usd',
+      //        metadata: { cart_id: cart.id, coupon_code: couponApplied ? couponCode : '' },
+      //      }),
+      //    });
+      //    const { clientSecret, paymentIntentId } = await res.json();
+      //
+      // 3) 결제 확인
+      //    const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
+      //      payment_method: { card: cardElement },
+      //    });
+      //    if (error) { /* 실패 처리 */ return; }
+      //
+      // 4) 주문 생성 → 성공 페이지
+      //    const order = await createOrder({ cartId: cart.id, paymentIntentId });
+      //    router.push(`/checkout/success?order_id=${order.id}`);
+      // ─────────────────────────────────────────────────────────────────────────
+
+      // 데모: 실제 결제 연동 전 임시 라우팅
       router.push('/checkout/success?order_id=demo');
     });
   }
