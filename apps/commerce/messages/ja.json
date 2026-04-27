@@ -415,5 +415,28 @@
     "title": "検索",
     "placeholder": "商品を検索...",
     "results": "{count}件の結果"
+  },
+  "review": {
+    "write": "レビューを書く",
+    "total": "レビュー {count}件",
+    "photoOnly": "写真レビューのみ",
+    "noReviews": "まだレビューはありません",
+    "loadMore": "レビューをもっと見る",
+    "sizeFeedbackSmall": "小さめ",
+    "sizeFeedbackPerfect": "ぴったり",
+    "sizeFeedbackLarge": "大きめ",
+    "sizeFitSummary": "サイズ感",
+    "loginRequired": "レビューを書くにはログインしてください",
+    "close": "閉じる",
+    "submitSuccess": "レビューが投稿されました。ありがとうございます！",
+    "rating": "評価",
+    "content": "レビュー内容",
+    "contentPlaceholder": "商品についての正直な感想をお書きください（最低10文字）",
+    "purchasedSize": "購入サイズ",
+    "dogBreed": "犬種（任意）",
+    "dogWeight": "体重（任意）",
+    "submitError": "レビューの投稿に失敗しました。再度お試しください。",
+    "submitting": "投稿中...",
+    "submit": "レビューを投稿"
   }
 }

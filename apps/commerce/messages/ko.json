@@ -415,5 +415,28 @@
     "title": "검색",
     "placeholder": "상품 검색...",
     "results": "{count}개 결과"
+  },
+  "review": {
+    "write": "리뷰 작성",
+    "total": "리뷰 {count}개",
+    "photoOnly": "포토리뷰만",
+    "noReviews": "아직 리뷰가 없습니다",
+    "loadMore": "리뷰 더 보기",
+    "sizeFeedbackSmall": "작아요",
+    "sizeFeedbackPerfect": "잘 맞아요",
+    "sizeFeedbackLarge": "커요",
+    "sizeFitSummary": "사이즈 적합도",
+    "loginRequired": "리뷰를 작성하려면 로그인해 주세요",
+    "close": "닫기",
+    "submitSuccess": "리뷰가 등록되었습니다. 감사합니다!",
+    "rating": "평점",
+    "content": "리뷰 내용",
+    "contentPlaceholder": "상품에 대한 솔직한 후기를 남겨주세요 (최소 10자)",
+    "purchasedSize": "구매 사이즈",
+    "dogBreed": "견종 (선택)",
+    "dogWeight": "체중 (선택)",
+    "submitError": "리뷰 등록에 실패했습니다. 다시 시도해 주세요.",
+    "submitting": "등록 중...",
+    "submit": "리뷰 등록"
   }
 }

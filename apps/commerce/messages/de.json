@@ -415,5 +415,28 @@
     "title": "Suche",
     "placeholder": "Produkte suchen...",
     "results": "{count} Ergebnisse"
+  },
+  "review": {
+    "write": "Bewertung schreiben",
+    "total": "{count} Bewertungen",
+    "photoOnly": "Nur Foto-Bewertungen",
+    "noReviews": "Noch keine Bewertungen",
+    "loadMore": "Mehr Bewertungen laden",
+    "sizeFeedbackSmall": "Fällt klein aus",
+    "sizeFeedbackPerfect": "Passt genau",
+    "sizeFeedbackLarge": "Fällt groß aus",
+    "sizeFitSummary": "Größenangabe",
+    "loginRequired": "Bitte melde dich an, um eine Bewertung zu schreiben",
+    "close": "Schließen",
+    "submitSuccess": "Deine Bewertung wurde eingereicht. Danke!",
+    "rating": "Bewertung",
+    "content": "Rezension",
+    "contentPlaceholder": "Teile deine ehrliche Meinung über dieses Produkt (mind. 10 Zeichen)",
+    "purchasedSize": "Gekaufte Größe",
+    "dogBreed": "Rasse (optional)",
+    "dogWeight": "Gewicht (optional)",
+    "submitError": "Bewertung konnte nicht eingereicht werden. Bitte versuche es erneut.",
+    "submitting": "Wird eingereicht...",
+    "submit": "Bewertung einreichen"
   }
 }

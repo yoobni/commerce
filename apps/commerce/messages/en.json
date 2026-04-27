@@ -415,5 +415,28 @@
     "title": "Search",
     "placeholder": "Search products...",
     "results": "{count} results"
+  },
+  "review": {
+    "write": "Write a Review",
+    "total": "{count} reviews",
+    "photoOnly": "Photo reviews only",
+    "noReviews": "No reviews yet",
+    "loadMore": "Load more reviews",
+    "sizeFeedbackSmall": "Runs small",
+    "sizeFeedbackPerfect": "True to size",
+    "sizeFeedbackLarge": "Runs large",
+    "sizeFitSummary": "Size fit",
+    "loginRequired": "Please log in to write a review",
+    "close": "Close",
+    "submitSuccess": "Your review has been submitted. Thank you!",
+    "rating": "Rating",
+    "content": "Review",
+    "contentPlaceholder": "Share your honest thoughts about this product (min. 10 characters)",
+    "purchasedSize": "Purchased size",
+    "dogBreed": "Breed (optional)",
+    "dogWeight": "Weight (optional)",
+    "submitError": "Failed to submit review. Please try again.",
+    "submitting": "Submitting...",
+    "submit": "Submit Review"
   }
 }
