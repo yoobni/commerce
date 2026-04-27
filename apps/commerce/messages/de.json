@@ -316,18 +316,33 @@
       "orderNumber": "Bestellung #",
       "orderDate": "Bestelldatum",
       "status": {
-        "pending": "Zahlung ausstehend",
+        "pending_payment": "Zahlung ausstehend",
         "paid": "Bezahlt",
         "preparing": "In Vorbereitung",
         "shipped": "Versendet",
         "delivered": "Geliefert",
+        "confirmed": "Kauf bestätigt",
+        "return_requested": "Rückgabe angefordert",
+        "returned": "Zurückgegeben",
+        "refund_requested": "Erstattung angefordert",
+        "refunded": "Erstattet",
         "cancelled": "Storniert",
-        "refunded": "Erstattet"
+        "delivery_failed": "Lieferung fehlgeschlagen"
       },
       "total": "Gesamt",
       "viewDetail": "Details anzeigen",
       "trackPackage": "Sendung verfolgen",
-      "cancelOrder": "Bestellung stornieren"
+      "cancelOrder": {
+        "button": "Bestellung stornieren",
+        "title": "Bestellung stornieren?",
+        "refundNotice": "Rückerstattungen werden innerhalb von 3-5 Werktagen bearbeitet.",
+        "reason": "Stornierungsgrund",
+        "reasonPlaceholder": "Bitte geben Sie einen Grund ein (optional)",
+        "submit": "Stornierung bestätigen",
+        "dismiss": "Zurück",
+        "success": "Ihre Bestellung wurde storniert.",
+        "error": "Stornierung fehlgeschlagen."
+      }
     },
     "addresses": {
       "title": "Gespeicherte Adressen",

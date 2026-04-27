@@ -21,13 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING:   'bg-yellow-50 text-yellow-700 border-yellow-200',
-  PAID:      'bg-blue-50 text-blue-700 border-blue-200',
-  PREPARING: 'bg-purple-50 text-purple-700 border-purple-200',
-  SHIPPED:   'bg-indigo-50 text-indigo-700 border-indigo-200',
-  DELIVERED: 'bg-green-50 text-green-700 border-green-200',
-  CANCELLED: 'bg-neutral-50 text-neutral-500 border-neutral-200',
-  REFUNDED:  'bg-red-50 text-red-600 border-red-200',
+  PENDING_PAYMENT:  'bg-yellow-50 text-yellow-700 border-yellow-200',
+  PAID:             'bg-blue-50 text-blue-700 border-blue-200',
+  PREPARING:        'bg-purple-50 text-purple-700 border-purple-200',
+  SHIPPED:          'bg-indigo-50 text-indigo-700 border-indigo-200',
+  DELIVERED:        'bg-green-50 text-green-700 border-green-200',
+  CONFIRMED:        'bg-green-100 text-green-800 border-green-300',
+  RETURN_REQUESTED: 'bg-orange-50 text-orange-700 border-orange-200',
+  RETURNED:         'bg-orange-100 text-orange-800 border-orange-300',
+  REFUND_REQUESTED: 'bg-red-50 text-red-600 border-red-200',
+  REFUNDED:         'bg-red-50 text-red-600 border-red-200',
+  CANCELLED:        'bg-neutral-50 text-neutral-500 border-neutral-200',
+  DELIVERY_FAILED:  'bg-red-100 text-red-700 border-red-300',
 };
 
 export default async function OrdersPage({ params, searchParams }: Props) {
@@ -72,7 +77,6 @@ export default async function OrdersPage({ params, searchParams }: Props) {
       ) : (
         <div className="space-y-3">
           {result.data.map((order) => {
-            const statusKey = order.status.toLowerCase() as keyof typeof STATUS_COLORS;
             const statusLabel = (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
             const statusClass = STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
 

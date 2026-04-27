@@ -316,18 +316,33 @@
       "orderNumber": "주문 번호",
       "orderDate": "주문 일자",
       "status": {
-        "pending": "결제 대기",
+        "pending_payment": "결제 대기",
         "paid": "결제 완료",
         "preparing": "상품 준비 중",
         "shipped": "배송 중",
         "delivered": "배송 완료",
+        "confirmed": "구매 확정",
+        "return_requested": "반품 신청",
+        "returned": "반품 완료",
+        "refund_requested": "환불 신청",
+        "refunded": "환불 완료",
         "cancelled": "취소됨",
-        "refunded": "환불 완료"
+        "delivery_failed": "배송 실패"
       },
       "total": "결제 금액",
       "viewDetail": "주문 상세",
       "trackPackage": "배송 조회",
-      "cancelOrder": "주문 취소"
+      "cancelOrder": {
+        "button": "주문 취소",
+        "title": "주문을 취소하시겠습니까?",
+        "refundNotice": "결제 금액은 영업일 기준 3-5일 내 환불됩니다.",
+        "reason": "취소 사유",
+        "reasonPlaceholder": "취소 사유를 입력해 주세요 (선택)",
+        "submit": "취소 신청",
+        "dismiss": "닫기",
+        "success": "주문이 취소되었습니다.",
+        "error": "주문 취소에 실패했습니다."
+      }
     },
     "addresses": {
       "title": "배송 주소",

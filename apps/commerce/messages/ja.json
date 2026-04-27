@@ -316,18 +316,33 @@
       "orderNumber": "注文番号",
       "orderDate": "注文日",
       "status": {
-        "pending": "入金待ち",
+        "pending_payment": "入金待ち",
         "paid": "入金完了",
         "preparing": "準備中",
         "shipped": "発送済み",
         "delivered": "配達完了",
+        "confirmed": "購入確定",
+        "return_requested": "返品申請中",
+        "returned": "返品完了",
+        "refund_requested": "返金申請中",
+        "refunded": "返金済み",
         "cancelled": "キャンセル済み",
-        "refunded": "返金済み"
+        "delivery_failed": "配達失敗"
       },
       "total": "合計",
       "viewDetail": "詳細を見る",
       "trackPackage": "配送追跡",
-      "cancelOrder": "注文をキャンセル"
+      "cancelOrder": {
+        "button": "注文をキャンセル",
+        "title": "注文をキャンセルしますか？",
+        "refundNotice": "返金は営業日3〜5日以内に処理されます。",
+        "reason": "キャンセル理由",
+        "reasonPlaceholder": "キャンセル理由を入力してください（任意）",
+        "submit": "キャンセルする",
+        "dismiss": "戻る",
+        "success": "注文がキャンセルされました。",
+        "error": "注文のキャンセルに失敗しました。"
+      }
     },
     "addresses": {
       "title": "配送先住所",

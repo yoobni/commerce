@@ -316,18 +316,33 @@
       "orderNumber": "Order #",
       "orderDate": "Order date",
       "status": {
-        "pending": "Pending Payment",
+        "pending_payment": "Pending Payment",
         "paid": "Payment Complete",
         "preparing": "Preparing",
         "shipped": "Shipped",
         "delivered": "Delivered",
+        "confirmed": "Purchase Confirmed",
+        "return_requested": "Return Requested",
+        "returned": "Returned",
+        "refund_requested": "Refund Requested",
+        "refunded": "Refunded",
         "cancelled": "Cancelled",
-        "refunded": "Refunded"
+        "delivery_failed": "Delivery Failed"
       },
       "total": "Total",
       "viewDetail": "View Details",
       "trackPackage": "Track Package",
-      "cancelOrder": "Cancel Order"
+      "cancelOrder": {
+        "button": "Cancel Order",
+        "title": "Cancel this order?",
+        "refundNotice": "Refunds are processed within 3-5 business days.",
+        "reason": "Reason for cancellation",
+        "reasonPlaceholder": "Please enter a reason (optional)",
+        "submit": "Confirm Cancellation",
+        "dismiss": "Go back",
+        "success": "Your order has been cancelled.",
+        "error": "Failed to cancel the order."
+      }
     },
     "addresses": {
       "title": "Saved Addresses",
