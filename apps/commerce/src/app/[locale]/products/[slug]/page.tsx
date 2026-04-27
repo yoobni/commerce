@@ -3,12 +3,12 @@ import { getTranslations } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import Image from 'next/image';
 import { routing, type Locale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getProductBySlug, listProducts } from '@/lib/queries/products';
-import { listProductReviews } from '@/lib/queries/reviews';
+import { listProductReviews, getReviewStats } from '@/lib/queries/reviews';
+import { ReviewSection } from '@/components/product/ReviewSection';
 import { getProductName, getProductDescription, getProductPrice, formatPrice, getCategoryName } from '@/lib/format';
 import { Container } from '@/components/layout/Container';
 import { PDPImageGallery } from '@/components/product/PDPImageGallery';
@@ -53,9 +53,10 @@ export default async function ProductDetailPage({ params }: Props) {
   const productDescription = getProductDescription(product, locale as Locale);
   const price = getProductPrice(product, locale as Locale);
 
-  // Parallel fetch: reviews + related products
-  const [reviews, relatedResult] = await Promise.all([
+  // Parallel fetch: reviews + review stats + related products
+  const [reviews, reviewStats, relatedResult] = await Promise.all([
     listProductReviews(product.id, { per_page: 5 }),
+    getReviewStats(product.id),
     listProducts({
       category_slug: product.category?.slug,
       per_page: 4,
@@ -234,75 +235,15 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
 
         {/* Reviews section */}
-        <section id="reviews" className="mb-16" aria-label={t('reviews')}>
-          <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-6">
-            {t('reviews')}
-            {product.review_count > 0 && (
-              <span className="ml-2 text-[var(--color-text-tertiary)] font-normal text-base">
-                ({product.review_count})
-              </span>
-            )}
-          </h2>
-
-          {reviews.data.length === 0 ? (
-            <div className="text-center py-12 text-[var(--color-text-tertiary)]">
-              <p className="text-4xl mb-3">✦</p>
-              <p className="font-medium text-[var(--color-text-primary)] mb-1">
-                {tCommon('noReviews', { defaultValue: '아직 리뷰가 없습니다' })}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {reviews.data.map((review) => (
-                <div
-                  key={review.id}
-                  className="border border-[var(--color-border)] rounded-lg p-5"
-                >
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[var(--color-neutral-200)] overflow-hidden shrink-0">
-                        {review.user.profile_image_url ? (
-                          <Image
-                            src={review.user.profile_image_url}
-                            alt={review.user.name}
-                            width={36}
-                            height={36}
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs font-medium text-[var(--color-text-tertiary)]">
-                            {review.user.name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                          {review.user.name}
-                        </p>
-                        <div className="flex items-center gap-0.5 mt-0.5" aria-label={`Rating: ${review.rating}`}>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <StarIcon key={i} filled={i < review.rating} size={12} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <time
-                      dateTime={review.created_at}
-                      className="text-xs text-[var(--color-text-tertiary)] shrink-0"
-                    >
-                      {new Date(review.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
-                    </time>
-                  </div>
-                  {review.content && (
-                    <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-                      {review.content}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        <ReviewSection
+          productId={product.id}
+          isAuthenticated={!!user}
+          initialReviews={reviews.data}
+          reviewStats={reviewStats}
+          totalCount={reviews.total}
+          avgRating={product.review_avg_rating}
+          locale={locale as Locale}
+        />
 
         {/* Related products */}
         {relatedProducts.length > 0 && (

@@ -3,14 +3,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from './nav-config';
+import { hasPermission, type AdminRole } from '@/lib/auth/session';
 import { cn } from '@/lib/cn';
 
 interface SidebarProps {
+  role: AdminRole;
   onClose?: () => void;
 }
 
-export function Sidebar({ onClose }: SidebarProps) {
+export function Sidebar({ role, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => !item.minRole || hasPermission(role, item.minRole)
+  );
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -42,7 +47,7 @@ export function Sidebar({ onClose }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <ul className="space-y-1" role="list">
-          {NAV_ITEMS.map((item) => {
+          {visibleItems.map((item) => {
             const active = isActive(item.href);
             return (
               <li key={item.href}>
