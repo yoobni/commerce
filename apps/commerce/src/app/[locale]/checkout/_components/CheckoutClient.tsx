@@ -75,7 +75,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   const [deliveryNote, setDeliveryNote] = useState('');
 
   // Payment state
-  type PayMethod = 'card' | 'kakao' | 'naver' | 'transfer';
+  type PayMethod = 'card' | 'kakao' | 'naver' | 'toss' | 'transfer';
   const [payMethod, setPayMethod] = useState<PayMethod>('card');
 
   // Coupon state
