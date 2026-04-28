@@ -15,6 +15,17 @@ export async function updateCartItemQuantityAction(
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
+  // Validate quantity against current stock
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: itemWithStock } = await (supabase.from('cart_items') as any)
+    .select('id, product_options!inner(stock)')
+    .eq('id', cartItemId)
+    .maybeSingle();
+
+  if (!itemWithStock) return { success: false, error: 'item_not_found' };
+  const stock = ((itemWithStock as any).product_options as { stock: number }).stock;
+  if (quantity > stock) return { success: false, error: 'exceeds_stock' };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('cart_items') as any)
     .update({ quantity })
@@ -62,7 +73,7 @@ export async function addToCartAction(
   const { data: existingCart } = await (supabase.from('carts') as any)
     .select('id')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   let cartId: string;
 
@@ -90,7 +101,7 @@ export async function addToCartAction(
     .select('id, quantity')
     .eq('cart_id', cartId)
     .eq('product_option_id', optionId)
-    .single();
+    .maybeSingle();
 
   if (existingItem) {
     const item = existingItem as { id: string; quantity: number };
@@ -107,6 +118,69 @@ export async function addToCartAction(
       quantity,
     });
     if (error) return { success: false, error: (error as { message?: string }).message };
+  }
+
+  return { success: true };
+}
+
+export async function mergeGuestCartAction(
+  items: { option_id: string; quantity: number }[]
+): Promise<CartActionResult> {
+  if (items.length === 0) return { success: true };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'not_authenticated' };
+
+  // Find or create cart
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existingCart } = await (supabase.from('carts') as any)
+    .select('id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  let cartId: string;
+  if (existingCart) {
+    cartId = (existingCart as { id: string }).id;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: newCart, error: createError } = await (supabase.from('carts') as any)
+      .insert({ user_id: user.id, currency: 'KRW' })
+      .select('id')
+      .single();
+    if (createError || !newCart) {
+      return {
+        success: false,
+        error: (createError as { message?: string } | null)?.message ?? 'cart_create_failed',
+      };
+    }
+    cartId = (newCart as { id: string }).id;
+  }
+
+  for (const guestItem of items) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existing } = await (supabase.from('cart_items') as any)
+      .select('id, quantity')
+      .eq('cart_id', cartId)
+      .eq('product_option_id', guestItem.option_id)
+      .maybeSingle();
+
+    if (existing) {
+      const existingTyped = existing as { id: string; quantity: number };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('cart_items') as any)
+        .update({ quantity: existingTyped.quantity + guestItem.quantity })
+        .eq('id', existingTyped.id);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('cart_items') as any).insert({
+        cart_id: cartId,
+        product_option_id: guestItem.option_id,
+        quantity: guestItem.quantity,
+      });
+    }
   }
 
   return { success: true };

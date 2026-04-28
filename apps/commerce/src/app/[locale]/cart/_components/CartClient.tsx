@@ -1,12 +1,22 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
-import { getGuestCart, removeFromGuestCart } from '@/lib/cart/guest';
-import { updateCartItemQuantityAction, removeCartItemAction } from '@/lib/cart/actions';
+import {
+  getGuestCart,
+  removeFromGuestCart,
+  updateGuestCartItemQuantity,
+  clearGuestCart,
+  setCartCountCache,
+} from '@/lib/cart/guest';
+import {
+  updateCartItemQuantityAction,
+  removeCartItemAction,
+  mergeGuestCartAction,
+} from '@/lib/cart/actions';
 import { createClient } from '@/lib/supabase/client';
 import type { CartDisplay, CartItemDisplay } from '@/lib/cart/queries';
 import type { Locale } from '@/i18n/routing';
@@ -44,8 +54,41 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
   const [items, setItems] = useState<CartItemDisplay[]>(initialCart?.items ?? []);
   const [guestLoading, setGuestLoading] = useState(!isAuthenticated);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const hasMounted = useRef(false);
 
-  /** Load guest cart items with product details on client side */
+  // Sync items from initialCart when it changes after router.refresh() (e.g., post-merge)
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (isAuthenticated && initialCart) {
+      setItems(initialCart.items);
+    }
+  }, [initialCart, isAuthenticated]);
+
+  // Merge guest cart into DB cart when user is authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const guestCart = getGuestCart();
+    if (guestCart.items.length === 0) return;
+
+    const guestItems = guestCart.items.map(({ option_id, quantity }) => ({ option_id, quantity }));
+    mergeGuestCartAction(guestItems).then((result) => {
+      if (result.success) {
+        clearGuestCart();
+        router.refresh();
+      }
+    });
+  }, [isAuthenticated, router]);
+
+  // Sync cart item count to localStorage for header badge
+  useEffect(() => {
+    const count = items.reduce((sum, i) => sum + i.quantity, 0);
+    setCartCountCache(count);
+  }, [items]);
+
+  /** Load guest cart items with product details on client */
   useEffect(() => {
     if (isAuthenticated) return;
 
@@ -109,7 +152,7 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
           if (!guestItem) return [];
           return [
             {
-              id: o.id as string, // use option_id as display id for guest
+              id: o.id as string,
               quantity: guestItem.quantity,
               product_option_id: o.id as string,
               color: o.color as string,
@@ -151,33 +194,25 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
     return sum + (item[map.base] + item[map.additional]) * item.quantity;
   }, 0);
 
-  /** Handle quantity change */
+  /** Handle quantity change with correct optimistic revert */
   const handleQuantityChange = useCallback(
     async (id: string, quantity: number) => {
-      // Optimistic update
+      const originalQuantity = items.find((i) => i.id === id)?.quantity ?? quantity;
+
       setItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
 
       if (isAuthenticated) {
         const result = await updateCartItemQuantityAction(id, quantity);
         if (!result.success) {
-          // Revert on failure
           setItems((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity } : item))
+            prev.map((item) => (item.id === id ? { ...item, quantity: originalQuantity } : item))
           );
         }
       } else {
-        // Guest: update localStorage
-        const guestCart = getGuestCart();
-        const found = guestCart.items.find((i) => i.option_id === id);
-        if (found) {
-          found.quantity = quantity;
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('ravi_guest_cart', JSON.stringify(guestCart));
-          }
-        }
+        updateGuestCartItemQuantity(id, quantity);
       }
     },
-    [isAuthenticated]
+    [isAuthenticated, items]
   );
 
   /** Handle remove */
@@ -185,10 +220,8 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
     async (id: string) => {
       const removedItem = items.find((item) => item.id === id);
 
-      // Optimistic remove
       setItems((prev) => prev.filter((item) => item.id !== id));
 
-      // Analytics
       if (removedItem) {
         analytics.track('remove_from_cart', {
           product_id: removedItem.product_id,
@@ -200,7 +233,6 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       if (isAuthenticated) {
         const result = await removeCartItemAction(id);
         if (!result.success && removedItem) {
-          // Revert
           setItems((prev) => [...prev, removedItem]);
         }
       } else {

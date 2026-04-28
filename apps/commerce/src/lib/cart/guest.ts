@@ -51,7 +51,33 @@ export function getGuestCart(): GuestCart {
   return readCart();
 }
 
+export function updateGuestCartItemQuantity(optionId: string, quantity: number): void {
+  const cart = readCart();
+  const item = cart.items.find((i) => i.option_id === optionId);
+  if (item) {
+    item.quantity = quantity;
+    writeCart(cart);
+  }
+}
+
 export function clearGuestCart(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(GUEST_CART_KEY);
+}
+
+export function getGuestCartItemCount(): number {
+  return readCart().items.reduce((sum, i) => sum + i.quantity, 0);
+}
+
+const CART_COUNT_KEY = 'ravi_cart_count';
+
+export function setCartCountCache(count: number): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(CART_COUNT_KEY, String(count));
+  window.dispatchEvent(new CustomEvent('ravi:cart-count', { detail: count }));
+}
+
+export function getCartCountCache(): number {
+  if (typeof window === 'undefined') return 0;
+  return parseInt(localStorage.getItem(CART_COUNT_KEY) ?? '0', 10) || 0;
 }

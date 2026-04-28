@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { getCartCountCache } from '@/lib/cart/guest';
 import { cn } from '@/lib/cn';
 
 // Direction B Header spec:
@@ -21,6 +23,27 @@ export function Header() {
   const t = useTranslations('nav');
   const { user } = useAuth();
   const pathname = usePathname();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    setCartCount(getCartCountCache());
+
+    function handleCartCount(e: Event) {
+      setCartCount((e as CustomEvent<number>).detail);
+    }
+    function handleStorage(e: StorageEvent) {
+      if (e.key === 'ravi_cart_count') {
+        setCartCount(parseInt(e.newValue ?? '0', 10) || 0);
+      }
+    }
+
+    window.addEventListener('ravi:cart-count', handleCartCount);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('ravi:cart-count', handleCartCount);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--mz-surface)] border-b border-[var(--mz-line)]">
@@ -65,10 +88,18 @@ export function Header() {
 
             <Link
               href="/cart"
-              aria-label={t('cart')}
-              className="p-2.5 text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors duration-150 rounded-lg"
+              aria-label={cartCount > 0 ? `${t('cart')} (${cartCount})` : t('cart')}
+              className="relative p-2.5 text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors duration-150 rounded-lg"
             >
               <BagIcon />
+              {cartCount > 0 && (
+                <span
+                  className="absolute top-1 right-1 min-w-[15px] h-[15px] rounded-full bg-[#6B2020] text-white text-[9px] font-bold flex items-center justify-center px-0.5 leading-none pointer-events-none"
+                  aria-hidden="true"
+                >
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
             </Link>
 
             {/* Account — desktop only (TabBar has "Me" tab on mobile) */}
