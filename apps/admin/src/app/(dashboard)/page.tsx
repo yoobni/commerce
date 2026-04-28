@@ -1,12 +1,25 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import type { OrderStatus } from '@commerce/types';
-import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
+import {
+  getDashboardStats,
+  getWeeklySalesTrend,
+  getRecentOrders,
+  getOrderStatusCounts,
+  getMemberGrowthTrend,
+} from '@/lib/queries/stats';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MiniChart } from '@/components/ui/MiniChart';
 import { Badge } from '@/components/ui/Badge';
+import { DonutChart } from '@/components/ui/DonutChart';
+import { LineChart } from '@/components/ui/LineChart';
+import { PeriodSelector } from '@/components/dashboard/PeriodSelector';
+import { RealtimeAlert } from '@/components/dashboard/RealtimeAlert';
+import { createServiceClient } from '@/lib/supabase/service';
 
 export const metadata = { title: '대시보드' };
+export const dynamic = 'force-dynamic';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -28,10 +41,25 @@ function trendText(
 }
 
 function formatKRW(amount: number): string {
-  if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억원`;
-  if (amount >= 10_000) return `${(amount / 10_000).toFixed(1)}만원`;
+  if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억`;
+  if (amount >= 10_000) return `${(amount / 10_000).toFixed(0)}만원`;
   return `${amount.toLocaleString()}원`;
 }
+
+// ─── Order status donut config ────────────────────────────────────────────────
+
+const STATUS_COLORS: Partial<Record<OrderStatus, string>> = {
+  PENDING_PAYMENT: '#fbbf24',
+  PAID: '#3b82f6',
+  PREPARING: '#6366f1',
+  SHIPPED: '#8b5cf6',
+  DELIVERED: '#22c55e',
+  CONFIRMED: '#10b981',
+  CANCELLED: '#9ca3af',
+  REFUNDED: '#ef4444',
+  RETURN_REQUESTED: '#f97316',
+  RETURNED: '#f59e0b',
+};
 
 // ─── Bar chart (weekly revenue) ───────────────────────────────────────────────
 
@@ -60,7 +88,6 @@ function WeeklyBarChart({
           return (
             <div key={d.date} className="flex flex-col items-center gap-1.5 flex-1 group">
               <div className="relative flex flex-col justify-end w-full h-24 cursor-default">
-                {/* Tooltip */}
                 <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                   <p className="font-medium">{formatKRW(d.revenue)}</p>
                   <p className="text-gray-300">{d.orders}건</p>
@@ -100,28 +127,82 @@ const QUICK_LINKS = [
       'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
   },
   {
-    label: '회원 관리',
-    href: '/members',
+    label: '통계 보기',
+    href: '/stats',
     iconPath:
-      'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+      'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
   },
 ];
+
+// ─── Pending count (SSR) ──────────────────────────────────────────────────────
+
+async function getPendingCount(): Promise<number> {
+  const supabase = createServiceClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count } = await (supabase.from('orders') as any)
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'PENDING_PAYMENT');
+  return count ?? 0;
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
-  const [stats, trend, recentOrders] = await Promise.all([
-    getDashboardStats(),
-    getWeeklySalesTrend(),
-    getRecentOrders(5),
-  ]);
+  const [stats, trend, recentOrders, statusCounts, memberTrend, pendingCount] =
+    await Promise.all([
+      getDashboardStats(),
+      getWeeklySalesTrend(),
+      getRecentOrders(5),
+      getOrderStatusCounts(),
+      getMemberGrowthTrend(7),
+      getPendingCount(),
+    ]);
 
   const revenueTrendData = trend.map((d) => d.revenue);
   const orderTrendData = trend.map((d) => d.orders);
+  const memberTrendData = memberTrend.map((d) => d.orders);
+
+  // Build donut segments from status counts (group minor ones)
+  const DONUT_STATUSES: OrderStatus[] = [
+    'PENDING_PAYMENT',
+    'PAID',
+    'PREPARING',
+    'SHIPPED',
+    'DELIVERED',
+    'CONFIRMED',
+    'CANCELLED',
+    'REFUNDED',
+  ];
+  const donutData = DONUT_STATUSES.filter((s) => (statusCounts[s] ?? 0) > 0).map((s) => ({
+    label: ORDER_STATUS_LABEL[s],
+    value: statusCounts[s] ?? 0,
+    color: STATUS_COLORS[s] ?? '#d1d5db',
+  }));
+
+  // Member growth for line chart
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const memberLineData = memberTrend.map((d) => ({
+    label: days[new Date(d.date + 'T12:00:00').getDay()],
+    value: d.orders,
+  }));
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">대시보드</h1>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">대시보드</h1>
+        <Link
+          href="/stats"
+          className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-brand-accent)] transition-colors"
+        >
+          상세 통계 →
+        </Link>
+      </div>
+
+      {/* Realtime alert */}
+      <Suspense fallback={null}>
+        <RealtimeAlert initialPendingCount={pendingCount} />
+      </Suspense>
 
       {/* KPI cards */}
       <section aria-label="핵심 지표">
@@ -166,6 +247,13 @@ export default async function DashboardPage() {
             iconPath="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
+            chart={
+              <MiniChart
+                data={memberTrendData.length >= 2 ? memberTrendData : [0, 0]}
+                color="#10b981"
+                height={36}
+              />
+            }
           />
           <KpiCard
             label="판매 상품"
@@ -178,9 +266,43 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* Charts row */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="통계 차트">
+      {/* Charts row 1 */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="매출 및 주문 현황">
         <WeeklyBarChart data={trend} />
+
+        {/* Order status distribution */}
+        <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">주문 상태 분포</h2>
+            <Link href="/orders" className="text-xs text-blue-600 hover:underline">
+              전체 보기 →
+            </Link>
+          </div>
+          {donutData.length > 0 ? (
+            <DonutChart data={donutData} size={110} thickness={20} />
+          ) : (
+            <div className="flex items-center justify-center h-28 text-sm text-[var(--color-text-tertiary)]">
+              주문 데이터 없음
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Charts row 2 */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="회원 성장 및 빠른 메뉴">
+        {/* Member growth */}
+        <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">회원 가입 추이</h2>
+            <span className="text-xs text-[var(--color-text-tertiary)]">최근 7일</span>
+          </div>
+          <LineChart
+            data={memberLineData}
+            color="#10b981"
+            height={120}
+            formatValue={(v) => `${v}명`}
+          />
+        </div>
 
         {/* Quick links */}
         <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
