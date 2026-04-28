@@ -393,6 +393,13 @@ export type ShipmentStatus =
   | 'DELIVERED'
   | 'RETURNED';
 
+export interface ShipmentTrackingEvent {
+  status: string;
+  location: string | null;
+  message: string | null;
+  occurred_at: ISODateTime;
+}
+
 export interface Shipment {
   id: UUID;
   order_id: UUID;
@@ -404,6 +411,9 @@ export interface Shipment {
   delivered_at: ISODateTime | null;
   estimated_delivery_at: ISODateTime | null;
   return_tracking_number: string | null;
+  external_tracker_id: string | null;
+  last_synced_at: ISODateTime | null;
+  tracking_events: ShipmentTrackingEvent[];
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }
@@ -539,6 +549,35 @@ export interface CountryConfig {
   return_period_days: number;
   is_active: boolean;
   updated_at: ISODateTime;
+}
+
+// ─── OrderStatusHistory ───────────────────────────────────────────────────────
+
+export type OrderStatusTrigger = 'system' | 'user' | 'webhook' | 'admin' | 'batch';
+
+export interface OrderStatusHistory {
+  id: UUID;
+  order_id: UUID;
+  from_status: OrderStatus | null;
+  to_status: OrderStatus;
+  triggered_by: OrderStatusTrigger;
+  admin_id: UUID | null;
+  note: string | null;
+  created_at: ISODateTime;
+}
+
+// ─── AdminSession ─────────────────────────────────────────────────────────────
+
+export interface AdminSession {
+  id: UUID;
+  admin_id: UUID;
+  token_hash: string;
+  ip_address: string;
+  user_agent: string;
+  expires_at: ISODateTime;
+  last_seen_at: ISODateTime;
+  is_revoked: boolean;
+  created_at: ISODateTime;
 }
 
 // ─── AuditLog / EventLog ──────────────────────────────────────────────────────
