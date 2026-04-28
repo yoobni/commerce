@@ -273,6 +273,8 @@ export type PaymentStatus =
   | 'PARTIALLY_REFUNDED'
   | 'FULLY_REFUNDED';
 
+export type PaymentMode = 'mock' | 'real';
+
 export interface Payment {
   id: UUID;
   order_id: UUID;
@@ -282,6 +284,8 @@ export interface Payment {
   currency: Currency;
   amount: number;
   status: PaymentStatus;
+  payment_ref: string | null;
+  mode: PaymentMode;
   paid_at: ISODateTime | null;
   failed_at: ISODateTime | null;
   cancelled_at: ISODateTime | null;
@@ -294,7 +298,7 @@ export interface Payment {
 
 // ─── Coupon ───────────────────────────────────────────────────────────────────
 
-export type CouponType = 'FIXED_AMOUNT' | 'PERCENTAGE';
+export type CouponType = 'FIXED_AMOUNT' | 'PERCENTAGE' | 'FREE_SHIPPING';
 export type CouponStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'DEPLETED';
 export type CouponIssuanceStatus = 'ISSUED' | 'USED' | 'EXPIRED' | 'REVOKED';
 
@@ -405,6 +409,8 @@ export interface Shipment {
   order_id: UUID;
   carrier: Carrier;
   tracking_number: string;
+  carrier_code: string | null;
+  tracking_url_template: string | null;
   country: Country;
   status: ShipmentStatus;
   shipped_at: ISODateTime | null;
@@ -547,6 +553,8 @@ export interface CountryConfig {
   tax_rate: number;
   tax_included: boolean;
   return_period_days: number;
+  fx_rate: number;
+  supported_payment_methods: string[];
   is_active: boolean;
   updated_at: ISODateTime;
 }

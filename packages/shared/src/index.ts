@@ -3,6 +3,7 @@
  */
 
 export * from './storage';
+export * from './adapters';
 
 import type { Currency, Locale } from '@commerce/types';
 
@@ -158,10 +159,14 @@ export function generateOrderNumber(): string {
  */
 export function calculateCouponDiscount(
   orderTotal: number,
-  couponType: 'FIXED_AMOUNT' | 'PERCENTAGE',
+  couponType: 'FIXED_AMOUNT' | 'PERCENTAGE' | 'FREE_SHIPPING',
   discountValue: number,
-  maxDiscountAmount: number | null
+  maxDiscountAmount: number | null,
+  shippingFee?: number
 ): number {
+  if (couponType === 'FREE_SHIPPING') {
+    return shippingFee ?? 0;
+  }
   if (couponType === 'FIXED_AMOUNT') {
     return Math.min(discountValue, orderTotal);
   }

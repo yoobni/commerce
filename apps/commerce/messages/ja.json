@@ -248,7 +248,10 @@
       "cardNumber": "カード番号",
       "expiry": "有効期限",
       "cvv": "CVV",
-      "cardHolder": "カード名義人"
+      "cardHolder": "カード名義人",
+      "tossPay": "Toss Pay",
+      "international": "海外決済",
+      "cardPending": "決済ゲートウェイ連携後に有効化されます"
     },
     "coupon": {
       "title": "クーポン / ポイント",
@@ -327,6 +330,7 @@
       "total": "合計",
       "viewDetail": "詳細を見る",
       "trackPackage": "配送追跡",
+      "shipmentStatus": "配送状況",
       "cancelOrder": "注文をキャンセル"
     },
     "addresses": {

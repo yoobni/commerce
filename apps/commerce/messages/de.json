@@ -248,7 +248,10 @@
       "cardNumber": "Kartennummer",
       "expiry": "Ablaufdatum",
       "cvv": "CVV",
-      "cardHolder": "Karteninhaber"
+      "cardHolder": "Karteninhaber",
+      "tossPay": "Toss Pay",
+      "international": "Internationale Zahlung",
+      "cardPending": "Wird nach Gateway-Integration aktiviert"
     },
     "coupon": {
       "title": "Gutschein / Punkte",
@@ -327,6 +330,7 @@
       "total": "Gesamt",
       "viewDetail": "Details anzeigen",
       "trackPackage": "Sendung verfolgen",
+      "shipmentStatus": "Versandstatus",
       "cancelOrder": "Bestellung stornieren"
     },
     "addresses": {

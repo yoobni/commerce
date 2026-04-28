@@ -248,7 +248,10 @@
       "cardNumber": "카드 번호",
       "expiry": "유효 기간",
       "cvv": "CVV",
-      "cardHolder": "카드 소유자 이름"
+      "cardHolder": "카드 소유자 이름",
+      "tossPay": "토스페이",
+      "international": "해외 결제",
+      "cardPending": "TossPayments 연동 후 활성화됩니다"
     },
     "coupon": {
       "title": "쿠폰 / 포인트",
@@ -327,6 +330,7 @@
       "total": "결제 금액",
       "viewDetail": "주문 상세",
       "trackPackage": "배송 조회",
+      "shipmentStatus": "배송 현황",
       "cancelOrder": "주문 취소"
     },
     "addresses": {
