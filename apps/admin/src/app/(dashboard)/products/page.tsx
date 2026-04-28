@@ -1,24 +1,9 @@
 import Link from 'next/link';
 import type { ProductStatus } from '@commerce/types';
 import { adminListProducts, adminListCategories } from '@/lib/queries/products';
+import { ProductTableClient } from './_components/ProductTableClient';
 
-// ─── Labels & badges ──────────────────────────────────────────────────────────
-
-const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
-  DRAFT: '임시저장',
-  ACTIVE: '판매중',
-  SOLD_OUT: '품절',
-  HIDDEN: '숨김',
-  DISCONTINUED: '단종',
-};
-
-const PRODUCT_STATUS_BADGE: Record<ProductStatus, string> = {
-  DRAFT: 'bg-gray-100 text-gray-600',
-  ACTIVE: 'bg-green-100 text-green-700',
-  SOLD_OUT: 'bg-orange-100 text-orange-700',
-  HIDDEN: 'bg-yellow-100 text-yellow-700',
-  DISCONTINUED: 'bg-red-100 text-red-700',
-};
+// ─── Status tabs ──────────────────────────────────────────────────────────────
 
 const STATUS_TABS: Array<{ value: ProductStatus | 'ALL'; label: string }> = [
   { value: 'ALL', label: '전체' },
@@ -112,7 +97,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           ))}
         </div>
 
-        {/* Category filter */}
+        {/* Category + search filter */}
         <form method="GET" className="flex gap-2 ml-auto">
           <input type="hidden" name="status" value={status} />
           <select
@@ -143,97 +128,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         </form>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상품
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                카테고리
-              </th>
-              <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">
-                가격 (KRW)
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상태
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                등록일
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {result.data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-12 text-center text-[var(--color-text-tertiary)]"
-                >
-                  상품이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              result.data.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/products/${product.id}`}
-                      className="flex items-center gap-3 group"
-                    >
-                      {product.thumbnail_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={product.thumbnail_url}
-                          alt={product.name_ko}
-                          className="w-10 h-10 object-cover rounded-lg border border-[var(--color-border)]"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 border border-[var(--color-border)]" />
-                      )}
-                      <div>
-                        <p className="font-medium text-[var(--color-text-primary)] group-hover:text-blue-600">
-                          {product.name_ko}
-                        </p>
-                        <p className="text-xs text-[var(--color-text-tertiary)] font-mono">
-                          {product.slug}
-                        </p>
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {product.category?.name_ko ?? '-'}
-                  </td>
-                  <td className="px-4 py-3 text-right font-medium text-[var(--color-text-primary)]">
-                    {product.base_price_krw.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          PRODUCT_STATUS_BADGE[product.status]
-                        }`}
-                      >
-                        {PRODUCT_STATUS_LABEL[product.status]}
-                      </span>
-                      {product.is_featured && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                          추천
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {new Date(product.created_at).toLocaleDateString('ko-KR')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Table (client component for row/bulk actions) */}
+      <ProductTableClient products={result.data} />
 
       {/* Pagination */}
       {result.total > result.per_page && (

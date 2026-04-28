@@ -26,6 +26,7 @@ export interface ProductRow {
   created_at: string;
   updated_at: string;
   category: { id: string; name_ko: string } | null;
+  options: { stock: number; is_active: boolean }[];
 }
 
 export interface ProductOptionWithSize extends Omit<ProductOption, 'size'> {
@@ -58,7 +59,7 @@ export async function adminListProducts(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('products') as any).select(
-    'id, name_ko, name_en, slug, status, base_price_krw, thumbnail_url, is_featured, created_at, updated_at, category:categories!category_id(id, name_ko)',
+    'id, name_ko, name_en, slug, status, base_price_krw, thumbnail_url, is_featured, created_at, updated_at, category:categories!category_id(id, name_ko), options:product_options(stock, is_active)',
     { count: 'exact' }
   );
 

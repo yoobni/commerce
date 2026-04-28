@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { Fragment, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Category } from '@commerce/types';
 import type { CategoryInput } from '@/lib/actions/products';
@@ -325,9 +325,9 @@ export function CategoryManager({ categories }: Props) {
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {roots.map((root) => (
-                <>
+                <Fragment key={root.id}>
                   {/* Root row */}
-                  <tr key={root.id} className="bg-gray-50/50 hover:bg-gray-50">
+                  <tr className="bg-gray-50/50 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-[var(--color-text-primary)]">
                       {root.name_ko}
                     </td>
@@ -371,7 +371,7 @@ export function CategoryManager({ categories }: Props) {
 
                   {/* Children rows */}
                   {childrenOf(root.id).map((child) => (
-                    <tr key={child.id} className="hover:bg-gray-50">
+                    <tr key={child.id} className="hover:bg-gray-50 border-l-2 border-blue-100">
                       <td className="px-4 py-3">
                         <span className="pl-5 text-[var(--color-text-secondary)]">
                           └ {child.name_ko}
@@ -408,7 +408,7 @@ export function CategoryManager({ categories }: Props) {
                       </td>
                     </tr>
                   ))}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>

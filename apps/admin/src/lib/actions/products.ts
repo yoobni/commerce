@@ -226,6 +226,146 @@ export async function saveCategory(
   }
 }
 
+// ─── Delete product ───────────────────────────────────────────────────────────
+
+export async function deleteProduct(productId: string): Promise<void> {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+
+  const supabase = createServiceClient();
+
+  // Guard: check if any order_items reference this product's options
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: opts } = await (supabase.from('product_options') as any)
+    .select('id')
+    .eq('product_id', productId);
+
+  const optionIds = ((opts ?? []) as { id: string }[]).map((o) => o.id);
+
+  if (optionIds.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count } = await (supabase.from('order_items') as any)
+      .select('id', { count: 'exact', head: true })
+      .in('product_option_id', optionIds);
+
+    if ((count ?? 0) > 0) {
+      throw new Error(
+        '주문 이력이 있는 상품은 삭제할 수 없습니다. DISCONTINUED 처리를 권장합니다.'
+      );
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('products') as any).delete().eq('id', productId);
+  if (error) throw new Error(`상품 삭제 실패: ${error.message}`);
+
+  revalidatePath('/products');
+}
+
+// ─── Duplicate product ────────────────────────────────────────────────────────
+
+export async function duplicateProduct(productId: string): Promise<string> {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+
+  const supabase = createServiceClient();
+  const now = new Date().toISOString();
+  const suffix = Date.now().toString(36);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: original, error: fetchErr } = await (supabase.from('products') as any)
+    .select('*, options:product_options(*)')
+    .eq('id', productId)
+    .single();
+
+  if (fetchErr || !original) throw new Error('원본 상품을 찾을 수 없습니다.');
+
+  type OriginalProduct = Record<string, unknown> & {
+    options: Record<string, unknown>[];
+  };
+  const {
+    id: _id,
+    created_at: _ca,
+    updated_at: _ua,
+    view_count: _vc,
+    review_count: _rc,
+    review_avg_rating: _rar,
+    published_at: _pa,
+    options: srcOptions,
+    ...productData
+  } = original as OriginalProduct;
+
+  const newSlug = `${String(productData.slug).slice(0, 40)}-${suffix}`;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: created, error: createErr } = await (supabase.from('products') as any)
+    .insert({
+      ...productData,
+      slug: newSlug,
+      status: 'DRAFT',
+      view_count: 0,
+      review_count: 0,
+      review_avg_rating: 0,
+      published_at: null,
+      created_at: now,
+      updated_at: now,
+    })
+    .select('id')
+    .single();
+
+  if (createErr || !created) throw new Error(`상품 복사 실패: ${createErr?.message}`);
+
+  if ((srcOptions ?? []).length > 0) {
+    const newOptions = (srcOptions as Record<string, unknown>[]).map((opt, i) => ({
+      product_id: (created as { id: string }).id,
+      size_id: opt.size_id,
+      color: opt.color,
+      color_hex: opt.color_hex,
+      sku: `${String(opt.sku).slice(0, 15)}_${suffix}_${i}`,
+      additional_price_krw: opt.additional_price_krw,
+      additional_price_usd: opt.additional_price_usd,
+      additional_price_jpy: opt.additional_price_jpy,
+      additional_price_eur: opt.additional_price_eur,
+      stock: 0,
+      low_stock_threshold: opt.low_stock_threshold,
+      is_active: opt.is_active,
+      created_at: now,
+      updated_at: now,
+    }));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: optErr } = await (supabase.from('product_options') as any).insert(newOptions);
+    if (optErr) throw new Error(`옵션 복사 실패: ${optErr.message}`);
+  }
+
+  revalidatePath('/products');
+  return (created as { id: string }).id;
+}
+
+// ─── Bulk update product status ───────────────────────────────────────────────
+
+export async function bulkUpdateProductStatus(
+  productIds: string[],
+  status: ProductStatus
+): Promise<void> {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  if (productIds.length === 0) return;
+
+  const supabase = createServiceClient();
+  const now = new Date().toISOString();
+  const patch: Record<string, unknown> = { status, updated_at: now };
+  if (status === 'ACTIVE') patch.published_at = now;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('products') as any).update(patch).in('id', productIds);
+  if (error) throw new Error(`일괄 상태 변경 실패: ${error.message}`);
+
+  revalidatePath('/products');
+}
+
+// ─── Category CRUD ────────────────────────────────────────────────────────────
+
 export async function deleteCategory(categoryId: string): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
