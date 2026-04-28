@@ -7,7 +7,10 @@ import { createClient } from '@/lib/supabase/server';
 import { listProducts } from '@/lib/queries/products';
 import { listCategories } from '@/lib/queries/categories';
 import { listAvailableColors } from '@/lib/queries/products';
+import { Suspense } from 'react';
 import { ProductCard } from '@/components/product/ProductCard';
+import { SortSelect } from '@/components/product/SortSelect';
+import { PriceRangeFilter } from '@/components/product/PriceRangeFilter';
 import { Container } from '@/components/layout/Container';
 import { Link } from '@/i18n/navigation';
 import { getCategoryName } from '@/lib/format';
@@ -170,6 +173,30 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             );
           })}
 
+          {/* Color swatches — mobile (max 8 to avoid overflow) */}
+          {availableColors.slice(0, 8).map(({ name, hex }) => {
+            const active = currentColors.includes(name);
+            const newColors = active
+              ? currentColors.filter((c) => c !== name)
+              : [...currentColors, name];
+            return (
+              <Link
+                key={name}
+                href={buildUrl({ color: newColors.join(',') || undefined })}
+                aria-label={name}
+                aria-pressed={active}
+                title={name}
+                className={cn(
+                  'shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-150',
+                  active
+                    ? 'border-[var(--mz-ink)] scale-110'
+                    : 'border-[var(--mz-line)] hover:border-[var(--mz-ink-mute)]'
+                )}
+                style={{ backgroundColor: hex }}
+              />
+            );
+          })}
+
           {/* Clear — only when active filters */}
           {hasActiveFilters && (
             <Link
@@ -293,6 +320,20 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               </div>
             )}
 
+            {/* Price range filter */}
+            <div>
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">{t('price')}</h3>
+              <Suspense fallback={<div className="h-16" />}>
+                <PriceRangeFilter
+                  currentMin={currentMinPrice}
+                  currentMax={currentMaxPrice}
+                  minLabel={t('minPrice')}
+                  maxLabel={t('maxPrice')}
+                  applyLabel={t('apply')}
+                />
+              </Suspense>
+            </div>
+
             {/* Clear filters */}
             {hasActiveFilters && (
               <Link
@@ -312,33 +353,16 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 {result.total > 0 ? t('results', { count: result.total }) : ''}
               </span>
 
-              <div className="flex items-center gap-2 ml-auto">
-                <label
-                  htmlFor="sort-select"
-                  className="text-[12px] text-[var(--mz-ink-mute)] shrink-0"
-                >
-                  {t('sort') ?? 'Sort'}:
-                </label>
-                <div className="relative">
-                  <select
-                    id="sort-select"
-                    defaultValue={currentSort}
-                    className="appearance-none h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] bg-[var(--mz-surface)] text-[12px] text-[var(--mz-ink)] focus:outline-none focus:border-[var(--mz-ink)] cursor-pointer transition-colors duration-150"
-                    onChange={(e) => {
-                      window.location.href = buildUrl({ sort: e.target.value, page: undefined });
-                    }}
-                  >
-                    {SORT_OPTIONS.map(({ value, labelKey }) => (
-                      <option key={value} value={value}>
-                        {t(labelKey)}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--mz-ink-mute)]">
-                    <ChevronIcon />
-                  </span>
-                </div>
-              </div>
+              <Suspense fallback={<div className="h-9 w-36 ml-auto" />}>
+                <SortSelect
+                  currentSort={currentSort}
+                  options={SORT_OPTIONS.map(({ value, labelKey }) => ({
+                    value,
+                    label: t(labelKey),
+                  }))}
+                  label={t('sort')}
+                />
+              </Suspense>
             </div>
 
             {/* Product grid */}
@@ -431,24 +455,6 @@ function sidebarLinkClass(active: boolean): string {
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-}
 
 function PawIcon() {
   return (
