@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
+import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/Button';
 import { addToCartAction } from '@/lib/cart/actions';
 import { addToGuestCart } from '@/lib/cart/guest';
@@ -67,6 +68,7 @@ export function PDPAddToCart({
           variant_id: selectedOption.id,
           category: productCategory,
           list_name: 'pdp',
+          community_inflow: analytics.getCommunityInflow(),
         });
 
         setJustAdded(true);

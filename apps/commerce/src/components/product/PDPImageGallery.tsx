@@ -24,7 +24,11 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
   }, []);
 
   const handleZoomOpen = useCallback(() => {
-    track('image_zoom', { product_id: productId, image_index: activeIndex });
+    track('product_image_view', {
+      product_id: productId,
+      image_index: activeIndex,
+      image_type: 'main',
+    });
     setZoomOpen(true);
   }, [activeIndex, productId, track]);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
@@ -61,6 +61,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   const track = useTrack();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>('shipping');
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   // Shipping form state
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0];
@@ -96,6 +97,21 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shippingFee - couponDiscount;
 
+  useEffect(() => {
+    function handleBeforeUnload() {
+      if (!orderPlaced) {
+        const abandonStep = step === 'confirm' ? 'review' : step;
+        track('checkout_abandon', {
+          abandon_step: abandonStep as 'shipping' | 'payment' | 'review',
+          cart_total: total,
+          item_count: cart.items.length,
+        });
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step, orderPlaced, total, cart.items.length, track]);
+
   function handleAddressSelect(addr: Address) {
     setSelectedAddressId(addr.id);
     setRecipient(addr.recipient_name);
@@ -114,6 +130,18 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   function handleNextStep() {
     const currentIndex = STEP_ORDER.indexOf(step);
     if (currentIndex < STEP_ORDER.length - 1) {
+      if (step === 'shipping') {
+        track('add_shipping_info', {
+          shipping_method: 'standard',
+          country: 'KR',
+          total_value: total,
+        });
+      } else if (step === 'payment') {
+        track('add_payment_info', {
+          payment_method: payMethod,
+          total_value: total,
+        });
+      }
       setStep(STEP_ORDER[currentIndex + 1]);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -129,19 +157,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
 
   function handlePlaceOrder() {
     startTransition(async () => {
-      track('begin_checkout', {
-        items: cart.items.map((item) => ({
-          product_id: item.product_id,
-          product_name: getProductName(item, locale),
-          quantity: item.quantity,
-          price: getItemPrice(item, locale) / item.quantity,
-          category: '',
-        })),
-        total_value: total,
-        coupon_applied: couponApplied,
-        coupon_code: couponApplied ? couponCode : null,
-        point_used: 0,
-      });
+      setOrderPlaced(true);
 
       // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
       // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
@@ -386,31 +402,91 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
               {t('payment.title')}
             </h2>
 
-            {/* Payment methods */}
-            <div className="grid grid-cols-2 gap-3">
-              {(
-                [
-                  { key: 'card', label: t('payment.creditCard') },
-                  { key: 'kakao', label: t('payment.kakaoPay') },
-                  { key: 'naver', label: t('payment.naverPay') },
-                  { key: 'transfer', label: t('payment.bankTransfer') },
-                ] as { key: PayMethod; label: string }[]
-              ).map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setPayMethod(key)}
-                  className={cn(
-                    'py-4 px-4 rounded-lg border text-sm font-medium text-center transition-all',
-                    payMethod === key
-                      ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5 text-[var(--color-brand-primary)]'
-                      : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-primary)]/50'
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
+            {/* Payment methods — domestic */}
+            <div>
+              <p className="text-xs font-medium text-[var(--color-text-tertiary)] mb-2 uppercase tracking-wider">
+                {locale === 'ko' ? '국내 결제' : locale === 'ja' ? '国内決済' : 'Domestic'}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {(
+                  [
+                    { key: 'card', label: t('payment.creditCard') },
+                    { key: 'kakao', label: t('payment.kakaoPay') },
+                    { key: 'naver', label: t('payment.naverPay') },
+                    { key: 'toss', label: t('payment.tossPay') },
+                    { key: 'transfer', label: t('payment.bankTransfer') },
+                  ] as { key: PayMethod; label: string }[]
+                ).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setPayMethod(key)}
+                    className={cn(
+                      'py-3.5 px-4 rounded-lg border text-sm font-medium text-center transition-all',
+                      payMethod === key
+                        ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5 text-[var(--color-brand-primary)]'
+                        : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-primary)]/50'
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Card input placeholder — activates on payment gateway integration */}
+            {payMethod === 'card' && (
+              <div className="relative rounded-lg border border-[var(--color-border)] overflow-hidden">
+                <div className="absolute inset-0 bg-[var(--color-neutral-50)]/80 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-lg">
+                  <p className="text-xs text-[var(--color-text-tertiary)] bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
+                    {t('payment.cardPending')}
+                  </p>
+                </div>
+                <div
+                  className="p-4 space-y-3 opacity-40 pointer-events-none select-none"
+                  aria-hidden="true"
+                >
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                    {t('payment.cardNumber')} — 0000 0000 0000 0000
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                      {t('payment.expiry')} — MM / YY
+                    </div>
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                      {t('payment.cvv')} — CVV
+                    </div>
+                  </div>
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                    {t('payment.cardHolder')}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* International payment frame — non-KO locales */}
+            {locale !== 'ko' && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+                  {t('payment.international')}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Stripe', 'Klarna'].map((label) => (
+                    <button
+                      key={label}
+                      type="button"
+                      disabled
+                      className="py-3.5 px-4 rounded-lg border border-dashed border-[var(--color-border)] text-sm font-medium text-center cursor-not-allowed"
+                    >
+                      <span className="text-[var(--color-text-tertiary)]">{label}</span>
+                      <span className="block text-[10px] text-[var(--color-text-tertiary)] mt-0.5 opacity-70">
+                        Coming soon
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Coupon */}
             <div className="space-y-2">
@@ -501,6 +577,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 {payMethod === 'card' && t('payment.creditCard')}
                 {payMethod === 'kakao' && t('payment.kakaoPay')}
                 {payMethod === 'naver' && t('payment.naverPay')}
+                {payMethod === 'toss' && t('payment.tossPay')}
                 {payMethod === 'transfer' && t('payment.bankTransfer')}
               </p>
             </div>

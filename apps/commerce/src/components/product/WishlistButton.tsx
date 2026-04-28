@@ -15,6 +15,7 @@ interface WishlistButtonProps {
   category: string;
   locale: Locale;
   isAuthenticated: boolean;
+  sourcePage?: 'list' | 'detail' | 'community';
   className?: string;
 }
 
@@ -24,6 +25,7 @@ export function WishlistButton({
   price,
   category,
   isAuthenticated,
+  sourcePage = 'detail',
   className,
 }: WishlistButtonProps) {
   const t = useTranslations('product');
@@ -52,6 +54,7 @@ export function WishlistButton({
               product_name: productName,
               price,
               category,
+              source_page: sourcePage,
             });
           } else {
             track('wishlist_remove', { product_id: productId });
@@ -67,6 +70,7 @@ export function WishlistButton({
           product_name: productName,
           price,
           category,
+          source_page: sourcePage,
         });
       } else {
         track('wishlist_remove', { product_id: productId });

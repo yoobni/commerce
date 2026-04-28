@@ -11,6 +11,7 @@ import type {
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.0';
 const ANONYMOUS_ID_KEY = 'ravi_anon_id';
 const SESSION_ID_KEY = 'ravi_session_id';
+const COMMUNITY_INFLOW_KEY = 'ravi_community_inflow';
 
 function uuid(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -115,6 +116,19 @@ class AnalyticsManager {
   setLocale(locale: Locale, currency: Currency) {
     this.config.locale = locale;
     this.config.currency = currency;
+  }
+
+  /** Mark current session as community-inflow (persists until session ends) */
+  setCommunityInflow(): void {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(COMMUNITY_INFLOW_KEY, '1');
+    }
+  }
+
+  /** Returns true if user navigated from community content in this session */
+  getCommunityInflow(): boolean {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem(COMMUNITY_INFLOW_KEY) === '1';
   }
 
   private buildGlobalProperties(): GlobalEventProperties {
