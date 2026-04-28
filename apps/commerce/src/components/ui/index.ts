@@ -42,3 +42,7 @@ export type { ToastItem, ToastType } from './Toast';
 
 export { Modal, ConfirmDialog } from './Modal';
 export type { ModalProps, ModalSize, ConfirmDialogProps } from './Modal';
+
+export { Card, CardHeader, CardTitle, CardBody, CardFooter } from './Card';
+export type { CardProps, CardVariant } from './Card';
+
