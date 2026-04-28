@@ -84,12 +84,25 @@ function makeDefault(): FormState {
   return {
     category_id: '',
     slug: '',
-    name_ko: '', name_en: '', name_ja: '', name_de: '',
-    description_ko: '', description_en: '', description_ja: '', description_de: '',
-    base_price_krw: 0, base_price_usd: 0, base_price_jpy: 0, base_price_eur: 0,
-    material: '', care_instruction: '', weight_g: 0,
-    thumbnail_url: '', images: [],
-    status: 'DRAFT', is_featured: false,
+    name_ko: '',
+    name_en: '',
+    name_ja: '',
+    name_de: '',
+    description_ko: '',
+    description_en: '',
+    description_ja: '',
+    description_de: '',
+    base_price_krw: 0,
+    base_price_usd: 0,
+    base_price_jpy: 0,
+    base_price_eur: 0,
+    material: '',
+    care_instruction: '',
+    weight_g: 0,
+    thumbnail_url: '',
+    images: [],
+    status: 'DRAFT',
+    is_featured: false,
   };
 }
 
@@ -97,11 +110,18 @@ function productToForm(p: ProductDetail): FormState {
   return {
     category_id: p.category_id,
     slug: p.slug,
-    name_ko: p.name_ko, name_en: p.name_en, name_ja: p.name_ja, name_de: p.name_de,
-    description_ko: p.description_ko, description_en: p.description_en,
-    description_ja: p.description_ja, description_de: p.description_de,
-    base_price_krw: p.base_price_krw, base_price_usd: p.base_price_usd,
-    base_price_jpy: p.base_price_jpy, base_price_eur: p.base_price_eur,
+    name_ko: p.name_ko,
+    name_en: p.name_en,
+    name_ja: p.name_ja,
+    name_de: p.name_de,
+    description_ko: p.description_ko,
+    description_en: p.description_en,
+    description_ja: p.description_ja,
+    description_de: p.description_de,
+    base_price_krw: p.base_price_krw,
+    base_price_usd: p.base_price_usd,
+    base_price_jpy: p.base_price_jpy,
+    base_price_eur: p.base_price_eur,
     material: p.material ?? '',
     care_instruction: p.care_instruction ?? '',
     weight_g: p.weight_g ?? 0,
@@ -129,21 +149,22 @@ export function ProductForm({ product, categories, sizes }: Props) {
   const [form, setForm] = useState<FormState>(() =>
     product ? productToForm(product) : makeDefault()
   );
-  const [options, setOptions] = useState<SaveOptionInput[]>(() =>
-    product?.options.map((o) => ({
-      id: o.id,
-      size_id: o.size_id,
-      color: o.color,
-      color_hex: o.color_hex,
-      sku: o.sku,
-      additional_price_krw: o.additional_price_krw,
-      additional_price_usd: o.additional_price_usd,
-      additional_price_jpy: o.additional_price_jpy,
-      additional_price_eur: o.additional_price_eur,
-      stock: o.stock,
-      low_stock_threshold: o.low_stock_threshold,
-      is_active: o.is_active,
-    })) ?? []
+  const [options, setOptions] = useState<SaveOptionInput[]>(
+    () =>
+      product?.options.map((o) => ({
+        id: o.id,
+        size_id: o.size_id,
+        color: o.color,
+        color_hex: o.color_hex,
+        sku: o.sku,
+        additional_price_krw: o.additional_price_krw,
+        additional_price_usd: o.additional_price_usd,
+        additional_price_jpy: o.additional_price_jpy,
+        additional_price_eur: o.additional_price_eur,
+        stock: o.stock,
+        low_stock_threshold: o.low_stock_threshold,
+        is_active: o.is_active,
+      })) ?? []
   );
   const [error, setError] = useState<string | null>(null);
   const [thumbLoading, setThumbLoading] = useState(false);
@@ -219,9 +240,18 @@ export function ProductForm({ product, categories, sizes }: Props) {
 
   function handleSubmit() {
     setError(null);
-    if (!form.category_id) { setError('카테고리를 선택해주세요.'); return; }
-    if (!form.slug) { setError('슬러그를 입력해주세요.'); return; }
-    if (!form.name_ko) { setError('상품명(한국어)을 입력해주세요.'); return; }
+    if (!form.category_id) {
+      setError('카테고리를 선택해주세요.');
+      return;
+    }
+    if (!form.slug) {
+      setError('슬러그를 입력해주세요.');
+      return;
+    }
+    if (!form.name_ko) {
+      setError('상품명(한국어)을 입력해주세요.');
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -338,8 +368,7 @@ export function ProductForm({ product, categories, sizes }: Props) {
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                상품명 ({langTab.toUpperCase()})
-                {langTab === 'ko' && ' *'}
+                상품명 ({langTab.toUpperCase()}){langTab === 'ko' && ' *'}
               </label>
               <input
                 type="text"
@@ -451,7 +480,12 @@ export function ProductForm({ product, categories, sizes }: Props) {
                     />
                     <button
                       type="button"
-                      onClick={() => patch('images', form.images.filter((_, j) => j !== i))}
+                      onClick={() =>
+                        patch(
+                          'images',
+                          form.images.filter((_, j) => j !== i)
+                        )
+                      }
                       className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none"
                     >
                       ×
@@ -618,9 +652,7 @@ export function ProductForm({ product, categories, sizes }: Props) {
                         <input
                           type="text"
                           value={opt.color_hex ?? ''}
-                          onChange={(e) =>
-                            patchOption(idx, { color_hex: e.target.value || null })
-                          }
+                          onChange={(e) => patchOption(idx, { color_hex: e.target.value || null })}
                           placeholder="#000000"
                           className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded font-mono focus:outline-none"
                         />
@@ -679,7 +711,9 @@ export function ProductForm({ product, categories, sizes }: Props) {
                             type="number"
                             value={opt[key]}
                             onChange={(e) =>
-                              patchOption(idx, { [key]: Number(e.target.value) } as Partial<SaveOptionInput>)
+                              patchOption(idx, {
+                                [key]: Number(e.target.value),
+                              } as Partial<SaveOptionInput>)
                             }
                             step="0.01"
                             className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"

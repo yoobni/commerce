@@ -47,7 +47,12 @@ export function WishlistButton({
         if (result.success) {
           setIsWishlisted(result.isWishlisted);
           if (result.isWishlisted) {
-            track('wishlist_add', { product_id: productId, product_name: productName, price, category });
+            track('wishlist_add', {
+              product_id: productId,
+              product_name: productName,
+              price,
+              category,
+            });
           } else {
             track('wishlist_remove', { product_id: productId });
           }
@@ -57,7 +62,12 @@ export function WishlistButton({
       const { isWishlisted: next } = toggleGuestWishlist(productId);
       setIsWishlisted(next);
       if (next) {
-        track('wishlist_add', { product_id: productId, product_name: productName, price, category });
+        track('wishlist_add', {
+          product_id: productId,
+          product_name: productName,
+          price,
+          category,
+        });
       } else {
         track('wishlist_remove', { product_id: productId });
       }

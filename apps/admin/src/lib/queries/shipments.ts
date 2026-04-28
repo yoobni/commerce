@@ -59,9 +59,7 @@ export async function adminListShippingOrders(
     query = query.ilike('order_number', `%${search}%`);
   }
 
-  query = query
-    .order('ordered_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('ordered_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;

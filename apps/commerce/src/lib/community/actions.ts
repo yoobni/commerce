@@ -22,7 +22,9 @@ export interface CreatePostInput {
 
 export async function createPostAction(input: CreatePostInput): Promise<ActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,7 +69,9 @@ export async function updatePostAction(
   input: UpdatePostInput
 ): Promise<ActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // Verify ownership
@@ -104,7 +108,9 @@ export async function updatePostAction(
 
 export async function deletePostAction(postId: string): Promise<ActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // Verify ownership
@@ -137,7 +143,9 @@ export async function createCommentAction(
   parentId: string | null = null
 ): Promise<ActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -182,7 +190,9 @@ export async function deleteCommentAction(
   postId: string
 ): Promise<ActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // Verify ownership
@@ -218,7 +228,9 @@ export interface LikeResult {
 
 export async function togglePostLikeAction(postId: string): Promise<LikeResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, liked: false, likeCount: 0, error: 'not_authenticated' };
 
   // Check existing like
@@ -245,7 +257,13 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
       .delete()
       .eq('post_id', postId)
       .eq('user_id', user.id);
-    if (error) return { success: false, liked: true, likeCount: currentCount, error: (error as { message: string }).message };
+    if (error)
+      return {
+        success: false,
+        liked: true,
+        likeCount: currentCount,
+        error: (error as { message: string }).message,
+      };
 
     const newCount = Math.max(0, currentCount - 1);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -254,9 +272,17 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
   } else {
     // Like
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('post_likes') as any)
-      .insert({ post_id: postId, user_id: user.id });
-    if (error) return { success: false, liked: false, likeCount: currentCount, error: (error as { message: string }).message };
+    const { error } = await (supabase.from('post_likes') as any).insert({
+      post_id: postId,
+      user_id: user.id,
+    });
+    if (error)
+      return {
+        success: false,
+        liked: false,
+        likeCount: currentCount,
+        error: (error as { message: string }).message,
+      };
 
     const newCount = currentCount + 1;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -269,7 +295,9 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
 
 export async function toggleCommentLikeAction(commentId: string): Promise<LikeResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, liked: false, likeCount: 0, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -293,7 +321,13 @@ export async function toggleCommentLikeAction(commentId: string): Promise<LikeRe
       .delete()
       .eq('comment_id', commentId)
       .eq('user_id', user.id);
-    if (error) return { success: false, liked: true, likeCount: currentCount, error: (error as { message: string }).message };
+    if (error)
+      return {
+        success: false,
+        liked: true,
+        likeCount: currentCount,
+        error: (error as { message: string }).message,
+      };
 
     const newCount = Math.max(0, currentCount - 1);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -301,9 +335,17 @@ export async function toggleCommentLikeAction(commentId: string): Promise<LikeRe
     return { success: true, liked: false, likeCount: newCount };
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('comment_likes') as any)
-      .insert({ comment_id: commentId, user_id: user.id });
-    if (error) return { success: false, liked: false, likeCount: currentCount, error: (error as { message: string }).message };
+    const { error } = await (supabase.from('comment_likes') as any).insert({
+      comment_id: commentId,
+      user_id: user.id,
+    });
+    if (error)
+      return {
+        success: false,
+        liked: false,
+        likeCount: currentCount,
+        error: (error as { message: string }).message,
+      };
 
     const newCount = currentCount + 1;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

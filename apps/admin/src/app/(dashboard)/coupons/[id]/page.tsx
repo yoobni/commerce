@@ -61,7 +61,9 @@ export default async function CouponDetailPage({ params, searchParams }: PagePro
         {/* Left: Edit form */}
         <div className="col-span-2 space-y-6">
           <div className="bg-white border border-[var(--color-border)] rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">쿠폰 정보</h2>
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+              쿠폰 정보
+            </h2>
             <CouponForm coupon={coupon} />
           </div>
 
@@ -140,9 +142,7 @@ export default async function CouponDetailPage({ params, searchParams }: PagePro
                         </span>
                       </td>
                       <td className="px-4 py-3 text-xs text-[var(--color-text-secondary)]">
-                        {row.used_at
-                          ? new Date(row.used_at).toLocaleDateString('ko-KR')
-                          : '-'}
+                        {row.used_at ? new Date(row.used_at).toLocaleDateString('ko-KR') : '-'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         {row.status === 'ISSUED' && (
@@ -158,9 +158,7 @@ export default async function CouponDetailPage({ params, searchParams }: PagePro
             {/* Issuance pagination */}
             {issuances.total > issuances.per_page && (
               <div className="flex items-center justify-between px-6 py-3 border-t border-[var(--color-border)] text-sm text-[var(--color-text-secondary)]">
-                <span>
-                  {page}페이지
-                </span>
+                <span>{page}페이지</span>
                 <div className="flex gap-2">
                   {page > 1 && (
                     <Link
@@ -187,12 +185,16 @@ export default async function CouponDetailPage({ params, searchParams }: PagePro
         {/* Right: Status + Issue */}
         <div className="space-y-4">
           <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">상태 관리</h2>
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+              상태 관리
+            </h2>
             <CouponStatusActions couponId={coupon.id} currentStatus={coupon.status} />
           </div>
 
           <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">쿠폰 발급</h2>
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+              쿠폰 발급
+            </h2>
             <IssueForm couponId={coupon.id} />
           </div>
 

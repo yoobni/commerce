@@ -135,22 +135,16 @@ class AnalyticsManager {
         typeof window !== 'undefined'
           ? `${window.screen.width}x${window.screen.height}`
           : 'unknown',
-      referrer:
-        typeof document !== 'undefined' ? document.referrer || null : null,
+      referrer: typeof document !== 'undefined' ? document.referrer || null : null,
       ...utmParams,
-      page_url:
-        typeof window !== 'undefined' ? window.location.pathname : '',
-      page_title:
-        typeof document !== 'undefined' ? document.title : '',
+      page_url: typeof window !== 'undefined' ? window.location.pathname : '',
+      page_title: typeof document !== 'undefined' ? document.title : '',
       user_type: this.config.userType,
       app_version: APP_VERSION,
     };
   }
 
-  track<T extends EventName>(
-    event: T,
-    properties: EventProperties<T>
-  ): void {
+  track<T extends EventName>(event: T, properties: EventProperties<T>): void {
     if (typeof window === 'undefined') return;
 
     const payload = {

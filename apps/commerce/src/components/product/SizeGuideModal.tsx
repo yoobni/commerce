@@ -81,9 +81,7 @@ export function SizeGuideModal({ open, onClose, sizes, productId }: SizeGuideMod
         </div>
 
         {/* Unit note */}
-        <p className="text-xs text-[var(--color-text-tertiary)]">
-          {t('sizeUnit')}
-        </p>
+        <p className="text-xs text-[var(--color-text-tertiary)]">{t('sizeUnit')}</p>
 
         {/* Breed examples */}
         {sizes.some((s) => s.breed_examples.length > 0) && (

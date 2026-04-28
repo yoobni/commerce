@@ -21,13 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING:   'bg-yellow-50 text-yellow-700 border-yellow-200',
-  PAID:      'bg-blue-50 text-blue-700 border-blue-200',
+  PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  PAID: 'bg-blue-50 text-blue-700 border-blue-200',
   PREPARING: 'bg-purple-50 text-purple-700 border-purple-200',
-  SHIPPED:   'bg-indigo-50 text-indigo-700 border-indigo-200',
+  SHIPPED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   DELIVERED: 'bg-green-50 text-green-700 border-green-200',
   CANCELLED: 'bg-neutral-50 text-neutral-500 border-neutral-200',
-  REFUNDED:  'bg-red-50 text-red-600 border-red-200',
+  REFUNDED: 'bg-red-50 text-red-600 border-red-200',
 };
 
 export default async function OrderDetailPage({ params }: Props) {
@@ -38,14 +38,17 @@ export default async function OrderDetailPage({ params }: Props) {
   const tCheckout = await getTranslations({ locale, namespace: 'checkout' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) notFound();
 
   const order = await getOrderById(id, user.id);
   if (!order) notFound();
 
   const statusLabel = (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
-  const statusClass = STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
+  const statusClass =
+    STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
 
   return (
     <div className="space-y-6">
@@ -73,7 +76,9 @@ export default async function OrderDetailPage({ params }: Props) {
               {new Date(order.ordered_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
             </time>
           </div>
-          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${statusClass}`}>
+          <span
+            className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${statusClass}`}
+          >
             {statusLabel}
           </span>
         </div>
@@ -81,9 +86,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
       {/* Order items */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-          상품 목록
-        </h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">상품 목록</h3>
         <ul className="space-y-4" aria-label="Order items">
           {order.items.map((item) => (
             <li key={item.id} className="flex gap-4">
@@ -123,7 +126,8 @@ export default async function OrderDetailPage({ params }: Props) {
         </p>
         <p className="text-sm text-[var(--color-text-secondary)]">
           {order.shipping_address_snapshot.address_line1}
-          {order.shipping_address_snapshot.address_line2 && ` ${order.shipping_address_snapshot.address_line2}`}
+          {order.shipping_address_snapshot.address_line2 &&
+            ` ${order.shipping_address_snapshot.address_line2}`}
         </p>
       </div>
 
@@ -134,12 +138,20 @@ export default async function OrderDetailPage({ params }: Props) {
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--color-text-secondary)]">{tCheckout('summary.subtotal')}</span>
+            <span className="text-[var(--color-text-secondary)]">
+              {tCheckout('summary.subtotal')}
+            </span>
             <span>{formatPrice(order.subtotal, locale as Locale)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--color-text-secondary)]">{tCheckout('summary.shippingFee')}</span>
-            <span>{order.shipping_fee === 0 ? tCheckout('summary.freeShipping') : formatPrice(order.shipping_fee, locale as Locale)}</span>
+            <span className="text-[var(--color-text-secondary)]">
+              {tCheckout('summary.shippingFee')}
+            </span>
+            <span>
+              {order.shipping_fee === 0
+                ? tCheckout('summary.freeShipping')
+                : formatPrice(order.shipping_fee, locale as Locale)}
+            </span>
           </div>
           {order.discount_amount > 0 && (
             <div className="flex justify-between text-sm text-green-600">

@@ -8,7 +8,10 @@ import { saveCategory, deleteCategory } from '@/lib/actions/products';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Mode = 'list' | { type: 'new'; parentId: string | null } | { type: 'edit'; category: Category };
+type Mode =
+  | 'list'
+  | { type: 'new'; parentId: string | null }
+  | { type: 'edit'; category: Category };
 
 // ─── Blank form factory ───────────────────────────────────────────────────────
 
@@ -16,7 +19,10 @@ function blankInput(parentId: string | null): CategoryInput {
   return {
     parent_id: parentId,
     slug: '',
-    name_ko: '', name_en: '', name_ja: '', name_de: '',
+    name_ko: '',
+    name_en: '',
+    name_ja: '',
+    name_de: '',
     sort_order: 0,
     is_active: true,
   };
@@ -26,7 +32,10 @@ function categoryToInput(c: Category): CategoryInput {
   return {
     parent_id: c.parent_id,
     slug: c.slug,
-    name_ko: c.name_ko, name_en: c.name_en, name_ja: c.name_ja, name_de: c.name_de,
+    name_ko: c.name_ko,
+    name_en: c.name_en,
+    name_ja: c.name_ja,
+    name_de: c.name_de,
     sort_order: c.sort_order,
     is_active: c.is_active,
   };
@@ -53,8 +62,14 @@ function CategoryFormPanel({ title, initial, categoryId, roots, onDone }: FormPa
   }
 
   function handleSubmit() {
-    if (!form.slug) { setError('슬러그를 입력해주세요.'); return; }
-    if (!form.name_ko) { setError('카테고리명(한국어)을 입력해주세요.'); return; }
+    if (!form.slug) {
+      setError('슬러그를 입력해주세요.');
+      return;
+    }
+    if (!form.name_ko) {
+      setError('카테고리명(한국어)을 입력해주세요.');
+      return;
+    }
     setError(null);
 
     startTransition(async () => {
@@ -274,11 +289,7 @@ export function CategoryManager({ categories }: Props) {
       {mode !== 'list' && (
         <CategoryFormPanel
           title={mode.type === 'new' ? '새 카테고리' : '카테고리 수정'}
-          initial={
-            mode.type === 'new'
-              ? blankInput(mode.parentId)
-              : categoryToInput(mode.category)
-          }
+          initial={mode.type === 'new' ? blankInput(mode.parentId) : categoryToInput(mode.category)}
           categoryId={mode.type === 'edit' ? mode.category.id : null}
           roots={roots}
           onDone={() => setMode('list')}

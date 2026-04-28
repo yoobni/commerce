@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Admin color palette — neutral, functional */
@@ -83,8 +83,13 @@ body {
 }
 
 @keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .skeleton {
@@ -148,7 +153,9 @@ body {
   border-radius: 0.5rem;
   background: var(--color-surface);
   color: var(--color-text-primary);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
   outline: none;
 }
 .admin-input:focus {
@@ -176,7 +183,9 @@ body {
   border-radius: 0.5rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: opacity var(--transition-fast), background var(--transition-fast);
+  transition:
+    opacity var(--transition-fast),
+    background var(--transition-fast);
   outline: none;
   white-space: nowrap;
 }

@@ -3,11 +3,7 @@ import { getSession } from '@/lib/auth/session';
 import { logout } from '@/lib/auth/actions';
 import { Sidebar } from '@/components/layout/Sidebar';
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   if (!session) redirect('/login');
 
@@ -38,9 +34,7 @@ export default async function DashboardLayout({
           </form>
         </header>
 
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );

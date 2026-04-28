@@ -28,11 +28,7 @@ function writeCart(cart: GuestCart): void {
   localStorage.setItem(GUEST_CART_KEY, JSON.stringify(cart));
 }
 
-export function addToGuestCart(
-  optionId: string,
-  quantity: number,
-  currency: Currency
-): void {
+export function addToGuestCart(optionId: string, quantity: number, currency: Currency): void {
   const cart = readCart();
   const existing = cart.items.find((i) => i.option_id === optionId);
 

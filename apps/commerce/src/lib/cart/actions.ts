@@ -10,7 +10,9 @@ export async function updateCartItemQuantityAction(
   if (quantity < 1) return { success: false, error: 'invalid_quantity' };
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,13 +28,13 @@ export async function removeCartItemAction(
   cartItemId: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('cart_items') as any)
-    .delete()
-    .eq('id', cartItemId);
+  const { error } = await (supabase.from('cart_items') as any).delete().eq('id', cartItemId);
 
   if (error) return { success: false, error: (error as { message?: string }).message };
   return { success: true };
@@ -49,7 +51,9 @@ export async function addToCartAction(
   currency: Currency
 ): Promise<CartActionResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { success: false, error: 'not_authenticated' };
 
@@ -72,7 +76,10 @@ export async function addToCartAction(
       .single();
 
     if (createError || !newCart) {
-      return { success: false, error: (createError as { message?: string } | null)?.message ?? 'cart_create_failed' };
+      return {
+        success: false,
+        error: (createError as { message?: string } | null)?.message ?? 'cart_create_failed',
+      };
     }
     cartId = (newCart as { id: string }).id;
   }
@@ -94,8 +101,11 @@ export async function addToCartAction(
     if (error) return { success: false, error: (error as { message?: string }).message };
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('cart_items') as any)
-      .insert({ cart_id: cartId, product_option_id: optionId, quantity });
+    const { error } = await (supabase.from('cart_items') as any).insert({
+      cart_id: cartId,
+      product_option_id: optionId,
+      quantity,
+    });
     if (error) return { success: false, error: (error as { message?: string }).message };
   }
 

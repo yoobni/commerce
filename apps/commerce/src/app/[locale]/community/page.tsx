@@ -31,13 +31,16 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   const sp = await searchParams;
   const boardParam = sp.board?.toUpperCase() as BoardFilter | undefined;
-  const currentBoard: BoardFilter = boardParam && VALID_BOARDS.includes(boardParam) ? boardParam : 'ALL';
+  const currentBoard: BoardFilter =
+    boardParam && VALID_BOARDS.includes(boardParam) ? boardParam : 'ALL';
   const currentSort: SortOption = sp.sort === 'popular' ? 'popular' : 'newest';
   const currentSearch = sp.q ?? '';
   const currentPage = Math.max(1, parseInt(sp.page ?? '1', 10));
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const result = await listPosts({
     boardType: currentBoard,

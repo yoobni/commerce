@@ -13,16 +13,22 @@ export default function LoginPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading, signIn, signInWithGoogle, signInWithKakao, signInWithNaver, signInWithTwitter } = useAuth();
+  const {
+    user,
+    loading,
+    signIn,
+    signInWithGoogle,
+    signInWithKakao,
+    signInWithNaver,
+    signInWithTwitter,
+  } = useAuth();
 
   const next = searchParams.get('next') ?? `/${locale}`;
   const hasOAuthError = searchParams.get('error') != null;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(
-    hasOAuthError ? t('error.generic') : null
-  );
+  const [error, setError] = useState<string | null>(hasOAuthError ? t('error.generic') : null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -78,15 +84,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-56px)] flex items-center justify-center bg-[var(--mz-bg)] px-5 py-10">
       <div className="w-full max-w-[400px]">
-
         {/* Heading */}
         <div className="mb-8">
           <h1 className="font-serif text-[28px] md:text-[32px] font-[500] leading-[1.12] tracking-[-0.02em] text-[var(--mz-ink)] mb-2">
             {t('loginTitle')}
           </h1>
-          <p className="text-[13px] text-[var(--mz-ink-mute)]">
-            {t('loginSubtitle')}
-          </p>
+          <p className="text-[13px] text-[var(--mz-ink-mute)]">{t('loginSubtitle')}</p>
         </div>
 
         {/* Error */}
@@ -251,10 +254,7 @@ function NaverIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <rect width="24" height="24" rx="4" fill="#03C75A" />
-      <path
-        d="M13.74 12.27L10.1 6H7v12h3.26v-6.27L14 18H17V6h-3.26z"
-        fill="#fff"
-      />
+      <path d="M13.74 12.27L10.1 6H7v12h3.26v-6.27L14 18H17V6h-3.26z" fill="#fff" />
     </svg>
   );
 }

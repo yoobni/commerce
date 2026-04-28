@@ -48,7 +48,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const page = Number(params.page ?? 1);
 
   const [result, categories] = await Promise.all([
-    adminListProducts({ status, category_id: categoryId || undefined, search: search || undefined, page }),
+    adminListProducts({
+      status,
+      category_id: categoryId || undefined,
+      search: search || undefined,
+      page,
+    }),
     adminListCategories(),
   ]);
 
@@ -117,7 +122,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           >
             <option value="">전체 카테고리</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name_ko}</option>
+              <option key={c.id} value={c.id}>
+                {c.name_ko}
+              </option>
             ))}
           </select>
           <input
@@ -161,7 +168,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <tbody className="divide-y divide-[var(--color-border)]">
             {result.data.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-[var(--color-text-tertiary)]">
+                <td
+                  colSpan={5}
+                  className="px-4 py-12 text-center text-[var(--color-text-tertiary)]"
+                >
                   상품이 없습니다.
                 </td>
               </tr>
@@ -169,7 +179,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               result.data.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/products/${product.id}`} className="flex items-center gap-3 group">
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="flex items-center gap-3 group"
+                    >
                       {product.thumbnail_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

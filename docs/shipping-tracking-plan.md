@@ -10,6 +10,7 @@
 
 현재 배송 상태는 어드민이 수동으로 업데이트하는 방식이다.  
 외부 배송 추적 API를 연동하면:
+
 - 운송장 입력 → 외부 Tracker 자동 생성
 - Webhook / Polling으로 실시간 상태 동기화
 - 유저 주문 상세에서 실제 배송 추적 버튼 활성화
@@ -21,14 +22,14 @@
 
 ### 2-A. 국내 전용 — SweetTracker
 
-| 항목 | 내용 |
-|------|------|
-| URL | https://tracking.sweettracker.co.kr |
-| 지원 택배사 | CJ대한통운, 한진택배, 로젠택배, 우체국 등 국내 전체 |
-| 호출 방식 | REST GET (운송장 번호 + 택배사 코드) |
-| Webhook | 지원 (상태 변경 시 POST) |
-| 월 무료 호출 | 500건 (이후 유료) |
-| 한계 | 국내 전용 — 해외 배송은 별도 API 필요 |
+| 항목         | 내용                                                |
+| ------------ | --------------------------------------------------- |
+| URL          | https://tracking.sweettracker.co.kr                 |
+| 지원 택배사  | CJ대한통운, 한진택배, 로젠택배, 우체국 등 국내 전체 |
+| 호출 방식    | REST GET (운송장 번호 + 택배사 코드)                |
+| Webhook      | 지원 (상태 변경 시 POST)                            |
+| 월 무료 호출 | 500건 (이후 유료)                                   |
+| 한계         | 국내 전용 — 해외 배송은 별도 API 필요               |
 
 ```
 GET https://info.sweettracker.co.kr/api/v1/trackingInfo
@@ -37,14 +38,14 @@ GET https://info.sweettracker.co.kr/api/v1/trackingInfo
 
 ### 2-B. 해외 전용 — EasyPost
 
-| 항목 | 내용 |
-|------|------|
-| URL | https://www.easypost.com |
+| 항목        | 내용                                               |
+| ----------- | -------------------------------------------------- |
+| URL         | https://www.easypost.com                           |
 | 지원 택배사 | DHL, FedEx, UPS, USPS, EMS, YAMATO, SAGAWA 등 100+ |
-| 호출 방식 | REST POST /v2/trackers (Tracker 객체 생성) |
-| Webhook | 지원 (tracker.updated 이벤트) |
-| 과금 | Tracker 생성 건당 과금 |
-| 한계 | 국내 택배 미지원 |
+| 호출 방식   | REST POST /v2/trackers (Tracker 객체 생성)         |
+| Webhook     | 지원 (tracker.updated 이벤트)                      |
+| 과금        | Tracker 생성 건당 과금                             |
+| 한계        | 국내 택배 미지원                                   |
 
 ```
 POST https://api.easypost.com/v2/trackers
@@ -54,14 +55,14 @@ Authorization: Basic {API_KEY}
 
 ### 2-C. 통합 단일 API — Aftership ★ 권장
 
-| 항목 | 내용 |
-|------|------|
-| URL | https://www.aftership.com |
-| 지원 택배사 | 국내 + 해외 900+ 캐리어 통합 |
-| 호출 방식 | REST POST /trackings (운송장 등록) |
-| Webhook | 지원 (상태 변경 시 POST) |
-| 월 무료 | 100건 (이후 $9~/월) |
-| 장점 | 국내/해외 단일 API, 한국어 메시지 지원 |
+| 항목        | 내용                                   |
+| ----------- | -------------------------------------- |
+| URL         | https://www.aftership.com              |
+| 지원 택배사 | 국내 + 해외 900+ 캐리어 통합           |
+| 호출 방식   | REST POST /trackings (운송장 등록)     |
+| Webhook     | 지원 (상태 변경 시 POST)               |
+| 월 무료     | 100건 (이후 $9~/월)                    |
+| 장점        | 국내/해외 단일 API, 한국어 메시지 지원 |
 
 ```
 POST https://api.aftership.com/v4/trackings
@@ -113,27 +114,27 @@ ALTER TABLE shipments
 
 ### Aftership 상태 매핑
 
-| Aftership tag | 내부 ShipmentStatus |
-|--------------|---------------------|
-| `InTransit`  | `IN_TRANSIT` |
-| `OutForDelivery` | `OUT_FOR_DELIVERY` |
-| `Delivered`  | `DELIVERED` |
-| `AttemptFail` | `OUT_FOR_DELIVERY` (재시도 중) |
-| `Exception`  | `CUSTOMS_HELD` 또는 별도 처리 |
-| `Expired`    | 별도 알림 처리 (status 변경 없음) |
-| `Pending`    | `PENDING` |
-| `InfoReceived` | `PICKED_UP` |
+| Aftership tag    | 내부 ShipmentStatus               |
+| ---------------- | --------------------------------- |
+| `InTransit`      | `IN_TRANSIT`                      |
+| `OutForDelivery` | `OUT_FOR_DELIVERY`                |
+| `Delivered`      | `DELIVERED`                       |
+| `AttemptFail`    | `OUT_FOR_DELIVERY` (재시도 중)    |
+| `Exception`      | `CUSTOMS_HELD` 또는 별도 처리     |
+| `Expired`        | 별도 알림 처리 (status 변경 없음) |
+| `Pending`        | `PENDING`                         |
+| `InfoReceived`   | `PICKED_UP`                       |
 
 ### EasyPost 상태 매핑
 
-| EasyPost status | 내부 ShipmentStatus |
-|----------------|---------------------|
-| `pre_transit`  | `PENDING` |
-| `in_transit`   | `IN_TRANSIT` |
-| `out_for_delivery` | `OUT_FOR_DELIVERY` |
-| `delivered`    | `DELIVERED` |
-| `return_to_sender` | `RETURNED` |
-| `failure`      | `CUSTOMS_HELD` |
+| EasyPost status    | 내부 ShipmentStatus |
+| ------------------ | ------------------- |
+| `pre_transit`      | `PENDING`           |
+| `in_transit`       | `IN_TRANSIT`        |
+| `out_for_delivery` | `OUT_FOR_DELIVERY`  |
+| `delivered`        | `DELIVERED`         |
+| `return_to_sender` | `RETURNED`          |
+| `failure`          | `CUSTOMS_HELD`      |
 
 ---
 
@@ -141,35 +142,35 @@ ALTER TABLE shipments
 
 ### Phase 1 — 기반 설정
 
-| 작업 | 파일 | 내용 |
-|------|------|------|
-| DB 마이그레이션 | `supabase/migrations/YYYYMMDD_add_tracking_fields.sql` | `external_tracker_id`, `last_synced_at` 컬럼 추가 |
-| 타입 보완 | `packages/types/src/index.ts` | `Shipment` 인터페이스에 `external_tracker_id`, `last_synced_at` 추가 |
-| 환경변수 | `.env.local` (커밋 금지) | `AFTERSHIP_API_KEY` 또는 `SWEETTRACKER_API_KEY` + `EASYPOST_API_KEY` |
+| 작업            | 파일                                                   | 내용                                                                 |
+| --------------- | ------------------------------------------------------ | -------------------------------------------------------------------- |
+| DB 마이그레이션 | `supabase/migrations/YYYYMMDD_add_tracking_fields.sql` | `external_tracker_id`, `last_synced_at` 컬럼 추가                    |
+| 타입 보완       | `packages/types/src/index.ts`                          | `Shipment` 인터페이스에 `external_tracker_id`, `last_synced_at` 추가 |
+| 환경변수        | `.env.local` (커밋 금지)                               | `AFTERSHIP_API_KEY` 또는 `SWEETTRACKER_API_KEY` + `EASYPOST_API_KEY` |
 
 ### Phase 2 — 추적 서비스
 
-| 작업 | 파일 | 내용 |
-|------|------|------|
-| 추적 서비스 | `apps/admin/src/lib/services/tracking.ts` *(신규)* | 외부 API 호출 래퍼 (Tracker 생성, 상태 조회) |
-| 상태 매핑 | `apps/admin/src/lib/services/tracking.ts` | 외부 상태 → `ShipmentStatus` 변환 |
-| startShipment 연동 | `apps/admin/src/lib/actions/shipments.ts` | 운송장 입력 시 외부 Tracker 자동 생성 |
+| 작업               | 파일                                               | 내용                                         |
+| ------------------ | -------------------------------------------------- | -------------------------------------------- |
+| 추적 서비스        | `apps/admin/src/lib/services/tracking.ts` _(신규)_ | 외부 API 호출 래퍼 (Tracker 생성, 상태 조회) |
+| 상태 매핑          | `apps/admin/src/lib/services/tracking.ts`          | 외부 상태 → `ShipmentStatus` 변환            |
+| startShipment 연동 | `apps/admin/src/lib/actions/shipments.ts`          | 운송장 입력 시 외부 Tracker 자동 생성        |
 
 ### Phase 3 — 수신 처리 (Webhook 우선, Polling 보조)
 
-| 작업 | 파일 | 내용 |
-|------|------|------|
-| Webhook 엔드포인트 | `apps/commerce/src/app/api/webhooks/tracking/route.ts` *(신규)* | 외부 API 상태 변경 수신 → DB 반영 |
-| Webhook 서명 검증 | 위 파일 내 | HMAC 서명 검증 (Aftership: `x-aftership-hmac-sha256`) |
-| Polling 배치 | `apps/admin/src/app/api/cron/sync-shipments/route.ts` *(신규)* | IN_TRANSIT 건 주기적 조회 (Webhook 누락 보완) |
+| 작업               | 파일                                                            | 내용                                                  |
+| ------------------ | --------------------------------------------------------------- | ----------------------------------------------------- |
+| Webhook 엔드포인트 | `apps/commerce/src/app/api/webhooks/tracking/route.ts` _(신규)_ | 외부 API 상태 변경 수신 → DB 반영                     |
+| Webhook 서명 검증  | 위 파일 내                                                      | HMAC 서명 검증 (Aftership: `x-aftership-hmac-sha256`) |
+| Polling 배치       | `apps/admin/src/app/api/cron/sync-shipments/route.ts` _(신규)_  | IN_TRANSIT 건 주기적 조회 (Webhook 누락 보완)         |
 
 ### Phase 4 — 프론트 표시
 
-| 작업 | 파일 | 내용 |
-|------|------|------|
-| 어드민 이벤트 타임라인 | `apps/admin/src/app/(dashboard)/shipping/[orderId]/page.tsx` | `tracking_events` JSONB 이력 표시 |
+| 작업                       | 파일                                                          | 내용                                           |
+| -------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| 어드민 이벤트 타임라인     | `apps/admin/src/app/(dashboard)/shipping/[orderId]/page.tsx`  | `tracking_events` JSONB 이력 표시              |
 | 유저 배송 추적 버튼 활성화 | `apps/commerce/src/app/[locale]/account/orders/[id]/page.tsx` | 현재 `disabled` 버튼을 실제 모달/팝업으로 교체 |
-| 배송 상태 쿼리 추가 | `apps/commerce/src/lib/queries/orders.ts` | 주문 상세에 shipment join 추가 |
+| 배송 상태 쿼리 추가        | `apps/commerce/src/lib/queries/orders.ts`                     | 주문 상세에 shipment join 추가                 |
 
 ---
 
@@ -213,31 +214,31 @@ Vercel Cron (vercel.json)
 
 ## 8. 위험 포인트
 
-| 위험 | 내용 | 대응 |
-|------|------|------|
-| 상태 역행 | 외부 API가 이전 상태를 재전송 | 상태 우선순위 정의, 역행 시 무시 |
-| Webhook 누락 | 외부 서버 장애, 네트워크 오류 | Polling 배치로 보완 |
-| 택배사 코드 불일치 | 내부 Carrier 코드 ↔ 외부 API slug 매핑 오류 | 매핑 테이블 중앙 관리 |
-| API 한도 초과 | 고속 성장 시 Polling 과다 호출 | TTL 캐시, Webhook 전환 |
-| CUSTOMS_HELD 장기화 | 해외 통관 지연 | 일정 기간 초과 시 운영자 알림 (Slack/이메일) |
-| 반품 운송장 미입력 | RETURNED 상태에서 return_tracking_number 없음 | 어드민 경고 표시 |
+| 위험                | 내용                                          | 대응                                         |
+| ------------------- | --------------------------------------------- | -------------------------------------------- |
+| 상태 역행           | 외부 API가 이전 상태를 재전송                 | 상태 우선순위 정의, 역행 시 무시             |
+| Webhook 누락        | 외부 서버 장애, 네트워크 오류                 | Polling 배치로 보완                          |
+| 택배사 코드 불일치  | 내부 Carrier 코드 ↔ 외부 API slug 매핑 오류   | 매핑 테이블 중앙 관리                        |
+| API 한도 초과       | 고속 성장 시 Polling 과다 호출                | TTL 캐시, Webhook 전환                       |
+| CUSTOMS_HELD 장기화 | 해외 통관 지연                                | 일정 기간 초과 시 운영자 알림 (Slack/이메일) |
+| 반품 운송장 미입력  | RETURNED 상태에서 return_tracking_number 없음 | 어드민 경고 표시                             |
 
 ---
 
 ## 9. 캐리어 코드 매핑 테이블
 
 | 내부 Carrier | Aftership slug | EasyPost carrier | SweetTracker code |
-|-------------|---------------|-----------------|-------------------|
-| `CJ`        | `cj-logistics` | `CJLogistics` | `04` |
-| `HANJIN`    | `hanjin` | — | `05` |
-| `LOGEN`     | `logen` | — | `06` |
-| `EMS`       | `ems` | `EMS` | `01` |
-| `DHL`       | `dhl` | `DHL` | — |
-| `FEDEX`     | `fedex` | `FedEx` | — |
-| `UPS`       | `ups` | `UPS` | — |
-| `USPS`      | `usps` | `USPS` | — |
-| `YAMATO`    | `yamato` | `Yamato` | — |
-| `SAGAWA`    | `sagawa` | `Sagawa` | — |
+| ------------ | -------------- | ---------------- | ----------------- |
+| `CJ`         | `cj-logistics` | `CJLogistics`    | `04`              |
+| `HANJIN`     | `hanjin`       | —                | `05`              |
+| `LOGEN`      | `logen`        | —                | `06`              |
+| `EMS`        | `ems`          | `EMS`            | `01`              |
+| `DHL`        | `dhl`          | `DHL`            | —                 |
+| `FEDEX`      | `fedex`        | `FedEx`          | —                 |
+| `UPS`        | `ups`          | `UPS`            | —                 |
+| `USPS`       | `usps`         | `USPS`           | —                 |
+| `YAMATO`     | `yamato`       | `Yamato`         | —                 |
+| `SAGAWA`     | `sagawa`       | `Sagawa`         | —                 |
 
 ---
 

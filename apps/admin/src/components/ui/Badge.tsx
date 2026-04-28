@@ -26,7 +26,10 @@ export function Badge({ className, dot, children }: BadgeProps) {
       )}
     >
       {dot && (
-        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0" aria-hidden="true" />
+        <span
+          className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"
+          aria-hidden="true"
+        />
       )}
       {children}
     </span>

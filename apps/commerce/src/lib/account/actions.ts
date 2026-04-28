@@ -15,7 +15,9 @@ export async function updateProfileAction(
   input: UpdateProfileInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,19 +53,21 @@ export async function createAddressAction(
   input: AddressInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   if (input.is_default) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('addresses') as any)
-      .update({ is_default: false })
-      .eq('user_id', user.id);
+    await (supabase.from('addresses') as any).update({ is_default: false }).eq('user_id', user.id);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('addresses') as any)
-    .insert({ ...input, user_id: user.id });
+  const { error } = await (supabase.from('addresses') as any).insert({
+    ...input,
+    user_id: user.id,
+  });
 
   if (error) return { success: false, error: (error as { message?: string }).message };
   return { success: true };
@@ -74,14 +78,14 @@ export async function updateAddressAction(
   input: AddressInput
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   if (input.is_default) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('addresses') as any)
-      .update({ is_default: false })
-      .eq('user_id', user.id);
+    await (supabase.from('addresses') as any).update({ is_default: false }).eq('user_id', user.id);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -98,7 +102,9 @@ export async function deleteAddressAction(
   addressId: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,13 +121,13 @@ export async function setDefaultAddressAction(
   addressId: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from('addresses') as any)
-    .update({ is_default: false })
-    .eq('user_id', user.id);
+  await (supabase.from('addresses') as any).update({ is_default: false }).eq('user_id', user.id);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('addresses') as any)
@@ -137,7 +143,9 @@ export async function setDefaultAddressAction(
 
 export async function withdrawAccountAction(): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

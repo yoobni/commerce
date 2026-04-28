@@ -87,14 +87,9 @@ export async function adminListOrders(
   );
 
   if (status !== 'ALL') query = query.eq('status', status);
-  if (search)
-    query = query.or(
-      `order_number.ilike.%${search}%`
-    );
+  if (search) query = query.or(`order_number.ilike.%${search}%`);
 
-  query = query
-    .order('ordered_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('ordered_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;

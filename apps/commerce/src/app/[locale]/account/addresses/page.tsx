@@ -22,7 +22,9 @@ export default async function AddressesPage({ params }: Props) {
   if (!hasLocale(routing.locales, locale)) notFound();
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) notFound();
 
   const addresses = await getAddresses(user.id);

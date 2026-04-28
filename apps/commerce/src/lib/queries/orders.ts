@@ -35,10 +35,12 @@ export async function getOrderById(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('orders') as any)
-    .select(`
+    .select(
+      `
       *,
       items:order_items(*)
-    `)
+    `
+    )
     .eq('id', orderId)
     .eq('user_id', userId)
     .single();

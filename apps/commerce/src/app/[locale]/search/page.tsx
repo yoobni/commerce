@@ -42,7 +42,9 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const tEmpty = await getTranslations({ locale, namespace: 'empty' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const result = await listProducts({
     q: query || undefined,
@@ -60,7 +62,9 @@ export default async function SearchPage({ params, searchParams }: Props) {
       ...overrides,
     };
     const p = new URLSearchParams();
-    Object.entries(merged).forEach(([k, v]) => { if (v) p.set(k, v); });
+    Object.entries(merged).forEach(([k, v]) => {
+      if (v) p.set(k, v);
+    });
     const qs = p.toString();
     return `/search${qs ? `?${qs}` : ''}`;
   }
@@ -89,9 +93,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
 
         {!query && (
           <div className="mb-6">
-            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
-              {t('title')}
-            </h1>
+            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">{t('title')}</h1>
           </div>
         )}
 

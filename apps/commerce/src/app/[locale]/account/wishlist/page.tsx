@@ -26,7 +26,9 @@ export default async function WishlistPage({ params }: Props) {
   const tEmpty = await getTranslations({ locale, namespace: 'empty' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) notFound();
 
   const items = await listUserWishlist(user.id);

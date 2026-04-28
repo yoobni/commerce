@@ -6,10 +6,7 @@ import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
 import { getGuestCart, removeFromGuestCart } from '@/lib/cart/guest';
-import {
-  updateCartItemQuantityAction,
-  removeCartItemAction,
-} from '@/lib/cart/actions';
+import { updateCartItemQuantityAction, removeCartItemAction } from '@/lib/cart/actions';
 import { createClient } from '@/lib/supabase/client';
 import type { CartDisplay, CartItemDisplay } from '@/lib/cart/queries';
 import type { Locale } from '@/i18n/routing';
@@ -17,8 +14,16 @@ import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-type PriceKey = 'additional_price_krw' | 'additional_price_usd' | 'additional_price_jpy' | 'additional_price_eur';
-type BasePriceKey = 'product_base_price_krw' | 'product_base_price_usd' | 'product_base_price_jpy' | 'product_base_price_eur';
+type PriceKey =
+  | 'additional_price_krw'
+  | 'additional_price_usd'
+  | 'additional_price_jpy'
+  | 'additional_price_eur';
+type BasePriceKey =
+  | 'product_base_price_krw'
+  | 'product_base_price_usd'
+  | 'product_base_price_jpy'
+  | 'product_base_price_eur';
 
 const LOCALE_PRICE_MAP: Record<Locale, { base: BasePriceKey; additional: PriceKey }> = {
   ko: { base: 'product_base_price_krw', additional: 'additional_price_krw' },
@@ -57,7 +62,8 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: rawOptions } = await (supabase as any)
         .from('product_options')
-        .select(`
+        .select(
+          `
           id,
           color,
           color_hex,
@@ -82,7 +88,8 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
             base_price_eur,
             thumbnail_url
           )
-        `)
+        `
+        )
         .in('id', optionIds);
 
       if (!rawOptions) {
@@ -90,42 +97,46 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
         return;
       }
 
-      const displayItems: CartItemDisplay[] = (rawOptions as Record<string, unknown>[]).flatMap((opt) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const o = opt as any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const prod = o.products as any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const size = o.sizes as any;
-        const guestItem = guestCart.items.find((g) => g.option_id === o.id);
-        if (!guestItem) return [];
-        return [{
-          id: o.id as string,            // use option_id as display id for guest
-          quantity: guestItem.quantity,
-          product_option_id: o.id as string,
-          color: o.color as string,
-          color_hex: (o.color_hex as string | null) ?? null,
-          size_label: (size?.label as string | null) ?? null,
-          sku: o.sku as string,
-          stock: o.stock as number,
-          low_stock_threshold: o.low_stock_threshold as number,
-          additional_price_krw: o.additional_price_krw as number,
-          additional_price_usd: o.additional_price_usd as number,
-          additional_price_jpy: o.additional_price_jpy as number,
-          additional_price_eur: o.additional_price_eur as number,
-          product_id: prod.id as string,
-          product_slug: prod.slug as string,
-          product_name_ko: prod.name_ko as string,
-          product_name_en: prod.name_en as string,
-          product_name_ja: prod.name_ja as string,
-          product_name_de: prod.name_de as string,
-          product_base_price_krw: prod.base_price_krw as number,
-          product_base_price_usd: prod.base_price_usd as number,
-          product_base_price_jpy: prod.base_price_jpy as number,
-          product_base_price_eur: prod.base_price_eur as number,
-          product_thumbnail_url: prod.thumbnail_url as string,
-        }];
-      });
+      const displayItems: CartItemDisplay[] = (rawOptions as Record<string, unknown>[]).flatMap(
+        (opt) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const o = opt as any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const prod = o.products as any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const size = o.sizes as any;
+          const guestItem = guestCart.items.find((g) => g.option_id === o.id);
+          if (!guestItem) return [];
+          return [
+            {
+              id: o.id as string, // use option_id as display id for guest
+              quantity: guestItem.quantity,
+              product_option_id: o.id as string,
+              color: o.color as string,
+              color_hex: (o.color_hex as string | null) ?? null,
+              size_label: (size?.label as string | null) ?? null,
+              sku: o.sku as string,
+              stock: o.stock as number,
+              low_stock_threshold: o.low_stock_threshold as number,
+              additional_price_krw: o.additional_price_krw as number,
+              additional_price_usd: o.additional_price_usd as number,
+              additional_price_jpy: o.additional_price_jpy as number,
+              additional_price_eur: o.additional_price_eur as number,
+              product_id: prod.id as string,
+              product_slug: prod.slug as string,
+              product_name_ko: prod.name_ko as string,
+              product_name_en: prod.name_en as string,
+              product_name_ja: prod.name_ja as string,
+              product_name_de: prod.name_de as string,
+              product_base_price_krw: prod.base_price_krw as number,
+              product_base_price_usd: prod.base_price_usd as number,
+              product_base_price_jpy: prod.base_price_jpy as number,
+              product_base_price_eur: prod.base_price_eur as number,
+              product_thumbnail_url: prod.thumbnail_url as string,
+            },
+          ];
+        }
+      );
 
       setItems(displayItems);
       setGuestLoading(false);
@@ -141,61 +152,63 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
   }, 0);
 
   /** Handle quantity change */
-  const handleQuantityChange = useCallback(async (id: string, quantity: number) => {
-    // Optimistic update
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
+  const handleQuantityChange = useCallback(
+    async (id: string, quantity: number) => {
+      // Optimistic update
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
 
-    if (isAuthenticated) {
-      const result = await updateCartItemQuantityAction(id, quantity);
-      if (!result.success) {
-        // Revert on failure
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === id ? { ...item, quantity: item.quantity } : item
-          )
-        );
-      }
-    } else {
-      // Guest: update localStorage
-      const guestCart = getGuestCart();
-      const found = guestCart.items.find((i) => i.option_id === id);
-      if (found) {
-        found.quantity = quantity;
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('ravi_guest_cart', JSON.stringify(guestCart));
+      if (isAuthenticated) {
+        const result = await updateCartItemQuantityAction(id, quantity);
+        if (!result.success) {
+          // Revert on failure
+          setItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity } : item))
+          );
+        }
+      } else {
+        // Guest: update localStorage
+        const guestCart = getGuestCart();
+        const found = guestCart.items.find((i) => i.option_id === id);
+        if (found) {
+          found.quantity = quantity;
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('ravi_guest_cart', JSON.stringify(guestCart));
+          }
         }
       }
-    }
-  }, [isAuthenticated]);
+    },
+    [isAuthenticated]
+  );
 
   /** Handle remove */
-  const handleRemove = useCallback(async (id: string) => {
-    const removedItem = items.find((item) => item.id === id);
+  const handleRemove = useCallback(
+    async (id: string) => {
+      const removedItem = items.find((item) => item.id === id);
 
-    // Optimistic remove
-    setItems((prev) => prev.filter((item) => item.id !== id));
+      // Optimistic remove
+      setItems((prev) => prev.filter((item) => item.id !== id));
 
-    // Analytics
-    if (removedItem) {
-      analytics.track('remove_from_cart', {
-        product_id: removedItem.product_id,
-        variant_id: removedItem.product_option_id,
-        quantity: removedItem.quantity,
-      });
-    }
-
-    if (isAuthenticated) {
-      const result = await removeCartItemAction(id);
-      if (!result.success && removedItem) {
-        // Revert
-        setItems((prev) => [...prev, removedItem]);
+      // Analytics
+      if (removedItem) {
+        analytics.track('remove_from_cart', {
+          product_id: removedItem.product_id,
+          variant_id: removedItem.product_option_id,
+          quantity: removedItem.quantity,
+        });
       }
-    } else {
-      removeFromGuestCart(id);
-    }
-  }, [items, isAuthenticated]);
+
+      if (isAuthenticated) {
+        const result = await removeCartItemAction(id);
+        if (!result.success && removedItem) {
+          // Revert
+          setItems((prev) => [...prev, removedItem]);
+        }
+      } else {
+        removeFromGuestCart(id);
+      }
+    },
+    [items, isAuthenticated]
+  );
 
   /** Handle checkout */
   function handleCheckout() {

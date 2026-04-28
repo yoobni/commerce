@@ -15,12 +15,12 @@
 
 ### 1-1. 디자인 방향 결정
 
-| 항목 | 결정 |
-|------|------|
-| **Direction** | **B · Modern** (bone white, Fraunces display + Inter body, disciplined grid) |
-| **Accent** | **Burgundy** (`#6B2020`) — 신호용, 장식 아님 |
-| **한글 폰트** | **Pretendard Variable** (fallback for Fraunces + Inter 한글 영역) |
-| **디자인 프레임** | Mobile-first, iOS 430×880 (iPhone 16 Pro logical) |
+| 항목              | 결정                                                                         |
+| ----------------- | ---------------------------------------------------------------------------- |
+| **Direction**     | **B · Modern** (bone white, Fraunces display + Inter body, disciplined grid) |
+| **Accent**        | **Burgundy** (`#6B2020`) — 신호용, 장식 아님                                 |
+| **한글 폰트**     | **Pretendard Variable** (fallback for Fraunces + Inter 한글 영역)            |
+| **디자인 프레임** | Mobile-first, iOS 430×880 (iPhone 16 Pro logical)                            |
 
 Direction A (Editorial)는 보관만 하고 빌드하지 않는다.
 
@@ -52,33 +52,33 @@ Direction A (Editorial)는 보관만 하고 빌드하지 않는다.
 
 ### 4-1. 핵심 키워드 (Brand Personality)
 
-| 키워드 | 의미 | 시각적 표현 |
-|--------|------|-------------|
-| **Clean** | 군더더기 없는 깔끔함 | 최소한의 장식, 명확한 위계, 정돈된 그리드 |
-| **Premium** | 고급스러움, 신뢰 | 절제된 색상, 넉넉한 여백, 높은 이미지 품질 |
-| **Calm** | 차분하고 편안한 | 저채도 팔레트, 부드러운 전환, 과한 모션 배제 |
-| **Spacious** | 여유로운 공간감 | 넓은 마진, 충분한 패딩, 밀도 낮은 레이아웃 |
+| 키워드       | 의미                 | 시각적 표현                                  |
+| ------------ | -------------------- | -------------------------------------------- |
+| **Clean**    | 군더더기 없는 깔끔함 | 최소한의 장식, 명확한 위계, 정돈된 그리드    |
+| **Premium**  | 고급스러움, 신뢰     | 절제된 색상, 넉넉한 여백, 높은 이미지 품질   |
+| **Calm**     | 차분하고 편안한      | 저채도 팔레트, 부드러운 전환, 과한 모션 배제 |
+| **Spacious** | 여유로운 공간감      | 넓은 마진, 충분한 패딩, 밀도 낮은 레이아웃   |
 
 ### 4-2. 보조 키워드
 
-| 키워드 | 설명 |
-|--------|------|
-| **Trustworthy** | 정보가 정확하고 구조가 예측 가능 |
-| **Warm but Restrained** | 따뜻하지만 과하지 않음. 귀여움이 아닌 존중의 따뜻함 |
-| **Editorial** | 잡지처럼 이미지와 텍스트의 조화. 나열이 아닌 편집 |
-| **Modern Commerce** | 최신 커머스 UX 관행을 따르되 트렌디함을 목적으로 하지 않음 |
+| 키워드                  | 설명                                                       |
+| ----------------------- | ---------------------------------------------------------- |
+| **Trustworthy**         | 정보가 정확하고 구조가 예측 가능                           |
+| **Warm but Restrained** | 따뜻하지만 과하지 않음. 귀여움이 아닌 존중의 따뜻함        |
+| **Editorial**           | 잡지처럼 이미지와 텍스트의 조화. 나열이 아닌 편집          |
+| **Modern Commerce**     | 최신 커머스 UX 관행을 따르되 트렌디함을 목적으로 하지 않음 |
 
 ### 4-3. 안티패턴 (하지 말아야 할 것)
 
-| 금지 | 이유 |
-|------|------|
-| 귀엽고 동글동글한 톤 | 반려동물 = 귀여움이라는 클리셰. 대형견 보호자가 공감하지 않음 |
-| 과한 애니메이션/파티클 | 체감 속도 저하 + 프리미엄 감도와 충돌 |
-| 화려한 그라디언트/네온 | 고급 감도와 반대 |
-| 빽빽한 정보 밀도 | Spacious 원칙 위반 |
-| 지나치게 서구형 미니멀 | 서비스 감도가 없어짐. 한국적 절제감 유지 |
-| 스톡 이미지 느낌 | 브랜드 신뢰 하락. 대형견이 주인공인 리얼 비주얼 필수 |
-| 스프링/패럴럭스 모션 | Direction B 규칙: "Nothing playful, no springs, no parallax" |
+| 금지                   | 이유                                                          |
+| ---------------------- | ------------------------------------------------------------- |
+| 귀엽고 동글동글한 톤   | 반려동물 = 귀여움이라는 클리셰. 대형견 보호자가 공감하지 않음 |
+| 과한 애니메이션/파티클 | 체감 속도 저하 + 프리미엄 감도와 충돌                         |
+| 화려한 그라디언트/네온 | 고급 감도와 반대                                              |
+| 빽빽한 정보 밀도       | Spacious 원칙 위반                                            |
+| 지나치게 서구형 미니멀 | 서비스 감도가 없어짐. 한국적 절제감 유지                      |
+| 스톡 이미지 느낌       | 브랜드 신뢰 하락. 대형견이 주인공인 리얼 비주얼 필수          |
+| 스프링/패럴럭스 모션   | Direction B 규칙: "Nothing playful, no springs, no parallax"  |
 
 ### 4-4. 브랜드 포지셔닝 비유
 
@@ -94,59 +94,60 @@ Direction A (Editorial)는 보관만 하고 빌드하지 않는다.
 
 ### 5-1. 원칙
 
-| 원칙 | 설명 |
-|------|------|
-| 저채도 중심 | 채도가 높은 색은 극히 제한적 사용 (Fit 배지, 가격 강조, 활성 상태) |
-| 뉴트럴 베이스 | Bone white (`#F7F6F3`) 배경, 순수 검정이 아닌 Ink (`#0E0E0C`) |
+| 원칙              | 설명                                                                                     |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| 저채도 중심       | 채도가 높은 색은 극히 제한적 사용 (Fit 배지, 가격 강조, 활성 상태)                       |
+| 뉴트럴 베이스     | Bone white (`#F7F6F3`) 배경, 순수 검정이 아닌 Ink (`#0E0E0C`)                            |
 | **Accent = 신호** | accent는 장식이 아니라 신호. Fit-for-Hana 배지, 활성 칩, 히어로 가격, 완료 표시에만 사용 |
-| 이미지가 컬러 | 제품/대형견 이미지가 페이지의 색감을 담당 |
+| 이미지가 컬러     | 제품/대형견 이미지가 페이지의 색감을 담당                                                |
 
 ### 5-2. Light 모드 (MVP 기본)
 
-| CSS 변수 | 토큰명 | HEX | 용도 |
-|----------|--------|-----|------|
-| `--mz-bg` | bg | `#F7F6F3` | 페이지 배경 |
-| `--mz-bg-deep` | bgDeep | `#EFEDE7` | 이미지/카드 백드롭 |
-| `--mz-surface` | surface | `#FFFFFF` | 입력, bg 위의 카드 |
-| `--mz-ink` | ink | `#0E0E0C` | Primary 텍스트, Primary 버튼 |
-| `--mz-ink-soft` | inkSoft | `#4D4D48` | 본문 산문 |
-| `--mz-ink-mute` | inkMute | `#8F8F88` | 메타, 라벨 |
-| `--mz-line` | line | `rgba(14,14,12,0.08)` | 구분선 |
-| `--mz-line-strong` | lineStrong | `rgba(14,14,12,0.18)` | 입력 테두리, 칩 아웃라인 |
+| CSS 변수           | 토큰명     | HEX                   | 용도                         |
+| ------------------ | ---------- | --------------------- | ---------------------------- |
+| `--mz-bg`          | bg         | `#F7F6F3`             | 페이지 배경                  |
+| `--mz-bg-deep`     | bgDeep     | `#EFEDE7`             | 이미지/카드 백드롭           |
+| `--mz-surface`     | surface    | `#FFFFFF`             | 입력, bg 위의 카드           |
+| `--mz-ink`         | ink        | `#0E0E0C`             | Primary 텍스트, Primary 버튼 |
+| `--mz-ink-soft`    | inkSoft    | `#4D4D48`             | 본문 산문                    |
+| `--mz-ink-mute`    | inkMute    | `#8F8F88`             | 메타, 라벨                   |
+| `--mz-line`        | line       | `rgba(14,14,12,0.08)` | 구분선                       |
+| `--mz-line-strong` | lineStrong | `rgba(14,14,12,0.18)` | 입력 테두리, 칩 아웃라인     |
 
 ### 5-3. Dark 모드 (MVP 제외, 토큰만 정의)
 
-| CSS 변수 | 토큰명 | HEX | 용도 |
-|----------|--------|-----|------|
-| `--mz-bg` | bg | `#0C0C0B` | 페이지 배경 |
-| `--mz-bg-deep` | bgDeep | `#050504` | 이미지/카드 백드롭 |
-| `--mz-surface` | surface | `#171715` | 입력, 카드 |
-| `--mz-ink` | ink | `#F5F4F0` | Primary 텍스트 |
-| `--mz-ink-soft` | inkSoft | `#B4B3AE` | 본문 산문 |
-| `--mz-ink-mute` | inkMute | `#757571` | 메타, 라벨 |
-| `--mz-line` | line | `rgba(245,244,240,0.08)` | 구분선 |
-| `--mz-line-strong` | lineStrong | `rgba(245,244,240,0.18)` | 입력 테두리 |
+| CSS 변수           | 토큰명     | HEX                      | 용도               |
+| ------------------ | ---------- | ------------------------ | ------------------ |
+| `--mz-bg`          | bg         | `#0C0C0B`                | 페이지 배경        |
+| `--mz-bg-deep`     | bgDeep     | `#050504`                | 이미지/카드 백드롭 |
+| `--mz-surface`     | surface    | `#171715`                | 입력, 카드         |
+| `--mz-ink`         | ink        | `#F5F4F0`                | Primary 텍스트     |
+| `--mz-ink-soft`    | inkSoft    | `#B4B3AE`                | 본문 산문          |
+| `--mz-ink-mute`    | inkMute    | `#757571`                | 메타, 라벨         |
+| `--mz-line`        | line       | `rgba(245,244,240,0.08)` | 구분선             |
+| `--mz-line-strong` | lineStrong | `rgba(245,244,240,0.18)` | 입력 테두리        |
 
 ### 5-4. Accent 컬러 — 3가지 옵션 (하나만 선택, 혼합 금지)
 
-| Accent | HEX | Soft | Ink-on | 현재 선택 |
-|--------|-----|------|--------|----------|
+| Accent       | HEX       | Soft      | Ink-on    | 현재 선택  |
+| ------------ | --------- | --------- | --------- | ---------- |
 | **Burgundy** | `#6B2020` | `#F1E5E0` | `#4A1818` | **✓ 채택** |
-| Olive | `#4A5237` | `#E5E7D8` | `#2E3422` | 보관 |
-| Ink | `#0E0E0C` | `#EFEDE7` | `#000` | 보관 |
+| Olive        | `#4A5237` | `#E5E7D8` | `#2E3422` | 보관       |
+| Ink          | `#0E0E0C` | `#EFEDE7` | `#000`    | 보관       |
 
 Accent CSS 변수:
+
 - `--mz-accent`: `#6B2020`
 - `--mz-accent-soft`: `#F1E5E0`
 - `--mz-accent-ink`: `#4A1818`
 
 ### 5-5. 시스템 컬러 (기존 유지)
 
-| 역할 | HEX | 용도 |
-|------|-----|------|
-| Error | `#c0392b` | 에러 메시지, 유효성 검사 실패 |
-| Success | `#27ae60` | 완료, 성공 상태 |
-| Warning | `#d68910` | 경고, 주의 |
+| 역할    | HEX       | 용도                          |
+| ------- | --------- | ----------------------------- |
+| Error   | `#c0392b` | 에러 메시지, 유효성 검사 실패 |
+| Success | `#27ae60` | 완료, 성공 상태               |
+| Warning | `#d68910` | 경고, 주의                    |
 
 ---
 
@@ -154,18 +155,20 @@ Accent CSS 변수:
 
 ### 6-1. 폰트 스택
 
-| 역할 | 폰트 | 비고 |
-|------|------|------|
-| **Display / Title** | `Fraunces` (opsz 9–144, wght 400–600, italic) | 히어로, 섹션 제목, 상품명, 가격 |
-| **Body / UI** | `Inter` (wght 300–700) | 본문, 라벨, 버튼, 폼 |
-| **한글 fallback** | `Pretendard Variable` | Inter/Fraunces에서 한글이 빠질 때 동일 사이즈로 fallback |
-| **일본어 fallback** | `Noto Sans JP` | 일본어 locale 전용 로딩 |
-| **Mono** | `JetBrains Mono` (400) | 코드, 타임스탬프, 스펙, 주문번호 |
+| 역할                | 폰트                                          | 비고                                                     |
+| ------------------- | --------------------------------------------- | -------------------------------------------------------- |
+| **Display / Title** | `Fraunces` (opsz 9–144, wght 400–600, italic) | 히어로, 섹션 제목, 상품명, 가격                          |
+| **Body / UI**       | `Inter` (wght 300–700)                        | 본문, 라벨, 버튼, 폼                                     |
+| **한글 fallback**   | `Pretendard Variable`                         | Inter/Fraunces에서 한글이 빠질 때 동일 사이즈로 fallback |
+| **일본어 fallback** | `Noto Sans JP`                                | 일본어 locale 전용 로딩                                  |
+| **Mono**            | `JetBrains Mono` (400)                        | 코드, 타임스탬프, 스펙, 주문번호                         |
 
 CSS font-family 선언:
+
 ```css
 --font-serif: 'Fraunces', 'Pretendard Variable', 'Noto Sans JP', Georgia, serif;
---font-sans: 'Inter', 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+--font-sans:
+  'Inter', 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
 --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 ```
 
@@ -173,26 +176,26 @@ CSS font-family 선언:
 
 ### 6-2. 타이포 스케일 (확정)
 
-| Role | Font | Size / LH | Weight | Letter-spacing | 용도 |
-|------|------|-----------|--------|----------------|------|
-| **Display XL** | Fraunces | 48 / 50 | 500 | -0.035em | 히어로 헤드라인. italic 단어 강조 |
-| **Display L** | Fraunces | 32 / 36 | 500 | -0.025em | 섹션/PDP 제목 |
-| **Title** | Fraunces | 24 / 29 | 500 | -0.02em | 카드 제목, 모달 제목 |
-| **Product** | Fraunces | 15 / 20 | 500 | 0 | 상품 카드 이름 |
-| **Body** | Inter | 13 / 21 | 400 | 0 | 본문 산문 (Korean + Latin) |
-| **Label** | Inter | 12 / 17 | 500 | 0 | 마이크로 라벨 |
-| **Eyebrow** | Inter | 10 | 600 | +0.16em UPPERCASE | 섹션 킥커, 태그 |
-| **Price** | Fraunces | 22 / 26 | 600 | 0 | 표시 가격 |
-| **Mono** | JetBrains Mono | 11 / 15 | 400 | 0 | 코드, 타임스탬프, 스펙 |
+| Role           | Font           | Size / LH | Weight | Letter-spacing    | 용도                              |
+| -------------- | -------------- | --------- | ------ | ----------------- | --------------------------------- |
+| **Display XL** | Fraunces       | 48 / 50   | 500    | -0.035em          | 히어로 헤드라인. italic 단어 강조 |
+| **Display L**  | Fraunces       | 32 / 36   | 500    | -0.025em          | 섹션/PDP 제목                     |
+| **Title**      | Fraunces       | 24 / 29   | 500    | -0.02em           | 카드 제목, 모달 제목              |
+| **Product**    | Fraunces       | 15 / 20   | 500    | 0                 | 상품 카드 이름                    |
+| **Body**       | Inter          | 13 / 21   | 400    | 0                 | 본문 산문 (Korean + Latin)        |
+| **Label**      | Inter          | 12 / 17   | 500    | 0                 | 마이크로 라벨                     |
+| **Eyebrow**    | Inter          | 10        | 600    | +0.16em UPPERCASE | 섹션 킥커, 태그                   |
+| **Price**      | Fraunces       | 22 / 26   | 600    | 0                 | 표시 가격                         |
+| **Mono**       | JetBrains Mono | 11 / 15   | 400    | 0                 | 코드, 타임스탬프, 스펙            |
 
 ### 6-3. 다국어 타이포 고려 (기존 유지)
 
-| 언어 | 특성 | 대응 |
-|------|------|------|
-| **ko** | 글자 폭 균일, 행간 넉넉해야 읽기 편함 | line-height 1.6~1.8. Pretendard Variable |
-| **en** | 글자 폭 변동, 대소문자 높이차 | line-height 1.5~1.6 |
-| **ja** | 한자 포함 시 높이 큼 | line-height 1.7~1.8. Noto Sans JP |
-| **de** | 단어가 매우 길음 (합성어) | 줄바꿈 규칙 필수, overflow 대비, word-break: break-word |
+| 언어   | 특성                                  | 대응                                                    |
+| ------ | ------------------------------------- | ------------------------------------------------------- |
+| **ko** | 글자 폭 균일, 행간 넉넉해야 읽기 편함 | line-height 1.6~1.8. Pretendard Variable                |
+| **en** | 글자 폭 변동, 대소문자 높이차         | line-height 1.5~1.6                                     |
+| **ja** | 한자 포함 시 높이 큼                  | line-height 1.7~1.8. Noto Sans JP                       |
+| **de** | 단어가 매우 길음 (합성어)             | 줄바꿈 규칙 필수, overflow 대비, word-break: break-word |
 
 ---
 
@@ -200,37 +203,37 @@ CSS font-family 선언:
 
 ### 7-1. 간격 체계 (4-base)
 
-| 토큰 | px | 용도 예시 |
-|------|-----|----------|
-| `xs` | 4 | 아이콘-텍스트 간격 |
-| `sm` | 8 | 이미지-메타 갭, 칩 간 간격 |
-| `md` | 12 | 그리드 갭, 카드 내부 패딩 |
-| `lg` | 16 | 섹션 내 요소 간격 |
-| `xl` | 22 | 섹션 간 간격 |
-| `2xl` | 32 | 큰 섹션 구분 |
-| `3xl` | 44 | 히어로 아래 여백, 주요 영역 분리 |
+| 토큰  | px  | 용도 예시                        |
+| ----- | --- | -------------------------------- |
+| `xs`  | 4   | 아이콘-텍스트 간격               |
+| `sm`  | 8   | 이미지-메타 갭, 칩 간 간격       |
+| `md`  | 12  | 그리드 갭, 카드 내부 패딩        |
+| `lg`  | 16  | 섹션 내 요소 간격                |
+| `xl`  | 22  | 섹션 간 간격                     |
+| `2xl` | 32  | 큰 섹션 구분                     |
+| `3xl` | 44  | 히어로 아래 여백, 주요 영역 분리 |
 
 ### 7-2. 반지름 (Radii)
 
-| 토큰 | px | 용도 |
-|------|-----|------|
-| `sm` | 4 | 작은 요소, 태그 |
-| `md` | 10 | **상품 카드, 입력, 버튼, 히어로 이미지** (기본값) |
-| `lg` | 16 | 큰 카드, 모달 |
-| `xl` | 22 | 특수 컨테이너 |
-| `pill` | 999 | Fit 배지, 칩, 필터 |
+| 토큰   | px  | 용도                                              |
+| ------ | --- | ------------------------------------------------- |
+| `sm`   | 4   | 작은 요소, 태그                                   |
+| `md`   | 10  | **상품 카드, 입력, 버튼, 히어로 이미지** (기본값) |
+| `lg`   | 16  | 큰 카드, 모달                                     |
+| `xl`   | 22  | 특수 컨테이너                                     |
+| `pill` | 999 | Fit 배지, 칩, 필터                                |
 
 > 주의: 기존 코드의 `md: 8`을 `md: 10`으로 변경 필요
 
 ### 7-3. 레이아웃 그리드 (기존 유지 + 핸드오프 보완)
 
-| 항목 | 모바일 (< 768px) | 태블릿 (768–1024px) | 데스크탑 (> 1024px) |
-|------|------------------|---------------------|---------------------|
-| 컬럼 | 4 | 8 | 12 |
-| 거터 | 16px | 24px | 24–32px |
-| 마진 | 20px (핸드오프 확정) | 32px | auto (max-width 제한) |
-| 최대 너비 | 100% | 100% | 1280px (콘텐츠 영역) |
-| 상품 그리드 | 2열, 12px gap | 3열 | 3–4열 |
+| 항목        | 모바일 (< 768px)     | 태블릿 (768–1024px) | 데스크탑 (> 1024px)   |
+| ----------- | -------------------- | ------------------- | --------------------- |
+| 컬럼        | 4                    | 8                   | 12                    |
+| 거터        | 16px                 | 24px                | 24–32px               |
+| 마진        | 20px (핸드오프 확정) | 32px                | auto (max-width 제한) |
+| 최대 너비   | 100%                 | 100%                | 1280px (콘텐츠 영역)  |
+| 상품 그리드 | 2열, 12px gap        | 3열                 | 3–4열                 |
 
 ### 7-4. 핵심 레이아웃 원칙
 
@@ -244,12 +247,12 @@ CSS font-family 선언:
 
 ## 8. 모션 & 인터랙션 — 확정 규칙
 
-| 상황 | 값 | 비고 |
-|------|-----|------|
-| Hover / Press | 150ms ease, opacity 0.85 (primary 버튼) 또는 bgDeep shift (카드) | |
-| 페이지 전환 | 250ms ease-out, fade + 8px rise | |
-| 캐럿 블링크 | 1s infinite (`@keyframes mz-blink`) | 입력 필드 포커스 시 |
-| **금지** | 스프링, 패럴럭스, 장식 애니메이션 | "Nothing playful" |
+| 상황          | 값                                                               | 비고                |
+| ------------- | ---------------------------------------------------------------- | ------------------- |
+| Hover / Press | 150ms ease, opacity 0.85 (primary 버튼) 또는 bgDeep shift (카드) |                     |
+| 페이지 전환   | 250ms ease-out, fade + 8px rise                                  |                     |
+| 캐럿 블링크   | 1s infinite (`@keyframes mz-blink`)                              | 입력 필드 포커스 시 |
+| **금지**      | 스프링, 패럴럭스, 장식 애니메이션                                | "Nothing playful"   |
 
 ---
 
@@ -259,12 +262,12 @@ CSS font-family 선언:
 
 4가지 variant. Height: `sm 40 · md 48 · lg 56`. Padding-x: 20. Radius: 10. Inter 500, 13/14, letter-spacing +0.02em.
 
-| Variant | bg | fg | 용도 |
-|---------|-----|-----|------|
-| **Primary** | ink | bg | 핵심 CTA. 뷰당 1개 |
-| **Accent** | accent | white | Fit/커밋 모먼트 ("Apply fit", "Track shipment") |
-| **Ghost** | transparent, border 1px lineStrong | ink | 보조 액션 |
-| **Quiet** | text-only, no chrome | inkMute | 3차 / 취소 |
+| Variant     | bg                                 | fg      | 용도                                            |
+| ----------- | ---------------------------------- | ------- | ----------------------------------------------- |
+| **Primary** | ink                                | bg      | 핵심 CTA. 뷰당 1개                              |
+| **Accent**  | accent                             | white   | Fit/커밋 모먼트 ("Apply fit", "Track shipment") |
+| **Ghost**   | transparent, border 1px lineStrong | ink     | 보조 액션                                       |
+| **Quiet**   | text-only, no chrome               | inkMute | 3차 / 취소                                      |
 
 > 기존 코드 매핑: `secondary` → Ghost, `danger` 유지 (시스템용), 기존 `ghost` → Quiet, 기존 `accent` → Accent(색상 변경)
 
@@ -336,15 +339,15 @@ HoundProfile {
 
 ### 10-3. 화면별 표현
 
-| 화면 | 표현 |
-|------|------|
-| **Home** | Fit-for-Hana 카드 바 (히어로 아래) + "Curated for Hana" 섹션 |
-| **PLP** | 필터 스트립에 Fit 칩 활성 + 상품 카드에 `★ FIT L` 배지 |
-| **PDP** | Fit 카드 풀 width + 사이즈 셀렉터에 ★ 마커 |
-| **Cart** | Fit 배너 (프로필 재확인) |
-| **Checkout** | Fit 참조 |
-| **My page** | 하운드 서머리 카드 |
-| **Search** | "TOP PICKS · FIT L" 필터된 상품 |
+| 화면         | 표현                                                         |
+| ------------ | ------------------------------------------------------------ |
+| **Home**     | Fit-for-Hana 카드 바 (히어로 아래) + "Curated for Hana" 섹션 |
+| **PLP**      | 필터 스트립에 Fit 칩 활성 + 상품 카드에 `★ FIT L` 배지       |
+| **PDP**      | Fit 카드 풀 width + 사이즈 셀렉터에 ★ 마커                   |
+| **Cart**     | Fit 배너 (프로필 재확인)                                     |
+| **Checkout** | Fit 참조                                                     |
+| **My page**  | 하운드 서머리 카드                                           |
+| **Search**   | "TOP PICKS · FIT L" 필터된 상품                              |
 
 ### 10-4. 규칙
 
@@ -425,7 +428,7 @@ HoundProfile {
 ### 11-9. Order Complete
 
 - Accent-soft circle ✓ glyph
-- "Order placed. Thank you, *Hana.*" (italic name)
+- "Order placed. Thank you, _Hana._" (italic name)
 - Order number + dates in mono
 - 4 items thumbnail stack + total
 - Delivering-to block
@@ -433,7 +436,7 @@ HoundProfile {
 
 ### 11-10. Tracking
 
-- "Arriving Apr *27 – 29.*" italic numerics
+- "Arriving Apr _27 – 29._" italic numerics
 - Map strip: SVG simplified route (stubbed — 실제 구현 시 Mapbox/Naver static 400×160@2x)
 - 5-step vertical timeline with accent dots. Current: accent-soft halo
 - Carrier card: CJ Logistics + tracking number + "Copy"
@@ -455,13 +458,13 @@ HoundProfile {
 
 ### 12-1. 로딩 상태
 
-| 규칙 | 설명 |
-|------|------|
-| 전체 페이지 로딩 | 스켈레톤 UI (스피너 금지) |
-| 부분 로딩 | 해당 영역만 스켈레톤 |
-| 버튼 로딩 | 버튼 내부에 spinner + disabled |
-| 이미지 로딩 | `bgDeep` placeholder → blur-up → 원본 |
-| 로딩 시간 기준 | 200ms 이내 → 표시 안 함. 200ms 이후 → 스켈레톤 |
+| 규칙             | 설명                                           |
+| ---------------- | ---------------------------------------------- |
+| 전체 페이지 로딩 | 스켈레톤 UI (스피너 금지)                      |
+| 부분 로딩        | 해당 영역만 스켈레톤                           |
+| 버튼 로딩        | 버튼 내부에 spinner + disabled                 |
+| 이미지 로딩      | `bgDeep` placeholder → blur-up → 원본          |
+| 로딩 시간 기준   | 200ms 이내 → 표시 안 함. 200ms 이후 → 스켈레톤 |
 
 ### 12-2. 스켈레톤 UI
 
@@ -483,12 +486,12 @@ HoundProfile {
 
 ## 13. 다국어 텍스트 대응 규칙 (기존 유지)
 
-| 언어 | 한국어 대비 길이 |
-|------|-----------------|
-| ko | 1.0x |
-| en | 1.2–1.5x |
-| ja | 0.8–1.2x |
-| de | 1.5–2.0x (가장 주의) |
+| 언어 | 한국어 대비 길이     |
+| ---- | -------------------- |
+| ko   | 1.0x                 |
+| en   | 1.2–1.5x             |
+| ja   | 0.8–1.2x             |
+| de   | 1.5–2.0x (가장 주의) |
 
 핵심: 고정 너비 금지. 독일어 기준 레이아웃 깨짐 테스트 필수. 날짜/통화 locale 기반 포맷.
 
@@ -496,61 +499,61 @@ HoundProfile {
 
 ## 14. 모바일 우선 구조 기준
 
-| 원칙 | 설명 |
-|------|------|
-| Mobile-first 설계 | 430px 기준 디자인 → 데스크탑 확장 |
-| 터치 최적화 | 모든 인터랙션 요소 최소 44×44px |
-| 한 손 조작 | 주요 CTA 하단 배치. **Sticky CTA**: PDP/Cart에서 항상 visible |
-| Tab bar | Home · Shop · Search · Saved · Me (모바일 하단 고정) |
+| 원칙              | 설명                                                          |
+| ----------------- | ------------------------------------------------------------- |
+| Mobile-first 설계 | 430px 기준 디자인 → 데스크탑 확장                             |
+| 터치 최적화       | 모든 인터랙션 요소 최소 44×44px                               |
+| 한 손 조작        | 주요 CTA 하단 배치. **Sticky CTA**: PDP/Cart에서 항상 visible |
+| Tab bar           | Home · Shop · Search · Saved · Me (모바일 하단 고정)          |
 
 ### 브레이크포인트 (기존 유지)
 
-| 이름 | 범위 |
-|------|------|
-| mobile | 0–767px (기본) |
-| tablet | 768–1023px |
-| desktop | 1024–1439px |
-| wide | 1440px+ |
+| 이름    | 범위           |
+| ------- | -------------- |
+| mobile  | 0–767px (기본) |
+| tablet  | 768–1023px     |
+| desktop | 1024–1439px    |
+| wide    | 1440px+        |
 
 ---
 
 ## 15. 이미지 운용 원칙 (기존 유지 + 보완)
 
-| 원칙 | 설명 |
-|------|------|
-| 대형견이 주인공 | 착용컷 핵심. 상품만 단독 촬영은 보조 |
-| **상품 카드 이미지**: 1:1 | 핸드오프 확정 (기존 3:4에서 변경) |
-| 히어로/배너: 자유 비율 | full-bleed portrait |
-| 커뮤니티: 1:1 또는 자유 | |
-| 배경: 뉴트럴 `bgDeep` | 상품 사진 배경색과 토큰 일치 |
-| 최적화 | WebP/AVIF, srcset, LQIP blur-up, lazy loading |
-| **일러스트** | SVG only, line + one accent fill. 초기 placeholder → 추후 커미션/에디토리얼 포토 교체 |
+| 원칙                      | 설명                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| 대형견이 주인공           | 착용컷 핵심. 상품만 단독 촬영은 보조                                                  |
+| **상품 카드 이미지**: 1:1 | 핸드오프 확정 (기존 3:4에서 변경)                                                     |
+| 히어로/배너: 자유 비율    | full-bleed portrait                                                                   |
+| 커뮤니티: 1:1 또는 자유   |                                                                                       |
+| 배경: 뉴트럴 `bgDeep`     | 상품 사진 배경색과 토큰 일치                                                          |
+| 최적화                    | WebP/AVIF, srcset, LQIP blur-up, lazy loading                                         |
+| **일러스트**              | SVG only, line + one accent fill. 초기 placeholder → 추후 커미션/에디토리얼 포토 교체 |
 
 ---
 
 ## 16. 정책
 
-| 정책 | 내용 |
-|------|------|
-| 디자인 토큰 필수 | `--mz-*` CSS 변수로 관리. 하드코딩 금지 |
-| 상태 완결성 검수 | 로딩/스켈레톤/빈 상태/에러 포함하지 않으면 미완료 |
-| 독일어 레이아웃 테스트 | 다국어 UI 독일어 기준 QA 필수 |
-| 모바일 우선 리뷰 | 디자인/개발 리뷰는 430px 모바일부터 |
-| 접근성 최소 기준 | WCAG 2.1 AA. 색상 대비 4.5:1. 키보드 네비게이션 |
-| Fit-for-Hana 최우선 | 모든 화면 구현 시 Fit 연동을 빠뜨리지 않음 |
-| 핸드오프 파일 = spec | `design_handoff_muzzle_commerce/` 파일은 참조용. 직접 import 금지 |
+| 정책                   | 내용                                                              |
+| ---------------------- | ----------------------------------------------------------------- |
+| 디자인 토큰 필수       | `--mz-*` CSS 변수로 관리. 하드코딩 금지                           |
+| 상태 완결성 검수       | 로딩/스켈레톤/빈 상태/에러 포함하지 않으면 미완료                 |
+| 독일어 레이아웃 테스트 | 다국어 UI 독일어 기준 QA 필수                                     |
+| 모바일 우선 리뷰       | 디자인/개발 리뷰는 430px 모바일부터                               |
+| 접근성 최소 기준       | WCAG 2.1 AA. 색상 대비 4.5:1. 키보드 네비게이션                   |
+| Fit-for-Hana 최우선    | 모든 화면 구현 시 Fit 연동을 빠뜨리지 않음                        |
+| 핸드오프 파일 = spec   | `design_handoff_muzzle_commerce/` 파일은 참조용. 직접 import 금지 |
 
 ---
 
 ## 17. 리스크
 
-| 리스크 | 수준 | 대응 |
-|--------|------|------|
-| 독일어 텍스트 길이로 레이아웃 깨짐 | 높 | 독일어 기준 QA 의무화 |
-| 폰트 로딩 성능 (Fraunces + Inter + Pretendard + JetBrains Mono) | 중 | locale별 서브셋 로딩, font-display: swap, next/font 활용 |
-| Fraunces → Pretendard 한글 fall-through 시 시각 불일치 | 중 | 히어로 한글 텍스트는 Pretendard Variable 전용 클래스 적용 |
-| 대형견 이미지 확보 | 높 | 초기 AI 생성 + 실촬영 병행. SVG 일러스트 placeholder |
-| 1:1 → 기존 3:4 비율 전환 | 낮 | 이미지 업로드 시 crop 가이드라인 제공 |
+| 리스크                                                          | 수준 | 대응                                                      |
+| --------------------------------------------------------------- | ---- | --------------------------------------------------------- |
+| 독일어 텍스트 길이로 레이아웃 깨짐                              | 높   | 독일어 기준 QA 의무화                                     |
+| 폰트 로딩 성능 (Fraunces + Inter + Pretendard + JetBrains Mono) | 중   | locale별 서브셋 로딩, font-display: swap, next/font 활용  |
+| Fraunces → Pretendard 한글 fall-through 시 시각 불일치          | 중   | 히어로 한글 텍스트는 Pretendard Variable 전용 클래스 적용 |
+| 대형견 이미지 확보                                              | 높   | 초기 AI 생성 + 실촬영 병행. SVG 일러스트 placeholder      |
+| 1:1 → 기존 3:4 비율 전환                                        | 낮   | 이미지 업로드 시 crop 가이드라인 제공                     |
 
 ---
 
@@ -558,17 +561,17 @@ HoundProfile {
 
 핸드오프 README 권장 우선순위를 따른다:
 
-| 순위 | 작업 | 담당 | 비고 |
-|------|------|------|------|
-| **1** | 디자인 토큰 코드 반영 (`globals.css` + Tailwind theme + 폰트 설정) | Developer | `hifi/tokens.jsx` → CSS 변수 변환 |
-| **2** | Fit-for-Hana primitive 컴포넌트 | Developer | 모든 화면에 출현 — 가장 먼저 |
-| **3** | Product Card + Size Selector | Developer | 가장 재사용 빈도 높은 원자 |
-| **4** | Chip + Badge (Fit variant 포함) | Developer | 필터/PLP 필수 |
-| **5** | Button 리매핑 (Primary/Accent/Ghost/Quiet) | Developer | 기존 4-variant → 4-variant 교체 |
-| **6** | Input floating label 모드 | Developer | Login 화면 필수 |
-| **7** | Happy path 화면 순서: Home → PLP → PDP → Cart → Checkout | Developer | 핵심 구매 플로우 |
-| **8** | 보조 화면: Login, Onboarding, Search, Order Complete, Tracking, My Page | Developer | |
-| **9** | Tracking map stub | Developer | 마지막. Mapbox/Naver 연동 전까지 이미지 placeholder |
+| 순위  | 작업                                                                    | 담당      | 비고                                                |
+| ----- | ----------------------------------------------------------------------- | --------- | --------------------------------------------------- |
+| **1** | 디자인 토큰 코드 반영 (`globals.css` + Tailwind theme + 폰트 설정)      | Developer | `hifi/tokens.jsx` → CSS 변수 변환                   |
+| **2** | Fit-for-Hana primitive 컴포넌트                                         | Developer | 모든 화면에 출현 — 가장 먼저                        |
+| **3** | Product Card + Size Selector                                            | Developer | 가장 재사용 빈도 높은 원자                          |
+| **4** | Chip + Badge (Fit variant 포함)                                         | Developer | 필터/PLP 필수                                       |
+| **5** | Button 리매핑 (Primary/Accent/Ghost/Quiet)                              | Developer | 기존 4-variant → 4-variant 교체                     |
+| **6** | Input floating label 모드                                               | Developer | Login 화면 필수                                     |
+| **7** | Happy path 화면 순서: Home → PLP → PDP → Cart → Checkout                | Developer | 핵심 구매 플로우                                    |
+| **8** | 보조 화면: Login, Onboarding, Search, Order Complete, Tracking, My Page | Developer |                                                     |
+| **9** | Tracking map stub                                                       | Developer | 마지막. Mapbox/Naver 연동 전까지 이미지 placeholder |
 
 ---
 
@@ -576,24 +579,24 @@ HoundProfile {
 
 개발자가 바로 작업할 수 있도록, 현재 `globals.css` 토큰과 핸드오프 토큰의 1:1 매핑:
 
-| 기존 CSS 변수 | 기존 값 | → 새 변수 | 새 값 |
-|---------------|---------|-----------|-------|
-| `--color-bg` | `#faf9f7` | `--mz-bg` | `#F7F6F3` |
-| `--color-surface` | `#ffffff` | `--mz-surface` | `#FFFFFF` (동일) |
-| `--color-text-primary` | `#1a1a1a` | `--mz-ink` | `#0E0E0C` |
-| `--color-text-secondary` | `#6b6760` | `--mz-ink-soft` | `#4D4D48` |
-| `--color-text-tertiary` | `#9e9b96` | `--mz-ink-mute` | `#8F8F88` |
-| `--color-brand-primary` | `#3d3530` | `--mz-ink` (CTA = ink) | `#0E0E0C` |
-| `--color-brand-accent` | `#c8a96e` | `--mz-accent` | `#6B2020` |
-| `--color-border` | `#e8e5e0` | `--mz-line` | `rgba(14,14,12,0.08)` |
-| `--color-border-subtle` | `#f0ede8` | (삭제, bgDeep으로 대체) | `#EFEDE7` |
-| `--color-cta` | `#1a1a1a` | `--mz-ink` | `#0E0E0C` |
-| (없음) | — | `--mz-bg-deep` | `#EFEDE7` |
-| (없음) | — | `--mz-line-strong` | `rgba(14,14,12,0.18)` |
-| (없음) | — | `--mz-accent-soft` | `#F1E5E0` |
-| (없음) | — | `--mz-accent-ink` | `#4A1818` |
-| `--font-display` | Inter | `--font-serif` | Fraunces + Pretendard Variable |
-| (없음) | — | `--font-mono` | JetBrains Mono |
+| 기존 CSS 변수            | 기존 값   | → 새 변수               | 새 값                          |
+| ------------------------ | --------- | ----------------------- | ------------------------------ |
+| `--color-bg`             | `#faf9f7` | `--mz-bg`               | `#F7F6F3`                      |
+| `--color-surface`        | `#ffffff` | `--mz-surface`          | `#FFFFFF` (동일)               |
+| `--color-text-primary`   | `#1a1a1a` | `--mz-ink`              | `#0E0E0C`                      |
+| `--color-text-secondary` | `#6b6760` | `--mz-ink-soft`         | `#4D4D48`                      |
+| `--color-text-tertiary`  | `#9e9b96` | `--mz-ink-mute`         | `#8F8F88`                      |
+| `--color-brand-primary`  | `#3d3530` | `--mz-ink` (CTA = ink)  | `#0E0E0C`                      |
+| `--color-brand-accent`   | `#c8a96e` | `--mz-accent`           | `#6B2020`                      |
+| `--color-border`         | `#e8e5e0` | `--mz-line`             | `rgba(14,14,12,0.08)`          |
+| `--color-border-subtle`  | `#f0ede8` | (삭제, bgDeep으로 대체) | `#EFEDE7`                      |
+| `--color-cta`            | `#1a1a1a` | `--mz-ink`              | `#0E0E0C`                      |
+| (없음)                   | —         | `--mz-bg-deep`          | `#EFEDE7`                      |
+| (없음)                   | —         | `--mz-line-strong`      | `rgba(14,14,12,0.18)`          |
+| (없음)                   | —         | `--mz-accent-soft`      | `#F1E5E0`                      |
+| (없음)                   | —         | `--mz-accent-ink`       | `#4A1818`                      |
+| `--font-display`         | Inter     | `--font-serif`          | Fraunces + Pretendard Variable |
+| (없음)                   | —         | `--font-mono`           | JetBrains Mono                 |
 
 ### 폰트 로딩 변경 (`layout.tsx`)
 
@@ -609,21 +612,21 @@ const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces', axe
 
 ## 부록 B: 어드민 디자인 방향 (요약, 기존 유지)
 
-| 항목 | 커머스 | 어드민 |
-|------|--------|--------|
-| 톤 | Premium, Calm | Functional, Efficient |
-| 정보 밀도 | 낮음 (Spacious) | 중~높음 (운영 효율 우선) |
-| 색상 | Muzzle 토큰 (--mz-*) | 뉴트럴 + 상태 컬러 |
-| 타이포 | Fraunces + Inter 편집적 위계 | Inter 균일 가독성 |
+| 항목          | 커머스                                | 어드민                   |
+| ------------- | ------------------------------------- | ------------------------ |
+| 톤            | Premium, Calm                         | Functional, Efficient    |
+| 정보 밀도     | 낮음 (Spacious)                       | 중~높음 (운영 효율 우선) |
+| 색상          | Muzzle 토큰 (--mz-\*)                 | 뉴트럴 + 상태 컬러       |
+| 타이포        | Fraunces + Inter 편집적 위계          | Inter 균일 가독성        |
 | 컴포넌트 공유 | Button, Input, Modal, Toast 기본 공유 |
-| 디자인 토큰 | 토큰 체계 공유, 값은 테마별 분리 |
+| 디자인 토큰   | 토큰 체계 공유, 값은 테마별 분리      |
 
 ## 부록 C: 대형견 특화 디자인 고려사항 (기존 유지)
 
-| 항목 | 방향 |
-|------|------|
-| 사이즈 가이드 | 견종별 체형 데이터 기반 추천 |
-| 견종 선택 UI | 대형견종(30+종) 빠른 선택, 실루엣 아이콘 |
-| 착용컷 중심 | 다양한 견종·체형 착용 이미지 |
-| 사이즈 비교 | "같은 견종 보호자가 선택한 사이즈" 커뮤니티 데이터 |
-| 핏 정보 | Sporty/Sturdy/Slim/Cloud 체형별 핏 차이 |
+| 항목          | 방향                                               |
+| ------------- | -------------------------------------------------- |
+| 사이즈 가이드 | 견종별 체형 데이터 기반 추천                       |
+| 견종 선택 UI  | 대형견종(30+종) 빠른 선택, 실루엣 아이콘           |
+| 착용컷 중심   | 다양한 견종·체형 착용 이미지                       |
+| 사이즈 비교   | "같은 견종 보호자가 선택한 사이즈" 커뮤니티 데이터 |
+| 핏 정보       | Sporty/Sturdy/Slim/Cloud 체형별 핏 차이            |

@@ -20,11 +20,14 @@ export interface ProductListParams {
   q?: string; // free-text search against name_ko / name_en
 }
 
-const SORT_MAP: Record<NonNullable<ProductListParams['sort']>, { column: string; ascending: boolean }> = {
-  newest:     { column: 'created_at',    ascending: false },
-  price_asc:  { column: 'base_price_krw', ascending: true  },
+const SORT_MAP: Record<
+  NonNullable<ProductListParams['sort']>,
+  { column: string; ascending: boolean }
+> = {
+  newest: { column: 'created_at', ascending: false },
+  price_asc: { column: 'base_price_krw', ascending: true },
   price_desc: { column: 'base_price_krw', ascending: false },
-  popular:    { column: 'view_count',    ascending: false },
+  popular: { column: 'view_count', ascending: false },
 };
 
 export async function listProducts(
@@ -74,7 +77,9 @@ export async function listProducts(
       .select('product_id')
       .in('size_id', sizeIds)
       .eq('is_active', true);
-    const ids = [...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id))];
+    const ids = [
+      ...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id)),
+    ];
     if (ids.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
     sizeFilteredIds = ids;
   }
@@ -87,7 +92,9 @@ export async function listProducts(
       .select('product_id')
       .in('color', colors)
       .eq('is_active', true);
-    const ids = [...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id))];
+    const ids = [
+      ...new Set(((optRows ?? []) as { product_id: string }[]).map((r) => r.product_id)),
+    ];
     if (ids.length === 0) return { data: [], total: 0, page, per_page, has_next: false };
     colorFilteredIds = ids;
   }
@@ -138,14 +145,16 @@ export async function getProductBySlug(slug: string): Promise<ProductWithDetails
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: product, error } = await (supabase.from('products') as any)
-    .select(`
+    .select(
+      `
       *,
       category:categories(*),
       options:product_options(
         *,
         size:sizes(*)
       )
-    `)
+    `
+    )
     .eq('slug', slug)
     .eq('options.is_active', true)
     .single();

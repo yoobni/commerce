@@ -19,12 +19,9 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
 
-  const handleThumbnailClick = useCallback(
-    (index: number) => {
-      setActiveIndex(index);
-    },
-    []
-  );
+  const handleThumbnailClick = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
 
   const handleZoomOpen = useCallback(() => {
     track('image_zoom', { product_id: productId, image_index: activeIndex });
@@ -183,12 +180,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
       )}
 
       {/* Zoom modal */}
-      <Modal
-        open={zoomOpen}
-        onClose={() => setZoomOpen(false)}
-        size="xl"
-        className="bg-black"
-      >
+      <Modal open={zoomOpen} onClose={() => setZoomOpen(false)} size="xl" className="bg-black">
         <div className="relative w-full aspect-square md:aspect-auto md:h-[70vh]">
           <Image
             src={activeImage}
@@ -230,7 +222,17 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
 
 function ZoomIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
       <line x1="11" y1="8" x2="11" y2="14" />
@@ -241,7 +243,17 @@ function ZoomIcon() {
 
 function ChevronLeftIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="15 18 9 12 15 6" />
     </svg>
   );
@@ -249,7 +261,17 @@ function ChevronLeftIcon() {
 
 function ChevronRightIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="9 18 15 12 9 6" />
     </svg>
   );

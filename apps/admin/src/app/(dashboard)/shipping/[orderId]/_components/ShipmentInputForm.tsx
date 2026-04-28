@@ -76,9 +76,7 @@ export function ShipmentInputForm({ orderId, country }: Props) {
         />
       </div>
 
-      {state.error && (
-        <p className="text-xs text-[var(--color-error)]">{state.error}</p>
-      )}
+      {state.error && <p className="text-xs text-[var(--color-error)]">{state.error}</p>}
 
       <button
         type="submit"

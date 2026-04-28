@@ -122,9 +122,7 @@ export async function saveProduct(
     if (input.status === 'ACTIVE') patch.published_at = now;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('products') as any)
-      .update(patch)
-      .eq('id', productId);
+    const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
 
     if (error) throw new Error(`상품 수정 실패: ${error.message}`);
   }
@@ -137,9 +135,7 @@ export async function saveProduct(
 
   if (toDelete.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('product_options') as any)
-      .delete()
-      .in('id', toDelete);
+    const { error } = await (supabase.from('product_options') as any).delete().in('id', toDelete);
     if (error) throw new Error(`옵션 삭제 실패: ${error.message}`);
   }
 
@@ -168,8 +164,10 @@ export async function saveProduct(
       if (error) throw new Error(`옵션 수정 실패: ${error.message}`);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from('product_options') as any)
-        .insert({ ...row, created_at: now });
+      const { error } = await (supabase.from('product_options') as any).insert({
+        ...row,
+        created_at: now,
+      });
       if (error) throw new Error(`옵션 추가 실패: ${error.message}`);
     }
   }
@@ -181,10 +179,7 @@ export async function saveProduct(
 
 // ─── Update product status (quick action) ────────────────────────────────────
 
-export async function updateProductStatus(
-  productId: string,
-  status: ProductStatus
-): Promise<void> {
+export async function updateProductStatus(productId: string, status: ProductStatus): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -194,9 +189,7 @@ export async function updateProductStatus(
   if (status === 'ACTIVE') patch.published_at = now;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('products') as any)
-    .update(patch)
-    .eq('id', productId);
+  const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
 
   if (error) throw new Error(`상태 변경 실패: ${error.message}`);
 
@@ -226,9 +219,7 @@ export async function saveCategory(
     return data.id as string;
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('categories') as any)
-      .update(input)
-      .eq('id', categoryId);
+    const { error } = await (supabase.from('categories') as any).update(input).eq('id', categoryId);
     if (error) throw new Error(`카테고리 수정 실패: ${error.message}`);
     revalidatePath('/products/categories');
     return categoryId;
@@ -252,9 +243,7 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('categories') as any)
-    .delete()
-    .eq('id', categoryId);
+  const { error } = await (supabase.from('categories') as any).delete().eq('id', categoryId);
 
   if (error) throw new Error(`카테고리 삭제 실패: ${error.message}`);
   revalidatePath('/products/categories');

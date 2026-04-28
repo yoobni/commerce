@@ -13,8 +13,8 @@
     "country": "US",
     "currency": "USD",
     "locale": "en",
-    "shipping_fee": 15.00,
-    "free_shipping_threshold": 80.00,
+    "shipping_fee": 15.0,
+    "free_shipping_threshold": 80.0,
     "estimated_delivery_days_min": 7,
     "estimated_delivery_days_max": 14,
     "is_active": true
@@ -33,8 +33,8 @@
     "country": "DE",
     "currency": "EUR",
     "locale": "de",
-    "shipping_fee": 12.00,
-    "free_shipping_threshold": 75.00,
+    "shipping_fee": 12.0,
+    "free_shipping_threshold": 75.0,
     "estimated_delivery_days_min": 7,
     "estimated_delivery_days_max": 14,
     "is_active": true

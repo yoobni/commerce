@@ -15,12 +15,9 @@ import type { EventName, EventProperties } from '@/lib/analytics/types';
  * inside event handlers, effects, and async callbacks.
  */
 export function useTrack() {
-  const track = useCallback(
-    <T extends EventName>(event: T, properties: EventProperties<T>) => {
-      analytics.track(event, properties);
-    },
-    []
-  );
+  const track = useCallback(<T extends EventName>(event: T, properties: EventProperties<T>) => {
+    analytics.track(event, properties);
+  }, []);
 
   return track;
 }

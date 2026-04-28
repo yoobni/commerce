@@ -10,10 +10,7 @@ export interface LoginState {
   error: string | null;
 }
 
-export async function login(
-  _prevState: LoginState,
-  formData: FormData
-): Promise<LoginState> {
+export async function login(_prevState: LoginState, formData: FormData): Promise<LoginState> {
   const email = (formData.get('email') as string | null)?.trim().toLowerCase() ?? '';
   const password = (formData.get('password') as string | null) ?? '';
 

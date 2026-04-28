@@ -12,13 +12,7 @@ interface Props {
   authorStatus: UserStatus;
 }
 
-export function PostActions({
-  postId,
-  currentStatus,
-  isPinned,
-  authorId,
-  authorStatus,
-}: Props) {
+export function PostActions({ postId, currentStatus, isPinned, authorId, authorStatus }: Props) {
   const [pending, startTransition] = useTransition();
 
   function handlePostStatus(status: PostStatus) {
@@ -85,7 +79,9 @@ export function PostActions({
 
       {/* User sanction */}
       <div className="border-t border-[var(--color-border)] pt-3 mt-3 space-y-2">
-        <p className="text-xs text-[var(--color-text-tertiary)] font-medium uppercase">작성자 제재</p>
+        <p className="text-xs text-[var(--color-text-tertiary)] font-medium uppercase">
+          작성자 제재
+        </p>
         {authorStatus === 'ACTIVE' ? (
           <button
             onClick={() => handleUserStatus('SUSPENDED')}

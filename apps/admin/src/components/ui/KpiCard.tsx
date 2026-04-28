@@ -50,9 +50,7 @@ export function KpiCard({
           <p className="mt-1.5 text-2xl font-bold text-[var(--color-text-primary)] leading-none">
             {value}
           </p>
-          {subLabel && (
-            <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">{subLabel}</p>
-          )}
+          {subLabel && <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">{subLabel}</p>}
           {trend && (
             <div
               className={cn(
@@ -64,12 +62,24 @@ export function KpiCard({
             >
               {trend.direction === 'up' && (
                 <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-                  <path d="M8 12V4M8 4l-3 3M8 4l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M8 12V4M8 4l-3 3M8 4l3 3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               )}
               {trend.direction === 'down' && (
                 <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-                  <path d="M8 4v8M8 12l-3-3M8 12l3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M8 4v8M8 12l-3-3M8 12l3-3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               )}
               {trend.text}
@@ -78,7 +88,9 @@ export function KpiCard({
         </div>
 
         {/* Icon */}
-        <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', iconBg)}>
+        <div
+          className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', iconBg)}
+        >
           <svg
             viewBox="0 0 24 24"
             fill="none"

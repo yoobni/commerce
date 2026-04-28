@@ -13,12 +13,12 @@ export interface BadgeProps {
 }
 
 const badgeVariantClasses: Record<BadgeVariant, string> = {
-  fit:      'bg-[var(--mz-accent)] text-white rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em]',
-  new:      'bg-[var(--color-success)] text-white',
-  sale:     'bg-[var(--color-error)] text-white',
-  soldOut:  'bg-[var(--mz-ink-mute)] text-white',
+  fit: 'bg-[var(--mz-accent)] text-white rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em]',
+  new: 'bg-[var(--color-success)] text-white',
+  sale: 'bg-[var(--color-error)] text-white',
+  soldOut: 'bg-[var(--mz-ink-mute)] text-white',
   lowStock: 'bg-[var(--color-warning)] text-white',
-  default:  'bg-[var(--mz-bg-deep)] text-[var(--mz-ink-soft)]',
+  default: 'bg-[var(--mz-bg-deep)] text-[var(--mz-ink-soft)]',
 };
 
 export function Badge({ variant = 'default', children, className }: BadgeProps) {
@@ -74,7 +74,12 @@ export function Tag({ children, onRemove, className }: TagProps) {
           className="shrink-0 rounded-full w-4 h-4 flex items-center justify-center hover:bg-[var(--mz-line-strong)] transition-colors"
         >
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-            <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path
+              d="M1 1l6 6M7 1L1 7"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       )}

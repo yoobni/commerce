@@ -1,17 +1,17 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* ===== Muzzle Color Tokens ===== */
   /* Tailwind utilities: bg-mz-ink, text-mz-accent, etc. */
-  --color-mz-bg: #F7F6F3;
-  --color-mz-bg-deep: #EFEDE7;
-  --color-mz-surface: #FFFFFF;
-  --color-mz-ink: #0E0E0C;
-  --color-mz-ink-soft: #4D4D48;
-  --color-mz-ink-mute: #8F8F88;
-  --color-mz-accent: #6B2020;
-  --color-mz-accent-soft: #F1E5E0;
-  --color-mz-accent-ink: #4A1818;
+  --color-mz-bg: #f7f6f3;
+  --color-mz-bg-deep: #efede7;
+  --color-mz-surface: #ffffff;
+  --color-mz-ink: #0e0e0c;
+  --color-mz-ink-soft: #4d4d48;
+  --color-mz-ink-mute: #8f8f88;
+  --color-mz-accent: #6b2020;
+  --color-mz-accent-soft: #f1e5e0;
+  --color-mz-accent-ink: #4a1818;
 
   /* System colors */
   --color-error: #c0392b;
@@ -45,23 +45,23 @@
   /* Direction B · Modern — Burgundy accent — confirmed 2026-04-24 */
 
   /* Background */
-  --mz-bg: #F7F6F3;          /* bone white — page background */
-  --mz-bg-deep: #EFEDE7;     /* image/card backdrop */
-  --mz-surface: #FFFFFF;     /* cards, inputs above bg */
+  --mz-bg: #f7f6f3; /* bone white — page background */
+  --mz-bg-deep: #efede7; /* image/card backdrop */
+  --mz-surface: #ffffff; /* cards, inputs above bg */
 
   /* Ink */
-  --mz-ink: #0E0E0C;         /* primary text, primary button */
-  --mz-ink-soft: #4D4D48;    /* body prose */
-  --mz-ink-mute: #8F8F88;    /* meta, labels */
+  --mz-ink: #0e0e0c; /* primary text, primary button */
+  --mz-ink-soft: #4d4d48; /* body prose */
+  --mz-ink-mute: #8f8f88; /* meta, labels */
 
   /* Lines */
-  --mz-line: rgba(14, 14, 12, 0.08);      /* dividers */
+  --mz-line: rgba(14, 14, 12, 0.08); /* dividers */
   --mz-line-strong: rgba(14, 14, 12, 0.18); /* input border, chip outline */
 
   /* Accent — Burgundy (신호용, 장식 아님) */
-  --mz-accent: #6B2020;
-  --mz-accent-soft: #F1E5E0;
-  --mz-accent-ink: #4A1818;
+  --mz-accent: #6b2020;
+  --mz-accent-soft: #f1e5e0;
+  --mz-accent-ink: #4a1818;
 
   /* System */
   --color-error: #c0392b;
@@ -74,7 +74,9 @@
   /* Inter: body/UI/label/button/form */
   /* Pretendard Variable: Korean fallback */
   /* JetBrains Mono: order numbers, timestamps, specs */
-  --font-sans: var(--font-inter), 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans:
+    var(--font-inter), 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont,
+    sans-serif;
   --font-serif: var(--font-fraunces), 'Pretendard Variable', 'Noto Sans JP', Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, 'Courier New', monospace;
 
@@ -96,9 +98,9 @@
 
   /* ===== Layout ===== */
   --container-max: 1280px;
-  --container-padding: 1.25rem;    /* 20px — mobile */
-  --container-padding-md: 2rem;    /* 32px — tablet */
-  --container-padding-lg: 3rem;    /* 48px — desktop */
+  --container-padding: 1.25rem; /* 20px — mobile */
+  --container-padding-md: 2rem; /* 32px — tablet */
+  --container-padding-lg: 3rem; /* 48px — desktop */
 
   /* ===== Motion ===== */
   --transition-fast: 150ms ease;
@@ -132,18 +134,34 @@
 
 /* ===== Keyframes ===== */
 @keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 @keyframes mz-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes mz-fade-rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===== Base Reset ===== */

@@ -19,7 +19,11 @@ export default function PostDetailLoading() {
           <div className="aspect-[4/3] bg-[var(--color-neutral-100)] rounded-2xl animate-pulse" />
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-4 bg-[var(--color-neutral-100)] rounded animate-pulse" style={{ width: `${70 + (i % 3) * 10}%` }} />
+              <div
+                key={i}
+                className="h-4 bg-[var(--color-neutral-100)] rounded animate-pulse"
+                style={{ width: `${70 + (i % 3) * 10}%` }}
+              />
             ))}
           </div>
         </div>

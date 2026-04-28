@@ -35,7 +35,9 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 /** Returns root categories (parent_id IS NULL) with their children. */
-export async function listCategoriesWithChildren(): Promise<(Category & { children: Category[] })[]> {
+export async function listCategoriesWithChildren(): Promise<
+  (Category & { children: Category[] })[]
+> {
   const all = await listCategories(true);
   const roots = all.filter((c) => c.parent_id === null);
   return roots.map((root) => ({

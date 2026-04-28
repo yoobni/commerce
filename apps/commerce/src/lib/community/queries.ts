@@ -32,18 +32,21 @@ export async function listPosts(
   const offset = (page - 1) * per_page;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase.from('posts') as any).select(
-    '*, user:users!user_id(id, name, profile_image_url)',
-    { count: 'exact' }
-  ).eq('status', 'ACTIVE');
+  let query = (supabase.from('posts') as any)
+    .select('*, user:users!user_id(id, name, profile_image_url)', { count: 'exact' })
+    .eq('status', 'ACTIVE');
 
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
   if (search) query = query.ilike('title', `%${search}%`);
 
   if (sort === 'popular') {
-    query = query.order('like_count', { ascending: false }).order('created_at', { ascending: false });
+    query = query
+      .order('like_count', { ascending: false })
+      .order('created_at', { ascending: false });
   } else {
-    query = query.order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
+    query = query
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false });
   }
 
   query = query.range(offset, offset + per_page - 1);
@@ -122,10 +125,7 @@ export async function listComments(postId: string): Promise<CommentWithUser[]> {
 
 // ─── Check if user liked a post ───────────────────────────────────────────────
 
-export async function checkUserLikedPost(
-  postId: string,
-  userId: string
-): Promise<boolean> {
+export async function checkUserLikedPost(postId: string, userId: string): Promise<boolean> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,10 +140,7 @@ export async function checkUserLikedPost(
 
 // ─── Get user's liked comment ids for a post ─────────────────────────────────
 
-export async function getUserLikedCommentIds(
-  postId: string,
-  userId: string
-): Promise<string[]> {
+export async function getUserLikedCommentIds(postId: string, userId: string): Promise<string[]> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

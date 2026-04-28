@@ -6,10 +6,7 @@ import { login, type LoginState } from '@/lib/auth/actions';
 const initialState: LoginState = { error: null };
 
 export function LoginForm() {
-  const [state, formAction, isPending] = useActionState<LoginState, FormData>(
-    login,
-    initialState
-  );
+  const [state, formAction, isPending] = useActionState<LoginState, FormData>(login, initialState);
 
   return (
     <form action={formAction} noValidate>

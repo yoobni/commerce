@@ -21,13 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING:   'bg-yellow-50 text-yellow-700 border-yellow-200',
-  PAID:      'bg-blue-50 text-blue-700 border-blue-200',
+  PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  PAID: 'bg-blue-50 text-blue-700 border-blue-200',
   PREPARING: 'bg-purple-50 text-purple-700 border-purple-200',
-  SHIPPED:   'bg-indigo-50 text-indigo-700 border-indigo-200',
+  SHIPPED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   DELIVERED: 'bg-green-50 text-green-700 border-green-200',
   CANCELLED: 'bg-neutral-50 text-neutral-500 border-neutral-200',
-  REFUNDED:  'bg-red-50 text-red-600 border-red-200',
+  REFUNDED: 'bg-red-50 text-red-600 border-red-200',
 };
 
 export default async function OrdersPage({ params, searchParams }: Props) {
@@ -41,7 +41,9 @@ export default async function OrdersPage({ params, searchParams }: Props) {
   const tEmpty = await getTranslations({ locale, namespace: 'empty' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) notFound();
 
   const result = await listUserOrders(user.id, { page, per_page: 10 });
@@ -49,9 +51,7 @@ export default async function OrdersPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-        {t('title')}
-      </h2>
+      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{t('title')}</h2>
 
       {result.data.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -73,8 +73,10 @@ export default async function OrdersPage({ params, searchParams }: Props) {
         <div className="space-y-3">
           {result.data.map((order) => {
             const statusKey = order.status.toLowerCase() as keyof typeof STATUS_COLORS;
-            const statusLabel = (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
-            const statusClass = STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
+            const statusLabel =
+              (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
+            const statusClass =
+              STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
 
             return (
               <Link
@@ -91,7 +93,9 @@ export default async function OrdersPage({ params, searchParams }: Props) {
                       dateTime={order.ordered_at}
                       className="text-sm font-medium text-[var(--color-text-primary)]"
                     >
-                      {new Date(order.ordered_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
+                      {new Date(order.ordered_at).toLocaleDateString(
+                        locale === 'ko' ? 'ko-KR' : locale
+                      )}
                     </time>
                   </div>
                   <span

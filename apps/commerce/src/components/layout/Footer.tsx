@@ -30,12 +30,18 @@ export async function Footer() {
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/products" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/products"
+                    className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {t('shop')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/search" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/search"
+                    className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {t('search')}
                   </Link>
                 </li>
@@ -48,7 +54,10 @@ export async function Footer() {
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/community" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/community"
+                    className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {t('community')}
                   </Link>
                 </li>
@@ -61,12 +70,18 @@ export async function Footer() {
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/account" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/account"
+                    className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {t('account')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cart" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/cart"
+                    className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {t('cart')}
                   </Link>
                 </li>
@@ -76,7 +91,9 @@ export async function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[var(--color-text-tertiary)]">
-          <p>&copy; {new Date().getFullYear()} {tMeta('siteName')}. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} {tMeta('siteName')}. All rights reserved.
+          </p>
           <p>Premium Large Dog Apparel</p>
         </div>
       </div>

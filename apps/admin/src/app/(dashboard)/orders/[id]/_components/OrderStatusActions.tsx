@@ -63,7 +63,8 @@ export function OrderStatusActions({ orderId, currentStatus }: OrderStatusAction
           onClick={() => handleChange(next)}
           disabled={isPending}
           className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors disabled:opacity-50 ${
-            NEXT_STATUS_STYLE[next] ?? 'border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-gray-50'
+            NEXT_STATUS_STYLE[next] ??
+            'border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-gray-50'
           }`}
         >
           {ORDER_STATUS_LABEL[next]}으로 변경

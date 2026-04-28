@@ -53,7 +53,8 @@ export async function getCartWithItems(): Promise<CartDisplay | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: rawItems } = await (supabase as any)
     .from('cart_items')
-    .select(`
+    .select(
+      `
       id,
       quantity,
       product_option_id,
@@ -82,7 +83,8 @@ export async function getCartWithItems(): Promise<CartDisplay | null> {
           thumbnail_url
         )
       )
-    `)
+    `
+    )
     .eq('cart_id', cartRow.id);
 
   if (!rawItems) return { id: cartRow.id, currency: cartRow.currency, items: [] };

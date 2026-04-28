@@ -14,9 +14,14 @@ interface ReviewWriteFormProps {
 }
 
 const SIZE_FEEDBACK_OPTIONS = ['SMALL', 'PERFECT', 'LARGE'] as const;
-type SizeFeedback = typeof SIZE_FEEDBACK_OPTIONS[number];
+type SizeFeedback = (typeof SIZE_FEEDBACK_OPTIONS)[number];
 
-export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: ReviewWriteFormProps) {
+export function ReviewWriteForm({
+  open,
+  onClose,
+  productId,
+  isAuthenticated,
+}: ReviewWriteFormProps) {
   const t = useTranslations('review');
   const [isPending, startTransition] = useTransition();
   const [rating, setRating] = useState(0);
@@ -68,12 +73,7 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      title={t('write')}
-      size="md"
-    >
+    <Modal open={open} onClose={handleClose} title={t('write')} size="md">
       {!isAuthenticated ? (
         <div className="text-center py-8">
           <p className="text-[var(--color-text-secondary)] mb-4">{t('loginRequired')}</p>
@@ -87,7 +87,9 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
         </div>
       ) : submitted ? (
         <div className="text-center py-8">
-          <p className="text-2xl mb-3" aria-hidden="true">✦</p>
+          <p className="text-2xl mb-3" aria-hidden="true">
+            ✦
+          </p>
           <p className="font-medium text-[var(--color-text-primary)] mb-1">{t('submitSuccess')}</p>
           <button
             type="button"
@@ -104,11 +106,7 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
             <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
               {t('rating')} <span className="text-red-500">*</span>
             </label>
-            <div
-              className="flex gap-1"
-              role="radiogroup"
-              aria-label={t('rating')}
-            >
+            <div className="flex gap-1" role="radiogroup" aria-label={t('rating')}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -127,7 +125,10 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
 
           {/* Content */}
           <div>
-            <label htmlFor="review-content" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
+            <label
+              htmlFor="review-content"
+              className="block text-sm font-medium text-[var(--color-text-primary)] mb-2"
+            >
               {t('content')} <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -152,7 +153,10 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
 
           {/* Purchased size */}
           <div>
-            <label htmlFor="review-size" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
+            <label
+              htmlFor="review-size"
+              className="block text-sm font-medium text-[var(--color-text-primary)] mb-2"
+            >
               {t('purchasedSize')} <span className="text-red-500">*</span>
             </label>
             <input
@@ -206,7 +210,10 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
           {/* Dog info (optional) */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="review-breed" className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">
+              <label
+                htmlFor="review-breed"
+                className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
+              >
                 {t('dogBreed')}
               </label>
               <input
@@ -225,7 +232,10 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
               />
             </div>
             <div>
-              <label htmlFor="review-weight" className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">
+              <label
+                htmlFor="review-weight"
+                className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
+              >
                 {t('dogWeight')}
               </label>
               <div className="relative">
@@ -253,7 +263,9 @@ export function ReviewWriteForm({ open, onClose, productId, isAuthenticated }: R
 
           {/* Error */}
           {error && (
-            <p className="text-sm text-red-600" role="alert">{error}</p>
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
           )}
 
           {/* Submit */}

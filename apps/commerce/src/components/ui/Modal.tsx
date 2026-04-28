@@ -44,7 +44,9 @@ export function Modal({
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   // ESC to close
@@ -126,10 +128,7 @@ export function Modal({
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
-            <h2
-              id={titleId}
-              className="text-base font-semibold text-[var(--color-text-primary)]"
-            >
+            <h2 id={titleId} className="text-base font-semibold text-[var(--color-text-primary)]">
               {title}
             </h2>
             <button
@@ -144,9 +143,7 @@ export function Modal({
         )}
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 overscroll-contain">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-5 overscroll-contain">{children}</div>
 
         {/* Footer */}
         {footer && (
@@ -197,23 +194,34 @@ export function ConfirmDialog({
           <Button
             variant={danger ? 'danger' : 'primary'}
             size="sm"
-            onClick={() => { onConfirm(); onClose(); }}
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
           >
             {confirmLabel}
           </Button>
         </>
       }
     >
-      {message && (
-        <p className="text-sm text-[var(--color-text-secondary)]">{message}</p>
-      )}
+      {message && <p className="text-sm text-[var(--color-text-secondary)]">{message}</p>}
     </Modal>
   );
 }
 
 function CloseIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>

@@ -26,9 +26,9 @@ export function AnalyticsProvider({ children, locale }: Props) {
     analytics.init({
       locale,
       currency,
-      userId: null,    // updated after auth
+      userId: null, // updated after auth
       userType: 'guest',
-      country: null,   // updated after geo-detection
+      country: null, // updated after geo-detection
     });
   }, [locale]);
 

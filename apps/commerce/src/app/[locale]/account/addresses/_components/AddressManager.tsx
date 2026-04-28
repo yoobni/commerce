@@ -112,9 +112,7 @@ export function AddressManager({ addresses: initial }: AddressManagerProps) {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-          {t('title')}
-        </h2>
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{t('title')}</h2>
         <Button variant="primary" size="sm" onClick={openAdd}>
           + {t('add')}
         </Button>
@@ -246,9 +244,7 @@ export function AddressManager({ addresses: initial }: AddressManagerProps) {
                 checked={form.is_default}
                 onChange={(e) => setForm((p) => ({ ...p, is_default: e.target.checked }))}
               />
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                {t('setDefault')}
-              </span>
+              <span className="text-sm text-[var(--color-text-secondary)]">{t('setDefault')}</span>
             </label>
 
             <div className="flex gap-3 pt-2">

@@ -46,15 +46,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
 
   const [focused, setFocused] = useState(false);
-  const [internalValue, setInternalValue] = useState<string>(
-    (defaultValue as string) ?? ''
-  );
+  const [internalValue, setInternalValue] = useState<string>((defaultValue as string) ?? '');
 
   // Determine whether the floating label should be "raised"
-  const hasValue =
-    value !== undefined
-      ? String(value).length > 0
-      : internalValue.length > 0;
+  const hasValue = value !== undefined ? String(value).length > 0 : internalValue.length > 0;
   const isFloated = floatingLabel && (focused || hasValue);
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
@@ -77,10 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     return (
       <div className="flex flex-col gap-1.5 w-full">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="text-sm font-medium text-[var(--mz-ink)]"
-          >
+          <label htmlFor={inputId} className="text-sm font-medium text-[var(--mz-ink)]">
             {label}
             {required && (
               <span className="text-[var(--color-error)] ml-1" aria-hidden="true">
@@ -124,9 +116,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           />
 
           {trailingAction && (
-            <span className="absolute right-3 text-[var(--mz-ink-mute)]">
-              {trailingAction}
-            </span>
+            <span className="absolute right-3 text-[var(--mz-ink-mute)]">{trailingAction}</span>
           )}
         </div>
 
@@ -160,12 +150,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
                     'px-1.5 py-0',
                     'text-[10px] font-semibold tracking-[0.14em] uppercase',
                     'bg-[var(--mz-surface)]',
-                    error ? 'text-[var(--color-error)]' : 'text-[var(--mz-ink)]',
+                    error ? 'text-[var(--color-error)]' : 'text-[var(--mz-ink)]'
                   )
                 : cn(
                     'top-1/2 -translate-y-1/2 left-4',
                     'text-[14px] font-normal',
-                    'text-[var(--mz-ink-mute)]',
+                    'text-[var(--mz-ink-mute)]'
                   )
             )}
           >
@@ -212,9 +202,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         />
 
         {trailingAction && (
-          <span className="absolute right-3 text-[var(--mz-ink-mute)]">
-            {trailingAction}
-          </span>
+          <span className="absolute right-3 text-[var(--mz-ink-mute)]">{trailingAction}</span>
         )}
       </div>
 
@@ -257,7 +245,17 @@ export function PasswordInput(props: Omit<InputProps, 'type' | 'trailingAction'>
 
 function EyeIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -266,7 +264,17 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
       <line x1="1" y1="1" x2="23" y2="23" />

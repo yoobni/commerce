@@ -89,21 +89,47 @@ export default async function MembersPage({ searchParams }: PageProps) {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-[var(--color-border)]">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">회원</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">가입경로</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">국가</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">상태</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">마지막 로그인</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">가입일</th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                회원
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                가입경로
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                국가
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                상태
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                마지막 로그인
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                가입일
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {result.data.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-16 text-center text-[var(--color-text-tertiary)]">
+                <td
+                  colSpan={6}
+                  className="px-4 py-16 text-center text-[var(--color-text-tertiary)]"
+                >
                   <div className="flex flex-col items-center gap-2">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 text-[var(--color-border)]" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-10 h-10 text-[var(--color-border)]"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
                     </svg>
                     <span>회원이 없습니다.</span>
                   </div>
@@ -117,7 +143,9 @@ export default async function MembersPage({ searchParams }: PageProps) {
                       <span className="font-medium text-[var(--color-text-primary)] group-hover:text-blue-600 transition-colors">
                         {member.name}
                       </span>
-                      <span className="text-xs text-[var(--color-text-tertiary)]">{member.email}</span>
+                      <span className="text-xs text-[var(--color-text-tertiary)]">
+                        {member.email}
+                      </span>
                     </Link>
                   </td>
                   <td className="px-4 py-3">
@@ -125,18 +153,18 @@ export default async function MembersPage({ searchParams }: PageProps) {
                       {AUTH_PROVIDER_LABEL[member.provider]}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {member.country}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{member.country}</td>
                   <td className="px-4 py-3">
                     <Badge className={MEMBER_STATUS_BADGE[member.status]}>
                       {MEMBER_STATUS_LABEL[member.status]}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {member.last_login_at
-                      ? new Date(member.last_login_at).toLocaleDateString('ko-KR')
-                      : <span className="text-[var(--color-text-tertiary)]">—</span>}
+                    {member.last_login_at ? (
+                      new Date(member.last_login_at).toLocaleDateString('ko-KR')
+                    ) : (
+                      <span className="text-[var(--color-text-tertiary)]">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                     {new Date(member.created_at).toLocaleDateString('ko-KR')}

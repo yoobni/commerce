@@ -15,13 +15,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({
-  icon,
-  title,
-  description,
-  action,
-  className,
-}: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -36,23 +30,12 @@ export function EmptyState({
       )}
 
       <div className="flex flex-col gap-2 max-w-xs">
-        <h3 className="text-base font-semibold text-[var(--color-text-primary)]">
-          {title}
-        </h3>
-        {description && (
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            {description}
-          </p>
-        )}
+        <h3 className="text-base font-semibold text-[var(--color-text-primary)]">{title}</h3>
+        {description && <p className="text-sm text-[var(--color-text-secondary)]">{description}</p>}
       </div>
 
       {action && (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={action.onClick}
-          className="mt-2"
-        >
+        <Button variant="secondary" size="sm" onClick={action.onClick} className="mt-2">
           {action.label}
         </Button>
       )}
@@ -74,15 +57,65 @@ function DogSilhouetteIcon() {
       <ellipse cx="32" cy="38" rx="18" ry="14" stroke="currentColor" strokeWidth="2" fill="none" />
       <circle cx="32" cy="18" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
       {/* Ears */}
-      <path d="M25 12 Q22 6 26 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
-      <path d="M39 12 Q42 6 38 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path
+        d="M25 12 Q22 6 26 10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M39 12 Q42 6 38 10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
       {/* Legs */}
-      <line x1="22" y1="50" x2="20" y2="58" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="28" y1="51" x2="27" y2="59" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="36" y1="51" x2="37" y2="59" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="42" y1="50" x2="44" y2="58" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line
+        x1="22"
+        y1="50"
+        x2="20"
+        y2="58"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="28"
+        y1="51"
+        x2="27"
+        y2="59"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="36"
+        y1="51"
+        x2="37"
+        y2="59"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="42"
+        y1="50"
+        x2="44"
+        y2="58"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
       {/* Tail */}
-      <path d="M50 36 Q56 30 52 26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path
+        d="M50 36 Q56 30 52 26"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   );
 }

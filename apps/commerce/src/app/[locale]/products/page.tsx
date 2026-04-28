@@ -55,7 +55,9 @@ export default async function ProductsPage({ params, searchParams }: Props) {
 
   const sp = await searchParams;
 
-  const currentSort: SortOption = (['newest', 'price_asc', 'price_desc', 'popular'] as SortOption[]).includes(sp.sort as SortOption)
+  const currentSort: SortOption = (
+    ['newest', 'price_asc', 'price_desc', 'popular'] as SortOption[]
+  ).includes(sp.sort as SortOption)
     ? (sp.sort as SortOption)
     : 'newest';
   const currentCategory = sp.category ?? '';
@@ -69,7 +71,9 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'plp' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const [categories, availableColors, result] = await Promise.all([
     listCategories(true),
@@ -88,7 +92,13 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   ]);
 
   const totalPages = Math.ceil(result.total / PER_PAGE);
-  const hasActiveFilters = !!(currentCategory || currentSizes.length > 0 || currentColors.length > 0 || currentMinPrice || currentMaxPrice);
+  const hasActiveFilters = !!(
+    currentCategory ||
+    currentSizes.length > 0 ||
+    currentColors.length > 0 ||
+    currentMinPrice ||
+    currentMaxPrice
+  );
 
   function buildUrl(overrides: Record<string, string | undefined>) {
     const merged: Record<string, string | undefined> = {
@@ -102,14 +112,15 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       ...overrides,
     };
     const p = new URLSearchParams();
-    Object.entries(merged).forEach(([k, v]) => { if (v) p.set(k, v); });
+    Object.entries(merged).forEach(([k, v]) => {
+      if (v) p.set(k, v);
+    });
     const qs = p.toString();
     return `/products${qs ? `?${qs}` : ''}`;
   }
 
   return (
     <div className="bg-[var(--mz-bg)] min-h-screen">
-
       {/* ── Mobile: sticky horizontal Chip filter strip ─────────────────── */}
       {/* Direction B spec: "Sticky filter strip: Fit chip active → sort/color/price chips" */}
       <div className="lg:hidden sticky top-14 z-20 bg-[var(--mz-surface)] border-b border-[var(--mz-line)]">
@@ -128,16 +139,18 @@ export default async function ProductsPage({ params, searchParams }: Props) {
           </Link>
 
           {/* Category chips */}
-          {categories.filter((c) => !c.parent_id).map((cat) => (
-            <Link
-              key={cat.id}
-              href={buildUrl({ category: cat.slug })}
-              className={chipClass(currentCategory === cat.slug)}
-              aria-current={currentCategory === cat.slug ? 'true' : undefined}
-            >
-              {getCategoryName(cat, locale as Locale)}
-            </Link>
-          ))}
+          {categories
+            .filter((c) => !c.parent_id)
+            .map((cat) => (
+              <Link
+                key={cat.id}
+                href={buildUrl({ category: cat.slug })}
+                className={chipClass(currentCategory === cat.slug)}
+                aria-current={currentCategory === cat.slug ? 'true' : undefined}
+              >
+                {getCategoryName(cat, locale as Locale)}
+              </Link>
+            ))}
 
           {/* Size chips */}
           {SIZE_OPTIONS.map((size) => {
@@ -174,9 +187,12 @@ export default async function ProductsPage({ params, searchParams }: Props) {
         <div className="mb-6">
           <h1 className="font-serif text-[26px] md:text-[32px] font-[500] leading-[1.15] tracking-[-0.02em] text-[var(--mz-ink)]">
             {currentCategory
-              ? (categories.find((c) => c.slug === currentCategory)
-                  ? getCategoryName(categories.find((c) => c.slug === currentCategory)!, locale as Locale)
-                  : t('title'))
+              ? categories.find((c) => c.slug === currentCategory)
+                ? getCategoryName(
+                    categories.find((c) => c.slug === currentCategory)!,
+                    locale as Locale
+                  )
+                : t('title')
               : t('title')}
           </h1>
           {result.total > 0 && (
@@ -191,9 +207,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
           <aside className="hidden lg:block w-52 shrink-0 space-y-7">
             {/* Categories */}
             <div>
-              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
-                Category
-              </h3>
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">Category</h3>
               <ul className="space-y-0.5">
                 <li>
                   <Link
@@ -203,24 +217,24 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     {t('all')}
                   </Link>
                 </li>
-                {categories.filter((c) => !c.parent_id).map((cat) => (
-                  <li key={cat.id}>
-                    <Link
-                      href={buildUrl({ category: cat.slug, page: undefined })}
-                      className={sidebarLinkClass(currentCategory === cat.slug)}
-                    >
-                      {getCategoryName(cat, locale as Locale)}
-                    </Link>
-                  </li>
-                ))}
+                {categories
+                  .filter((c) => !c.parent_id)
+                  .map((cat) => (
+                    <li key={cat.id}>
+                      <Link
+                        href={buildUrl({ category: cat.slug, page: undefined })}
+                        className={sidebarLinkClass(currentCategory === cat.slug)}
+                      >
+                        {getCategoryName(cat, locale as Locale)}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
 
             {/* Size filter */}
             <div>
-              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
-                {t('size')}
-              </h3>
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">{t('size')}</h3>
               <div className="flex flex-wrap gap-1.5">
                 {SIZE_OPTIONS.map((size) => {
                   const active = currentSizes.includes(size);
@@ -248,9 +262,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             {/* Color filter */}
             {availableColors.length > 0 && (
               <div>
-                <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
-                  {t('color')}
-                </h3>
+                <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">{t('color')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {availableColors.map(({ name, hex }) => {
                     const active = currentColors.includes(name);
@@ -260,12 +272,17 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     return (
                       <Link
                         key={name}
-                        href={buildUrl({ color: newColors.join(',') || undefined, page: undefined })}
+                        href={buildUrl({
+                          color: newColors.join(',') || undefined,
+                          page: undefined,
+                        })}
                         aria-label={name}
                         aria-pressed={active}
                         className={cn(
                           'w-7 h-7 rounded-full border-2 transition-all duration-150',
-                          active ? 'border-[var(--mz-ink)] scale-110' : 'border-[var(--mz-line)] hover:scale-105 hover:border-[var(--mz-ink-mute)]'
+                          active
+                            ? 'border-[var(--mz-ink)] scale-110'
+                            : 'border-[var(--mz-line)] hover:scale-105 hover:border-[var(--mz-ink-mute)]'
                         )}
                         style={{ backgroundColor: hex }}
                         title={name}
@@ -296,7 +313,10 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               </span>
 
               <div className="flex items-center gap-2 ml-auto">
-                <label htmlFor="sort-select" className="text-[12px] text-[var(--mz-ink-mute)] shrink-0">
+                <label
+                  htmlFor="sort-select"
+                  className="text-[12px] text-[var(--mz-ink-mute)] shrink-0"
+                >
                   {t('sort') ?? 'Sort'}:
                 </label>
                 <div className="relative">
@@ -324,10 +344,15 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             {/* Product grid */}
             {result.data.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-12 h-12 rounded-full bg-[var(--mz-bg-deep)] flex items-center justify-center mb-4" aria-hidden="true">
+                <div
+                  className="w-12 h-12 rounded-full bg-[var(--mz-bg-deep)] flex items-center justify-center mb-4"
+                  aria-hidden="true"
+                >
                   <PawIcon />
                 </div>
-                <p className="text-[var(--mz-ink)] font-medium text-[14px] mb-1">{t('noResults')}</p>
+                <p className="text-[var(--mz-ink)] font-medium text-[14px] mb-1">
+                  {t('noResults')}
+                </p>
                 <p className="text-[12px] text-[var(--mz-ink-mute)] mb-6">{t('noResultsHint')}</p>
                 <Link
                   href="/products"
@@ -409,7 +434,17 @@ function sidebarLinkClass(active: boolean): string {
 
 function ChevronIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="6 9 12 15 18 9" />
     </svg>
   );
@@ -417,7 +452,18 @@ function ChevronIcon() {
 
 function PawIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--mz-ink-mute)]" aria-hidden="true">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-[var(--mz-ink-mute)]"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="16" r="5" />
       <circle cx="6" cy="9" r="2.5" />
       <circle cx="12" cy="7" r="2.5" />

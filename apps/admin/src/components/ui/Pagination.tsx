@@ -25,32 +25,38 @@ export function Pagination({ page, total, perPage, buildUrl }: PaginationProps) 
   const hasNext = page < totalPages;
 
   return (
-    <nav
-      className="flex items-center justify-between mt-4 text-sm"
-      aria-label="페이지 내비게이션"
-    >
+    <nav className="flex items-center justify-between mt-4 text-sm" aria-label="페이지 내비게이션">
       <span className="text-[var(--color-text-secondary)]">
-        총 <span className="font-medium text-[var(--color-text-primary)]">{total.toLocaleString()}</span>건
-        &nbsp;·&nbsp;
+        총{' '}
+        <span className="font-medium text-[var(--color-text-primary)]">
+          {total.toLocaleString()}
+        </span>
+        건 &nbsp;·&nbsp;
         {page} / {totalPages} 페이지
       </span>
 
       <div className="flex items-center gap-1">
-        <PaginationLink
-          href={hasPrev ? buildUrl(page - 1) : undefined}
-          aria-label="이전 페이지"
-        >
+        <PaginationLink href={hasPrev ? buildUrl(page - 1) : undefined} aria-label="이전 페이지">
           <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4" aria-hidden="true">
-            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M10 12L6 8l4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </PaginationLink>
 
-        <PaginationLink
-          href={hasNext ? buildUrl(page + 1) : undefined}
-          aria-label="다음 페이지"
-        >
+        <PaginationLink href={hasNext ? buildUrl(page + 1) : undefined} aria-label="다음 페이지">
           <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4" aria-hidden="true">
-            <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M6 4l4 4-4 4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </PaginationLink>
       </div>

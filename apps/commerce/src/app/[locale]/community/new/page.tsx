@@ -24,7 +24,9 @@ export default async function NewPostPage({ params }: Props) {
     createClient(),
     getTranslations({ locale, namespace: 'community' }),
   ]);
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect(`/${locale}/auth/login?next=/${locale}/community/new`);
@@ -42,9 +44,7 @@ export default async function NewPostPage({ params }: Props) {
           {t('title')}
         </a>
 
-        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mb-8">
-          {t('newTitle')}
-        </h1>
+        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mb-8">{t('newTitle')}</h1>
 
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
           <PostForm locale={locale} />
@@ -56,8 +56,18 @@ export default async function NewPostPage({ params }: Props) {
 
 function ChevronLeftIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="15 18 9 12 15 6"/>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="15 18 9 12 15 6" />
     </svg>
   );
 }

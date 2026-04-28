@@ -4,7 +4,12 @@ import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getPost, listComments, checkUserLikedPost, getUserLikedCommentIds } from '@/lib/community/queries';
+import {
+  getPost,
+  listComments,
+  checkUserLikedPost,
+  getUserLikedCommentIds,
+} from '@/lib/community/queries';
 import { PostDetailContent } from './_components/PostDetailContent';
 import { LikeButton } from './_components/LikeButton';
 import { CommentSection } from './_components/CommentSection';
@@ -25,12 +30,11 @@ export default async function PostDetailPage({ params }: Props) {
 
   const t = await getTranslations({ locale, namespace: 'community' });
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const [post, comments] = await Promise.all([
-    getPost(id),
-    listComments(id),
-  ]);
+  const [post, comments] = await Promise.all([getPost(id), listComments(id)]);
 
   if (!post) notFound();
 
@@ -54,11 +58,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Post */}
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)] mb-6">
-          <PostDetailContent
-            post={post}
-            isOwner={isOwner}
-            locale={locale}
-          />
+          <PostDetailContent post={post} isOwner={isOwner} locale={locale} />
 
           {/* Like button */}
           <div className="flex justify-center mt-6 pt-6 border-t border-[var(--color-border-subtle)]">
@@ -90,8 +90,18 @@ export default async function PostDetailPage({ params }: Props) {
 
 function ChevronLeftIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="15 18 9 12 15 6"/>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="15 18 9 12 15 6" />
     </svg>
   );
 }

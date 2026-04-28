@@ -65,9 +65,5 @@ export interface SectionProps {
 }
 
 export function Section({ children, className, as: Tag = 'section' }: SectionProps) {
-  return (
-    <Tag className={cn('py-10 md:py-14 lg:py-20', className)}>
-      {children}
-    </Tag>
-  );
+  return <Tag className={cn('py-10 md:py-14 lg:py-20', className)}>{children}</Tag>;
 }

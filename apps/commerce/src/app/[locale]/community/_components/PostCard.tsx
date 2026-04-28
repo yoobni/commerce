@@ -130,9 +130,18 @@ export function PostCard({ post, locale }: PostCardProps) {
 
 function DogPlaceholderIcon() {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--color-neutral-300)]" aria-hidden="true">
-      <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2 .336-3.5 2.093-3.5 4 0 .748.212 1.446.586 2.032A4.987 4.987 0 0 0 3 11v2a8 8 0 1 0 16 0v-2c0-1.077-.33-2.073-.893-2.893"/>
-      <path d="M14 5.172C14 3.782 15.577 2.679 17.5 3c2 .336 3.5 2.093 3.5 4 0 .748-.212 1.446-.586 2.032"/>
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className="text-[var(--color-neutral-300)]"
+      aria-hidden="true"
+    >
+      <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2 .336-3.5 2.093-3.5 4 0 .748.212 1.446.586 2.032A4.987 4.987 0 0 0 3 11v2a8 8 0 1 0 16 0v-2c0-1.077-.33-2.073-.893-2.893" />
+      <path d="M14 5.172C14 3.782 15.577 2.679 17.5 3c2 .336 3.5 2.093 3.5 4 0 .748-.212 1.446-.586 2.032" />
     </svg>
   );
 }
@@ -140,23 +149,41 @@ function DogPlaceholderIcon() {
 function HeartIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
 }
 
 function CommentIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
 
 function MultiImageIcon() {
   return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
     </svg>
   );
 }

@@ -50,8 +50,8 @@ export default async function CommunityPostDetailPage({ params }: PageProps) {
   if (!post) notFound();
 
   // Fetch author status for sanction UI — user field has limited fields; fallback to ACTIVE
-  const authorStatus: UserStatus = (post.user as (typeof post.user & { status?: UserStatus }) | null)
-    ?.status ?? 'ACTIVE';
+  const authorStatus: UserStatus =
+    (post.user as (typeof post.user & { status?: UserStatus }) | null)?.status ?? 'ACTIVE';
 
   return (
     <div className="max-w-5xl">

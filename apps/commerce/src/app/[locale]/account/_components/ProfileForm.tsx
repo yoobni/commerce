@@ -36,12 +36,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-md">
-      <Input
-        label={t('name')}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+      <Input label={t('name')} value={name} onChange={(e) => setName(e.target.value)} required />
       <div>
         <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
           {t('email')}
@@ -65,28 +60,33 @@ export function ProfileForm({ user }: ProfileFormProps) {
             checked={marketing}
             onChange={(e) => setMarketing(e.target.checked)}
           />
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${marketing ? 'bg-[var(--color-brand-primary)] border-[var(--color-brand-primary)]' : 'border-[var(--color-border)] group-hover:border-[var(--color-brand-primary)]/50'}`}>
+          <div
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${marketing ? 'bg-[var(--color-brand-primary)] border-[var(--color-brand-primary)]' : 'border-[var(--color-border)] group-hover:border-[var(--color-brand-primary)]/50'}`}
+          >
             {marketing && (
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
           </div>
         </div>
-        <span className="text-sm text-[var(--color-text-secondary)]">
-          {t('marketingConsent')}
-        </span>
+        <span className="text-sm text-[var(--color-text-secondary)]">{t('marketingConsent')}</span>
       </label>
 
       <div className="flex items-center gap-3 pt-2">
         <Button type="submit" variant="primary" loading={isPending}>
           {t('save')}
         </Button>
-        {saved && (
-          <p className="text-sm text-green-600 font-medium">
-            {t('updated')}
-          </p>
-        )}
+        {saved && <p className="text-sm text-green-600 font-medium">{t('updated')}</p>}
       </div>
     </form>
   );

@@ -51,7 +51,9 @@ export function SizeSelector({ options, value, onChange, className }: SizeSelect
               `Size ${option.label}`,
               isSoldOut ? 'sold out' : isLow ? `${option.stock} left` : '',
               option.isFit ? 'recommended fit' : '',
-            ].filter(Boolean).join(', ')}
+            ]
+              .filter(Boolean)
+              .join(', ')}
             className={cn(
               'relative flex flex-col items-center justify-center py-2.5 min-h-[52px]',
               'rounded-[var(--radius-md)] border-[1.5px]',
@@ -61,7 +63,7 @@ export function SizeSelector({ options, value, onChange, className }: SizeSelect
                 : isSoldOut
                   ? 'bg-[var(--mz-surface)] border-[var(--mz-line)] text-[var(--mz-ink-mute)] opacity-35 cursor-not-allowed'
                   : 'bg-[var(--mz-surface)] border-[var(--mz-line-strong)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mz-ink)]',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mz-ink)]'
             )}
           >
             {/* Fit marker — ★ accent dot in top-right corner */}
@@ -72,7 +74,7 @@ export function SizeSelector({ options, value, onChange, className }: SizeSelect
                   'absolute -top-1.5 -right-1.5',
                   'w-4 h-4 rounded-full',
                   'flex items-center justify-center',
-                  'bg-[var(--mz-accent)] text-white text-[8px] font-bold',
+                  'bg-[var(--mz-accent)] text-white text-[8px] font-bold'
                 )}
               >
                 ★

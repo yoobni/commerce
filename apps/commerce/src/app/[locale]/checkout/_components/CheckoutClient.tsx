@@ -28,10 +28,7 @@ const DELIVERY_NOTES = [
   { ko: '부재 시 연락주세요', en: 'Call if absent' },
 ];
 
-function getProductName(
-  item: CartDisplay['items'][number],
-  locale: Locale
-): string {
+function getProductName(item: CartDisplay['items'][number], locale: Locale): string {
   if (locale === 'ko') return item.product_name_ko;
   if (locale === 'ja') return item.product_name_ja;
   if (locale === 'de') return item.product_name_de;
@@ -40,15 +37,21 @@ function getProductName(
 
 function getItemPrice(item: CartDisplay['items'][number], locale: Locale): number {
   const base =
-    locale === 'ko' ? item.product_base_price_krw
-    : locale === 'ja' ? item.product_base_price_jpy
-    : locale === 'de' ? item.product_base_price_eur
-    : item.product_base_price_usd;
+    locale === 'ko'
+      ? item.product_base_price_krw
+      : locale === 'ja'
+        ? item.product_base_price_jpy
+        : locale === 'de'
+          ? item.product_base_price_eur
+          : item.product_base_price_usd;
   const extra =
-    locale === 'ko' ? item.additional_price_krw
-    : locale === 'ja' ? item.additional_price_jpy
-    : locale === 'de' ? item.additional_price_eur
-    : item.additional_price_usd;
+    locale === 'ko'
+      ? item.additional_price_krw
+      : locale === 'ja'
+        ? item.additional_price_jpy
+        : locale === 'de'
+          ? item.additional_price_eur
+          : item.additional_price_usd;
   return (base + extra) * item.quantity;
 }
 
@@ -80,7 +83,16 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   const [couponApplied, setCouponApplied] = useState(false);
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
-  const shippingFee = subtotal >= (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50) ? 0 : (locale === 'ko' ? 3000 : locale === 'en' ? 10 : locale === 'ja' ? 1000 : 8);
+  const shippingFee =
+    subtotal >= (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50)
+      ? 0
+      : locale === 'ko'
+        ? 3000
+        : locale === 'en'
+          ? 10
+          : locale === 'ja'
+            ? 1000
+            : 8;
   const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shippingFee - couponDiscount;
 
@@ -194,8 +206,8 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                         active
                           ? 'bg-[var(--color-brand-primary)] text-white'
                           : done
-                          ? 'bg-[var(--color-brand-primary)]/20 text-[var(--color-brand-primary)]'
-                          : 'bg-[var(--color-neutral-200)] text-[var(--color-text-tertiary)]'
+                            ? 'bg-[var(--color-brand-primary)]/20 text-[var(--color-brand-primary)]'
+                            : 'bg-[var(--color-neutral-200)] text-[var(--color-text-tertiary)]'
                       )}
                       aria-current={active ? 'step' : undefined}
                     >
@@ -204,14 +216,19 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                     <span
                       className={cn(
                         'text-sm font-medium',
-                        active ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-tertiary)]'
+                        active
+                          ? 'text-[var(--color-text-primary)]'
+                          : 'text-[var(--color-text-tertiary)]'
                       )}
                     >
                       {stepLabels[s]}
                     </span>
                   </div>
                   {i < STEP_ORDER.length - 1 && (
-                    <div className="w-8 md:w-16 h-px bg-[var(--color-border)] mx-3" aria-hidden="true" />
+                    <div
+                      className="w-8 md:w-16 h-px bg-[var(--color-border)] mx-3"
+                      aria-hidden="true"
+                    />
                   )}
                 </li>
               );
@@ -222,7 +239,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
         {/* Step: Shipping */}
         {step === 'shipping' && (
           <section aria-labelledby="shipping-heading" className="space-y-5">
-            <h2 id="shipping-heading" className="text-lg font-semibold text-[var(--color-text-primary)]">
+            <h2
+              id="shipping-heading"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
+            >
               {t('shipping.title')}
             </h2>
 
@@ -359,7 +379,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
         {/* Step: Payment */}
         {step === 'payment' && (
           <section aria-labelledby="payment-heading" className="space-y-6">
-            <h2 id="payment-heading" className="text-lg font-semibold text-[var(--color-text-primary)]">
+            <h2
+              id="payment-heading"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
+            >
               {t('payment.title')}
             </h2>
 
@@ -407,7 +430,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => { setCouponApplied(false); setCouponCode(''); }}
+                    onClick={() => {
+                      setCouponApplied(false);
+                      setCouponCode('');
+                    }}
                   >
                     {t('coupon.remove')}
                   </Button>
@@ -443,7 +469,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
         {/* Step: Confirm */}
         {step === 'confirm' && (
           <section aria-labelledby="confirm-heading" className="space-y-6">
-            <h2 id="confirm-heading" className="text-lg font-semibold text-[var(--color-text-primary)]">
+            <h2
+              id="confirm-heading"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
+            >
               {t('steps.confirm')}
             </h2>
 
@@ -495,7 +524,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
       </div>
 
       {/* Right: Order summary sidebar */}
-      <aside aria-label={t('summary.title')} className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+      <aside
+        aria-label={t('summary.title')}
+        className="space-y-4 lg:sticky lg:top-24 lg:self-start"
+      >
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
           <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
             {t('summary.title')}
@@ -535,17 +567,13 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           {/* Price breakdown */}
           <div className="space-y-2 border-t border-[var(--color-border)] pt-4">
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">
-                {t('summary.subtotal')}
-              </span>
+              <span className="text-[var(--color-text-secondary)]">{t('summary.subtotal')}</span>
               <span className="text-[var(--color-text-primary)]">
                 {formatPrice(subtotal, locale)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">
-                {t('summary.shippingFee')}
-              </span>
+              <span className="text-[var(--color-text-secondary)]">{t('summary.shippingFee')}</span>
               <span className="text-[var(--color-text-primary)]">
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
               </span>
@@ -557,9 +585,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
               </div>
             )}
             <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
-              <span className="text-[var(--color-text-primary)]">
-                {t('summary.total')}
-              </span>
+              <span className="text-[var(--color-text-primary)]">{t('summary.total')}</span>
               <span className="text-[var(--color-brand-primary)]">
                 {formatPrice(total, locale)}
               </span>

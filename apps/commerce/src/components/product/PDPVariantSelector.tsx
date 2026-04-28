@@ -43,9 +43,7 @@ export function PDPVariantSelector({
   // Sizes available for the selected color
   const availableSizes = useMemo<Size[]>(() => {
     if (!selectedColor) return [];
-    const colorOptions = options.filter(
-      (o) => o.color === selectedColor && o.size
-    );
+    const colorOptions = options.filter((o) => o.color === selectedColor && o.size);
     const seen = new Set<string>();
     return colorOptions
       .filter((o) => {
@@ -67,9 +65,7 @@ export function PDPVariantSelector({
   }, [options]);
 
   function isOptionAvailable(color: string, sizeId: string): boolean {
-    return options.some(
-      (o) => o.color === color && o.size?.id === sizeId && o.stock > 0
-    );
+    return options.some((o) => o.color === color && o.size?.id === sizeId && o.stock > 0);
   }
 
   function getOption(color: string, sizeId: string): ProductOption | undefined {
@@ -94,13 +90,9 @@ export function PDPVariantSelector({
       {/* Color selector */}
       <div className="space-y-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">
-            {t('color')}
-          </span>
+          <span className="text-sm font-medium text-[var(--color-text-primary)]">{t('color')}</span>
           {selectedColor && (
-            <span className="text-sm text-[var(--color-text-secondary)]">
-              — {selectedColor}
-            </span>
+            <span className="text-sm text-[var(--color-text-secondary)]">— {selectedColor}</span>
           )}
         </div>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('selectColor')}>
@@ -128,9 +120,7 @@ export function PDPVariantSelector({
       {/* Size selector */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">
-            {t('size')}
-          </span>
+          <span className="text-sm font-medium text-[var(--color-text-primary)]">{t('size')}</span>
           <button
             type="button"
             onClick={() => setSizeGuideOpen(true)}
@@ -141,9 +131,7 @@ export function PDPVariantSelector({
         </div>
 
         {!selectedColor ? (
-          <p className="text-sm text-[var(--color-text-tertiary)]">
-            {t('selectColor')}
-          </p>
+          <p className="text-sm text-[var(--color-text-tertiary)]">{t('selectColor')}</p>
         ) : (
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('selectSize')}>
             {availableSizes.map((size) => {
@@ -165,8 +153,8 @@ export function PDPVariantSelector({
                     isSelected
                       ? 'bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]'
                       : available
-                      ? 'bg-white text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]'
-                      : 'bg-[var(--color-neutral-50)] text-[var(--color-text-tertiary)] border-[var(--color-border)] cursor-not-allowed'
+                        ? 'bg-white text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]'
+                        : 'bg-[var(--color-neutral-50)] text-[var(--color-text-tertiary)] border-[var(--color-border)] cursor-not-allowed'
                   )}
                 >
                   {/* Strikethrough for out of stock */}

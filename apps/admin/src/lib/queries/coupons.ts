@@ -51,9 +51,7 @@ export async function adminListCoupons(
   if (status !== 'ALL') query = query.eq('status', status);
   if (search) query = query.or(`code.ilike.%${search}%,name_ko.ilike.%${search}%`);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;

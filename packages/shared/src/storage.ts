@@ -6,16 +6,16 @@ export type StorageBucket = 'products' | 'reviews' | 'avatars' | 'posts';
 
 const FILE_SIZE_LIMITS: Record<StorageBucket, number> = {
   products: 10 * 1024 * 1024, // 10 MB
-  reviews:   5 * 1024 * 1024, //  5 MB
-  avatars:   2 * 1024 * 1024, //  2 MB
-  posts:     5 * 1024 * 1024, //  5 MB
+  reviews: 5 * 1024 * 1024, //  5 MB
+  avatars: 2 * 1024 * 1024, //  2 MB
+  posts: 5 * 1024 * 1024, //  5 MB
 };
 
 const ALLOWED_MIME_TYPES: Record<StorageBucket, readonly string[]> = {
   products: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
-  reviews:  ['image/jpeg', 'image/png', 'image/webp'],
-  avatars:  ['image/jpeg', 'image/png', 'image/webp'],
-  posts:    ['image/jpeg', 'image/png', 'image/webp'],
+  reviews: ['image/jpeg', 'image/png', 'image/webp'],
+  avatars: ['image/jpeg', 'image/png', 'image/webp'],
+  posts: ['image/jpeg', 'image/png', 'image/webp'],
 };
 
 // ─── Error ────────────────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ export type StorageErrorCode =
 export class StorageError extends Error {
   constructor(
     message: string,
-    public readonly code: StorageErrorCode,
+    public readonly code: StorageErrorCode
   ) {
     super(message);
     this.name = 'StorageError';
@@ -43,13 +43,13 @@ function validateFile(bucket: StorageBucket, file: File): void {
   if (file.size > limitBytes) {
     throw new StorageError(
       `File size ${file.size} exceeds ${limitBytes / 1024 / 1024}MB limit for "${bucket}" bucket`,
-      'FILE_TOO_LARGE',
+      'FILE_TOO_LARGE'
     );
   }
   if (!ALLOWED_MIME_TYPES[bucket].includes(file.type)) {
     throw new StorageError(
       `MIME type "${file.type}" is not allowed in "${bucket}" bucket. Allowed: ${ALLOWED_MIME_TYPES[bucket].join(', ')}`,
-      'INVALID_MIME_TYPE',
+      'INVALID_MIME_TYPE'
     );
   }
 }
@@ -66,7 +66,7 @@ export async function uploadProductImage(
   client: SupabaseClient,
   file: File,
   productId: string,
-  filename: string,
+  filename: string
 ): Promise<string> {
   validateFile('products', file);
   const path = `${productId}/${filename}`;
@@ -88,7 +88,7 @@ export async function uploadReviewImage(
   file: File,
   userId: string,
   reviewId: string,
-  filename: string,
+  filename: string
 ): Promise<string> {
   validateFile('reviews', file);
   const path = `${userId}/${reviewId}/${filename}`;
@@ -110,7 +110,7 @@ export async function uploadPostImage(
   file: File,
   userId: string,
   postId: string,
-  filename: string,
+  filename: string
 ): Promise<string> {
   validateFile('posts', file);
   const path = `${userId}/${postId}/${filename}`;
@@ -131,7 +131,7 @@ export async function uploadAvatar(
   client: SupabaseClient,
   file: File,
   userId: string,
-  filename: string,
+  filename: string
 ): Promise<string> {
   validateFile('avatars', file);
   const path = `${userId}/${filename}`;
@@ -150,7 +150,7 @@ export async function uploadAvatar(
 export async function deleteStorageObjects(
   client: SupabaseClient,
   bucket: StorageBucket,
-  paths: string[],
+  paths: string[]
 ): Promise<void> {
   if (paths.length === 0) return;
   const { error } = await client.storage.from(bucket).remove(paths);
@@ -164,7 +164,7 @@ export async function deleteStorageObjects(
 export function getStoragePublicUrl(
   client: SupabaseClient,
   bucket: StorageBucket,
-  path: string,
+  path: string
 ): string {
   const { data } = client.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;

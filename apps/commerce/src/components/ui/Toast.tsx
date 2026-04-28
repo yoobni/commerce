@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -47,18 +40,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const toast = useCallback(
-    (message: string, type: ToastType = 'info', duration?: number) => {
-      const id = Math.random().toString(36).slice(2);
-      const defaultDuration = type === 'error' ? 5000 : 3000;
-      setToasts((prev) => {
-        const next = [...prev, { id, type, message, duration: duration ?? defaultDuration }];
-        // Cap at MAX_TOASTS — remove oldest
-        return next.length > MAX_TOASTS ? next.slice(next.length - MAX_TOASTS) : next;
-      });
-    },
-    []
-  );
+  const toast = useCallback((message: string, type: ToastType = 'info', duration?: number) => {
+    const id = Math.random().toString(36).slice(2);
+    const defaultDuration = type === 'error' ? 5000 : 3000;
+    setToasts((prev) => {
+      const next = [...prev, { id, type, message, duration: duration ?? defaultDuration }];
+      // Cap at MAX_TOASTS — remove oldest
+      return next.length > MAX_TOASTS ? next.slice(next.length - MAX_TOASTS) : next;
+    });
+  }, []);
 
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>
@@ -107,13 +97,7 @@ const toastStyles: Record<ToastType, string> = {
   info: 'bg-[var(--color-neutral-800)] text-white',
 };
 
-function ToastMessage({
-  toast,
-  onDismiss,
-}: {
-  toast: ToastItem;
-  onDismiss: (id: string) => void;
-}) {
+function ToastMessage({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: string) => void }) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -144,7 +128,12 @@ function ToastMessage({
         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity mt-0.5"
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="M1 1l12 12M13 1L1 13"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </svg>
       </button>
     </div>
@@ -154,25 +143,65 @@ function ToastMessage({
 function ToastIcon({ type }: { type: ToastType }) {
   const icons: Record<ToastType, React.ReactNode> = {
     success: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
         <polyline points="20 6 9 17 4 12" />
       </svg>
     ),
     error: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
         <line x1="18" y1="6" x2="6" y2="18" />
         <line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     ),
     warning: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
         <line x1="12" y1="9" x2="12" y2="13" />
         <line x1="12" y1="17" x2="12.01" y2="17" />
       </svg>
     ),
     info: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="16" x2="12" y2="12" />
         <line x1="12" y1="8" x2="12.01" y2="8" />

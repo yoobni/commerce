@@ -34,18 +34,13 @@ export async function listProductReviews(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('reviews') as any)
-    .select(
-      `*, user:users(id, name, profile_image_url)`,
-      { count: 'exact' }
-    )
+    .select(`*, user:users(id, name, profile_image_url)`, { count: 'exact' })
     .eq('product_id', productId)
     .eq('status', 'ACTIVE');
 
   if (photoOnly) query = query.eq('is_photo_review', true);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;
@@ -81,7 +76,11 @@ export async function getReviewStats(productId: string): Promise<ReviewStats> {
       ratingBreakdown[star]++;
       ratingBreakdown.total++;
     }
-    if (r.size_feedback === 'SMALL' || r.size_feedback === 'PERFECT' || r.size_feedback === 'LARGE') {
+    if (
+      r.size_feedback === 'SMALL' ||
+      r.size_feedback === 'PERFECT' ||
+      r.size_feedback === 'LARGE'
+    ) {
       sizeFeedback[r.size_feedback]++;
     }
   }

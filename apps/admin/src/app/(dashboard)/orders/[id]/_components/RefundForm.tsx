@@ -39,7 +39,10 @@ export function RefundForm({ orderId, maxRefundable, currency }: RefundFormProps
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label htmlFor="refund-amount" className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+        <label
+          htmlFor="refund-amount"
+          className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1"
+        >
           환불 금액 ({currency})
         </label>
         <div className="flex gap-2">
@@ -65,9 +68,7 @@ export function RefundForm({ orderId, maxRefundable, currency }: RefundFormProps
           최대 환불 가능: {maxRefundable.toLocaleString()} {currency}
         </p>
       </div>
-      {error && (
-        <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
     </form>
   );
 }

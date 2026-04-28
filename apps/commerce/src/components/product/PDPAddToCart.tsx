@@ -42,9 +42,10 @@ export function PDPAddToCart({
 
   const currency = LOCALE_CURRENCY[locale];
   const isOutOfStock = selectedOption !== null && selectedOption.stock === 0;
-  const isLowStock = selectedOption !== null
-    && selectedOption.stock > 0
-    && selectedOption.stock <= selectedOption.low_stock_threshold;
+  const isLowStock =
+    selectedOption !== null &&
+    selectedOption.stock > 0 &&
+    selectedOption.stock <= selectedOption.low_stock_threshold;
 
   function handleAddToCart() {
     if (!selectedOption) return;
@@ -79,8 +80,8 @@ export function PDPAddToCart({
   const buttonLabel = isOutOfStock
     ? t('outOfStock')
     : justAdded
-    ? t('addedToCart')
-    : t('addToCart');
+      ? t('addedToCart')
+      : t('addToCart');
 
   return (
     <div className="space-y-3">
@@ -93,9 +94,7 @@ export function PDPAddToCart({
 
       {/* Select option hint */}
       {!selectedOption && (
-        <p className="text-xs text-[var(--color-text-tertiary)]">
-          {t('selectOption')}
-        </p>
+        <p className="text-xs text-[var(--color-text-tertiary)]">{t('selectOption')}</p>
       )}
 
       <Button
@@ -125,7 +124,17 @@ export function PDPAddToCart({
 
 function CheckIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );

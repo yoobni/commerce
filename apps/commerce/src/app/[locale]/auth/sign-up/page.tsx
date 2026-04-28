@@ -13,7 +13,15 @@ export default function SignUpPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading, signUp, signInWithGoogle, signInWithKakao, signInWithNaver, signInWithTwitter } = useAuth();
+  const {
+    user,
+    loading,
+    signUp,
+    signInWithGoogle,
+    signInWithKakao,
+    signInWithNaver,
+    signInWithTwitter,
+  } = useAuth();
 
   const next = searchParams.get('next') ?? `/${locale}`;
 
@@ -96,9 +104,7 @@ export default function SignUpPage() {
         <h1 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-1">
           {t('signUpTitle')}
         </h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-8">
-          {t('signUpSubtitle')}
-        </p>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-8">{t('signUpSubtitle')}</p>
 
         {error && (
           <div
@@ -274,10 +280,7 @@ function NaverIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <rect width="24" height="24" rx="4" fill="#03C75A" />
-      <path
-        d="M13.74 12.27L10.1 6H7v12h3.26v-6.27L14 18H17V6h-3.26z"
-        fill="#fff"
-      />
+      <path d="M13.74 12.27L10.1 6H7v12h3.26v-6.27L14 18H17V6h-3.26z" fill="#fff" />
     </svg>
   );
 }

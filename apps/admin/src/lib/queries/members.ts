@@ -2,12 +2,7 @@
  * Admin member (user) queries — uses service-role client (bypasses RLS).
  */
 
-import type {
-  User,
-  UserStatus,
-  AuthProvider,
-  PaginatedResponse,
-} from '@commerce/types';
+import type { User, UserStatus, AuthProvider, PaginatedResponse } from '@commerce/types';
 import { createServiceClient } from '@/lib/supabase/service';
 
 // ─── Extended types ───────────────────────────────────────────────────────────
@@ -80,14 +75,9 @@ export async function adminListMembers(
   );
 
   if (status !== 'ALL') query = query.eq('status', status);
-  if (search)
-    query = query.or(
-      `email.ilike.%${search}%,name.ilike.%${search}%`
-    );
+  if (search) query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;
@@ -120,7 +110,15 @@ export async function adminGetMember(memberId: string): Promise<User | null> {
 export async function adminGetMemberOrders(
   userId: string,
   limit = 5
-): Promise<Array<{ id: string; order_number: string; total_amount: number; status: string; ordered_at: string }>> {
+): Promise<
+  Array<{
+    id: string;
+    order_number: string;
+    total_amount: number;
+    status: string;
+    ordered_at: string;
+  }>
+> {
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('orders') as any)

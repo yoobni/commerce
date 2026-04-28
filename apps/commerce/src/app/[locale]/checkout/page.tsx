@@ -26,17 +26,16 @@ export default async function CheckoutPage({ params }: Props) {
   if (!hasLocale(routing.locales, locale)) notFound();
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Require auth for checkout
   if (!user) {
     redirect(`/${locale}/auth/login?next=/${locale}/checkout`);
   }
 
-  const [cart, addresses] = await Promise.all([
-    getCartWithItems(),
-    getAddresses(user.id),
-  ]);
+  const [cart, addresses] = await Promise.all([getCartWithItems(), getAddresses(user.id)]);
 
   // Redirect to cart if empty
   if (!cart || cart.items.length === 0) {
@@ -48,14 +47,8 @@ export default async function CheckoutPage({ params }: Props) {
   return (
     <div className="bg-[var(--color-bg)] min-h-screen">
       <Container className="py-8 md:py-12">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-8">
-          {t('title')}
-        </h1>
-        <CheckoutClient
-          cart={cart}
-          addresses={addresses}
-          locale={locale as Locale}
-        />
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-8">{t('title')}</h1>
+        <CheckoutClient cart={cart} addresses={addresses} locale={locale as Locale} />
       </Container>
     </div>
   );

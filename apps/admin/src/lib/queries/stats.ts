@@ -89,8 +89,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'ACTIVE'),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase.from('products') as any)
-      .select('*', { count: 'exact', head: true }),
+    (supabase.from('products') as any).select('*', { count: 'exact', head: true }),
   ]);
 
   const sumRevenue = (rows: Array<{ total_amount: number }> | null) =>
@@ -152,7 +151,9 @@ export async function getRecentOrders(limit = 5): Promise<OrderRow[]> {
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase.from('orders') as any)
-    .select('id, order_number, currency, total_amount, status, ordered_at, user:users!user_id(id, name, email)')
+    .select(
+      'id, order_number, currency, total_amount, status, ordered_at, user:users!user_id(id, name, email)'
+    )
     .order('ordered_at', { ascending: false })
     .limit(limit);
 
@@ -164,8 +165,7 @@ export async function getRecentOrders(limit = 5): Promise<OrderRow[]> {
 export async function getOrderStatusCounts(): Promise<Record<string, number>> {
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.from('orders') as any)
-    .select('status');
+  const { data } = await (supabase.from('orders') as any).select('status');
 
   const counts: Record<string, number> = {};
   for (const row of data ?? []) {

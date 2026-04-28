@@ -45,10 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="py-8 text-center text-sm text-[var(--color-text-secondary)]">
           <p>콘텐츠를 불러오지 못했습니다.</p>
-          <button
-            onClick={this.reset}
-            className="mt-3 underline text-[var(--color-brand-primary)]"
-          >
+          <button onClick={this.reset} className="mt-3 underline text-[var(--color-brand-primary)]">
             다시 시도
           </button>
         </div>

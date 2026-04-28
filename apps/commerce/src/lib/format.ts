@@ -15,7 +15,10 @@ export function getCategoryName(category: Category, locale: Locale): string {
 // ─── Product name / description ───────────────────────────────────────────────
 
 type LocalizedNameFields = Pick<Product, 'name_ko' | 'name_en' | 'name_ja' | 'name_de'>;
-type LocalizedDescFields = Pick<Product, 'description_ko' | 'description_en' | 'description_ja' | 'description_de'>;
+type LocalizedDescFields = Pick<
+  Product,
+  'description_ko' | 'description_en' | 'description_ja' | 'description_de'
+>;
 
 export function getProductName(fields: LocalizedNameFields, locale: Locale): string {
   const map: Record<Locale, string> = {
@@ -39,7 +42,10 @@ export function getProductDescription(fields: LocalizedDescFields, locale: Local
 
 // ─── Price ────────────────────────────────────────────────────────────────────
 
-type PriceFields = Pick<Product, 'base_price_krw' | 'base_price_usd' | 'base_price_jpy' | 'base_price_eur'>;
+type PriceFields = Pick<
+  Product,
+  'base_price_krw' | 'base_price_usd' | 'base_price_jpy' | 'base_price_eur'
+>;
 
 export function getProductPrice(fields: PriceFields, locale: Locale): number {
   const map: Record<Locale, number> = {

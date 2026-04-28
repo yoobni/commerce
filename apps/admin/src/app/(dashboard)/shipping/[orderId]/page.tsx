@@ -76,9 +76,7 @@ export default async function ShippingDetailPage({ params }: PageProps) {
 
   const shipment = order.shipment;
   const addr = order.shipping_address_snapshot;
-  const currentStepIndex = shipment
-    ? TIMELINE.indexOf(shipment.status as ShipmentStatus)
-    : -1;
+  const currentStepIndex = shipment ? TIMELINE.indexOf(shipment.status as ShipmentStatus) : -1;
 
   return (
     <div className="max-w-5xl">
@@ -132,8 +130,8 @@ export default async function ShippingDetailPage({ params }: PageProps) {
                           active
                             ? 'border-violet-600 bg-violet-600 text-white'
                             : done
-                            ? 'border-violet-300 bg-violet-100 text-violet-600'
-                            : 'border-gray-200 bg-gray-50 text-gray-300'
+                              ? 'border-violet-300 bg-violet-100 text-violet-600'
+                              : 'border-gray-200 bg-gray-50 text-gray-300'
                         }`}
                       >
                         {idx + 1}
@@ -143,8 +141,8 @@ export default async function ShippingDetailPage({ params }: PageProps) {
                           active
                             ? 'text-violet-700 font-semibold'
                             : done
-                            ? 'text-violet-500'
-                            : 'text-gray-400'
+                              ? 'text-violet-500'
+                              : 'text-gray-400'
                         }`}
                       >
                         {SHIPMENT_STATUS_LABEL[step]}
@@ -298,10 +296,7 @@ export default async function ShippingDetailPage({ params }: PageProps) {
           {order.status === 'PREPARING' && !shipment && (
             <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
               <h2 className="font-medium text-[var(--color-text-primary)] mb-4">송장 입력</h2>
-              <ShipmentInputForm
-                orderId={order.id}
-                country={addr?.country ?? 'KR'}
-              />
+              <ShipmentInputForm orderId={order.id} country={addr?.country ?? 'KR'} />
             </div>
           )}
 

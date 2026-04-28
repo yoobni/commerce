@@ -173,10 +173,10 @@ export function ReviewSection({
       {/* Review list */}
       {reviews.length === 0 ? (
         <div className="text-center py-12 text-[var(--color-text-tertiary)]">
-          <p className="text-4xl mb-3" aria-hidden="true">✦</p>
-          <p className="font-medium text-[var(--color-text-primary)] mb-1">
-            {t('noReviews')}
+          <p className="text-4xl mb-3" aria-hidden="true">
+            ✦
           </p>
+          <p className="font-medium text-[var(--color-text-primary)] mb-1">{t('noReviews')}</p>
         </div>
       ) : (
         <div
@@ -350,14 +350,15 @@ function ReviewCard({ review, locale }: ReviewCardProps) {
           dateTime={review.created_at}
           className="text-xs text-[var(--color-text-tertiary)] shrink-0"
         >
-          {new Date(review.created_at).toLocaleDateString(
-            locale === 'ko' ? 'ko-KR' : locale
-          )}
+          {new Date(review.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
         </time>
       </div>
 
       {/* Dog info + size badges — large-dog specific */}
-      {(review.dog_breed || review.dog_weight_kg || review.purchased_size || review.size_feedback) && (
+      {(review.dog_breed ||
+        review.dog_weight_kg ||
+        review.purchased_size ||
+        review.size_feedback) && (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {review.dog_breed && (
             <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-neutral-100)] text-[var(--color-text-secondary)]">

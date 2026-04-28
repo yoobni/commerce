@@ -53,13 +53,14 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
           {t('success.title')}
         </h1>
 
-        <p className="text-[var(--color-text-secondary)] mb-2">
-          {t('success.message')}
-        </p>
+        <p className="text-[var(--color-text-secondary)] mb-2">{t('success.message')}</p>
 
         {orderId && (
           <p className="text-sm text-[var(--color-text-tertiary)] mb-6">
-            {t('success.orderNumber')}: <span className="font-mono font-medium text-[var(--color-text-primary)]">{orderId}</span>
+            {t('success.orderNumber')}:{' '}
+            <span className="font-mono font-medium text-[var(--color-text-primary)]">
+              {orderId}
+            </span>
           </p>
         )}
 

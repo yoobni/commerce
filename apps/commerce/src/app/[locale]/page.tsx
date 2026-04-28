@@ -33,7 +33,9 @@ export default async function HomePage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'home' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const [featured, newArrivals] = await Promise.all([
     getFeaturedProducts(8),
@@ -42,14 +44,16 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <div className="bg-[var(--mz-bg)]">
-
       {/* ── Hero — full-bleed, serif display, eyebrow ───────────────────── */}
       <section
         className="relative overflow-hidden bg-[var(--mz-bg-deep)] min-h-[75vh] md:min-h-[82vh] flex items-end"
         aria-label="Hero"
       >
         {/* Wordmark watermark — image placeholder until real photo is sourced */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+        <div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          aria-hidden="true"
+        >
           <span className="font-serif text-[28vw] md:text-[22vw] font-[600] text-[var(--mz-ink)] opacity-[0.03] select-none leading-none tracking-[-0.04em]">
             RAVI
           </span>
@@ -57,9 +61,7 @@ export default async function HomePage({ params }: Props) {
 
         {/* Text block — bottom-left, editorial layout */}
         <Container className="relative z-10 pb-12 md:pb-20 pt-28">
-          <p className="text-eyebrow text-[var(--mz-ink-mute)] mb-4">
-            Premium Large Dog Apparel
-          </p>
+          <p className="text-eyebrow text-[var(--mz-ink-mute)] mb-4">Premium Large Dog Apparel</p>
           <h1 className="font-serif text-[42px] md:text-[56px] lg:text-[68px] font-[500] leading-[1.04] tracking-[-0.03em] text-[var(--mz-ink)] mb-5 max-w-[540px]">
             {t('headline')}
           </h1>
@@ -71,7 +73,9 @@ export default async function HomePage({ params }: Props) {
               <Button size="lg">{t('shopNow')}</Button>
             </Link>
             <Link href="/community">
-              <Button size="lg" variant="ghost">{t('community')}</Button>
+              <Button size="lg" variant="ghost">
+                {t('community')}
+              </Button>
             </Link>
           </div>
         </Container>
@@ -187,7 +191,10 @@ export default async function HomePage({ params }: Props) {
       )}
 
       {/* ── Community CTA ───────────────────────────────────────────────── */}
-      <section className="py-14 md:py-20 bg-[var(--mz-bg-deep)]" aria-labelledby="community-heading">
+      <section
+        className="py-14 md:py-20 bg-[var(--mz-bg-deep)]"
+        aria-labelledby="community-heading"
+      >
         <Container className="text-center">
           <p className="text-eyebrow text-[var(--mz-ink-mute)] mb-4">Join the Pack</p>
           <h2
@@ -197,14 +204,14 @@ export default async function HomePage({ params }: Props) {
             {t('community')}
           </h2>
           <p className="text-[13px] text-[var(--mz-ink-soft)] max-w-[300px] mx-auto mb-9 leading-[1.65]">
-            Share your dog&apos;s style, get tips from large-breed owners, and connect with the RAVI community.
+            Share your dog&apos;s style, get tips from large-breed owners, and connect with the RAVI
+            community.
           </p>
           <Link href="/community">
             <Button variant="ghost">{t('community')} →</Button>
           </Link>
         </Container>
       </section>
-
     </div>
   );
 }
@@ -233,7 +240,18 @@ const VALUE_PROPS = [
 
 function DogIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--mz-ink-mute)]" aria-hidden="true">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-[var(--mz-ink-mute)]"
+      aria-hidden="true"
+    >
       <path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" />
       <path d="M7 6c-1.5-1-2.5-1.5-3-1l-.5 3" />
       <path d="M17 6c1.5-1 2.5-1.5 3-1l.5 3" />
@@ -243,7 +261,18 @@ function DogIcon() {
 
 function TagIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--mz-ink-mute)]" aria-hidden="true">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-[var(--mz-ink-mute)]"
+      aria-hidden="true"
+    >
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
       <line x1="7" y1="7" x2="7.01" y2="7" />
     </svg>
@@ -252,7 +281,18 @@ function TagIcon() {
 
 function GlobeIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--mz-ink-mute)]" aria-hidden="true">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-[var(--mz-ink-mute)]"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="2" y1="12" x2="22" y2="12" />
       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />

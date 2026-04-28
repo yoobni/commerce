@@ -24,10 +24,7 @@ const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
 
 // ─── Update order status ──────────────────────────────────────────────────────
 
-export async function updateOrderStatus(
-  orderId: string,
-  newStatus: OrderStatus
-): Promise<void> {
+export async function updateOrderStatus(orderId: string, newStatus: OrderStatus): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -78,7 +75,8 @@ export async function processRefund(orderId: string, refundAmount: number): Prom
     .eq('order_id', orderId)
     .single();
   if (paymentError || !payment) throw new Error('결제 정보를 찾을 수 없습니다.');
-  if (!['PAID', 'PARTIALLY_REFUNDED'].includes(payment.status)) throw new Error('환불 가능한 결제 상태가 아닙니다.');
+  if (!['PAID', 'PARTIALLY_REFUNDED'].includes(payment.status))
+    throw new Error('환불 가능한 결제 상태가 아닙니다.');
 
   const alreadyRefunded: number = payment.refund_amount ?? 0;
   const maxRefundable: number = payment.amount - alreadyRefunded;
@@ -132,8 +130,11 @@ export async function processRefund(orderId: string, refundAmount: number): Prom
     const currentBalance: number = pts?.balance ?? 0;
     const newBalance = currentBalance + order.point_used;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('points') as any)
-      .upsert({ user_id: order.user_id, balance: newBalance, updated_at: new Date().toISOString() });
+    await (supabase.from('points') as any).upsert({
+      user_id: order.user_id,
+      balance: newBalance,
+      updated_at: new Date().toISOString(),
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase.from('point_transactions') as any).insert({
       user_id: order.user_id,
@@ -167,7 +168,9 @@ export async function processRefund(orderId: string, refundAmount: number): Prom
         await (supabase.rpc as any)('increment_stock', {
           p_option_id: item.product_option_id,
           p_qty: item.quantity,
-        }).then(() => null).catch(() => null);
+        })
+          .then(() => null)
+          .catch(() => null);
       }
     }
   }
@@ -185,10 +188,7 @@ export async function processRefund(orderId: string, refundAmount: number): Prom
 
 // ─── Update admin memo ────────────────────────────────────────────────────────
 
-export async function updateOrderAdminMemo(
-  orderId: string,
-  memo: string
-): Promise<void> {
+export async function updateOrderAdminMemo(orderId: string, memo: string): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 

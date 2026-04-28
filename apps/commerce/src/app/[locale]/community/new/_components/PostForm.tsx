@@ -97,7 +97,9 @@ export function PostForm({ locale }: PostFormProps) {
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-[var(--color-text-primary)]">
           {t('postContent')}
-          <span className="text-[var(--color-error)] ml-1" aria-hidden="true">*</span>
+          <span className="text-[var(--color-error)] ml-1" aria-hidden="true">
+            *
+          </span>
         </label>
         <textarea
           required
@@ -123,9 +125,7 @@ export function PostForm({ locale }: PostFormProps) {
       />
 
       {/* Error */}
-      {error && (
-        <p className="text-sm text-[var(--color-error)]">{error}</p>
-      )}
+      {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}
 
       {/* Actions */}
       <div className="flex items-center gap-3 justify-end pt-2">

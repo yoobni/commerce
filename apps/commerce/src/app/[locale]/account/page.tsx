@@ -24,7 +24,9 @@ export default async function AccountProfilePage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'account.profile' });
 
   const supabase = await createClient();
-  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
   if (!authUser) notFound();
 
   const profile = await getUserProfile(authUser.id);
@@ -32,9 +34,7 @@ export default async function AccountProfilePage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-        {t('title')}
-      </h2>
+      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{t('title')}</h2>
       <ProfileForm user={profile} />
     </div>
   );

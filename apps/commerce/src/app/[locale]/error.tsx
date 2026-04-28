@@ -22,9 +22,7 @@ export default function Error({ error, reset }: Props) {
         {error.digest && `#${error.digest}`}
       </p>
       <h2 className="text-xl font-semibold mb-2">{t('title')}</h2>
-      <p className="text-[var(--color-text-secondary)] mb-8 max-w-sm">
-        {t('description')}
-      </p>
+      <p className="text-[var(--color-text-secondary)] mb-8 max-w-sm">{t('description')}</p>
       <button
         onClick={reset}
         className="px-6 py-3 bg-[var(--color-cta)] text-white text-sm font-medium rounded hover:opacity-80 transition-opacity"

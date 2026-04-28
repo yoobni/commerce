@@ -144,7 +144,10 @@ export default async function CouponsPage({ searchParams }: PageProps) {
           <tbody className="divide-y divide-[var(--color-border)]">
             {result.data.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-[var(--color-text-tertiary)]">
+                <td
+                  colSpan={7}
+                  className="px-4 py-12 text-center text-[var(--color-text-tertiary)]"
+                >
                   쿠폰이 없습니다.
                 </td>
               </tr>
@@ -159,9 +162,7 @@ export default async function CouponsPage({ searchParams }: PageProps) {
                       {coupon.code}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-[var(--color-text-primary)]">
-                    {coupon.name_ko}
-                  </td>
+                  <td className="px-4 py-3 text-[var(--color-text-primary)]">{coupon.name_ko}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                     {coupon.type === 'FIXED_AMOUNT' ? '정액' : '정률'}
                   </td>
@@ -174,7 +175,8 @@ export default async function CouponsPage({ searchParams }: PageProps) {
                     {coupon.issuance_count.toLocaleString()} / {coupon.used_count.toLocaleString()}
                     {coupon.max_issuance_count !== null && (
                       <span className="text-xs text-[var(--color-text-tertiary)]">
-                        {' '}(한도: {coupon.max_issuance_count.toLocaleString()})
+                        {' '}
+                        (한도: {coupon.max_issuance_count.toLocaleString()})
                       </span>
                     )}
                   </td>

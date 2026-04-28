@@ -22,10 +22,7 @@ export async function getSizeById(id: string): Promise<Size | null> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from('sizes') as any)
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await (supabase.from('sizes') as any).select('*').eq('id', id).single();
 
   if (error || !data) return null;
   return data as Size;

@@ -50,7 +50,9 @@ export function CouponStatusActions({ couponId, currentStatus }: Props) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-xs text-[var(--color-text-secondary)]">현재 상태</span>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_BADGE[currentStatus]}`}>
+        <span
+          className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_BADGE[currentStatus]}`}
+        >
           {STATUS_LABEL[currentStatus]}
         </span>
       </div>

@@ -36,9 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: t('siteName'),
     },
     alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, `/${l}`])
-      ),
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])),
     },
   };
 }
@@ -59,9 +57,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <div className="flex flex-col min-h-screen bg-[var(--mz-bg)]">
             <Header />
             {/* pb-14 md:pb-0: clear fixed TabBar on mobile */}
-            <main className="flex-1 pb-14 md:pb-0">
-              {children}
-            </main>
+            <main className="flex-1 pb-14 md:pb-0">{children}</main>
             <Footer />
             <TabBar />
           </div>

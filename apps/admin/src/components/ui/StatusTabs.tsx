@@ -28,15 +28,13 @@ interface StatusTabsProps {
   className?: string;
 }
 
-export function StatusTabs({
-  tabs,
-  activeValue,
-  buildUrl,
-  className,
-}: StatusTabsProps) {
+export function StatusTabs({ tabs, activeValue, buildUrl, className }: StatusTabsProps) {
   return (
     <div
-      className={cn('flex gap-1 p-1 bg-gray-100 rounded-lg overflow-x-auto scrollbar-none', className)}
+      className={cn(
+        'flex gap-1 p-1 bg-gray-100 rounded-lg overflow-x-auto scrollbar-none',
+        className
+      )}
       role="tablist"
       aria-label="상태 필터"
     >

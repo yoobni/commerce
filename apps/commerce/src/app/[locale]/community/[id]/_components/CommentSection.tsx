@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { createCommentAction, deleteCommentAction, toggleCommentLikeAction } from '@/lib/community/actions';
+import {
+  createCommentAction,
+  deleteCommentAction,
+  toggleCommentLikeAction,
+} from '@/lib/community/actions';
 import type { CommentWithUser } from '@/lib/community/queries';
 
 interface CommentSectionProps {
@@ -98,9 +102,7 @@ function CommentRow({
               onClick={handleLike}
               disabled={!isAuthenticated || isLiking}
               className={`flex items-center gap-1 text-xs transition-colors ${
-                liked
-                  ? 'text-rose-500'
-                  : 'text-[var(--color-text-tertiary)] hover:text-rose-400'
+                liked ? 'text-rose-500' : 'text-[var(--color-text-tertiary)] hover:text-rose-400'
               } disabled:opacity-40`}
             >
               <SmallHeartIcon filled={liked} />
@@ -243,9 +245,7 @@ export function CommentSection({
     if (parentId) {
       setComments((prev) =>
         prev.map((c) =>
-          c.id === parentId
-            ? { ...c, replies: [...(c.replies ?? []), tempComment] }
-            : c
+          c.id === parentId ? { ...c, replies: [...(c.replies ?? []), tempComment] } : c
         )
       );
       setReplyTo(null);
@@ -260,7 +260,9 @@ export function CommentSection({
     <section className="mt-8" aria-label="댓글">
       {/* Header */}
       <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
-        {t('comments', { count: comments.length + comments.reduce((s, c) => s + (c.replies?.length ?? 0), 0) })}
+        {t('comments', {
+          count: comments.length + comments.reduce((s, c) => s + (c.replies?.length ?? 0), 0),
+        })}
       </h2>
 
       {/* Comment input */}
@@ -287,9 +289,7 @@ export function CommentSection({
         </div>
       ) : (
         <div className="bg-[var(--color-neutral-50)] rounded-xl border border-[var(--color-border)] p-4 mb-6 text-center">
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            {t('loginToComment')}
-          </p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{t('loginToComment')}</p>
         </div>
       )}
 
@@ -377,7 +377,7 @@ function SmallHeartIcon({ filled }: { filled: boolean }) {
       strokeWidth="2"
       aria-hidden="true"
     >
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
 }

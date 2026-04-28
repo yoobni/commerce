@@ -10,10 +10,12 @@ export async function listUserWishlist(userId: string): Promise<WishlistWithProd
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('wishlists') as any)
-    .select(`
+    .select(
+      `
       *,
       product:products(*)
-    `)
+    `
+    )
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 

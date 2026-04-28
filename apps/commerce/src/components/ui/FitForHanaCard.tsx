@@ -85,11 +85,7 @@ export function FitForHanaCard({
       >
         {profile.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={profile.avatarUrl}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+          <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
         ) : (
           <DogAvatarPlaceholder />
         )}
@@ -98,9 +94,7 @@ export function FitForHanaCard({
       {/* Text stack */}
       <div className="flex-1 min-w-0">
         {/* Eyebrow */}
-        <p className="text-eyebrow text-[var(--mz-accent-ink)] mb-0.5">
-          Fit for {profile.name}
-        </p>
+        <p className="text-eyebrow text-[var(--mz-accent-ink)] mb-0.5">Fit for {profile.name}</p>
         {/* Recommendation — Fraunces 15/500 */}
         <p
           className="text-[15px] font-[500] leading-[20px] text-[var(--mz-accent-ink)] font-serif truncate"
@@ -130,7 +124,18 @@ export function FitForHanaCard({
 
 function PawPlaceholder() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-[var(--mz-ink-mute)]">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="text-[var(--mz-ink-mute)]"
+    >
       <circle cx="12" cy="16" r="5" />
       <circle cx="6" cy="9" r="2.5" />
       <circle cx="12" cy="7" r="2.5" />
@@ -141,7 +146,18 @@ function PawPlaceholder() {
 
 function DogAvatarPlaceholder() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-[var(--mz-accent-ink)]">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="text-[var(--mz-accent-ink)]"
+    >
       {/* Simplified dog head silhouette */}
       <path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" />
       <path d="M7 6c-1.5-1-2.5-1.5-3-1l-.5 3" />

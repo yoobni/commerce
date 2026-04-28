@@ -15,7 +15,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(
-    `${origin}/${defaultLocale}/auth/login?error=oauth_error`
-  );
+  return NextResponse.redirect(`${origin}/${defaultLocale}/auth/login?error=oauth_error`);
 }

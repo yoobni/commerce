@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import type { OrderStatus } from '@commerce/types';
-import {
-  getDashboardStats,
-  getWeeklySalesTrend,
-  getRecentOrders,
-} from '@/lib/queries/stats';
+import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MiniChart } from '@/components/ui/MiniChart';
@@ -14,7 +10,10 @@ export const metadata = { title: '대시보드' };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function trendText(today: number, yesterday: number): { direction: 'up' | 'down' | 'neutral'; text: string } {
+function trendText(
+  today: number,
+  yesterday: number
+): { direction: 'up' | 'down' | 'neutral'; text: string } {
   if (yesterday === 0) {
     if (today === 0) return { direction: 'neutral', text: '전일 대비 동일' };
     return { direction: 'up', text: '전일 대비 신규' };
@@ -36,7 +35,11 @@ function formatKRW(amount: number): string {
 
 // ─── Bar chart (weekly revenue) ───────────────────────────────────────────────
 
-function WeeklyBarChart({ data }: { data: Array<{ date: string; revenue: number; orders: number }> }) {
+function WeeklyBarChart({
+  data,
+}: {
+  data: Array<{ date: string; revenue: number; orders: number }>;
+}) {
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
   const days = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -83,10 +86,25 @@ function WeeklyBarChart({ data }: { data: Array<{ date: string; revenue: number;
 // ─── Quick links ──────────────────────────────────────────────────────────────
 
 const QUICK_LINKS = [
-  { label: '주문 관리', href: '/orders', iconPath: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+  {
+    label: '주문 관리',
+    href: '/orders',
+    iconPath:
+      'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+  },
   { label: '상품 등록', href: '/products/new', iconPath: 'M12 4v16m8-8H4' },
-  { label: '쿠폰 생성', href: '/coupons/new', iconPath: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z' },
-  { label: '회원 관리', href: '/members', iconPath: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+  {
+    label: '쿠폰 생성',
+    href: '/coupons/new',
+    iconPath:
+      'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
+  },
+  {
+    label: '회원 관리',
+    href: '/members',
+    iconPath:
+      'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+  },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -116,7 +134,13 @@ export default async function DashboardPage() {
             iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
             iconBg="bg-blue-50"
             iconColor="text-blue-600"
-            chart={<MiniChart data={orderTrendData.length >= 2 ? orderTrendData : [0, 0]} color="#3b82f6" height={36} />}
+            chart={
+              <MiniChart
+                data={orderTrendData.length >= 2 ? orderTrendData : [0, 0]}
+                color="#3b82f6"
+                height={36}
+              />
+            }
           />
           <KpiCard
             label="오늘 매출"
@@ -126,7 +150,13 @@ export default async function DashboardPage() {
             iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             iconBg="bg-amber-50"
             iconColor="text-amber-600"
-            chart={<MiniChart data={revenueTrendData.length >= 2 ? revenueTrendData : [0, 0]} color="#f59e0b" height={36} />}
+            chart={
+              <MiniChart
+                data={revenueTrendData.length >= 2 ? revenueTrendData : [0, 0]}
+                color="#f59e0b"
+                height={36}
+              />
+            }
           />
           <KpiCard
             label="총 회원"
@@ -176,7 +206,9 @@ export default async function DashboardPage() {
                     <path d={link.iconPath} />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-[var(--color-text-primary)]">{link.label}</span>
+                <span className="text-sm font-medium text-[var(--color-text-primary)]">
+                  {link.label}
+                </span>
               </Link>
             ))}
           </div>
@@ -200,26 +232,43 @@ export default async function DashboardPage() {
             <table className="w-full text-sm">
               <thead className="border-b border-[var(--color-border)]">
                 <tr>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">주문번호</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">고객</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)]">금액</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">상태</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">주문일</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
+                    주문번호
+                  </th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
+                    고객
+                  </th>
+                  <th className="px-5 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)]">
+                    금액
+                  </th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
+                    상태
+                  </th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
+                    주문일
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3">
-                      <Link href={`/orders/${order.id}`} className="font-mono text-xs text-blue-600 hover:underline">
+                      <Link
+                        href={`/orders/${order.id}`}
+                        className="font-mono text-xs text-blue-600 hover:underline"
+                      >
                         {order.order_number}
                       </Link>
                     </td>
                     <td className="px-5 py-3">
                       {order.user ? (
                         <div>
-                          <p className="font-medium text-[var(--color-text-primary)]">{order.user.name}</p>
-                          <p className="text-xs text-[var(--color-text-tertiary)]">{order.user.email}</p>
+                          <p className="font-medium text-[var(--color-text-primary)]">
+                            {order.user.name}
+                          </p>
+                          <p className="text-xs text-[var(--color-text-tertiary)]">
+                            {order.user.email}
+                          </p>
                         </div>
                       ) : (
                         <span className="text-[var(--color-text-tertiary)]">—</span>

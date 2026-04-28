@@ -29,17 +29,15 @@ function SectionCard({ title, children }: { title: string; children: React.React
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-4 py-2 border-b border-[var(--color-border-subtle)] last:border-0">
-      <dt className="w-28 shrink-0 text-xs font-medium text-[var(--color-text-tertiary)] pt-0.5">{label}</dt>
+      <dt className="w-28 shrink-0 text-xs font-medium text-[var(--color-text-tertiary)] pt-0.5">
+        {label}
+      </dt>
       <dd className="flex-1 text-sm text-[var(--color-text-primary)]">{children}</dd>
     </div>
   );
 }
 
-export default async function MemberDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [member, recentOrders] = await Promise.all([
     adminGetMember(id),
@@ -56,7 +54,16 @@ export default async function MemberDetailPage({
           className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors"
           aria-label="목록으로"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4"
+            aria-hidden="true"
+          >
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </Link>
@@ -82,17 +89,28 @@ export default async function MemberDetailPage({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--color-border)]">
-                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs">주문번호</th>
-                    <th className="pb-2 text-right font-medium text-[var(--color-text-secondary)] text-xs">결제금액</th>
-                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs pl-4">상태</th>
-                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs pl-4">주문일</th>
+                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs">
+                      주문번호
+                    </th>
+                    <th className="pb-2 text-right font-medium text-[var(--color-text-secondary)] text-xs">
+                      결제금액
+                    </th>
+                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs pl-4">
+                      상태
+                    </th>
+                    <th className="pb-2 text-left font-medium text-[var(--color-text-secondary)] text-xs pl-4">
+                      주문일
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border-subtle)]">
                   {recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-2">
-                        <Link href={`/orders/${order.id}`} className="font-mono text-xs text-blue-600 hover:underline">
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="font-mono text-xs text-blue-600 hover:underline"
+                        >
                           {order.order_number}
                         </Link>
                       </td>
@@ -100,8 +118,14 @@ export default async function MemberDetailPage({
                         {order.total_amount.toLocaleString()}
                       </td>
                       <td className="py-2 pl-4">
-                        <Badge className={ORDER_STATUS_BADGE[order.status as keyof typeof ORDER_STATUS_BADGE] ?? 'bg-gray-100 text-gray-500'}>
-                          {ORDER_STATUS_LABEL[order.status as keyof typeof ORDER_STATUS_LABEL] ?? order.status}
+                        <Badge
+                          className={
+                            ORDER_STATUS_BADGE[order.status as keyof typeof ORDER_STATUS_BADGE] ??
+                            'bg-gray-100 text-gray-500'
+                          }
+                        >
+                          {ORDER_STATUS_LABEL[order.status as keyof typeof ORDER_STATUS_LABEL] ??
+                            order.status}
                         </Badge>
                       </td>
                       <td className="py-2 pl-4 text-[var(--color-text-secondary)]">
@@ -144,11 +168,15 @@ export default async function MemberDetailPage({
           <SectionCard title="활동 정보">
             <dl>
               <InfoRow label="마지막 로그인">
-                {member.last_login_at
-                  ? new Date(member.last_login_at).toLocaleString('ko-KR')
-                  : <span className="text-[var(--color-text-tertiary)]">없음</span>}
+                {member.last_login_at ? (
+                  new Date(member.last_login_at).toLocaleString('ko-KR')
+                ) : (
+                  <span className="text-[var(--color-text-tertiary)]">없음</span>
+                )}
               </InfoRow>
-              <InfoRow label="가입일">{new Date(member.created_at).toLocaleString('ko-KR')}</InfoRow>
+              <InfoRow label="가입일">
+                {new Date(member.created_at).toLocaleString('ko-KR')}
+              </InfoRow>
               <InfoRow label="회원 ID">
                 <span className="font-mono text-xs break-all">{member.id}</span>
               </InfoRow>

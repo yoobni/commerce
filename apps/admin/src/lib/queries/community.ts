@@ -56,9 +56,7 @@ export async function adminListPosts(
   if (isPinned !== undefined) query = query.eq('is_pinned', isPinned);
   if (search) query = query.ilike('title', `%${search}%`);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;

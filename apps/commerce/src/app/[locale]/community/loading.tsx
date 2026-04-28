@@ -17,14 +17,20 @@ export default function CommunityLoading() {
         {/* Tab skeleton */}
         <div className="flex gap-2 mb-6">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-9 w-16 bg-[var(--color-neutral-100)] rounded-full animate-pulse" />
+            <div
+              key={i}
+              className="h-9 w-16 bg-[var(--color-neutral-100)] rounded-full animate-pulse"
+            />
           ))}
         </div>
 
         {/* Grid skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[var(--color-border-subtle)]">
+            <div
+              key={i}
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[var(--color-border-subtle)]"
+            >
               <div className="aspect-[4/3] bg-[var(--color-neutral-100)] animate-pulse" />
               <div className="p-4 space-y-2">
                 <div className="h-3 w-20 bg-[var(--color-neutral-100)] rounded animate-pulse" />

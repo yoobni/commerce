@@ -35,17 +35,15 @@ function SectionCard({ title, children }: { title: string; children: React.React
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-4 py-2 border-b border-[var(--color-border-subtle)] last:border-0">
-      <dt className="w-32 shrink-0 text-xs font-medium text-[var(--color-text-tertiary)] pt-0.5">{label}</dt>
+      <dt className="w-32 shrink-0 text-xs font-medium text-[var(--color-text-tertiary)] pt-0.5">
+        {label}
+      </dt>
       <dd className="flex-1 text-sm text-[var(--color-text-primary)]">{children}</dd>
     </div>
   );
 }
 
-export default async function OrderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const order = await adminGetOrder(id);
   if (!order) notFound();
@@ -61,13 +59,24 @@ export default async function OrderDetailPage({
           className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors"
           aria-label="목록으로"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4"
+            aria-hidden="true"
+          >
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </Link>
         <div>
           <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">주문 상세</h1>
-          <p className="text-xs font-mono text-[var(--color-text-tertiary)]">{order.order_number}</p>
+          <p className="text-xs font-mono text-[var(--color-text-tertiary)]">
+            {order.order_number}
+          </p>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <Badge className={ORDER_STATUS_BADGE[order.status as OrderStatus]}>
@@ -99,7 +108,8 @@ export default async function OrderDetailPage({
                       {item.product_snapshot.name}
                     </p>
                     <p className="text-xs text-[var(--color-text-tertiary)]">
-                      {item.product_snapshot.size} / {item.product_snapshot.color} · SKU: {item.product_snapshot.sku}
+                      {item.product_snapshot.size} / {item.product_snapshot.color} · SKU:{' '}
+                      {item.product_snapshot.sku}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -122,7 +132,9 @@ export default async function OrderDetailPage({
               <InfoRow label="배송비">{formatAmount(order.shipping_fee, order.currency)}</InfoRow>
               {order.discount_amount > 0 && (
                 <InfoRow label="할인">
-                  <span className="text-red-500">- {formatAmount(order.discount_amount, order.currency)}</span>
+                  <span className="text-red-500">
+                    - {formatAmount(order.discount_amount, order.currency)}
+                  </span>
                 </InfoRow>
               )}
               {order.tax_amount > 0 && (
@@ -134,7 +146,9 @@ export default async function OrderDetailPage({
                 </InfoRow>
               )}
               <InfoRow label="최종 결제">
-                <span className="text-base font-bold">{formatAmount(order.total_amount, order.currency)}</span>
+                <span className="text-base font-bold">
+                  {formatAmount(order.total_amount, order.currency)}
+                </span>
               </InfoRow>
             </dl>
           </SectionCard>
@@ -151,14 +165,20 @@ export default async function OrderDetailPage({
                 <InfoRow label="결제 수단">{order.payment.method}</InfoRow>
                 <InfoRow label="PG사">{order.payment.provider}</InfoRow>
                 <InfoRow label="결제 상태">{order.payment.status}</InfoRow>
-                <InfoRow label="결제 금액">{formatAmount(order.payment.amount, order.currency)}</InfoRow>
+                <InfoRow label="결제 금액">
+                  {formatAmount(order.payment.amount, order.currency)}
+                </InfoRow>
                 {order.payment.refund_amount != null && order.payment.refund_amount > 0 && (
                   <InfoRow label="환불 금액">
-                    <span className="text-red-500">{formatAmount(order.payment.refund_amount, order.currency)}</span>
+                    <span className="text-red-500">
+                      {formatAmount(order.payment.refund_amount, order.currency)}
+                    </span>
                   </InfoRow>
                 )}
                 {order.payment.paid_at && (
-                  <InfoRow label="결제일">{new Date(order.payment.paid_at).toLocaleString('ko-KR')}</InfoRow>
+                  <InfoRow label="결제일">
+                    {new Date(order.payment.paid_at).toLocaleString('ko-KR')}
+                  </InfoRow>
                 )}
               </dl>
               {order.status === 'REFUND_REQUESTED' && (
@@ -187,7 +207,10 @@ export default async function OrderDetailPage({
                 <InfoRow label="이메일">{order.user.email}</InfoRow>
                 {order.user.phone && <InfoRow label="전화번호">{order.user.phone}</InfoRow>}
                 <InfoRow label="회원 ID">
-                  <Link href={`/members/${order.user.id}`} className="text-blue-600 hover:underline font-mono text-xs">
+                  <Link
+                    href={`/members/${order.user.id}`}
+                    className="text-blue-600 hover:underline font-mono text-xs"
+                  >
                     {order.user.id.slice(0, 8)}…
                   </Link>
                 </InfoRow>
@@ -206,7 +229,9 @@ export default async function OrderDetailPage({
                 <InfoRow label="주소">
                   <div>
                     <p>{addr.postal_code}</p>
-                    <p>{addr.city}, {addr.state_province ?? ''}</p>
+                    <p>
+                      {addr.city}, {addr.state_province ?? ''}
+                    </p>
                     <p>{addr.address_line1}</p>
                     {addr.address_line2 && <p>{addr.address_line2}</p>}
                     <p>{addr.country}</p>

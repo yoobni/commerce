@@ -98,7 +98,10 @@ export function ShipmentStatusUpdater({ shipmentId, currentStatus }: Props) {
       )}
 
       {/* Return tracking */}
-      <form action={returnFormAction} className="space-y-2 pt-4 border-t border-[var(--color-border)]">
+      <form
+        action={returnFormAction}
+        className="space-y-2 pt-4 border-t border-[var(--color-border)]"
+      >
         <input type="hidden" name="shipmentId" value={shipmentId} />
         <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
           반송 운송장 번호

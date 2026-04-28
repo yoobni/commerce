@@ -7,10 +7,7 @@ import type { UserStatus } from '@commerce/types';
 
 // ─── Update member status ─────────────────────────────────────────────────────
 
-export async function updateMemberStatus(
-  memberId: string,
-  newStatus: UserStatus
-): Promise<void> {
+export async function updateMemberStatus(memberId: string, newStatus: UserStatus): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 

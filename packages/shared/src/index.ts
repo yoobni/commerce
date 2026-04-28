@@ -43,10 +43,14 @@ export function getLocalizedPrice(
   currency: Currency
 ): number {
   switch (currency) {
-    case 'KRW': return prices.base_price_krw;
-    case 'USD': return prices.base_price_usd;
-    case 'JPY': return prices.base_price_jpy;
-    case 'EUR': return prices.base_price_eur;
+    case 'KRW':
+      return prices.base_price_krw;
+    case 'USD':
+      return prices.base_price_usd;
+    case 'JPY':
+      return prices.base_price_jpy;
+    case 'EUR':
+      return prices.base_price_eur;
   }
 }
 

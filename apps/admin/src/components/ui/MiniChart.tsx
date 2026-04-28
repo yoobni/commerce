@@ -35,10 +35,8 @@ export function MiniChart({
   const max = Math.max(...data);
   const range = max - min || 1;
 
-  const toX = (i: number) =>
-    pad + (i / (data.length - 1)) * (width - pad * 2);
-  const toY = (v: number) =>
-    height - pad - ((v - min) / range) * (height - pad * 2);
+  const toX = (i: number) => pad + (i / (data.length - 1)) * (width - pad * 2);
+  const toY = (v: number) => height - pad - ((v - min) / range) * (height - pad * 2);
 
   const linePts = data.map((v, i) => `${toX(i)},${toY(v)}`).join(' ');
   const areaPts = `${pad},${height - pad} ${linePts} ${width - pad},${height - pad}`;
@@ -55,9 +53,7 @@ export function MiniChart({
       aria-hidden="true"
       role="img"
     >
-      {showArea && (
-        <polygon points={areaPts} fill={color} fillOpacity={0.12} />
-      )}
+      {showArea && <polygon points={areaPts} fill={color} fillOpacity={0.12} />}
       <polyline
         points={linePts}
         fill="none"

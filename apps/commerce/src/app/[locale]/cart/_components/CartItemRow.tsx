@@ -9,15 +9,39 @@ import { formatPrice } from '@/lib/format';
 import type { Locale } from '@/i18n/routing';
 import type { CartItemDisplay } from '@/lib/cart/queries';
 
-type PriceKey = 'additional_price_krw' | 'additional_price_usd' | 'additional_price_jpy' | 'additional_price_eur';
-type BasePriceKey = 'product_base_price_krw' | 'product_base_price_usd' | 'product_base_price_jpy' | 'product_base_price_eur';
+type PriceKey =
+  | 'additional_price_krw'
+  | 'additional_price_usd'
+  | 'additional_price_jpy'
+  | 'additional_price_eur';
+type BasePriceKey =
+  | 'product_base_price_krw'
+  | 'product_base_price_usd'
+  | 'product_base_price_jpy'
+  | 'product_base_price_eur';
 type NameKey = 'product_name_ko' | 'product_name_en' | 'product_name_ja' | 'product_name_de';
 
 const LOCALE_MAP: Record<Locale, { base: BasePriceKey; additional: PriceKey; name: NameKey }> = {
-  ko: { base: 'product_base_price_krw', additional: 'additional_price_krw', name: 'product_name_ko' },
-  en: { base: 'product_base_price_usd', additional: 'additional_price_usd', name: 'product_name_en' },
-  ja: { base: 'product_base_price_jpy', additional: 'additional_price_jpy', name: 'product_name_ja' },
-  de: { base: 'product_base_price_eur', additional: 'additional_price_eur', name: 'product_name_de' },
+  ko: {
+    base: 'product_base_price_krw',
+    additional: 'additional_price_krw',
+    name: 'product_name_ko',
+  },
+  en: {
+    base: 'product_base_price_usd',
+    additional: 'additional_price_usd',
+    name: 'product_name_en',
+  },
+  ja: {
+    base: 'product_base_price_jpy',
+    additional: 'additional_price_jpy',
+    name: 'product_name_ja',
+  },
+  de: {
+    base: 'product_base_price_eur',
+    additional: 'additional_price_eur',
+    name: 'product_name_de',
+  },
 };
 
 interface CartItemRowProps {
@@ -61,7 +85,12 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
       aria-label={productName}
     >
       {/* Thumbnail */}
-      <Link href={productPath} className="shrink-0 rounded-lg overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--color-neutral-100)]" tabIndex={-1} aria-hidden="true">
+      <Link
+        href={productPath}
+        className="shrink-0 rounded-lg overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--color-neutral-100)]"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
         <Image
           src={item.product_thumbnail_url}
           alt={productName}
@@ -88,13 +117,18 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
             {item.size_label && (
               <>
                 <span className="text-[var(--color-neutral-300)] text-xs">·</span>
-                <span className="text-xs text-[var(--color-text-secondary)]">{item.size_label}</span>
+                <span className="text-xs text-[var(--color-text-secondary)]">
+                  {item.size_label}
+                </span>
               </>
             )}
           </div>
 
           {/* Product name */}
-          <Link href={productPath} className="block text-sm font-medium text-[var(--color-text-primary)] hover:underline truncate">
+          <Link
+            href={productPath}
+            className="block text-sm font-medium text-[var(--color-text-primary)] hover:underline truncate"
+          >
             {productName}
           </Link>
 
@@ -106,9 +140,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
           {/* Low stock warning */}
           {isLowStock && (
             <p className="text-xs text-[var(--color-error)]" role="status">
-              {item.stock === 0
-                ? '품절'
-                : `재고 ${item.stock}개 남음`}
+              {item.stock === 0 ? '품절' : `재고 ${item.stock}개 남음`}
             </p>
           )}
         </div>
@@ -116,7 +148,11 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
         {/* Quantity + Remove row */}
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           {/* Quantity stepper */}
-          <div className="flex items-center border border-[var(--color-neutral-200)] rounded-lg overflow-hidden" role="group" aria-label={t('quantity')}>
+          <div
+            className="flex items-center border border-[var(--color-neutral-200)] rounded-lg overflow-hidden"
+            role="group"
+            aria-label={t('quantity')}
+          >
             <button
               type="button"
               onClick={handleDecrement}
@@ -143,7 +179,12 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               aria-label="수량 증가"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M7 2v10M2 7h10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>

@@ -191,8 +191,8 @@ export default async function ReviewsPage({ searchParams }: PageProps) {
                         review.rating <= 2
                           ? 'text-red-600'
                           : review.rating === 3
-                          ? 'text-orange-500'
-                          : 'text-yellow-500'
+                            ? 'text-orange-500'
+                            : 'text-yellow-500'
                       }`}
                     >
                       {'★'.repeat(review.rating)}

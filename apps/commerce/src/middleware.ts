@@ -55,8 +55,7 @@ export async function middleware(request: NextRequest) {
   // 3. Guard protected routes
   const segment = getSegmentAfterLocale(request.nextUrl.pathname);
   if (PROTECTED_SEGMENTS.has(segment) && !user) {
-    const locale =
-      request.nextUrl.pathname.split('/').filter(Boolean)[0] ?? routing.defaultLocale;
+    const locale = request.nextUrl.pathname.split('/').filter(Boolean)[0] ?? routing.defaultLocale;
     const loginUrl = new URL(`/${locale}/auth/login`, request.url);
     loginUrl.searchParams.set('next', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);

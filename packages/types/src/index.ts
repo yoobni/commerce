@@ -265,7 +265,13 @@ export interface OrderWithItems extends Order {
 
 export type PaymentMethod = 'CARD' | 'KAKAO_PAY' | 'NAVER_PAY' | 'TOSS_PAY' | 'STRIPE' | 'KLARNA';
 export type PaymentProvider = 'STRIPE' | 'TOSS_PAYMENTS';
-export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED' | 'PARTIALLY_REFUNDED' | 'FULLY_REFUNDED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'PARTIALLY_REFUNDED'
+  | 'FULLY_REFUNDED';
 
 export interface Payment {
   id: UUID;
@@ -367,7 +373,17 @@ export interface PointTransaction {
 
 // ─── Shipment ─────────────────────────────────────────────────────────────────
 
-export type Carrier = 'CJ' | 'HANJIN' | 'LOGEN' | 'EMS' | 'DHL' | 'FEDEX' | 'UPS' | 'USPS' | 'YAMATO' | 'SAGAWA';
+export type Carrier =
+  | 'CJ'
+  | 'HANJIN'
+  | 'LOGEN'
+  | 'EMS'
+  | 'DHL'
+  | 'FEDEX'
+  | 'UPS'
+  | 'USPS'
+  | 'YAMATO'
+  | 'SAGAWA';
 export type ShipmentStatus =
   | 'PENDING'
   | 'PICKED_UP'

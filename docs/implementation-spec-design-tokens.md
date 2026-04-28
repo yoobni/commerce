@@ -24,19 +24,19 @@
 ```css
 @theme {
   /* Muzzle Direction B — Light */
-  --color-mz-bg: #F7F6F3;
-  --color-mz-bg-deep: #EFEDE7;
-  --color-mz-surface: #FFFFFF;
-  --color-mz-ink: #0E0E0C;
-  --color-mz-ink-soft: #4D4D48;
-  --color-mz-ink-mute: #8F8F88;
-  --color-mz-line: rgba(14,14,12,0.08);
-  --color-mz-line-strong: rgba(14,14,12,0.18);
+  --color-mz-bg: #f7f6f3;
+  --color-mz-bg-deep: #efede7;
+  --color-mz-surface: #ffffff;
+  --color-mz-ink: #0e0e0c;
+  --color-mz-ink-soft: #4d4d48;
+  --color-mz-ink-mute: #8f8f88;
+  --color-mz-line: rgba(14, 14, 12, 0.08);
+  --color-mz-line-strong: rgba(14, 14, 12, 0.18);
 
   /* Accent — Burgundy */
-  --color-mz-accent: #6B2020;
-  --color-mz-accent-soft: #F1E5E0;
-  --color-mz-accent-ink: #4A1818;
+  --color-mz-accent: #6b2020;
+  --color-mz-accent-soft: #f1e5e0;
+  --color-mz-accent-ink: #4a1818;
 
   /* System (유지) */
   --color-error: #c0392b;
@@ -67,7 +67,8 @@
 :root {
   /* Font stacks */
   --font-serif: var(--font-fraunces), 'Pretendard Variable', Georgia, serif;
-  --font-sans: var(--font-inter), 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans:
+    var(--font-inter), 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   /* Backward compat aliases (기존 컴포넌트가 참조하는 변수) */
@@ -126,6 +127,7 @@ const jetbrainsMono = JetBrains_Mono({
 ```
 
 **Pretendard Variable**: CDN에서 로딩 (next/font/local 또는 `<link>` in `<head>`).
+
 ```
 https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css
 ```
@@ -136,13 +138,13 @@ https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pret
 
 ### Button.tsx
 
-| 기존 variant | → 새 variant | 변경 내용 |
-|-------------|-------------|----------|
-| primary | primary | bg: `--mz-ink`, fg: `--mz-bg` |
-| secondary | ghost | bg: transparent, border: 1px `--mz-line-strong`, fg: `--mz-ink` |
-| ghost | quiet | text-only, fg: `--mz-ink-mute`, no chrome |
-| accent | accent | bg: `--mz-accent`, fg: white |
-| danger | danger (유지) | 시스템용 |
+| 기존 variant | → 새 variant  | 변경 내용                                                       |
+| ------------ | ------------- | --------------------------------------------------------------- |
+| primary      | primary       | bg: `--mz-ink`, fg: `--mz-bg`                                   |
+| secondary    | ghost         | bg: transparent, border: 1px `--mz-line-strong`, fg: `--mz-ink` |
+| ghost        | quiet         | text-only, fg: `--mz-ink-mute`, no chrome                       |
+| accent       | accent        | bg: `--mz-accent`, fg: white                                    |
+| danger       | danger (유지) | 시스템용                                                        |
 
 Height: sm 40 → md 48 → lg 56. Radius: 10. Font: Inter 500 13px, letter-spacing +0.02em.
 
@@ -155,6 +157,7 @@ Height: sm 40 → md 48 → lg 56. Radius: 10. Font: Inter 500 13px, letter-spac
 ### Badge.tsx
 
 **추가 variant**:
+
 - `fit`: `bg: --mz-accent, fg: white, pill` → "★ FIT L"
 - `fits`: `bg: --mz-accent-soft, fg: --mz-accent-ink, pill` → "✓ FITS"
 - `new`: `bg: --mz-ink, fg: --mz-bg, pill` → "NEW"

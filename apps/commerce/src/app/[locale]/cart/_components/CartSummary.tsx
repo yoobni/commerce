@@ -22,7 +22,13 @@ interface CartSummaryProps {
   isCheckingOut?: boolean;
 }
 
-export function CartSummary({ subtotal, locale, itemCount, onCheckout, isCheckingOut = false }: CartSummaryProps) {
+export function CartSummary({
+  subtotal,
+  locale,
+  itemCount,
+  onCheckout,
+  isCheckingOut = false,
+}: CartSummaryProps) {
   const t = useTranslations('cart');
   const [isPending, startTransition] = useTransition();
 
@@ -37,10 +43,7 @@ export function CartSummary({ subtotal, locale, itemCount, onCheckout, isCheckin
   }
 
   return (
-    <aside
-      className="bg-white rounded-xl p-6 shadow-sm h-fit sticky top-6"
-      aria-label="주문 요약"
-    >
+    <aside className="bg-white rounded-xl p-6 shadow-sm h-fit sticky top-6" aria-label="주문 요약">
       <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
         {t('title')} ({itemCount})
       </h2>
@@ -57,7 +60,13 @@ export function CartSummary({ subtotal, locale, itemCount, onCheckout, isCheckin
         {/* Shipping */}
         <div className="flex items-center justify-between">
           <dt className="text-[var(--color-text-secondary)]">{t('shipping')}</dt>
-          <dd className={isFreeShipping ? 'text-[var(--color-success,#22c55e)] font-medium' : 'font-medium text-[var(--color-text-primary)]'}>
+          <dd
+            className={
+              isFreeShipping
+                ? 'text-[var(--color-success,#22c55e)] font-medium'
+                : 'font-medium text-[var(--color-text-primary)]'
+            }
+          >
             {isFreeShipping ? t('freeShipping') : formatPrice(shippingFee, locale)}
           </dd>
         </div>

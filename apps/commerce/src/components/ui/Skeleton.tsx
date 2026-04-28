@@ -7,12 +7,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return (
-    <div
-      className={cn('skeleton', className)}
-      aria-hidden="true"
-    />
-  );
+  return <div className={cn('skeleton', className)} aria-hidden="true" />;
 }
 
 // ─── ProductCard Skeleton ─────────────────────────────────────────────────────
@@ -92,10 +87,7 @@ export function TextSkeleton({ lines = 3 }: { lines?: number }) {
   return (
     <div className="space-y-2" aria-hidden="true">
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className={cn('h-4 rounded', widths[i % widths.length])}
-        />
+        <Skeleton key={i} className={cn('h-4 rounded', widths[i % widths.length])} />
       ))}
     </div>
   );

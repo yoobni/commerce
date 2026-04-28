@@ -69,10 +69,7 @@ export interface LogErrorContext {
  * logError — normalized error logging.
  * In production, swap console.error for your error reporter (e.g. Sentry).
  */
-export function logError(
-  error: unknown,
-  meta: LogErrorContext = {}
-): void {
+export function logError(error: unknown, meta: LogErrorContext = {}): void {
   if (process.env.NODE_ENV === 'development') {
     console.error('[error]', meta.context ?? 'unknown', error);
     return;
@@ -101,12 +98,12 @@ export async function parseApiError(response: Response): Promise<AppError> {
     response.status === 404
       ? 'NOT_FOUND'
       : response.status === 401
-      ? 'UNAUTHORIZED'
-      : response.status === 403
-      ? 'FORBIDDEN'
-      : response.status === 422
-      ? 'VALIDATION'
-      : 'UNKNOWN';
+        ? 'UNAUTHORIZED'
+        : response.status === 403
+          ? 'FORBIDDEN'
+          : response.status === 422
+            ? 'VALIDATION'
+            : 'UNKNOWN';
 
   return new AppError(message, code, response.status);
 }

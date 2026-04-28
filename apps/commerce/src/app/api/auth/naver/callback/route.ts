@@ -31,9 +31,7 @@ export async function GET(request: NextRequest) {
   const next = request.cookies.get('naver_oauth_next')?.value ?? `/${defaultLocale}`;
 
   const errorRedirect = (msg: string) => {
-    const res = NextResponse.redirect(
-      `${origin}/${defaultLocale}/auth/login?error=${msg}`
-    );
+    const res = NextResponse.redirect(`${origin}/${defaultLocale}/auth/login?error=${msg}`);
     res.cookies.delete('naver_oauth_state');
     res.cookies.delete('naver_oauth_next');
     return res;

@@ -25,7 +25,10 @@ export function AdminMemoForm({ orderId, initialMemo }: AdminMemoFormProps) {
 
   return (
     <div className="space-y-2">
-      <label htmlFor="admin-memo" className="text-xs font-medium text-[var(--color-text-secondary)]">
+      <label
+        htmlFor="admin-memo"
+        className="text-xs font-medium text-[var(--color-text-secondary)]"
+      >
         관리자 메모
       </label>
       <textarea

@@ -2,12 +2,7 @@
  * Admin review queries — uses service-role client (bypasses RLS).
  */
 
-import type {
-  Review,
-  ReviewStatus,
-  User,
-  PaginatedResponse,
-} from '@commerce/types';
+import type { Review, ReviewStatus, User, PaginatedResponse } from '@commerce/types';
 import { createServiceClient } from '@/lib/supabase/service';
 
 // ─── Extended types ───────────────────────────────────────────────────────────
@@ -47,9 +42,7 @@ export async function adminListReviews(
   if (isPhoto !== undefined) query = query.eq('is_photo_review', isPhoto);
   if (minRating !== undefined) query = query.gte('rating', minRating);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;

@@ -9,7 +9,13 @@ import { createClient } from '@/lib/supabase/server';
 import { getProductBySlug, listProducts } from '@/lib/queries/products';
 import { listProductReviews, getReviewStats } from '@/lib/queries/reviews';
 import { ReviewSection } from '@/components/product/ReviewSection';
-import { getProductName, getProductDescription, getProductPrice, formatPrice, getCategoryName } from '@/lib/format';
+import {
+  getProductName,
+  getProductDescription,
+  getProductPrice,
+  formatPrice,
+  getCategoryName,
+} from '@/lib/format';
 import { Container } from '@/components/layout/Container';
 import { PDPImageGallery } from '@/components/product/PDPImageGallery';
 import { CategoryBreadcrumb } from '@/components/product/CategoryBreadcrumb';
@@ -44,7 +50,9 @@ export default async function ProductDetailPage({ params }: Props) {
   const tNav = await getTranslations({ locale, namespace: 'nav' });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const product = await getProductBySlug(slug);
   if (!product || product.status !== 'ACTIVE') notFound();
@@ -84,19 +92,28 @@ export default async function ProductDetailPage({ params }: Props) {
             <nav aria-label="Breadcrumb">
               <ol className="flex items-center gap-1 text-xs text-[var(--color-text-tertiary)]">
                 <li>
-                  <Link href="/" className="hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/"
+                    className="hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {tNav('home')}
                   </Link>
                 </li>
                 <li className="flex items-center gap-1">
                   <span aria-hidden="true">›</span>
-                  <Link href="/products" className="hover:text-[var(--color-text-primary)] transition-colors">
+                  <Link
+                    href="/products"
+                    className="hover:text-[var(--color-text-primary)] transition-colors"
+                  >
                     {tNav('shop')}
                   </Link>
                 </li>
                 <li className="flex items-center gap-1">
                   <span aria-hidden="true">›</span>
-                  <span className="text-[var(--color-text-primary)] font-medium" aria-current="page">
+                  <span
+                    className="text-[var(--color-text-primary)] font-medium"
+                    aria-current="page"
+                  >
                     {productName}
                   </span>
                 </li>
@@ -143,12 +160,12 @@ export default async function ProductDetailPage({ params }: Props) {
             {/* Rating */}
             {product.review_count > 0 && (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5" aria-label={`Rating: ${product.review_avg_rating.toFixed(1)} out of 5`}>
+                <div
+                  className="flex items-center gap-0.5"
+                  aria-label={`Rating: ${product.review_avg_rating.toFixed(1)} out of 5`}
+                >
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <StarIcon
-                      key={i}
-                      filled={i < Math.round(product.review_avg_rating)}
-                    />
+                    <StarIcon key={i} filled={i < Math.round(product.review_avg_rating)} />
                   ))}
                 </div>
                 <span className="text-sm text-[var(--color-text-secondary)]">
@@ -171,7 +188,14 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
 
             {/* Variant selector + Add to cart + Wishlist */}
-            <Suspense fallback={<div className="space-y-6"><Skeleton className="h-24 w-full rounded" /><Skeleton className="h-12 w-full rounded" /></div>}>
+            <Suspense
+              fallback={
+                <div className="space-y-6">
+                  <Skeleton className="h-24 w-full rounded" />
+                  <Skeleton className="h-12 w-full rounded" />
+                </div>
+              }
+            >
               <PDPClient
                 options={product.options ?? []}
                 productId={product.id}

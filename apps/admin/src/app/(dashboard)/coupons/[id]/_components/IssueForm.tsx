@@ -53,12 +53,8 @@ export function IssueForm({ couponId }: Props) {
         />
       </div>
 
-      {state.error && (
-        <p className="text-xs text-red-600">{state.error}</p>
-      )}
-      {state.success && (
-        <p className="text-xs text-green-700">쿠폰이 발급되었습니다.</p>
-      )}
+      {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state.success && <p className="text-xs text-green-700">쿠폰이 발급되었습니다.</p>}
 
       <button
         type="submit"

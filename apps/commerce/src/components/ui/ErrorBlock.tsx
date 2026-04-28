@@ -59,11 +59,7 @@ function WarningIcon() {
 
 export function InlineError({ message, id }: { message: string; id?: string }) {
   return (
-    <p
-      id={id}
-      role="alert"
-      className="text-xs text-[var(--color-error)] mt-1"
-    >
+    <p id={id} role="alert" className="text-xs text-[var(--color-error)] mt-1">
       {message}
     </p>
   );
@@ -72,10 +68,5 @@ export function InlineError({ message, id }: { message: string; id?: string }) {
 // ─── Network error ────────────────────────────────────────────────────────────
 
 export function NetworkError({ onRetry }: { onRetry?: () => void }) {
-  return (
-    <ErrorBlock
-      message="Check your internet connection and try again."
-      onRetry={onRetry}
-    />
-  );
+  return <ErrorBlock message="Check your internet connection and try again." onRetry={onRetry} />;
 }

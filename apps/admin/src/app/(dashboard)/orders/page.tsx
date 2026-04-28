@@ -102,20 +102,44 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-[var(--color-border)]">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문번호</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">고객</th>
-              <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">결제금액</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">상태</th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">주문일</th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                주문번호
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                고객
+              </th>
+              <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">
+                결제금액
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                상태
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
+                주문일
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {result.data.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-16 text-center text-[var(--color-text-tertiary)]">
+                <td
+                  colSpan={5}
+                  className="px-4 py-16 text-center text-[var(--color-text-tertiary)]"
+                >
                   <div className="flex flex-col items-center gap-2">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 text-[var(--color-border)]" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      className="w-10 h-10 text-[var(--color-border)]"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
                     </svg>
                     <span>주문이 없습니다.</span>
                   </div>
@@ -135,8 +159,12 @@ export default async function OrdersPage({ searchParams }: PageProps) {
                   <td className="px-4 py-3">
                     {order.user ? (
                       <div>
-                        <p className="font-medium text-[var(--color-text-primary)]">{order.user.name}</p>
-                        <p className="text-xs text-[var(--color-text-tertiary)]">{order.user.email}</p>
+                        <p className="font-medium text-[var(--color-text-primary)]">
+                          {order.user.name}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-tertiary)]">
+                          {order.user.email}
+                        </p>
                       </div>
                     ) : (
                       <span className="text-[var(--color-text-tertiary)]">—</span>

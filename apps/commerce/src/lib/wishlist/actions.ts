@@ -14,7 +14,9 @@ interface CheckResult {
 
 export async function toggleWishlistAction(productId: string): Promise<ToggleResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { success: false, isWishlisted: false, error: 'not_authenticated' };
 
@@ -34,22 +36,32 @@ export async function toggleWishlistAction(productId: string): Promise<ToggleRes
       .eq('user_id', user.id)
       .eq('product_id', productId);
 
-    if (error) return { success: false, isWishlisted: true, error: (error as { message?: string }).message };
+    if (error)
+      return { success: false, isWishlisted: true, error: (error as { message?: string }).message };
     return { success: true, isWishlisted: false };
   } else {
     // Add to wishlist
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('wishlists') as any)
-      .insert({ user_id: user.id, product_id: productId });
+    const { error } = await (supabase.from('wishlists') as any).insert({
+      user_id: user.id,
+      product_id: productId,
+    });
 
-    if (error) return { success: false, isWishlisted: false, error: (error as { message?: string }).message };
+    if (error)
+      return {
+        success: false,
+        isWishlisted: false,
+        error: (error as { message?: string }).message,
+      };
     return { success: true, isWishlisted: true };
   }
 }
 
 export async function checkWishlistAction(productId: string): Promise<CheckResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { isWishlisted: false };
 

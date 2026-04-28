@@ -107,9 +107,7 @@ export async function updateShipmentStatus(
   if (newStatus === 'DELIVERED') patch.delivered_at = now;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('shipments') as any)
-    .update(patch)
-    .eq('id', shipmentId);
+  const { error } = await (supabase.from('shipments') as any).update(patch).eq('id', shipmentId);
   if (error) throw error;
 
   revalidatePath(`/shipping/${current.order_id}`);

@@ -27,10 +27,7 @@ export interface SaveCouponInput {
 
 // ─── Save coupon (create or update) ──────────────────────────────────────────
 
-export async function saveCoupon(
-  couponId: string | null,
-  input: SaveCouponInput
-): Promise<string> {
+export async function saveCoupon(couponId: string | null, input: SaveCouponInput): Promise<string> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -68,10 +65,7 @@ export async function saveCoupon(
 
 // ─── Update coupon status ─────────────────────────────────────────────────────
 
-export async function updateCouponStatus(
-  couponId: string,
-  status: CouponStatus
-): Promise<void> {
+export async function updateCouponStatus(couponId: string, status: CouponStatus): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -88,10 +82,7 @@ export async function updateCouponStatus(
 
 // ─── Issue coupon to user by email ────────────────────────────────────────────
 
-export async function issueCouponToUserByEmail(
-  couponId: string,
-  email: string
-): Promise<void> {
+export async function issueCouponToUserByEmail(couponId: string, email: string): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -159,10 +150,7 @@ export async function issueCouponToUserByEmail(
 
 // ─── Revoke issuance ──────────────────────────────────────────────────────────
 
-export async function revokeCouponIssuance(
-  issuanceId: string,
-  couponId: string
-): Promise<void> {
+export async function revokeCouponIssuance(issuanceId: string, couponId: string): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 

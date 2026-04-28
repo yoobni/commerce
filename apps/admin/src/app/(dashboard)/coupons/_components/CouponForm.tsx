@@ -27,7 +27,10 @@ function makeDefault(): SaveCouponInput {
 
   return {
     code: '',
-    name_ko: '', name_en: '', name_ja: '', name_de: '',
+    name_ko: '',
+    name_en: '',
+    name_ja: '',
+    name_de: '',
     type: 'FIXED_AMOUNT',
     discount_value: 0,
     max_discount_amount: null,
@@ -44,7 +47,10 @@ function makeDefault(): SaveCouponInput {
 function couponToInput(c: Coupon): SaveCouponInput {
   return {
     code: c.code,
-    name_ko: c.name_ko, name_en: c.name_en, name_ja: c.name_ja, name_de: c.name_de,
+    name_ko: c.name_ko,
+    name_en: c.name_en,
+    name_ja: c.name_ja,
+    name_de: c.name_de,
     type: c.type,
     discount_value: c.discount_value,
     max_discount_amount: c.max_discount_amount,
@@ -94,15 +100,29 @@ export function CouponForm({ coupon }: Props) {
     setError(null);
     setSuccess(false);
 
-    if (!form.code.trim()) { setError('쿠폰 코드를 입력해주세요.'); return; }
-    if (!form.name_ko.trim()) { setError('쿠폰명(한국어)을 입력해주세요.'); return; }
-    if (form.discount_value <= 0) { setError('할인 값은 0보다 커야 합니다.'); return; }
-    if (form.type === 'FIXED_AMOUNT' && !form.currency) {
-      setError('정액 할인은 통화를 선택해야 합니다.'); return;
+    if (!form.code.trim()) {
+      setError('쿠폰 코드를 입력해주세요.');
+      return;
     }
-    if (!form.starts_at || !form.expires_at) { setError('유효기간을 입력해주세요.'); return; }
+    if (!form.name_ko.trim()) {
+      setError('쿠폰명(한국어)을 입력해주세요.');
+      return;
+    }
+    if (form.discount_value <= 0) {
+      setError('할인 값은 0보다 커야 합니다.');
+      return;
+    }
+    if (form.type === 'FIXED_AMOUNT' && !form.currency) {
+      setError('정액 할인은 통화를 선택해야 합니다.');
+      return;
+    }
+    if (!form.starts_at || !form.expires_at) {
+      setError('유효기간을 입력해주세요.');
+      return;
+    }
     if (new Date(form.starts_at) >= new Date(form.expires_at)) {
-      setError('종료일은 시작일보다 늦어야 합니다.'); return;
+      setError('종료일은 시작일보다 늦어야 합니다.');
+      return;
     }
 
     startTransition(async () => {
@@ -231,7 +251,9 @@ export function CouponForm({ coupon }: Props) {
                 className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
               >
                 {CURRENCY_OPTIONS.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
@@ -337,7 +359,9 @@ export function CouponForm({ coupon }: Props) {
             onChange={(e) => patch('is_combinable', e.target.checked)}
             className="w-4 h-4 rounded"
           />
-          <span className="text-sm text-[var(--color-text-secondary)]">다른 쿠폰과 중복 사용 허용</span>
+          <span className="text-sm text-[var(--color-text-secondary)]">
+            다른 쿠폰과 중복 사용 허용
+          </span>
         </label>
       </div>
 

@@ -65,13 +65,9 @@ export async function adminListProducts(
   if (status !== 'ALL') query = query.eq('status', status);
   if (category_id) query = query.eq('category_id', category_id);
   if (search)
-    query = query.or(
-      `name_ko.ilike.%${search}%,name_en.ilike.%${search}%,slug.ilike.%${search}%`
-    );
+    query = query.or(`name_ko.ilike.%${search}%,name_en.ilike.%${search}%,slug.ilike.%${search}%`);
 
-  query = query
-    .order('created_at', { ascending: false })
-    .range(offset, offset + per_page - 1);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
 
   const { data, count, error } = await query;
   if (error) throw error;
@@ -91,9 +87,7 @@ export async function adminGetProduct(productId: string): Promise<ProductDetail 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('products') as any)
-    .select(
-      '*, category:categories!category_id(*), options:product_options(*, size:sizes(*))'
-    )
+    .select('*, category:categories!category_id(*), options:product_options(*, size:sizes(*))')
     .eq('id', productId)
     .single();
 

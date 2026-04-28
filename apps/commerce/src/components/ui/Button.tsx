@@ -25,19 +25,15 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    'bg-[var(--mz-ink)] text-[var(--mz-bg)] hover:opacity-85 active:opacity-75',
-  accent:
-    'bg-[var(--mz-accent)] text-white hover:opacity-90 active:opacity-80',
+  primary: 'bg-[var(--mz-ink)] text-[var(--mz-bg)] hover:opacity-85 active:opacity-75',
+  accent: 'bg-[var(--mz-accent)] text-white hover:opacity-90 active:opacity-80',
   ghost:
     'border border-[var(--mz-line-strong)] text-[var(--mz-ink)] bg-transparent hover:bg-[var(--mz-bg-deep)] active:bg-[var(--mz-bg-deep)]',
-  quiet:
-    'text-[var(--mz-ink-mute)] bg-transparent hover:text-[var(--mz-ink)] active:opacity-70',
+  quiet: 'text-[var(--mz-ink-mute)] bg-transparent hover:text-[var(--mz-ink)] active:opacity-70',
   // Legacy alias → ghost styling
   secondary:
     'border border-[var(--mz-line-strong)] text-[var(--mz-ink)] bg-transparent hover:bg-[var(--mz-bg-deep)] active:bg-[var(--mz-bg-deep)]',
-  danger:
-    'bg-[var(--color-error)] text-white hover:opacity-90 active:opacity-80',
+  danger: 'bg-[var(--color-error)] text-white hover:opacity-90 active:opacity-80',
 };
 
 // Spec: sm 40 · md 48 · lg 56 (px)
