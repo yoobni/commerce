@@ -215,6 +215,8 @@
     "prevPage": "前へ",
     "nextPage": "次へ",
     "pageOf": "{page} / {total}",
+    "sort": "並び替え",
+    "apply": "適用",
     "new": "新着",
     "featured": "おすすめ"
   },
@@ -437,6 +439,19 @@
     "dogWeight": "体重（任意）",
     "submitError": "レビューの投稿に失敗しました。再度お試しください。",
     "submitting": "投稿中...",
-    "submit": "レビューを投稿"
+    "submit": "レビューを投稿",
+    "edit": "編集",
+    "editTitle": "レビューを編集",
+    "editSuccess": "レビューが更新されました。",
+    "editError": "レビューの更新に失敗しました。再度お試しください。",
+    "delete": "削除",
+    "deleteConfirm": "このレビューを削除しますか？",
+    "deleteCancel": "キャンセル",
+    "deleteSuccess": "レビューが削除されました。",
+    "deleteError": "レビューの削除に失敗しました。再度お試しください。",
+    "images": "写真を追加",
+    "imagesHint": "最大5枚 · JPG/PNG/WebP · 各5MB以下",
+    "imagesMax": "写真は最大5枚まで添付できます。",
+    "uploading": "アップロード中..."
   }
 }

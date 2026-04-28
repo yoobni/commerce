@@ -215,6 +215,8 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageOf": "{page} of {total}",
+    "sort": "Sort",
+    "apply": "Apply",
     "new": "New",
     "featured": "Featured"
   },
@@ -437,6 +439,19 @@
     "dogWeight": "Weight (optional)",
     "submitError": "Failed to submit review. Please try again.",
     "submitting": "Submitting...",
-    "submit": "Submit Review"
+    "submit": "Submit Review",
+    "edit": "Edit",
+    "editTitle": "Edit Review",
+    "editSuccess": "Your review has been updated.",
+    "editError": "Failed to update review. Please try again.",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this review?",
+    "deleteCancel": "Cancel",
+    "deleteSuccess": "Review deleted.",
+    "deleteError": "Failed to delete review. Please try again.",
+    "images": "Add photos",
+    "imagesHint": "Up to 5 photos · JPG/PNG/WebP · 5 MB each",
+    "imagesMax": "You can attach up to 5 photos.",
+    "uploading": "Uploading..."
   }
 }

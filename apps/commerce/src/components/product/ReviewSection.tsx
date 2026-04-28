@@ -5,13 +5,15 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
 import { ReviewWriteForm } from './ReviewWriteForm';
-import { loadMoreReviewsAction } from '@/lib/reviews/actions';
+import { loadMoreReviewsAction, deleteReviewAction } from '@/lib/reviews/actions';
 import type { ReviewWithUser, ReviewStats } from '@/lib/queries/reviews';
 import type { Locale } from '@commerce/types';
 
 interface ReviewSectionProps {
   productId: string;
+  productSlug: string;
   isAuthenticated: boolean;
+  currentUserId?: string;
   initialReviews: ReviewWithUser[];
   reviewStats: ReviewStats;
   totalCount: number;
@@ -21,7 +23,9 @@ interface ReviewSectionProps {
 
 export function ReviewSection({
   productId,
+  productSlug,
   isAuthenticated,
+  currentUserId,
   initialReviews,
   reviewStats,
   totalCount,
@@ -38,6 +42,7 @@ export function ReviewSection({
   const [photoOnly, setPhotoOnly] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
   const [writeFormOpen, setWriteFormOpen] = useState(false);
+  const [editingReview, setEditingReview] = useState<ReviewWithUser | null>(null);
 
   const handlePhotoOnlyToggle = useCallback(async () => {
     const next = !photoOnly;
@@ -66,6 +71,29 @@ export function ReviewSection({
       setLoadingMore(false);
     }
   }, [loadingMore, page, productId, photoOnly]);
+
+  // After submit/edit: refresh from page 1
+  const handleSuccess = useCallback(async () => {
+    const result = await loadMoreReviewsAction(productId, 1, photoOnly);
+    setReviews(result.data);
+    setPage(1);
+    setHasMore(result.has_next);
+  }, [productId, photoOnly]);
+
+  const handleDelete = useCallback(
+    async (reviewId: string) => {
+      // Optimistic remove
+      const snapshot = reviews;
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      try {
+        await deleteReviewAction(reviewId, productSlug);
+      } catch {
+        // Rollback on failure
+        setReviews(snapshot);
+      }
+    },
+    [reviews, productSlug]
+  );
 
   const ratingTotal = reviewStats.ratingBreakdown.total;
   const sizeFeedbackTotal =
@@ -184,7 +212,14 @@ export function ReviewSection({
           aria-busy={filterLoading}
         >
           {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} locale={locale} />
+            <ReviewCard
+              key={review.id}
+              review={review}
+              locale={locale}
+              isOwn={!!currentUserId && review.user_id === currentUserId}
+              onEdit={() => setEditingReview(review)}
+              onDelete={() => handleDelete(review.id)}
+            />
           ))}
         </div>
       )}
@@ -225,12 +260,18 @@ export function ReviewSection({
         </div>
       )}
 
-      {/* Write review modal */}
+      {/* Write / Edit review modal */}
       <ReviewWriteForm
-        open={writeFormOpen}
-        onClose={() => setWriteFormOpen(false)}
+        open={writeFormOpen || editingReview !== null}
+        onClose={() => {
+          setWriteFormOpen(false);
+          setEditingReview(null);
+        }}
         productId={productId}
+        productSlug={productSlug}
         isAuthenticated={isAuthenticated}
+        editReview={editingReview ?? undefined}
+        onSuccess={handleSuccess}
       />
     </section>
   );
@@ -301,10 +342,14 @@ function SizeFeedbackSummary({
 interface ReviewCardProps {
   review: ReviewWithUser;
   locale: Locale;
+  isOwn: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-function ReviewCard({ review, locale }: ReviewCardProps) {
+function ReviewCard({ review, locale, isOwn, onEdit, onDelete }: ReviewCardProps) {
   const t = useTranslations('review');
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const sizeFeedbackLabels: Record<string, string> = {
     SMALL: t('sizeFeedbackSmall'),
@@ -312,9 +357,11 @@ function ReviewCard({ review, locale }: ReviewCardProps) {
     LARGE: t('sizeFeedbackLarge'),
   };
 
+  const images = review.images ?? [];
+
   return (
     <article className="border border-[var(--color-border)] rounded-lg p-5">
-      {/* Author + rating + date */}
+      {/* Author + rating + date + actions */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-[var(--color-neutral-200)] overflow-hidden shrink-0">
@@ -346,15 +393,64 @@ function ReviewCard({ review, locale }: ReviewCardProps) {
             </div>
           </div>
         </div>
-        <time
-          dateTime={review.created_at}
-          className="text-xs text-[var(--color-text-tertiary)] shrink-0"
-        >
-          {new Date(review.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
-        </time>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <time
+            dateTime={review.created_at}
+            className="text-xs text-[var(--color-text-tertiary)]"
+          >
+            {new Date(review.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : locale)}
+          </time>
+
+          {/* Edit / delete — own review only */}
+          {isOwn && !confirmingDelete && (
+            <div className="flex items-center gap-1 ml-1">
+              <button
+                type="button"
+                onClick={onEdit}
+                className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors px-1 py-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-brand-accent)]"
+              >
+                {t('edit')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(true)}
+                className="text-xs text-[var(--color-text-tertiary)] hover:text-red-500 transition-colors px-1 py-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-brand-accent)]"
+              >
+                {t('delete')}
+              </button>
+            </div>
+          )}
+
+          {/* Inline delete confirmation */}
+          {isOwn && confirmingDelete && (
+            <div className="flex items-center gap-1 ml-1">
+              <span className="text-xs text-[var(--color-text-secondary)]">
+                {t('deleteConfirm')}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmingDelete(false);
+                  onDelete();
+                }}
+                className="text-xs font-medium text-red-500 hover:text-red-700 px-1 py-0.5 rounded transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-400"
+              >
+                {t('delete')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] px-1 py-0.5 rounded transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-brand-accent)]"
+              >
+                {t('deleteCancel')}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Dog info + size badges — large-dog specific */}
+      {/* Dog info + size badges */}
       {(review.dog_breed ||
         review.dog_weight_kg ||
         review.purchased_size ||
@@ -388,6 +484,30 @@ function ReviewCard({ review, locale }: ReviewCardProps) {
         <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
           {review.content}
         </p>
+      )}
+
+      {/* Review images */}
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {images.map((url, idx) => (
+            <a
+              key={idx}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--color-border)] block hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-accent)]"
+              aria-label={`리뷰 이미지 ${idx + 1}`}
+            >
+              <Image
+                src={url}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="80px"
+              />
+            </a>
+          ))}
+        </div>
       )}
 
       {/* Best badge */}

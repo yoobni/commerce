@@ -164,6 +164,8 @@
     "prevPage": "이전",
     "nextPage": "다음",
     "pageOf": "{page} / {total}",
+    "sort": "정렬",
+    "apply": "적용",
     "new": "신상품",
     "featured": "추천"
   },
@@ -437,6 +439,19 @@
     "dogWeight": "체중 (선택)",
     "submitError": "리뷰 등록에 실패했습니다. 다시 시도해 주세요.",
     "submitting": "등록 중...",
-    "submit": "리뷰 등록"
+    "submit": "리뷰 등록",
+    "edit": "수정",
+    "editTitle": "리뷰 수정",
+    "editSuccess": "리뷰가 수정되었습니다.",
+    "editError": "리뷰 수정에 실패했습니다. 다시 시도해 주세요.",
+    "delete": "삭제",
+    "deleteConfirm": "리뷰를 삭제하시겠습니까?",
+    "deleteCancel": "취소",
+    "deleteSuccess": "리뷰가 삭제되었습니다.",
+    "deleteError": "리뷰 삭제에 실패했습니다. 다시 시도해 주세요.",
+    "images": "사진 첨부",
+    "imagesHint": "최대 5장 · JPG/PNG/WebP · 각 5MB 이하",
+    "imagesMax": "사진은 최대 5장까지 첨부할 수 있습니다.",
+    "uploading": "업로드 중..."
   }
 }

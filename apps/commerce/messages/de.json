@@ -215,6 +215,8 @@
     "prevPage": "Zurück",
     "nextPage": "Weiter",
     "pageOf": "{page} von {total}",
+    "sort": "Sortieren",
+    "apply": "Anwenden",
     "new": "Neu",
     "featured": "Empfohlen"
   },
@@ -437,6 +439,19 @@
     "dogWeight": "Gewicht (optional)",
     "submitError": "Bewertung konnte nicht eingereicht werden. Bitte versuche es erneut.",
     "submitting": "Wird eingereicht...",
-    "submit": "Bewertung einreichen"
+    "submit": "Bewertung einreichen",
+    "edit": "Bearbeiten",
+    "editTitle": "Bewertung bearbeiten",
+    "editSuccess": "Deine Bewertung wurde aktualisiert.",
+    "editError": "Bewertung konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+    "delete": "Löschen",
+    "deleteConfirm": "Diese Bewertung löschen?",
+    "deleteCancel": "Abbrechen",
+    "deleteSuccess": "Bewertung gelöscht.",
+    "deleteError": "Bewertung konnte nicht gelöscht werden. Bitte versuche es erneut.",
+    "images": "Fotos hinzufügen",
+    "imagesHint": "Bis zu 5 Fotos · JPG/PNG/WebP · je 5 MB",
+    "imagesMax": "Du kannst bis zu 5 Fotos anhängen.",
+    "uploading": "Wird hochgeladen..."
   }
 }

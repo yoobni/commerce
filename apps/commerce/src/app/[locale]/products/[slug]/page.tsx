@@ -261,7 +261,9 @@ export default async function ProductDetailPage({ params }: Props) {
         {/* Reviews section */}
         <ReviewSection
           productId={product.id}
+          productSlug={slug}
           isAuthenticated={!!user}
+          currentUserId={user?.id}
           initialReviews={reviews.data}
           reviewStats={reviewStats}
           totalCount={reviews.total}
