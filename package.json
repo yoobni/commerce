@@ -10,10 +10,17 @@
     "dev:admin": "npm -w apps/admin run dev",
     "build:commerce": "npm -w apps/commerce run build",
     "build:admin": "npm -w apps/admin run build",
-    "lint": "npm run lint --workspaces",
-    "typecheck": "npm run typecheck --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "i18n:qa": "npx tsx scripts/i18n-qa.ts",
     "i18n:qa:strict": "npx tsx scripts/i18n-qa.ts --strict --fix-hint"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "@eslint/eslintrc": "^3.0.0",
+    "prettier": "^3.0.0"
   },
   "engines": {
     "node": ">=20"
