@@ -541,6 +541,138 @@ export interface AuditLog {
   created_at: ISODateTime;
 }
 
+// ─── Notification ─────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'ORDER_PLACED'
+  | 'ORDER_PAID'
+  | 'ORDER_PREPARING'
+  | 'ORDER_SHIPPED'
+  | 'ORDER_DELIVERED'
+  | 'ORDER_CANCELLED'
+  | 'RETURN_APPROVED'
+  | 'REFUND_COMPLETED'
+  | 'COUPON_ISSUED'
+  | 'POINT_EARNED'
+  | 'PROMOTION'
+  | 'NOTICE'
+  | 'SYSTEM';
+
+export interface Notification {
+  id: UUID;
+  user_id: UUID;
+  type: NotificationType;
+  title_ko: string;
+  title_en: string | null;
+  title_ja: string | null;
+  title_de: string | null;
+  body_ko: string;
+  body_en: string | null;
+  body_ja: string | null;
+  body_de: string | null;
+  reference_type: string | null;
+  reference_id: UUID | null;
+  is_read: boolean;
+  read_at: ISODateTime | null;
+  created_at: ISODateTime;
+}
+
+// ─── SiteBanner ───────────────────────────────────────────────────────────────
+
+export type BannerPosition = 'HERO' | 'MIDDLE' | 'SIDE' | 'POPUP';
+
+export interface SiteBanner {
+  id: UUID;
+  position: BannerPosition;
+  title_ko: string | null;
+  title_en: string | null;
+  title_ja: string | null;
+  title_de: string | null;
+  subtitle_ko: string | null;
+  subtitle_en: string | null;
+  subtitle_ja: string | null;
+  subtitle_de: string | null;
+  image_url: string;
+  mobile_image_url: string | null;
+  link_url: string | null;
+  cta_label_ko: string | null;
+  cta_label_en: string | null;
+  cta_label_ja: string | null;
+  cta_label_de: string | null;
+  is_active: boolean;
+  starts_at: ISODateTime | null;
+  ends_at: ISODateTime | null;
+  sort_order: number;
+  created_by: UUID | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
+// ─── Notice ───────────────────────────────────────────────────────────────────
+
+export type NoticeType = 'GENERAL' | 'SHIPPING' | 'POLICY' | 'EVENT' | 'SYSTEM';
+
+export interface Notice {
+  id: UUID;
+  type: NoticeType;
+  title_ko: string;
+  title_en: string | null;
+  title_ja: string | null;
+  title_de: string | null;
+  content_ko: string;
+  content_en: string | null;
+  content_ja: string | null;
+  content_de: string | null;
+  is_pinned: boolean;
+  is_active: boolean;
+  view_count: number;
+  created_by: UUID | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+
+export type FaqCategory = 'ORDER' | 'SHIPPING' | 'RETURN' | 'PRODUCT' | 'ACCOUNT' | 'PAYMENT' | 'OTHER';
+
+export interface Faq {
+  id: UUID;
+  category: FaqCategory;
+  question_ko: string;
+  question_en: string | null;
+  question_ja: string | null;
+  question_de: string | null;
+  answer_ko: string;
+  answer_en: string | null;
+  answer_ja: string | null;
+  answer_de: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_by: UUID | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
+// ─── Tag ──────────────────────────────────────────────────────────────────────
+
+export interface Tag {
+  id: UUID;
+  name_ko: string;
+  name_en: string | null;
+  name_ja: string | null;
+  name_de: string | null;
+  slug: string;
+  is_active: boolean;
+  created_at: ISODateTime;
+}
+
+export interface ProductTag {
+  product_id: UUID;
+  tag_id: UUID;
+  /** Resolved relation */
+  tag?: Tag;
+}
+
 // ─── API Response Wrappers ────────────────────────────────────────────────────
 
 export interface PaginatedResponse<T> {
