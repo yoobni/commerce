@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import type { CartDisplay } from '@/lib/cart/queries';
+import type { CouponIssuanceWithDetails } from '@/lib/coupons/queries';
+import { validateCouponCodeAction } from '@/lib/coupons/actions';
+import { createOrderAction } from '@/lib/orders/actions';
 import type { Address, Locale } from '@commerce/types';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
@@ -18,6 +21,8 @@ interface CheckoutClientProps {
   cart: CartDisplay;
   addresses: Address[];
   locale: Locale;
+  pointBalance: number;
+  availableCoupons: CouponIssuanceWithDetails[];
 }
 
 const STEP_ORDER: Step[] = ['shipping', 'payment', 'confirm'];
@@ -55,7 +60,20 @@ function getItemPrice(item: CartDisplay['items'][number], locale: Locale): numbe
   return (base + extra) * item.quantity;
 }
 
-export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps) {
+function getCouponName(coupon: CouponIssuanceWithDetails['coupon'], locale: Locale): string {
+  if (locale === 'ko') return coupon.name_ko;
+  if (locale === 'ja') return coupon.name_ja;
+  if (locale === 'de') return coupon.name_de;
+  return coupon.name_en;
+}
+
+export function CheckoutClient({
+  cart,
+  addresses,
+  locale,
+  pointBalance,
+  availableCoupons,
+}: CheckoutClientProps) {
   const t = useTranslations('checkout');
   const router = useRouter();
   const track = useTrack();
@@ -80,11 +98,20 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
-  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponIssuanceId, setCouponIssuanceId] = useState<string | null>(null);
+  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0);
+  const [couponDiscountText, setCouponDiscountText] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isCouponPending, startCouponTransition] = useTransition();
+
+  // Point state
+  const [pointInput, setPointInput] = useState('');
+  const [pointError, setPointError] = useState<string | null>(null);
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
   const shippingFee =
-    subtotal >= (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50)
+    subtotal >=
+    (locale === 'ko' ? 50000 : locale === 'en' ? 50 : locale === 'ja' ? 7000 : 50)
       ? 0
       : locale === 'ko'
         ? 3000
@@ -93,8 +120,14 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           : locale === 'ja'
             ? 1000
             : 8;
-  const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
-  const total = subtotal + shippingFee - couponDiscount;
+
+  const pointUsed = Math.min(
+    Math.max(0, parseInt(pointInput || '0', 10) || 0),
+    pointBalance,
+    subtotal + shippingFee - couponDiscountAmount
+  );
+
+  const total = Math.max(0, subtotal + shippingFee - couponDiscountAmount - pointUsed);
 
   function handleAddressSelect(addr: Address) {
     setSelectedAddressId(addr.id);
@@ -106,8 +139,63 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   }
 
   function handleApplyCoupon() {
-    if (couponCode.toUpperCase() === 'RAVI10') {
-      setCouponApplied(true);
+    if (!couponCode.trim()) return;
+    setCouponError(null);
+    startCouponTransition(async () => {
+      const result = await validateCouponCodeAction(couponCode, subtotal, locale);
+      if ('error' in result) {
+        setCouponError(result.error);
+      } else {
+        setCouponIssuanceId(result.issuanceId);
+        setCouponDiscountAmount(result.discountAmount);
+        setCouponDiscountText(result.discountText);
+        setCouponError(null);
+      }
+    });
+  }
+
+  function handleSelectCoupon(issuance: CouponIssuanceWithDetails) {
+    const coupon = issuance.coupon;
+    let discountAmount: number;
+    let discountText: string;
+    if (coupon.type === 'PERCENTAGE') {
+      discountAmount = Math.floor(subtotal * (coupon.discount_value / 100));
+      if (coupon.max_discount_amount) {
+        discountAmount = Math.min(discountAmount, coupon.max_discount_amount);
+      }
+      discountText = `${coupon.discount_value}% 할인`;
+    } else {
+      discountAmount = coupon.discount_value;
+      discountText = `${discountAmount.toLocaleString()}${locale === 'ko' ? '원' : ''} 할인`;
+    }
+    setCouponIssuanceId(issuance.id);
+    setCouponDiscountAmount(discountAmount);
+    setCouponDiscountText(discountText);
+    setCouponCode(coupon.code);
+    setCouponError(null);
+  }
+
+  function handleRemoveCoupon() {
+    setCouponIssuanceId(null);
+    setCouponDiscountAmount(0);
+    setCouponDiscountText('');
+    setCouponCode('');
+    setCouponError(null);
+  }
+
+  function handlePointUseAll() {
+    const max = Math.min(pointBalance, subtotal + shippingFee - couponDiscountAmount);
+    setPointInput(String(max));
+    setPointError(null);
+  }
+
+  function handlePointInputChange(value: string) {
+    setPointInput(value);
+    const num = parseInt(value || '0', 10) || 0;
+    if (num > pointBalance) {
+      setPointError('보유 포인트를 초과합니다.');
+    } else {
+      setPointError(null);
     }
   }
 
@@ -138,45 +226,29 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           category: '',
         })),
         total_value: total,
-        coupon_applied: couponApplied,
-        coupon_code: couponApplied ? couponCode : null,
-        point_used: 0,
+        coupon_applied: !!couponIssuanceId,
+        coupon_code: couponIssuanceId ? couponCode : null,
+        point_used: pointUsed,
       });
 
-      // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
-      // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
-      // 환경변수: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-      //
-      // 1) PaymentIntent 생성 (서버)
-      //    POST /api/payments/create-intent → { clientSecret }
-      //
-      // 2) Stripe Elements로 결제 진행 (클라이언트)
-      //    import { loadStripe } from '@stripe/stripe-js';
-      //    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      //    const res = await fetch('/api/payments/create-intent', {
-      //      method: 'POST',
-      //      headers: { 'Content-Type': 'application/json' },
-      //      body: JSON.stringify({
-      //        amount: total,
-      //        currency: locale === 'ko' ? 'krw' : locale === 'ja' ? 'jpy' : locale === 'de' ? 'eur' : 'usd',
-      //        metadata: { cart_id: cart.id, coupon_code: couponApplied ? couponCode : '' },
-      //      }),
-      //    });
-      //    const { clientSecret, paymentIntentId } = await res.json();
-      //
-      // 3) 결제 확인
-      //    const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
-      //      payment_method: { card: cardElement },
-      //    });
-      //    if (error) { /* 실패 처리 */ return; }
-      //
-      // 4) 주문 생성 → 성공 페이지
-      //    const order = await createOrder({ cartId: cart.id, paymentIntentId });
-      //    router.push(`/checkout/success?order_id=${order.id}`);
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // 데모: 실제 결제 연동 전 임시 라우팅
-      router.push('/checkout/success?order_id=demo');
+      try {
+        const result = await createOrderAction({
+          recipient,
+          phone,
+          postalCode,
+          addressLine1,
+          addressLine2,
+          deliveryNote,
+          payMethod,
+          couponIssuanceId,
+          pointUsed,
+          locale,
+        });
+        router.push(`/checkout/success?order_id=${result.orderId}&order_number=${result.orderNumber}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : '주문에 실패했습니다.';
+        alert(msg);
+      }
     });
   }
 
@@ -412,54 +484,148 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
               ))}
             </div>
 
-            {/* Coupon */}
-            <div className="space-y-2">
+            {/* Coupon section */}
+            <div className="space-y-3">
               <p className="text-sm font-semibold text-[var(--color-text-primary)]">
                 {t('coupon.title')}
               </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder={t('coupon.couponPlaceholder')}
-                  disabled={couponApplied}
-                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 disabled:bg-[var(--color-neutral-50)] transition"
-                />
-                {couponApplied ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      setCouponApplied(false);
-                      setCouponCode('');
+
+              {/* Available coupons from account */}
+              {availableCoupons.length > 0 && !couponIssuanceId && (
+                <div className="space-y-2">
+                  {availableCoupons.map((issuance) => {
+                    const coupon = issuance.coupon;
+                    const isActive = coupon.status === 'ACTIVE';
+                    const isExpired = new Date(issuance.expires_at) < new Date();
+                    const isUsable = isActive && !isExpired && issuance.status === 'ISSUED';
+                    const minOk = !coupon.min_order_amount || subtotal >= coupon.min_order_amount;
+                    return (
+                      <button
+                        key={issuance.id}
+                        type="button"
+                        disabled={!isUsable || !minOk}
+                        onClick={() => isUsable && minOk && handleSelectCoupon(issuance)}
+                        className={cn(
+                          'w-full text-left p-3 rounded-lg border text-sm transition-all',
+                          isUsable && minOk
+                            ? 'border-[var(--color-border)] hover:border-[var(--color-brand-primary)]/50 cursor-pointer'
+                            : 'border-[var(--color-border)] opacity-50 cursor-not-allowed'
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-[var(--color-text-primary)]">
+                            {getCouponName(coupon, locale)}
+                          </span>
+                          <span className="text-xs font-bold text-[var(--color-brand-primary)]">
+                            {coupon.type === 'PERCENTAGE'
+                              ? `${coupon.discount_value}%`
+                              : formatPrice(coupon.discount_value, locale)}
+                            {' '}할인
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5">
+                          {coupon.code}
+                          {coupon.min_order_amount && !minOk && (
+                            <span className="ml-2 text-red-500">
+                              (최소 {formatPrice(coupon.min_order_amount, locale)} 이상)
+                            </span>
+                          )}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Coupon code input */}
+              {!couponIssuanceId && (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError(null);
                     }}
-                  >
-                    {t('coupon.remove')}
-                  </Button>
-                ) : (
+                    placeholder={t('coupon.couponPlaceholder')}
+                    className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 transition"
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                  />
                   <Button
                     variant="secondary"
                     size="sm"
                     onClick={handleApplyCoupon}
-                    disabled={!couponCode}
+                    disabled={!couponCode || isCouponPending}
+                    loading={isCouponPending}
                   >
                     {t('coupon.apply')}
                   </Button>
-                )}
-              </div>
-              {couponApplied && (
-                <p className="text-xs text-green-600 font-medium">
-                  {t('coupon.applied')} — 10% {t('coupon.discount', { defaultValue: '할인' })}
-                </p>
+                </div>
+              )}
+
+              {couponIssuanceId && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
+                  <div>
+                    <span className="text-sm font-medium text-green-700">{t('coupon.applied')}</span>
+                    <span className="ml-2 text-sm text-green-600">{couponDiscountText}</span>
+                    <p className="text-xs text-green-600 mt-0.5">{couponCode}</p>
+                  </div>
+                  <Button variant="secondary" size="sm" onClick={handleRemoveCoupon}>
+                    {t('coupon.remove')}
+                  </Button>
+                </div>
+              )}
+
+              {couponError && (
+                <p className="text-xs text-red-500">{couponError}</p>
               )}
             </div>
+
+            {/* Point section */}
+            {pointBalance > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+                    {t('coupon.points')}
+                  </p>
+                  <span className="text-sm text-[var(--color-text-secondary)]">
+                    {t('coupon.availablePoints')}: <strong>{pointBalance.toLocaleString()}P</strong>
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={pointBalance}
+                    value={pointInput}
+                    onChange={(e) => handlePointInputChange(e.target.value)}
+                    placeholder="0"
+                    className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 transition"
+                  />
+                  <Button variant="secondary" size="sm" onClick={handlePointUseAll}>
+                    {t('coupon.useAll')}
+                  </Button>
+                </div>
+                {pointError && <p className="text-xs text-red-500">{pointError}</p>}
+                {pointUsed > 0 && (
+                  <p className="text-xs text-green-600">
+                    {pointUsed.toLocaleString()}P 사용 → {formatPrice(pointUsed, locale)} 할인
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
                 ← {t('steps.shipping')}
               </Button>
-              <Button variant="primary" size="lg" className="flex-1" onClick={handleNextStep}>
+              <Button
+                variant="primary"
+                size="lg"
+                className="flex-1"
+                onClick={handleNextStep}
+                disabled={!!pointError}
+              >
                 {t('steps.confirm')} →
               </Button>
             </div>
@@ -502,8 +668,27 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 {payMethod === 'kakao' && t('payment.kakaoPay')}
                 {payMethod === 'naver' && t('payment.naverPay')}
                 {payMethod === 'transfer' && t('payment.bankTransfer')}
+                {payMethod === 'toss' && 'Toss Pay'}
               </p>
             </div>
+
+            {/* Discount summary */}
+            {(couponIssuanceId || pointUsed > 0) && (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4 space-y-1">
+                {couponIssuanceId && (
+                  <div className="flex justify-between text-sm text-green-700">
+                    <span>{t('summary.couponDiscount')}</span>
+                    <span>-{formatPrice(couponDiscountAmount, locale)}</span>
+                  </div>
+                )}
+                {pointUsed > 0 && (
+                  <div className="flex justify-between text-sm text-green-700">
+                    <span>{t('summary.pointDiscount')}</span>
+                    <span>-{pointUsed.toLocaleString()}P ({formatPrice(pointUsed, locale)})</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
@@ -578,10 +763,16 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
               </span>
             </div>
-            {couponApplied && (
+            {couponDiscountAmount > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>{t('summary.couponDiscount')}</span>
-                <span>-{formatPrice(couponDiscount, locale)}</span>
+                <span>-{formatPrice(couponDiscountAmount, locale)}</span>
+              </div>
+            )}
+            {pointUsed > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>{t('summary.pointDiscount')}</span>
+                <span>-{pointUsed.toLocaleString()}P</span>
               </div>
             )}
             <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
