@@ -165,7 +165,11 @@
     "nextPage": "다음",
     "pageOf": "{page} / {total}",
     "new": "신상품",
-    "featured": "추천"
+    "featured": "추천",
+    "sort": "정렬",
+    "apply": "적용",
+    "loadMore": "더 보기",
+    "loadMoreLoading": "불러오는 중..."
   },
   "community": {
     "title": "커뮤니티",

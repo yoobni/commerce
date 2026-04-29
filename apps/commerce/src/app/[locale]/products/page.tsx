@@ -8,6 +8,9 @@ import { listProducts } from '@/lib/queries/products';
 import { listCategories } from '@/lib/queries/categories';
 import { listAvailableColors } from '@/lib/queries/products';
 import { ProductCard } from '@/components/product/ProductCard';
+import { SortSelect } from '@/components/product/SortSelect';
+import { PriceRangeFilter } from '@/components/product/PriceRangeFilter';
+import { LoadMoreButton } from '@/components/product/LoadMoreButton';
 import { Container } from '@/components/layout/Container';
 import { Link } from '@/i18n/navigation';
 import { getCategoryName } from '@/lib/format';
@@ -118,6 +121,21 @@ export default async function ProductsPage({ params, searchParams }: Props) {
     const qs = p.toString();
     return `/products${qs ? `?${qs}` : ''}`;
   }
+
+  // Sort URLs for SortSelect client component
+  const sortUrls: Record<string, string> = {};
+  SORT_OPTIONS.forEach(({ value }) => {
+    sortUrls[value] = buildUrl({ sort: value === 'newest' ? undefined : value, page: undefined });
+  });
+
+  // API params for LoadMoreButton client-side fetching
+  const apiParams: Record<string, string> = {};
+  if (currentCategory) apiParams.category = currentCategory;
+  if (currentSort !== 'newest') apiParams.sort = currentSort;
+  if (currentSizes.length > 0) apiParams.size = currentSizes.join(',');
+  if (currentColors.length > 0) apiParams.color = currentColors.join(',');
+  if (currentMinPrice !== undefined) apiParams.min_price = String(currentMinPrice);
+  if (currentMaxPrice !== undefined) apiParams.max_price = String(currentMaxPrice);
 
   return (
     <div className="bg-[var(--mz-bg)] min-h-screen">
@@ -293,6 +311,19 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               </div>
             )}
 
+            {/* Price range filter */}
+            <div>
+              <h3 className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">{t('price')}</h3>
+              <PriceRangeFilter
+                baseUrl={buildUrl({ min_price: undefined, max_price: undefined })}
+                currentMin={currentMinPrice}
+                currentMax={currentMaxPrice}
+                labelMin={t('minPrice')}
+                labelMax={t('maxPrice')}
+                labelApply={t('apply')}
+              />
+            </div>
+
             {/* Clear filters */}
             {hasActiveFilters && (
               <Link
@@ -317,27 +348,16 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   htmlFor="sort-select"
                   className="text-[12px] text-[var(--mz-ink-mute)] shrink-0"
                 >
-                  {t('sort') ?? 'Sort'}:
+                  {t('sort')}:
                 </label>
-                <div className="relative">
-                  <select
-                    id="sort-select"
-                    defaultValue={currentSort}
-                    className="appearance-none h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] bg-[var(--mz-surface)] text-[12px] text-[var(--mz-ink)] focus:outline-none focus:border-[var(--mz-ink)] cursor-pointer transition-colors duration-150"
-                    onChange={(e) => {
-                      window.location.href = buildUrl({ sort: e.target.value, page: undefined });
-                    }}
-                  >
-                    {SORT_OPTIONS.map(({ value, labelKey }) => (
-                      <option key={value} value={value}>
-                        {t(labelKey)}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--mz-ink-mute)]">
-                    <ChevronIcon />
-                  </span>
-                </div>
+                <SortSelect
+                  defaultValue={currentSort}
+                  sortUrls={sortUrls}
+                  options={SORT_OPTIONS.map(({ value, labelKey }) => ({
+                    value,
+                    label: t(labelKey),
+                  }))}
+                />
               </div>
             </div>
 
@@ -373,6 +393,20 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   />
                 ))}
               </div>
+            )}
+
+            {/* Load more (client-side infinite scroll) */}
+            {result.data.length > 0 && (
+              <LoadMoreButton
+                initialPage={currentPage}
+                totalCount={result.total}
+                perPage={PER_PAGE}
+                locale={locale as Locale}
+                isAuthenticated={!!user}
+                apiParams={apiParams}
+                loadMoreLabel={t('loadMore')}
+                loadingLabel={t('loadMoreLoading')}
+              />
             )}
 
             {/* Pagination */}
@@ -431,24 +465,6 @@ function sidebarLinkClass(active: boolean): string {
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-}
 
 function PawIcon() {
   return (

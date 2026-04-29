@@ -216,7 +216,11 @@
     "nextPage": "Weiter",
     "pageOf": "{page} von {total}",
     "new": "Neu",
-    "featured": "Empfohlen"
+    "featured": "Empfohlen",
+    "sort": "Sortieren",
+    "apply": "Anwenden",
+    "loadMore": "Mehr laden",
+    "loadMoreLoading": "Wird geladen..."
   },
   "checkout": {
     "title": "Bestellung",

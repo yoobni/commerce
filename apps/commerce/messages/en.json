@@ -216,7 +216,11 @@
     "nextPage": "Next",
     "pageOf": "{page} of {total}",
     "new": "New",
-    "featured": "Featured"
+    "featured": "Featured",
+    "sort": "Sort",
+    "apply": "Apply",
+    "loadMore": "Load more",
+    "loadMoreLoading": "Loading..."
   },
   "checkout": {
     "title": "Checkout",
