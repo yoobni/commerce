@@ -1,10 +1,22 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import type { OrderStatus } from '@commerce/types';
-import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
+import {
+  getDashboardStats,
+  getPeriodStats,
+  getPeriodTrend,
+  getRecentOrders,
+  getOrderStatusCounts,
+  getTopProducts,
+  getRecentActivity,
+  type DailyStat,
+} from '@/lib/queries/stats';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MiniChart } from '@/components/ui/MiniChart';
 import { Badge } from '@/components/ui/Badge';
+import { PeriodSelector } from './_components/PeriodSelector';
+import { RealtimeAlerts } from './_components/RealtimeAlerts';
 
 export const metadata = { title: '대시보드' };
 
@@ -27,40 +39,78 @@ function trendText(
   };
 }
 
+function pctTrend(change: number): { direction: 'up' | 'down' | 'neutral'; text: string } {
+  if (Math.abs(change) < 0.5) return { direction: 'neutral', text: '전기 대비 동일' };
+  const sign = change > 0 ? '+' : '';
+  return {
+    direction: change > 0 ? 'up' : 'down',
+    text: `${sign}${change.toFixed(1)}% 전기 대비`,
+  };
+}
+
 function formatKRW(amount: number): string {
   if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억원`;
   if (amount >= 10_000) return `${(amount / 10_000).toFixed(1)}만원`;
   return `${amount.toLocaleString()}원`;
 }
 
-// ─── Bar chart (weekly revenue) ───────────────────────────────────────────────
+// ─── Period trend bar chart ───────────────────────────────────────────────────
 
-function WeeklyBarChart({
+function buildBars(data: DailyStat[], days: number): Array<DailyStat & { label: string }> {
+  if (days <= 30) {
+    return data.map((d) => {
+      const date = new Date(d.date + 'T12:00:00');
+      const label =
+        days === 7
+          ? ['일', '월', '화', '수', '목', '금', '토'][date.getDay()]
+          : String(date.getDate());
+      return { ...d, label };
+    });
+  }
+  // 90-day: group by week
+  const weeks: Record<string, DailyStat & { label: string }> = {};
+  for (const d of data) {
+    const date = new Date(d.date + 'T12:00:00');
+    const sun = new Date(date);
+    sun.setDate(date.getDate() - date.getDay());
+    const key = sun.toISOString().slice(0, 10);
+    if (!weeks[key]) {
+      const label = `${sun.getMonth() + 1}/${sun.getDate()}`;
+      weeks[key] = { date: key, revenue: 0, orders: 0, label };
+    }
+    weeks[key].revenue += d.revenue;
+    weeks[key].orders += d.orders;
+  }
+  return Object.values(weeks);
+}
+
+function PeriodTrendChart({
   data,
+  days,
 }: {
-  data: Array<{ date: string; revenue: number; orders: number }>;
+  data: DailyStat[];
+  days: number;
 }) {
-  const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
-  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const bars = buildBars(data, days);
+  const maxRevenue = Math.max(...bars.map((d) => d.revenue), 1);
+  const showEvery = bars.length > 15 ? Math.ceil(bars.length / 10) : 1;
 
   return (
     <div
       className="bg-white border border-[var(--color-border)] rounded-xl p-5"
       role="img"
-      aria-label="주간 매출 추이"
+      aria-label={`최근 ${days}일 매출 추이`}
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">주간 매출 추이</h2>
-        <span className="text-xs text-[var(--color-text-tertiary)]">최근 7일</span>
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">매출 추이</h2>
+        <span className="text-xs text-[var(--color-text-tertiary)]">최근 {days}일</span>
       </div>
-      <div className="flex items-end gap-2 h-32" aria-hidden="true">
-        {data.map((d) => {
+      <div className="flex items-end gap-1 h-32" aria-hidden="true">
+        {bars.map((d, i) => {
           const heightPct = maxRevenue > 0 ? (d.revenue / maxRevenue) * 100 : 0;
-          const dayLabel = days[new Date(d.date + 'T12:00:00').getDay()];
           return (
-            <div key={d.date} className="flex flex-col items-center gap-1.5 flex-1 group">
+            <div key={d.date} className="flex flex-col items-center gap-1 flex-1 group">
               <div className="relative flex flex-col justify-end w-full h-24 cursor-default">
-                {/* Tooltip */}
                 <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                   <p className="font-medium">{formatKRW(d.revenue)}</p>
                   <p className="text-gray-300">{d.orders}건</p>
@@ -74,11 +124,141 @@ function WeeklyBarChart({
                   }}
                 />
               </div>
-              <span className="text-xs text-[var(--color-text-tertiary)]">{dayLabel}</span>
+              <span className="text-[10px] text-[var(--color-text-tertiary)]">
+                {i % showEvery === 0 ? d.label : ''}
+              </span>
             </div>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ─── Order status distribution ────────────────────────────────────────────────
+
+const STATUS_KO: Record<string, string> = {
+  PAID: '결제완료',
+  PREPARING: '준비중',
+  SHIPPED: '배송중',
+  DELIVERED: '배송완료',
+  CONFIRMED: '구매확정',
+  RETURN_REQUESTED: '반품요청',
+  RETURNED: '반품완료',
+  REFUND_REQUESTED: '환불요청',
+  REFUNDED: '환불완료',
+  CANCELLED: '취소',
+  PENDING_PAYMENT: '결제대기',
+  DELIVERY_FAILED: '배송실패',
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  PAID: 'bg-blue-400',
+  PREPARING: 'bg-amber-400',
+  SHIPPED: 'bg-purple-400',
+  DELIVERED: 'bg-indigo-400',
+  CONFIRMED: 'bg-emerald-500',
+  RETURN_REQUESTED: 'bg-orange-400',
+  RETURNED: 'bg-orange-500',
+  REFUND_REQUESTED: 'bg-red-400',
+  REFUNDED: 'bg-red-500',
+  CANCELLED: 'bg-gray-400',
+  PENDING_PAYMENT: 'bg-yellow-400',
+  DELIVERY_FAILED: 'bg-rose-500',
+};
+
+function OrderStatusChart({ counts }: { counts: Record<string, number> }) {
+  const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+  const entries = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+
+  return (
+    <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">주문 상태 분포</h2>
+        <span className="text-xs text-[var(--color-text-tertiary)]">전체 {total.toLocaleString()}건</span>
+      </div>
+      <div className="space-y-2.5">
+        {entries.map(([status, count]) => {
+          const pct = Math.round((count / total) * 100);
+          return (
+            <div key={status}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-[var(--color-text-secondary)]">
+                  {STATUS_KO[status] ?? status}
+                </span>
+                <span className="text-xs font-medium text-[var(--color-text-primary)]">
+                  {count.toLocaleString()}건 ({pct}%)
+                </span>
+              </div>
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${STATUS_COLOR[status] ?? 'bg-gray-400'}`}
+                  style={{ width: `${Math.max(pct, 1)}%` }}
+                  role="progressbar"
+                  aria-valuenow={pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Top products ─────────────────────────────────────────────────────────────
+
+function TopProductsWidget({
+  products,
+}: {
+  products: Array<{ id: string; name: string; quantity: number; revenue: number }>;
+}) {
+  const maxQty = Math.max(...products.map((p) => p.quantity), 1);
+
+  return (
+    <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">인기 상품</h2>
+        <span className="text-xs text-[var(--color-text-tertiary)]">최근 30일</span>
+      </div>
+      {products.length === 0 ? (
+        <p className="text-sm text-[var(--color-text-tertiary)] py-4 text-center">
+          판매 데이터 없음
+        </p>
+      ) : (
+        <ol className="space-y-3">
+          {products.map((p, i) => (
+            <li key={p.id} className="flex items-center gap-3">
+              <span className="w-5 h-5 rounded-full bg-gray-100 text-[10px] font-bold text-[var(--color-text-tertiary)] flex items-center justify-center shrink-0">
+                {i + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-[var(--color-text-primary)] truncate">
+                  {p.name}
+                </p>
+                <div className="mt-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--color-brand-accent)] rounded-full opacity-70"
+                    style={{ width: `${(p.quantity / maxQty) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-xs font-semibold text-[var(--color-text-primary)]">
+                  {p.quantity.toLocaleString()}개
+                </p>
+                <p className="text-[10px] text-[var(--color-text-tertiary)]">
+                  {formatKRW(p.revenue)}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
@@ -109,12 +289,24 @@ const QUICK_LINKS = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function DashboardPage() {
-  const [stats, trend, recentOrders] = await Promise.all([
-    getDashboardStats(),
-    getWeeklySalesTrend(),
-    getRecentOrders(5),
-  ]);
+interface PageProps {
+  searchParams: Promise<{ period?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const period = [7, 30, 90].includes(Number(params.period)) ? Number(params.period) : 30;
+
+  const [stats, periodStats, trend, statusCounts, topProducts, recentActivity, recentOrders] =
+    await Promise.all([
+      getDashboardStats(),
+      getPeriodStats(period),
+      getPeriodTrend(period),
+      getOrderStatusCounts(),
+      getTopProducts(5),
+      getRecentActivity(60),
+      getRecentOrders(5),
+    ]);
 
   const revenueTrendData = trend.map((d) => d.revenue);
   const orderTrendData = trend.map((d) => d.orders);
@@ -123,8 +315,11 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">대시보드</h1>
 
-      {/* KPI cards */}
-      <section aria-label="핵심 지표">
+      {/* Daily KPI cards */}
+      <section aria-label="오늘 지표">
+        <p className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide mb-3">
+          오늘 현황
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <KpiCard
             label="오늘 주문"
@@ -178,41 +373,107 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      {/* Period KPI cards */}
+      <section aria-label="기간별 통계">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide">
+            기간별 통계
+          </p>
+          <Suspense fallback={null}>
+            <PeriodSelector current={String(period)} />
+          </Suspense>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <KpiCard
+            label={`${period}일 주문`}
+            value={periodStats.orders.toLocaleString()}
+            subLabel="취소·환불 제외"
+            trend={pctTrend(periodStats.ordersChange)}
+            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            iconBg="bg-blue-50"
+            iconColor="text-blue-600"
+          />
+          <KpiCard
+            label={`${period}일 매출`}
+            value={formatKRW(periodStats.revenue)}
+            subLabel="취소·환불 제외"
+            trend={pctTrend(periodStats.revenueChange)}
+            iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            iconBg="bg-amber-50"
+            iconColor="text-amber-600"
+          />
+          <KpiCard
+            label={`${period}일 신규 회원`}
+            value={periodStats.newMembers.toLocaleString()}
+            subLabel="탈퇴 제외"
+            trend={pctTrend(periodStats.membersChange)}
+            iconPath="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+            iconBg="bg-emerald-50"
+            iconColor="text-emerald-600"
+          />
+          <KpiCard
+            label="평균 주문액"
+            value={formatKRW(periodStats.avgOrderValue)}
+            subLabel={`${period}일 기준`}
+            iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+            iconBg="bg-rose-50"
+            iconColor="text-rose-600"
+          />
+        </div>
+      </section>
+
       {/* Charts row */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="통계 차트">
-        <WeeklyBarChart data={trend} />
+        <PeriodTrendChart data={trend} days={period} />
+        <OrderStatusChart counts={statusCounts} />
+      </section>
 
-        {/* Quick links */}
-        <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">빠른 메뉴</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-3 p-3 border border-[var(--color-border)] rounded-lg hover:border-[var(--color-brand-accent)] hover:bg-amber-50/30 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-amber-100/50 flex items-center justify-center shrink-0 transition-colors">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.75}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-4 h-4 text-[var(--color-text-secondary)] group-hover:text-[var(--color-brand-accent)] transition-colors"
-                    aria-hidden="true"
-                  >
-                    <path d={link.iconPath} />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {link.label}
-                </span>
-              </Link>
-            ))}
+      {/* Bottom row: top products + realtime alerts */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="인기 상품 및 실시간 활동">
+        <TopProductsWidget products={topProducts} />
+
+        {/* Quick links on small viewport, realtime on lg+ */}
+        <div className="flex flex-col gap-4 lg:hidden">
+          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">빠른 메뉴</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {QUICK_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-3 p-3 border border-[var(--color-border)] rounded-lg hover:border-[var(--color-brand-accent)] hover:bg-amber-50/30 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-amber-100/50 flex items-center justify-center shrink-0 transition-colors">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.75}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-4 h-4 text-[var(--color-text-secondary)] group-hover:text-[var(--color-brand-accent)] transition-colors"
+                      aria-hidden="true"
+                    >
+                      <path d={link.iconPath} />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-[var(--color-text-primary)]">
+                    {link.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
+
+        <div className="hidden lg:block min-h-64">
+          <RealtimeAlerts initial={recentActivity} />
+        </div>
+      </section>
+
+      {/* Realtime alerts on mobile */}
+      <section className="lg:hidden" aria-label="실시간 활동">
+        <RealtimeAlerts initial={recentActivity} />
       </section>
 
       {/* Recent orders */}
