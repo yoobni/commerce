@@ -9,6 +9,7 @@ import { getOrderById } from '@/lib/queries/orders';
 import { Link } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@commerce/types';
+import { CancelOrderButton } from './_components/CancelOrderButton';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -21,14 +22,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  PENDING_PAYMENT: 'bg-yellow-50 text-yellow-700 border-yellow-200',
   PAID: 'bg-blue-50 text-blue-700 border-blue-200',
   PREPARING: 'bg-purple-50 text-purple-700 border-purple-200',
   SHIPPED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   DELIVERED: 'bg-green-50 text-green-700 border-green-200',
+  CONFIRMED: 'bg-green-50 text-green-800 border-green-300',
   CANCELLED: 'bg-neutral-50 text-neutral-500 border-neutral-200',
   REFUNDED: 'bg-red-50 text-red-600 border-red-200',
+  RETURN_REQUESTED: 'bg-orange-50 text-orange-700 border-orange-200',
 };
+
+const CANCELLABLE_STATUSES = ['PENDING_PAYMENT', 'PAID'];
 
 export default async function OrderDetailPage({ params }: Props) {
   const { locale, id } = await params;
@@ -49,6 +54,8 @@ export default async function OrderDetailPage({ params }: Props) {
   const statusLabel = (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
   const statusClass =
     STATUS_COLORS[order.status] ?? 'bg-neutral-50 text-neutral-500 border-neutral-200';
+
+  const canCancel = CANCELLABLE_STATUSES.includes(order.status);
 
   return (
     <div className="space-y-6">
@@ -122,7 +129,8 @@ export default async function OrderDetailPage({ params }: Props) {
           {tCheckout('shipping.title')}
         </h3>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          {order.shipping_address_snapshot.recipient_name} · {order.shipping_address_snapshot.phone}
+          {order.shipping_address_snapshot.recipient_name} ·{' '}
+          {order.shipping_address_snapshot.phone}
         </p>
         <p className="text-sm text-[var(--color-text-secondary)]">
           {order.shipping_address_snapshot.address_line1}
@@ -169,20 +177,8 @@ export default async function OrderDetailPage({ params }: Props) {
       </div>
 
       {/* Action buttons */}
-      {order.status === 'SHIPPED' && (
-        <div className="flex gap-3">
-          {/*
-           * [나중에 구현] 배송 추적 버튼 활성화
-           * 계획서: docs/shipping-tracking-plan.md § 5 Phase 4
-           *
-           * 구현 순서:
-           *   1. apps/commerce/src/lib/queries/orders.ts → getOrderById()에 shipment join 추가
-           *      (tracking_number, carrier, external_tracker_id 포함)
-           *   2. 이 버튼을 disabled에서 클릭 가능으로 변경
-           *   3. 클릭 시: 택배사 공식 추적 URL로 외부 이동 (새 탭)
-           *      또는 모달로 tracking_events JSONB 이벤트 이력 표시
-           *   4. 택배사별 외부 추적 URL 매핑은 docs/shipping-tracking-plan.md § 9 참고
-           */}
+      <div className="flex flex-wrap gap-3">
+        {order.status === 'SHIPPED' && (
           <button
             type="button"
             disabled
@@ -191,8 +187,11 @@ export default async function OrderDetailPage({ params }: Props) {
           >
             {t('trackPackage')}
           </button>
-        </div>
-      )}
+        )}
+        {canCancel && (
+          <CancelOrderButton orderId={order.id} label={t('cancelOrder')} />
+        )}
+      </div>
     </div>
   );
 }

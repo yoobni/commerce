@@ -6,6 +6,8 @@ import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { getCartWithItems } from '@/lib/cart/queries';
 import { getAddresses } from '@/lib/account/queries';
+import { getUserPointBalance } from '@/lib/points/queries';
+import { getUserCoupons } from '@/lib/coupons/queries';
 import { Container } from '@/components/layout/Container';
 import { CheckoutClient } from './_components/CheckoutClient';
 
@@ -30,14 +32,17 @@ export default async function CheckoutPage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Require auth for checkout
   if (!user) {
     redirect(`/${locale}/auth/login?next=/${locale}/checkout`);
   }
 
-  const [cart, addresses] = await Promise.all([getCartWithItems(), getAddresses(user.id)]);
+  const [cart, addresses, pointData, availableCoupons] = await Promise.all([
+    getCartWithItems(),
+    getAddresses(user.id),
+    getUserPointBalance(user.id),
+    getUserCoupons(user.id),
+  ]);
 
-  // Redirect to cart if empty
   if (!cart || cart.items.length === 0) {
     redirect(`/${locale}/cart`);
   }
@@ -48,7 +53,13 @@ export default async function CheckoutPage({ params }: Props) {
     <div className="bg-[var(--color-bg)] min-h-screen">
       <Container className="py-8 md:py-12">
         <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-8">{t('title')}</h1>
-        <CheckoutClient cart={cart} addresses={addresses} locale={locale as Locale} />
+        <CheckoutClient
+          cart={cart}
+          addresses={addresses}
+          locale={locale as Locale}
+          pointBalance={pointData?.balance ?? 0}
+          availableCoupons={availableCoupons}
+        />
       </Container>
     </div>
   );

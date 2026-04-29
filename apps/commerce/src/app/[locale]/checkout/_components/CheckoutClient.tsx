@@ -9,8 +9,10 @@ import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import type { CartDisplay } from '@/lib/cart/queries';
 import type { Address, Locale } from '@commerce/types';
+import type { Coupon } from '@/lib/coupons/queries';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
+import { analytics } from '@/lib/analytics';
 
 type Step = 'shipping' | 'payment' | 'confirm';
 
@@ -18,6 +20,8 @@ interface CheckoutClientProps {
   cart: CartDisplay;
   addresses: Address[];
   locale: Locale;
+  pointBalance?: number;
+  availableCoupons?: Coupon[];
 }
 
 const STEP_ORDER: Step[] = ['shipping', 'payment', 'confirm'];
@@ -55,7 +59,13 @@ function getItemPrice(item: CartDisplay['items'][number], locale: Locale): numbe
   return (base + extra) * item.quantity;
 }
 
-export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps) {
+export function CheckoutClient({
+  cart,
+  addresses,
+  locale,
+  pointBalance = 0,
+  availableCoupons = [],
+}: CheckoutClientProps) {
   const t = useTranslations('checkout');
   const router = useRouter();
   const track = useTrack();
@@ -82,6 +92,10 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const [activeCoupon, setActiveCoupon] = useState<Coupon | null>(null);
+
+  // Point state
+  const [pointsToUse, setPointsToUse] = useState(0);
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
   const shippingFee =
@@ -94,8 +108,15 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           : locale === 'ja'
             ? 1000
             : 8;
-  const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
-  const total = subtotal + shippingFee - couponDiscount;
+  const couponDiscount = activeCoupon
+    ? activeCoupon.discount_type === 'percent'
+      ? Math.floor(subtotal * (activeCoupon.discount_value / 100))
+      : activeCoupon.discount_value
+    : couponApplied
+      ? Math.floor(subtotal * 0.1)
+      : 0;
+  const pointsDiscount = Math.min(pointsToUse, pointBalance);
+  const total = subtotal + shippingFee - couponDiscount - pointsDiscount;
 
   useEffect(() => {
     function handleBeforeUnload() {
@@ -122,8 +143,36 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   }
 
   function handleApplyCoupon() {
-    if (couponCode.toUpperCase() === 'RAVI10') {
+    const upperCode = couponCode.toUpperCase();
+    const matched = availableCoupons.find((c) => c.code === upperCode);
+
+    if (matched || upperCode === 'RAVI10') {
+      const discount_type = matched?.discount_type ?? 'percent';
+      const discount_value = matched?.discount_value ?? 10;
       setCouponApplied(true);
+      if (matched) setActiveCoupon(matched);
+      track('coupon_apply', {
+        coupon_code: upperCode,
+        discount_type,
+        discount_value,
+        order_total_before: subtotal,
+      });
+    } else {
+      track('coupon_apply_fail', {
+        coupon_code: upperCode,
+        fail_reason: 'invalid',
+      });
+    }
+  }
+
+  function handlePointUse(points: number) {
+    const clamped = Math.max(0, Math.min(points, pointBalance));
+    setPointsToUse(clamped);
+    if (clamped > 0) {
+      track('point_use', {
+        points_used: clamped,
+        order_total_before: subtotal,
+      });
     }
   }
 
@@ -158,6 +207,36 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   function handlePlaceOrder() {
     startTransition(async () => {
       setOrderPlaced(true);
+      const demoOrderId = `demo_${Date.now()}`;
+
+      track('purchase', {
+        order_id: demoOrderId,
+        transaction_id: null,
+        total,
+        subtotal,
+        shipping_cost: shippingFee,
+        tax: 0,
+        discount_total: couponDiscount + pointsDiscount,
+        coupon_code: couponApplied ? couponCode : null,
+        coupon_discount: couponDiscount,
+        points_used: pointsToUse,
+        points_discount: pointsDiscount,
+        item_count: cart.items.reduce((s, i) => s + i.quantity, 0),
+        items: cart.items.map((item) => ({
+          product_id: item.product_id,
+          product_name: getProductName(item, locale),
+          price: getItemPrice(item, locale) / item.quantity,
+          category: '',
+          variant_id: item.product_option_id,
+          size: item.size_label,
+          image_url: item.product_thumbnail_url,
+        })),
+        first_purchase: false,
+        community_inflow: analytics.getCommunityInflow(),
+        shipping_country: 'KR',
+        shipping_method: 'standard',
+        payment_method: payMethod,
+      });
 
       // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
       // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
@@ -192,7 +271,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
       // ─────────────────────────────────────────────────────────────────────────
 
       // 데모: 실제 결제 연동 전 임시 라우팅
-      router.push('/checkout/success?order_id=demo');
+      router.push(`/checkout/success?order_id=${demoOrderId}`);
     });
   }
 
