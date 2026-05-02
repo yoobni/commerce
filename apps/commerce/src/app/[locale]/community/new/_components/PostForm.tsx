@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createPostAction } from '@/lib/community/actions';
+import { createClient } from '@/lib/supabase/client';
+import { uploadPostImage, getStoragePublicUrl } from '@commerce/shared';
 import type { BoardType } from '@commerce/types';
 
 interface PostFormProps {
@@ -21,6 +24,8 @@ const BOARD_OPTIONS: BoardOption[] = [
   { value: 'QUESTION', labelKey: 'boardQuestion' },
 ];
 
+const MAX_IMAGES = 5;
+
 export function PostForm({ locale }: PostFormProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
@@ -30,8 +35,26 @@ export function PostForm({ locale }: PostFormProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [dogBreed, setDogBreed] = useState('');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    const remaining = MAX_IMAGES - imageFiles.length;
+    const toAdd = files.slice(0, remaining);
+    setImageFiles((prev) => [...prev, ...toAdd]);
+    setImagePreviews((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
+    e.target.value = '';
+  }
+
+  function removeImage(idx: number) {
+    URL.revokeObjectURL(imagePreviews[idx]);
+    setImageFiles((prev) => prev.filter((_, i) => i !== idx));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,12 +63,42 @@ export function PostForm({ locale }: PostFormProps) {
     setIsSubmitting(true);
     setError(null);
 
+    let uploadedUrls: string[] = [];
+
+    if (imageFiles.length > 0) {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setError(t('error.createFailed'));
+        setIsSubmitting(false);
+        return;
+      }
+
+      const folderId = crypto.randomUUID();
+      try {
+        for (const file of imageFiles) {
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const filename = `${Date.now()}-${safeName}`;
+          const path = await uploadPostImage(supabase, file, user.id, folderId, filename);
+          const url = getStoragePublicUrl(supabase, 'posts', path);
+          uploadedUrls.push(url);
+        }
+      } catch {
+        setError(t('imageUploadFailed'));
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const result = await createPostAction({
       board_type: boardType,
       title,
       content,
       dog_breed: dogBreed.trim() || null,
-      images: [],
+      images: uploadedUrls,
     });
 
     setIsSubmitting(false);
@@ -124,6 +177,59 @@ export function PostForm({ locale }: PostFormProps) {
         maxLength={50}
       />
 
+      {/* Image upload */}
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          {t('postImages')}
+        </p>
+
+        {/* Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="flex gap-2 flex-wrap mb-3">
+            {imagePreviews.map((src, idx) => (
+              <div
+                key={idx}
+                className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-neutral-100)]"
+              >
+                <Image src={src} alt={`미리보기 ${idx + 1}`} fill sizes="80px" className="object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  aria-label="이미지 제거"
+                  className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white text-xs leading-none hover:bg-black/80 transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add button */}
+        {imageFiles.length < MAX_IMAGES && (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)] transition-colors"
+          >
+            <PlusIcon />
+            {t('postImagesAdd')}
+            <span className="text-xs text-[var(--color-text-tertiary)]">
+              ({imageFiles.length}/{MAX_IMAGES})
+            </span>
+          </button>
+        )}
+        <p className="text-xs text-[var(--color-text-tertiary)] mt-1.5">{t('postImagesHint')}</p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          className="hidden"
+          onChange={handleFilePick}
+        />
+      </div>
+
       {/* Error */}
       {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}
 
@@ -147,5 +253,24 @@ export function PostForm({ locale }: PostFormProps) {
         </Button>
       </div>
     </form>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
   );
 }
