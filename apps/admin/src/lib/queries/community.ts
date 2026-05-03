@@ -78,7 +78,7 @@ export async function adminGetPost(id: string): Promise<AdminPostDetail | null> 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: post, error: postError } = await (supabase.from('posts') as any)
-    .select('*, user:users!user_id(id, name, profile_image_url)')
+    .select('*, user:users!user_id(id, name, profile_image_url, status)')
     .eq('id', id)
     .single();
   if (postError || !post) return null;

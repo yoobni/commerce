@@ -596,6 +596,45 @@ export interface AuditLog {
   created_at: ISODateTime;
 }
 
+// ─── Report ───────────────────────────────────────────────────────────────────
+
+export type ReportReason = 'SPAM' | 'ABUSE' | 'INAPPROPRIATE' | 'FRAUD' | 'OTHER';
+export type ReportStatus = 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'DISMISSED';
+export type ReportAction = 'NONE' | 'WARNING' | 'CONTENT_HIDDEN' | 'USER_SUSPENDED';
+export type ReportTargetType = 'POST' | 'COMMENT' | 'REVIEW' | 'USER';
+
+export interface Report {
+  id: UUID;
+  reporter_id: UUID;
+  target_type: ReportTargetType;
+  target_id: UUID;
+  reason: ReportReason;
+  detail: string | null;
+  status: ReportStatus;
+  reviewed_by: UUID | null;
+  reviewed_at: ISODateTime | null;
+  action_taken: ReportAction | null;
+  admin_memo: string | null;
+  created_at: ISODateTime;
+}
+
+// ─── Sanction ─────────────────────────────────────────────────────────────────
+
+export type SanctionType = 'WARNING' | 'SUSPEND_7D' | 'SUSPEND_30D' | 'PERMANENT_BAN';
+
+export interface Sanction {
+  id: UUID;
+  user_id: UUID;
+  type: SanctionType;
+  reason: string;
+  report_id: UUID | null;
+  starts_at: ISODateTime;
+  ends_at: ISODateTime | null;
+  is_active: boolean;
+  created_by: UUID;
+  created_at: ISODateTime;
+}
+
 // ─── API Response Wrappers ────────────────────────────────────────────────────
 
 export interface PaginatedResponse<T> {
