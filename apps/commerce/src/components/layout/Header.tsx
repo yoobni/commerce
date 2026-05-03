@@ -6,6 +6,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCartCountCache } from '@/lib/cart/guest';
 import { cn } from '@/lib/cn';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 // Direction B Header spec:
 // h-14 (56px). Wordmark: font-serif tracking-[0.14em].
@@ -78,6 +79,8 @@ export function Header() {
 
           {/* Action icons */}
           <div className="flex items-center gap-0.5">
+            <LocaleSwitcher />
+
             <Link
               href="/search"
               aria-label={t('search')}
