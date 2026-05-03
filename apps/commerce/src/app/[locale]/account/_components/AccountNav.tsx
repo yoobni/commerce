@@ -10,6 +10,10 @@ const NAV_ITEMS = [
   { href: '/account/orders' as const, key: 'orders' },
   { href: '/account/addresses' as const, key: 'addresses' },
   { href: '/account/wishlist' as const, key: 'wishlist' },
+  { href: '/account/reviews' as const, key: 'reviews' },
+  { href: '/account/points' as const, key: 'points' },
+  { href: '/account/coupons' as const, key: 'coupons' },
+  { href: '/account/withdrawal' as const, key: 'withdrawal' },
 ] as const;
 
 export function AccountNav() {

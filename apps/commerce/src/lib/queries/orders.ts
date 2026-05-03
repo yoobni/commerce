@@ -1,4 +1,8 @@
-import type { Order, OrderWithItems, PaginatedResponse } from '@commerce/types';
+import type { Order, OrderWithItems, Shipment, PaginatedResponse } from '@commerce/types';
+
+export type OrderWithItemsAndShipment = OrderWithItems & {
+  shipment: Shipment | null;
+};
 import { createClient } from '../supabase/server';
 
 export async function listUserOrders(
@@ -30,7 +34,7 @@ export async function listUserOrders(
 export async function getOrderById(
   orderId: string,
   userId: string
-): Promise<OrderWithItems | null> {
+): Promise<OrderWithItemsAndShipment | null> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +42,8 @@ export async function getOrderById(
     .select(
       `
       *,
-      items:order_items(*)
+      items:order_items(*),
+      shipments(*)
     `
     )
     .eq('id', orderId)
@@ -46,5 +51,11 @@ export async function getOrderById(
     .single();
 
   if (error || !data) return null;
-  return data as OrderWithItems;
+
+  // shipments is a one-to-many array from Supabase; take the first
+  const shipment: Shipment | null = Array.isArray(data.shipments)
+    ? (data.shipments[0] as Shipment) ?? null
+    : null;
+
+  return { ...data, shipment } as OrderWithItemsAndShipment;
 }

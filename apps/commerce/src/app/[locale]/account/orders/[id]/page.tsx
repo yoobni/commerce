@@ -6,6 +6,20 @@ import Image from 'next/image';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { getOrderById } from '@/lib/queries/orders';
+import type { Carrier } from '@commerce/types';
+
+const CARRIER_TRACKING_URLS: Record<Carrier, string> = {
+  CJ: 'https://www.cjlogistics.com/ko/tool/parcel/tracking?gnbInvcNo=',
+  HANJIN: 'https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?wblnumText2=',
+  LOGEN: 'https://www.ilogen.com/web/personal/trace/',
+  EMS: 'https://service.epost.go.kr/trace.RetrieveEmsRigiTraceList.comm?sid1=',
+  DHL: 'https://www.dhl.com/kr-ko/home/tracking.html?tracking-id=',
+  FEDEX: 'https://www.fedex.com/fedextrack/?tracknumbers=',
+  UPS: 'https://www.ups.com/track?tracknum=',
+  USPS: 'https://tools.usps.com/go/TrackConfirmAction?tLabels=',
+  YAMATO: 'https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.CRJZ00?id=',
+  SAGAWA: 'https://k2k.sagawa-exp.co.jp/p/sagawa/web/okurijosearch.do?okurijoNo=',
+};
 import { Link } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@commerce/types';
@@ -86,7 +100,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
       {/* Order items */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">상품 목록</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t('items')}</h3>
         <ul className="space-y-4" aria-label="Order items">
           {order.items.map((item) => (
             <li key={item.id} className="flex gap-4">
@@ -105,7 +119,7 @@ export default async function OrderDetailPage({ params }: Props) {
                 </p>
                 <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5">
                   {item.product_snapshot.color} / {item.product_snapshot.size}
-                  {' · '}수량 {item.quantity}
+                  {' · '}{t('qty')} {item.quantity}
                 </p>
                 <p className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                   {formatPrice(item.total_price, locale as Locale)}
@@ -168,29 +182,57 @@ export default async function OrderDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Action buttons */}
-      {order.status === 'SHIPPED' && (
-        <div className="flex gap-3">
-          {/*
-           * [나중에 구현] 배송 추적 버튼 활성화
-           * 계획서: docs/shipping-tracking-plan.md § 5 Phase 4
-           *
-           * 구현 순서:
-           *   1. apps/commerce/src/lib/queries/orders.ts → getOrderById()에 shipment join 추가
-           *      (tracking_number, carrier, external_tracker_id 포함)
-           *   2. 이 버튼을 disabled에서 클릭 가능으로 변경
-           *   3. 클릭 시: 택배사 공식 추적 URL로 외부 이동 (새 탭)
-           *      또는 모달로 tracking_events JSONB 이벤트 이력 표시
-           *   4. 택배사별 외부 추적 URL 매핑은 docs/shipping-tracking-plan.md § 9 참고
-           */}
-          <button
-            type="button"
-            disabled
-            className="h-10 px-5 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-tertiary)] cursor-not-allowed"
-            title="배송 추적 기능 준비 중"
-          >
+      {/* Shipment info */}
+      {order.shipment && (
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-3">
+          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
             {t('trackPackage')}
-          </button>
+          </h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">
+                {order.shipment.carrier} · {order.shipment.tracking_number}
+              </p>
+              {order.shipment.estimated_delivery_at && (
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  {tCheckout('success.estimatedDelivery')}:{' '}
+                  {new Date(order.shipment.estimated_delivery_at).toLocaleDateString(
+                    locale === 'ko' ? 'ko-KR' : locale
+                  )}
+                </p>
+              )}
+            </div>
+            {CARRIER_TRACKING_URLS[order.shipment.carrier] && (
+              <a
+                href={`${CARRIER_TRACKING_URLS[order.shipment.carrier]}${order.shipment.tracking_number}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 px-4 rounded-lg bg-[var(--color-brand-primary)] text-white text-xs font-semibold inline-flex items-center hover:opacity-90 transition-opacity"
+              >
+                {t('trackPackage')}
+              </a>
+            )}
+          </div>
+          {order.shipment.tracking_events && order.shipment.tracking_events.length > 0 && (
+            <ul className="space-y-2 pt-2 border-t border-[var(--color-border)]">
+              {order.shipment.tracking_events.slice(0, 5).map((event, idx) => (
+                <li key={idx} className="flex gap-3 text-xs">
+                  <time
+                    dateTime={event.occurred_at}
+                    className="text-[var(--color-text-tertiary)] shrink-0"
+                  >
+                    {new Date(event.occurred_at).toLocaleDateString(
+                      locale === 'ko' ? 'ko-KR' : locale
+                    )}
+                  </time>
+                  <span className="text-[var(--color-text-secondary)]">
+                    {event.message ?? event.status}
+                    {event.location && ` · ${event.location}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

@@ -300,6 +300,7 @@
       "wishlist": "Wishlist",
       "points": "Points",
       "coupons": "Coupons",
+      "reviews": "My Reviews",
       "withdrawal": "Delete Account"
     },
     "profile": {
@@ -327,6 +328,8 @@
         "refunded": "Refunded"
       },
       "total": "Total",
+      "items": "Order Items",
+      "qty": "Qty",
       "viewDetail": "View Details",
       "trackPackage": "Track Package",
       "cancelOrder": "Cancel Order"
@@ -351,7 +354,19 @@
       "history": "Points History",
       "earned": "Earned",
       "used": "Used",
-      "expires": "Expiring soon"
+      "expires": "Expiring soon",
+      "noHistory": "No points history.",
+      "expiresOn": "Expires on",
+      "balanceAfter": "Balance",
+      "type": {
+        "earn": "Earned",
+        "use": "Used",
+        "expire": "Expired",
+        "cancel_earn": "Earn Cancelled",
+        "cancel_use": "Use Cancelled",
+        "admin_grant": "Granted",
+        "admin_deduct": "Deducted"
+      }
     },
     "coupons": {
       "title": "Coupons",
@@ -360,13 +375,26 @@
       "expired": "Expired",
       "discount": "Discount",
       "validUntil": "Valid until",
-      "noCoupons": "No coupons available."
+      "noCoupons": "No coupons available.",
+      "minOrderAmount": "Min. order",
+      "noMinOrder": "No minimum"
+    },
+    "reviews": {
+      "title": "My Reviews",
+      "noReviews": "No reviews written yet.",
+      "written": "Written on",
+      "deleteConfirm": "Delete this review?",
+      "viewProduct": "View Product",
+      "pointRewarded": "Points rewarded"
     },
     "withdrawal": {
       "title": "Delete Account",
       "warning": "All your data will be permanently deleted.",
       "confirm": "Delete Account",
-      "reason": "Reason for leaving"
+      "reason": "Reason for leaving",
+      "caution": "This action cannot be undone. Your orders, points, and coupons will all be removed.",
+      "confirmCheck": "I understand and confirm account deletion.",
+      "processing": "Processing..."
     }
   },
   "auth": {

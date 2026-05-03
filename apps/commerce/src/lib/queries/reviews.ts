@@ -1,6 +1,18 @@
 import type { Review, PaginatedResponse } from '@commerce/types';
 import { createClient } from '../supabase/server';
 
+export interface ReviewWithProduct extends Review {
+  product: {
+    id: string;
+    name_ko: string;
+    name_en: string;
+    name_ja: string;
+    name_de: string;
+    slug: string;
+    thumbnail_url: string;
+  };
+}
+
 export interface ReviewWithUser extends Review {
   user: { id: string; name: string; profile_image_url: string | null };
 }
@@ -48,6 +60,36 @@ export async function listProductReviews(
   const total = count ?? 0;
   return {
     data: (data ?? []) as ReviewWithUser[],
+    total,
+    page,
+    per_page,
+    has_next: offset + per_page < total,
+  };
+}
+
+export async function listUserReviews(
+  userId: string,
+  { page = 1, per_page = 10 }: { page?: number; per_page?: number } = {}
+): Promise<PaginatedResponse<ReviewWithProduct>> {
+  const supabase = await createClient();
+  const offset = (page - 1) * per_page;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, count, error } = await (supabase.from('reviews') as any)
+    .select(
+      `*, product:products(id, name_ko, name_en, name_ja, name_de, slug, thumbnail_url)`,
+      { count: 'exact' }
+    )
+    .eq('user_id', userId)
+    .neq('status', 'DELETED')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + per_page - 1);
+
+  if (error) throw error;
+
+  const total = count ?? 0;
+  return {
+    data: (data ?? []) as ReviewWithProduct[],
     total,
     page,
     per_page,

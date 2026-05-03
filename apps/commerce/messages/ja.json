@@ -300,6 +300,7 @@
       "wishlist": "お気に入り",
       "points": "ポイント",
       "coupons": "クーポン",
+      "reviews": "レビュー管理",
       "withdrawal": "退会"
     },
     "profile": {
@@ -327,6 +328,8 @@
         "refunded": "返金済み"
       },
       "total": "合計",
+      "items": "注文商品",
+      "qty": "数量",
       "viewDetail": "詳細を見る",
       "trackPackage": "配送追跡",
       "cancelOrder": "注文をキャンセル"
@@ -351,7 +354,19 @@
       "history": "ポイント履歴",
       "earned": "獲得",
       "used": "使用",
-      "expires": "まもなく失効"
+      "expires": "まもなく失効",
+      "noHistory": "ポイント履歴はありません。",
+      "expiresOn": "有効期限",
+      "balanceAfter": "残高",
+      "type": {
+        "earn": "獲得",
+        "use": "使用",
+        "expire": "失効",
+        "cancel_earn": "獲得取消",
+        "cancel_use": "使用取消",
+        "admin_grant": "付与",
+        "admin_deduct": "減算"
+      }
     },
     "coupons": {
       "title": "クーポン",
@@ -360,13 +375,26 @@
       "expired": "期限切れ",
       "discount": "割引",
       "validUntil": "有効期限",
-      "noCoupons": "利用可能なクーポンがありません。"
+      "noCoupons": "利用可能なクーポンがありません。",
+      "minOrderAmount": "最低注文金額",
+      "noMinOrder": "制限なし"
+    },
+    "reviews": {
+      "title": "レビュー管理",
+      "noReviews": "レビューはまだありません。",
+      "written": "作成日",
+      "deleteConfirm": "このレビューを削除しますか？",
+      "viewProduct": "商品を見る",
+      "pointRewarded": "ポイント付与済み"
     },
     "withdrawal": {
       "title": "退会",
       "warning": "退会するとすべてのデータが削除されます。",
       "confirm": "退会する",
-      "reason": "退会理由"
+      "reason": "退会理由",
+      "caution": "退会後は復元できません。注文履歴、ポイント、クーポンがすべて削除されます。",
+      "confirmCheck": "内容を確認し、退会に同意します。",
+      "processing": "処理中..."
     }
   },
   "auth": {

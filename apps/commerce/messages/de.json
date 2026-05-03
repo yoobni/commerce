@@ -300,6 +300,7 @@
       "wishlist": "Wunschliste",
       "points": "Punkte",
       "coupons": "Gutscheine",
+      "reviews": "Meine Bewertungen",
       "withdrawal": "Konto löschen"
     },
     "profile": {
@@ -327,6 +328,8 @@
         "refunded": "Erstattet"
       },
       "total": "Gesamt",
+      "items": "Bestellartikel",
+      "qty": "Menge",
       "viewDetail": "Details anzeigen",
       "trackPackage": "Sendung verfolgen",
       "cancelOrder": "Bestellung stornieren"
@@ -351,7 +354,19 @@
       "history": "Punkteverlauf",
       "earned": "Erhalten",
       "used": "Verwendet",
-      "expires": "Läuft bald ab"
+      "expires": "Läuft bald ab",
+      "noHistory": "Kein Punkteverlauf.",
+      "expiresOn": "Läuft ab am",
+      "balanceAfter": "Guthaben",
+      "type": {
+        "earn": "Gutschrift",
+        "use": "Eingelöst",
+        "expire": "Verfallen",
+        "cancel_earn": "Gutschrift storniert",
+        "cancel_use": "Einlösung storniert",
+        "admin_grant": "Gewährt",
+        "admin_deduct": "Abgezogen"
+      }
     },
     "coupons": {
       "title": "Gutscheine",
@@ -360,13 +375,26 @@
       "expired": "Abgelaufen",
       "discount": "Rabatt",
       "validUntil": "Gültig bis",
-      "noCoupons": "Keine Gutscheine verfügbar."
+      "noCoupons": "Keine Gutscheine verfügbar.",
+      "minOrderAmount": "Mindestbestellwert",
+      "noMinOrder": "Kein Minimum"
+    },
+    "reviews": {
+      "title": "Meine Bewertungen",
+      "noReviews": "Noch keine Bewertungen.",
+      "written": "Geschrieben am",
+      "deleteConfirm": "Diese Bewertung löschen?",
+      "viewProduct": "Produkt ansehen",
+      "pointRewarded": "Punkte gutgeschrieben"
     },
     "withdrawal": {
       "title": "Konto löschen",
       "warning": "Alle deine Daten werden dauerhaft gelöscht.",
       "confirm": "Konto löschen",
-      "reason": "Grund für die Kündigung"
+      "reason": "Grund für die Kündigung",
+      "caution": "Diese Aktion kann nicht rückgängig gemacht werden. Deine Bestellungen, Punkte und Gutscheine werden gelöscht.",
+      "confirmCheck": "Ich verstehe und bestätige die Kontolöschung.",
+      "processing": "Wird verarbeitet..."
     }
   },
   "auth": {
