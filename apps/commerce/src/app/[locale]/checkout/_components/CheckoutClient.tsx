@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import type { CartDisplay } from '@/lib/cart/queries';
-import type { Address, Locale } from '@commerce/types';
+import type { Address, Currency, Locale } from '@commerce/types';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
+import { validateCouponAction } from '@/lib/coupons/actions';
+import { createOrder } from '@/lib/orders/actions';
 
 type Step = 'shipping' | 'payment' | 'confirm';
 
@@ -18,6 +20,7 @@ interface CheckoutClientProps {
   cart: CartDisplay;
   addresses: Address[];
   locale: Locale;
+  userPoints: number;
 }
 
 const STEP_ORDER: Step[] = ['shipping', 'payment', 'confirm'];
@@ -27,6 +30,13 @@ const DELIVERY_NOTES = [
   { ko: '경비실에 맡겨주세요', en: 'Leave at front desk' },
   { ko: '부재 시 연락주세요', en: 'Call if absent' },
 ];
+
+const LOCALE_CURRENCY: Record<Locale, Currency> = {
+  ko: 'KRW',
+  en: 'USD',
+  ja: 'JPY',
+  de: 'EUR',
+};
 
 function getProductName(item: CartDisplay['items'][number], locale: Locale): string {
   if (locale === 'ko') return item.product_name_ko;
@@ -55,7 +65,7 @@ function getItemPrice(item: CartDisplay['items'][number], locale: Locale): numbe
   return (base + extra) * item.quantity;
 }
 
-export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps) {
+export function CheckoutClient({ cart, addresses, locale, userPoints }: CheckoutClientProps) {
   const t = useTranslations('checkout');
   const router = useRouter();
   const track = useTrack();
@@ -80,7 +90,20 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
+  const [couponValidating, setCouponValidating] = useState(false);
   const [couponApplied, setCouponApplied] = useState(false);
+  const [couponIssuanceId, setCouponIssuanceId] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponName, setCouponName] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  // Points state
+  const [pointsInput, setPointsInput] = useState('');
+  const [pointsToUse, setPointsToUse] = useState(0);
+  const [pointsError, setPointsError] = useState<string | null>(null);
+
+  // Order error
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
   const shippingFee =
@@ -93,8 +116,11 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
           : locale === 'ja'
             ? 1000
             : 8;
-  const couponDiscount = couponApplied ? Math.floor(subtotal * 0.1) : 0;
-  const total = subtotal + shippingFee - couponDiscount;
+  const maxPointsUsable = Math.min(
+    userPoints,
+    Math.floor((subtotal + shippingFee - couponDiscount) * 0.3)
+  );
+  const total = Math.max(0, subtotal + shippingFee - couponDiscount - pointsToUse);
 
   function handleAddressSelect(addr: Address) {
     setSelectedAddressId(addr.id);
@@ -105,10 +131,71 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
     setAddressLine2(addr.address_line2 ?? '');
   }
 
-  function handleApplyCoupon() {
-    if (couponCode.toUpperCase() === 'RAVI10') {
-      setCouponApplied(true);
+  async function handleApplyCoupon() {
+    if (!couponCode || couponValidating) return;
+    setCouponValidating(true);
+    setCouponError(null);
+
+    const result = await validateCouponAction(couponCode, subtotal + shippingFee);
+    setCouponValidating(false);
+
+    if (!result.valid || !result.coupon) {
+      const errMsg =
+        result.error === 'min_order_amount'
+          ? '최소 주문 금액을 충족하지 않습니다'
+          : result.error === 'no_issuance'
+            ? '발급된 쿠폰이 없습니다'
+            : t('coupon.invalidCode');
+      setCouponError(errMsg);
+      return;
     }
+
+    setCouponApplied(true);
+    setCouponIssuanceId(result.coupon.issuanceId);
+    setCouponDiscount(result.coupon.discountAmount);
+    setCouponName(result.coupon.name);
+  }
+
+  function handleRemoveCoupon() {
+    setCouponApplied(false);
+    setCouponIssuanceId(null);
+    setCouponDiscount(0);
+    setCouponName('');
+    setCouponCode('');
+    setCouponError(null);
+    const newMax = Math.min(userPoints, Math.floor((subtotal + shippingFee) * 0.3));
+    if (pointsToUse > newMax) {
+      setPointsToUse(0);
+      setPointsInput('');
+    }
+  }
+
+  function handleApplyPoints() {
+    const pts = parseInt(pointsInput, 10);
+    setPointsError(null);
+    if (isNaN(pts) || pts <= 0) {
+      setPointsError('포인트를 입력해 주세요');
+      return;
+    }
+    if (pts < 1000) {
+      setPointsError('최소 1,000P 이상 사용 가능합니다');
+      return;
+    }
+    if (pts > userPoints) {
+      setPointsError('보유 포인트가 부족합니다');
+      return;
+    }
+    if (pts > maxPointsUsable) {
+      setPointsError(`최대 ${maxPointsUsable.toLocaleString()}P까지 사용 가능합니다`);
+      return;
+    }
+    setPointsToUse(pts);
+  }
+
+  function handleRemovePoints() {
+    setPointsToUse(0);
+    setPointsInput('');
+    setPointsError(null);
   }
 
   function handleNextStep() {
@@ -128,6 +215,7 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
   }
 
   function handlePlaceOrder() {
+    setOrderError(null);
     startTransition(async () => {
       track('begin_checkout', {
         items: cart.items.map((item) => ({
@@ -140,43 +228,82 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
         total_value: total,
         coupon_applied: couponApplied,
         coupon_code: couponApplied ? couponCode : null,
-        point_used: 0,
+        point_used: pointsToUse,
       });
 
-      // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
-      // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
-      // 환경변수: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-      //
-      // 1) PaymentIntent 생성 (서버)
-      //    POST /api/payments/create-intent → { clientSecret }
-      //
-      // 2) Stripe Elements로 결제 진행 (클라이언트)
-      //    import { loadStripe } from '@stripe/stripe-js';
-      //    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      //    const res = await fetch('/api/payments/create-intent', {
-      //      method: 'POST',
-      //      headers: { 'Content-Type': 'application/json' },
-      //      body: JSON.stringify({
-      //        amount: total,
-      //        currency: locale === 'ko' ? 'krw' : locale === 'ja' ? 'jpy' : locale === 'de' ? 'eur' : 'usd',
-      //        metadata: { cart_id: cart.id, coupon_code: couponApplied ? couponCode : '' },
-      //      }),
-      //    });
-      //    const { clientSecret, paymentIntentId } = await res.json();
-      //
-      // 3) 결제 확인
-      //    const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
-      //      payment_method: { card: cardElement },
-      //    });
-      //    if (error) { /* 실패 처리 */ return; }
-      //
-      // 4) 주문 생성 → 성공 페이지
-      //    const order = await createOrder({ cartId: cart.id, paymentIntentId });
-      //    router.push(`/checkout/success?order_id=${order.id}`);
-      // ─────────────────────────────────────────────────────────────────────────
+      const result = await createOrder({
+        cartId: cart.id,
+        selectedAddressId,
+        shippingForm: {
+          recipient_name: recipient,
+          phone,
+          postal_code: postalCode,
+          address_line1: addressLine1,
+          address_line2: addressLine2 || null,
+        },
+        deliveryNote: deliveryNote || null,
+        paymentMethod: payMethod,
+        couponIssuanceId,
+        couponDiscount,
+        pointsToUse,
+        subtotal,
+        shippingFee,
+        totalAmount: total,
+        currency: LOCALE_CURRENCY[locale],
+        locale,
+      });
 
-      // 데모: 실제 결제 연동 전 임시 라우팅
-      router.push('/checkout/success?order_id=demo');
+      if (!result.success) {
+        const errMsg =
+          result.error === 'cart_empty'
+            ? '장바구니가 비어있습니다'
+            : result.error === 'stock_insufficient'
+              ? '일부 상품의 재고가 부족합니다'
+              : result.error === 'points_min_1000'
+                ? '포인트는 최소 1,000P 이상 사용해야 합니다'
+                : result.error === 'points_insufficient'
+                  ? '포인트 잔액이 부족합니다'
+                  : '주문 처리 중 오류가 발생했습니다';
+        setOrderError(errMsg);
+        return;
+      }
+
+      const confirmRes = await fetch('/api/payments/mock-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: result.orderId, amount: total }),
+      });
+
+      if (!confirmRes.ok) {
+        setOrderError('결제 처리 중 오류가 발생했습니다');
+        return;
+      }
+
+      const confirmData = (await confirmRes.json()) as {
+        success: boolean;
+        orderId: string;
+        orderNumber: string;
+      };
+
+      track('purchase', {
+        order_id: confirmData.orderNumber,
+        total_value: total,
+        tax: 0,
+        shipping_cost: shippingFee,
+        coupon_code: couponApplied ? couponCode : null,
+        point_used: pointsToUse,
+        items: cart.items.map((item) => ({
+          product_id: item.product_id,
+          product_name: getProductName(item, locale),
+          quantity: item.quantity,
+          price: getItemPrice(item, locale) / item.quantity,
+          category: '',
+        })),
+        is_first_purchase: false,
+        payment_method: payMethod,
+      });
+
+      router.push(`/checkout/success?order_id=${confirmData.orderNumber}`);
     });
   }
 
@@ -421,20 +548,16 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 <input
                   type="text"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    setCouponError(null);
+                  }}
                   placeholder={t('coupon.couponPlaceholder')}
                   disabled={couponApplied}
                   className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 disabled:bg-[var(--color-neutral-50)] transition"
                 />
                 {couponApplied ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      setCouponApplied(false);
-                      setCouponCode('');
-                    }}
-                  >
+                  <Button variant="secondary" size="sm" onClick={handleRemoveCoupon}>
                     {t('coupon.remove')}
                   </Button>
                 ) : (
@@ -442,18 +565,74 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                     variant="secondary"
                     size="sm"
                     onClick={handleApplyCoupon}
-                    disabled={!couponCode}
+                    disabled={!couponCode || couponValidating}
+                    loading={couponValidating}
                   >
                     {t('coupon.apply')}
                   </Button>
                 )}
               </div>
+              {couponError && (
+                <p className="text-xs text-red-500 font-medium">{couponError}</p>
+              )}
               {couponApplied && (
                 <p className="text-xs text-green-600 font-medium">
-                  {t('coupon.applied')} — 10% {t('coupon.discount', { defaultValue: '할인' })}
+                  {t('coupon.applied')} — {couponName} (-{formatPrice(couponDiscount, locale)})
                 </p>
               )}
             </div>
+
+            {/* Points */}
+            {userPoints > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+                  {t('coupon.points')}
+                </p>
+                <p className="text-xs text-[var(--color-text-tertiary)]">
+                  {t('coupon.availablePoints')}: {userPoints.toLocaleString()}P
+                  {maxPointsUsable > 0 &&
+                    ` · 최대 ${maxPointsUsable.toLocaleString()}P (주문금액의 30%)`}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={pointsInput}
+                    onChange={(e) => {
+                      setPointsInput(e.target.value);
+                      setPointsError(null);
+                    }}
+                    placeholder="0"
+                    disabled={pointsToUse > 0 || maxPointsUsable <= 0}
+                    min="1000"
+                    max={maxPointsUsable}
+                    step="1000"
+                    className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 disabled:bg-[var(--color-neutral-50)] transition"
+                  />
+                  {pointsToUse > 0 ? (
+                    <Button variant="secondary" size="sm" onClick={handleRemovePoints}>
+                      취소
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleApplyPoints}
+                      disabled={!pointsInput || maxPointsUsable <= 0}
+                    >
+                      {t('coupon.apply')}
+                    </Button>
+                  )}
+                </div>
+                {pointsError && (
+                  <p className="text-xs text-red-500 font-medium">{pointsError}</p>
+                )}
+                {pointsToUse > 0 && (
+                  <p className="text-xs text-green-600 font-medium">
+                    -{pointsToUse.toLocaleString()}P 적용됨
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
@@ -503,7 +682,24 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
                 {payMethod === 'naver' && t('payment.naverPay')}
                 {payMethod === 'transfer' && t('payment.bankTransfer')}
               </p>
+              {couponApplied && (
+                <p className="text-xs text-[var(--color-text-tertiary)]">
+                  쿠폰: {couponName} (-{formatPrice(couponDiscount, locale)})
+                </p>
+              )}
+              {pointsToUse > 0 && (
+                <p className="text-xs text-[var(--color-text-tertiary)]">
+                  포인트: -{pointsToUse.toLocaleString()}P
+                </p>
+              )}
             </div>
+
+            {/* Order error */}
+            {orderError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                <p className="text-sm text-red-600 font-medium">{orderError}</p>
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
@@ -582,6 +778,12 @@ export function CheckoutClient({ cart, addresses, locale }: CheckoutClientProps)
               <div className="flex justify-between text-sm text-green-600">
                 <span>{t('summary.couponDiscount')}</span>
                 <span>-{formatPrice(couponDiscount, locale)}</span>
+              </div>
+            )}
+            {pointsToUse > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>{t('summary.pointDiscount')}</span>
+                <span>-{pointsToUse.toLocaleString()}P</span>
               </div>
             )}
             <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
