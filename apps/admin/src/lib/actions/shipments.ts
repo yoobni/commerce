@@ -1,23 +1,10 @@
 'use server';
 
-// ─── 배송 추적 외부 API 연동 계획 ─────────────────────────────────────────────
-// docs/shipping-tracking-plan.md 참고
-//
-// [나중에 구현] startShipment() 안에서 외부 Tracker 생성 호출 필요:
-//   1. apps/admin/src/lib/services/tracking.ts 신규 작성 (외부 API 래퍼)
-//   2. startShipment() 내 upsert 직후 → createExternalTracker(carrier, trackingNumber) 호출
-//   3. 반환된 external_tracker_id를 shipments 레코드에 저장
-//   4. Webhook 수신: apps/commerce/src/app/api/webhooks/tracking/route.ts 신규 작성
-//   5. Polling 배치: apps/admin/src/app/api/cron/sync-shipments/route.ts 신규 작성
-//
-// 상태 매핑 테이블: docs/shipping-tracking-plan.md § 4
-// DB 마이그레이션: supabase/migrations/YYYYMMDD_add_tracking_fields.sql (external_tracker_id, last_synced_at)
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
 import { getSession } from '@/lib/auth/session';
-import type { Carrier, Country, ShipmentStatus } from '@commerce/types';
+import { createTracker } from '@/lib/services/tracking';
+import type { Carrier, ShipmentStatus } from '@commerce/types';
 
 // ─── Input invoice & start shipment ──────────────────────────────────────────
 
@@ -38,11 +25,10 @@ export async function startShipment(input: StartShipmentInput): Promise<void> {
   const supabase = createServiceClient();
   const now = new Date().toISOString();
 
+  // Create external tracker (no-op if AFTERSHIP_API_KEY not set)
+  const externalTrackerId = await createTracker(carrier, trackingNumber.trim());
+
   // Upsert shipment record
-  // [나중에 구현] upsert 직후 아래 로직 추가:
-  //   const tracker = await createExternalTracker(carrier, trackingNumber);
-  //   → external_tracker_id: tracker.id, last_synced_at: now 도 함께 저장
-  //   참고: apps/admin/src/lib/services/tracking.ts § createExternalTracker()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: shipError } = await (supabase.from('shipments') as any).upsert(
     {
@@ -52,6 +38,7 @@ export async function startShipment(input: StartShipmentInput): Promise<void> {
       country,
       status: 'PENDING',
       shipped_at: now,
+      ...(externalTrackerId ? { external_tracker_id: externalTrackerId, last_synced_at: now } : {}),
       updated_at: now,
     },
     { onConflict: 'order_id' }

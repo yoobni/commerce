@@ -10,5 +10,11 @@
       "source": "/api/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-store, must-revalidate" }]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/sync-shipments",
+      "schedule": "0 */2 * * *"
+    }
   ]
 }

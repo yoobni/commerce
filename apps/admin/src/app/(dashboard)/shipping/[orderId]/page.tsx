@@ -5,19 +5,8 @@ import { adminGetShippingOrder } from '@/lib/queries/shipments';
 import { ShipmentInputForm } from './_components/ShipmentInputForm';
 import { ShipmentStatusUpdater } from './_components/ShipmentStatusUpdater';
 
-// ─── 배송 추적 외부 API 연동 계획 ─────────────────────────────────────────────
-// docs/shipping-tracking-plan.md 참고
-//
-// [나중에 구현] 이 페이지에서 외부 API 실시간 이벤트를 표시하려면:
-//   1. adminGetShippingOrder() 쿼리에 tracking_events JSONB 컬럼 포함
-//      → apps/admin/src/lib/queries/shipments.ts § adminGetShippingOrder()
-//   2. 아래 타임라인 섹션(Step timeline) 아래에 이벤트 목록 컴포넌트 추가
-//      → 각 이벤트: { timestamp, location, message, raw_status }
-//   3. "외부 조회" 버튼 추가 → POST /api/admin/shipments/[id]/sync 로 수동 동기화
-//      → apps/admin/src/app/api/admin/shipments/[id]/sync/route.ts 신규 작성
-//
-// Webhook 수신 엔드포인트: apps/commerce/src/app/api/webhooks/tracking/route.ts
-// ─────────────────────────────────────────────────────────────────────────────
+import { TrackingEventsTimeline } from './_components/TrackingEventsTimeline';
+import { SyncShipmentButton } from './_components/SyncShipmentButton';
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
@@ -159,6 +148,16 @@ export default async function ShippingDetailPage({ params }: PageProps) {
                   );
                 })}
               </ol>
+
+              {/* Tracking events from external API */}
+              {shipment.tracking_events && shipment.tracking_events.length > 0 && (
+                <div className="mt-5 border-t border-[var(--color-border)] pt-4">
+                  <h3 className="text-xs font-semibold text-[var(--color-text-secondary)] mb-3 uppercase tracking-wide">
+                    배송 이력
+                  </h3>
+                  <TrackingEventsTimeline events={shipment.tracking_events} />
+                </div>
+              )}
 
               {/* Timestamps */}
               <dl className="mt-5 space-y-2 text-sm border-t border-[var(--color-border)] pt-4">
@@ -307,6 +306,18 @@ export default async function ShippingDetailPage({ params }: PageProps) {
               <ShipmentStatusUpdater
                 shipmentId={shipment.id}
                 currentStatus={shipment.status as ShipmentStatus}
+              />
+            </div>
+          )}
+
+          {/* External sync */}
+          {shipment && (
+            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+              <h2 className="font-medium text-[var(--color-text-primary)] mb-3">외부 추적 동기화</h2>
+              <SyncShipmentButton
+                shipmentId={shipment.id}
+                hasExternalTracker={!!shipment.external_tracker_id}
+                lastSyncedAt={shipment.last_synced_at ?? null}
               />
             </div>
           )}

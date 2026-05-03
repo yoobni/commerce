@@ -24,7 +24,11 @@ const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
 
 // ─── Update order status ──────────────────────────────────────────────────────
 
-export async function updateOrderStatus(orderId: string, newStatus: OrderStatus): Promise<void> {
+export async function updateOrderStatus(
+  orderId: string,
+  newStatus: OrderStatus,
+  reason?: string
+): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
@@ -42,10 +46,12 @@ export async function updateOrderStatus(orderId: string, newStatus: OrderStatus)
     throw new Error(`상태 전이 불가: ${current.status} → ${newStatus}`);
   }
 
+  const patch: Record<string, string> = { status: newStatus, updated_at: new Date().toISOString() };
+  if (newStatus === 'CANCELLED' && reason) patch.cancel_reason = reason;
+  if (newStatus === 'RETURN_REQUESTED' && reason) patch.return_reason = reason;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('orders') as any)
-    .update({ status: newStatus, updated_at: new Date().toISOString() })
-    .eq('id', orderId);
+  const { error } = await (supabase.from('orders') as any).update(patch).eq('id', orderId);
   if (error) throw error;
 
   revalidatePath(`/orders/${orderId}`);
