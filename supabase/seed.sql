@@ -231,3 +231,24 @@ VALUES
   ('35860af7-c173-51c6-9b3d-634e097e61e7', '7f29375a-c0ea-5c91-8819-95ff8728ae51', '36252ef7-d454-59b9-92af-4b6deec37a73', '블랙', '#1A1A1A', 'HC01-L-BLK', 0,    0,   0,   0,   8, 3, TRUE, '2026-02-25T00:00:00Z', '2026-02-25T00:00:00Z'),
   ('522a62d7-22d7-5e5a-a775-c03613b33ffb', '7f29375a-c0ea-5c91-8819-95ff8728ae51', '242e2964-e8b8-5686-a8e1-8dc07ae9f7a7', '블랙', '#1A1A1A', 'HC01-XL-BLK',3000, 2.5, 350, 2,   5, 3, TRUE, '2026-02-25T00:00:00Z', '2026-02-25T00:00:00Z')
 ON CONFLICT (id) DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────
+-- 5. Country Configs (국가별 배송 / 세금 / 통화 설정)
+-- ─────────────────────────────────────────────────────────────
+INSERT INTO country_configs (
+  country_code, default_locale, default_currency,
+  shipping_available, free_shipping_threshold, base_shipping_fee,
+  estimated_delivery_days_min, estimated_delivery_days_max,
+  tax_rate, tax_included, return_period_days, is_active, updated_at
+)
+VALUES
+  ('KR', 'ko', 'KRW', TRUE,  50000,  3000, 1,  3,  0.0000, TRUE,  7,  TRUE, NOW()),
+  ('US', 'en', 'USD', TRUE,  100.00, 9.99, 5,  10, 0.0000, FALSE, 14, TRUE, NOW()),
+  ('JP', 'ja', 'JPY', TRUE,  10000, 1200, 7,  14, 0.1000, TRUE,  14, TRUE, NOW()),
+  ('DE', 'de', 'EUR', TRUE,  80.00,  7.99, 10, 14, 0.1900, TRUE,  14, TRUE, NOW())
+ON CONFLICT (country_code) DO UPDATE SET
+  free_shipping_threshold     = EXCLUDED.free_shipping_threshold,
+  base_shipping_fee           = EXCLUDED.base_shipping_fee,
+  estimated_delivery_days_min = EXCLUDED.estimated_delivery_days_min,
+  estimated_delivery_days_max = EXCLUDED.estimated_delivery_days_max,
+  updated_at                  = NOW();
