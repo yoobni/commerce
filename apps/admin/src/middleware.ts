@@ -17,6 +17,31 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+async function hashToken(token: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function isSessionRevoked(tokenHash: string): Promise<boolean> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) return false;
+
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/admin_sessions?token_hash=eq.${tokenHash}&is_revoked=eq.true&select=id&limit=1`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+    );
+    if (!res.ok) return false;
+    const rows = (await res.json()) as { id: string }[];
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -32,6 +57,13 @@ export async function middleware(request: NextRequest) {
   try {
     const { payload } = await jwtVerify(token, getSecret());
     const role = payload['role'] as string;
+
+    const tHash = await hashToken(token);
+    if (await isSessionRevoked(tHash)) {
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete(COOKIE_NAME);
+      return response;
+    }
 
     if (SUPER_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
       if ((ROLE_RANK[role] ?? 0) < ROLE_RANK['SUPER_ADMIN']) {
