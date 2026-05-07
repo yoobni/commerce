@@ -12,6 +12,7 @@ import type { Address, Locale } from '@commerce/types';
 import type { UserCoupon } from '@/lib/coupons/queries';
 import { calcCouponDiscount, validateCoupon } from '@/lib/coupons/queries';
 import { markCouponIssuanceUsed } from '@/lib/coupons/actions';
+import { usePointsAction, earnPointsAction } from '@/lib/points/actions';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
 import { analytics } from '@/lib/analytics';
@@ -98,7 +99,9 @@ export function CheckoutClient({
   const [couponError, setCouponError] = useState<string | null>(null);
 
   // Point state
-  const pointsToUse = 0;
+  const [pointsInput, setPointsInput] = useState('');
+  const [pointsApplied, setPointsApplied] = useState(false);
+  const pointsToUse = pointsApplied ? Math.min(parseInt(pointsInput || '0', 10), pointBalance) : 0;
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
   const shippingFee =
@@ -207,6 +210,14 @@ export function CheckoutClient({
       if (activeCoupon) {
         await markCouponIssuanceUsed(activeCoupon.issuance_id);
       }
+
+      // 포인트 차감 (사용량 > 0인 경우)
+      if (pointsToUse > 0) {
+        await usePointsAction(pointsToUse);
+      }
+
+      // 주문 완료 후 포인트 적립 (결제 금액 기준 1%)
+      await earnPointsAction(total);
 
       track('purchase', {
         order_id: demoOrderId,
@@ -624,6 +635,74 @@ export function CheckoutClient({
               )}
             </div>
 
+            {/* Points */}
+            {pointBalance > 0 && (
+              <div className="space-y-2">
+                <p className="text-[13px] font-medium text-[var(--mz-ink)]">
+                  {t('coupon.points')}
+                </p>
+                <p className="text-[12px] text-[var(--mz-ink-mute)]">
+                  {t('coupon.availablePoints')}: <span className="font-semibold text-[var(--mz-ink)]">{pointBalance.toLocaleString()}P</span>
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={pointBalance}
+                    value={pointsInput}
+                    onChange={(e) => {
+                      setPointsInput(e.target.value);
+                      setPointsApplied(false);
+                    }}
+                    disabled={pointsApplied}
+                    placeholder="0"
+                    className="flex-1 h-10 px-3 rounded-[var(--radius-md)] border border-[var(--mz-line)] text-[13px] text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:[border-width:1.5px] disabled:bg-[var(--mz-bg-deep)] transition-[border] duration-150"
+                  />
+                  {pointsApplied ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setPointsApplied(false);
+                        setPointsInput('');
+                      }}
+                    >
+                      {t('coupon.remove')}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setPointsInput(String(pointBalance));
+                          setPointsApplied(true);
+                        }}
+                      >
+                        {t('coupon.useAll')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const val = parseInt(pointsInput || '0', 10);
+                          if (val > 0 && val <= pointBalance) setPointsApplied(true);
+                        }}
+                        disabled={!pointsInput || parseInt(pointsInput, 10) <= 0}
+                      >
+                        {t('coupon.apply')}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {pointsApplied && pointsToUse > 0 && (
+                  <p className="text-[12px] text-[var(--color-success)] font-medium">
+                    {t('coupon.applied')} — {pointsToUse.toLocaleString()}P {t('summary.pointDiscount', { defaultValue: '포인트 할인' })}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3">
               <Button variant="ghost" size="lg" className="flex-1" onClick={handlePrevStep}>
                 ← {t('steps.shipping')}
@@ -752,6 +831,12 @@ export function CheckoutClient({
               <div className="flex justify-between">
                 <span className="text-[13px] text-[var(--color-success)]">{t('summary.couponDiscount')}</span>
                 <span className="text-[13px] text-[var(--color-success)]">-{formatPrice(couponDiscount, locale)}</span>
+              </div>
+            )}
+            {pointsToUse > 0 && (
+              <div className="flex justify-between">
+                <span className="text-[13px] text-[var(--color-success)]">{t('summary.pointDiscount', { defaultValue: '포인트 할인' })}</span>
+                <span className="text-[13px] text-[var(--color-success)]">-{pointsToUse.toLocaleString()}P</span>
               </div>
             )}
             <div className="flex justify-between items-end pt-3 border-t border-[var(--mz-line)]">
