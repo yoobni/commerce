@@ -74,10 +74,29 @@ function generateOrderNumber(): string {
   return `ORD-${date}-${suffix}`;
 }
 
-// Inventory deduction placeholder — awaits decrement_stock RPC (separate task)
-// PROPOSE_TASK:재고 차감 훅 구현|order_items 인서트 후 product_options.stock 감소 — decrement_stock RPC 작성 및 _deductInventoryHook 연결 필요|주문 생성 시 재고 차감 미처리 상태
-async function _deductInventoryHook(_items: CreateOrderItem[]): Promise<void> {
-  // TODO: supabase.rpc('decrement_stock', { p_option_id, p_qty }) per item
+async function _deductInventoryHook(items: CreateOrderItem[]): Promise<void> {
+  const admin = createAdminClient();
+  const decremented: { productOptionId: string; quantity: number }[] = [];
+
+  for (const item of items) {
+    const { error } = await admin.rpc('decrement_stock', {
+      p_option_id: item.productOptionId,
+      p_qty: item.quantity,
+    });
+
+    if (error) {
+      // Compensating rollback: re-increment successfully decremented items
+      for (const done of decremented) {
+        await admin.rpc('increment_stock', {
+          p_option_id: done.productOptionId,
+          p_qty: done.quantity,
+        });
+      }
+      throw new Error(`insufficient_stock: ${error.message}`);
+    }
+
+    decremented.push({ productOptionId: item.productOptionId, quantity: item.quantity });
+  }
 }
 
 export async function createOrderAction(
@@ -177,8 +196,16 @@ export async function createOrderAction(
     return { success: false, error: itemsError.message };
   }
 
-  // 5. Inventory deduction hook (no-op until RPC is implemented)
-  await _deductInventoryHook(input.items);
+  // 5. Inventory deduction — throws on insufficient stock; compensates on partial failure
+  try {
+    await _deductInventoryHook(input.items);
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin.from('order_items') as any).delete().eq('order_id', orderId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (admin.from('orders') as any).delete().eq('id', orderId);
+    return { success: false, error: e instanceof Error ? e.message : 'inventory_error' };
+  }
 
   // Payment gateway is called in a separate step — this action intentionally stops here
   return { success: true, orderId, orderNumber };
