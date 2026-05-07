@@ -12,6 +12,7 @@ import type { Address, Locale } from '@commerce/types';
 import type { UserCoupon } from '@/lib/coupons/queries';
 import { calcCouponDiscount, validateCoupon } from '@/lib/coupons/queries';
 import { markCouponIssuanceUsed } from '@/lib/coupons/actions';
+import { createOrderAction } from '@/lib/orders/actions';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
 import { analytics } from '@/lib/analytics';
@@ -74,6 +75,7 @@ export function CheckoutClient({
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>('shipping');
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
 
   // Shipping form state
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0];
@@ -198,18 +200,83 @@ export function CheckoutClient({
     }
   }
 
+  const CURRENCY_MAP = { ko: 'KRW', ja: 'JPY', de: 'EUR', en: 'USD' } as const;
+
   function handlePlaceOrder() {
     startTransition(async () => {
-      setOrderPlaced(true);
-      const demoOrderId = `demo_${Date.now()}`;
+      setPlaceOrderError(null);
 
-      // 쿠폰 사용 처리 — 실결제 연동 후에는 실제 order UUID 전달
+      const currency = CURRENCY_MAP[locale as keyof typeof CURRENCY_MAP] ?? 'USD';
+
+      const result = await createOrderAction({
+        cartId: cart.id,
+        shipping: {
+          addressId: selectedAddressId,
+          recipientName: recipient,
+          phone,
+          postalCode,
+          addressLine1,
+          addressLine2: addressLine2 || undefined,
+          deliveryMemo: deliveryNote || undefined,
+        },
+        items: cart.items.map((item) => {
+          const base =
+            locale === 'ko'
+              ? item.product_base_price_krw
+              : locale === 'ja'
+                ? item.product_base_price_jpy
+                : locale === 'de'
+                  ? item.product_base_price_eur
+                  : item.product_base_price_usd;
+          const extra =
+            locale === 'ko'
+              ? item.additional_price_krw
+              : locale === 'ja'
+                ? item.additional_price_jpy
+                : locale === 'de'
+                  ? item.additional_price_eur
+                  : item.additional_price_usd;
+          const unitPrice = base + extra;
+          return {
+            productOptionId: item.product_option_id,
+            quantity: item.quantity,
+            unitPrice,
+            totalPrice: unitPrice * item.quantity,
+            snapshot: {
+              product_id: item.product_id,
+              product_option_id: item.product_option_id,
+              name: getProductName(item, locale),
+              sku: item.sku,
+              thumbnail_url: item.product_thumbnail_url,
+              size: item.size_label ?? '',
+              color: item.color,
+            },
+          };
+        }),
+        couponIssuanceId: activeCoupon?.issuance_id,
+        pointUsed: pointsToUse,
+        currency,
+        subtotal,
+        shippingFee,
+        discountAmount: couponDiscount + pointsDiscount,
+        taxAmount: 0,
+        totalAmount: total,
+      });
+
+      if (!result.success || !result.orderId) {
+        setPlaceOrderError(result.error ?? 'order_failed');
+        return;
+      }
+
+      setOrderPlaced(true);
+
+      // 쿠폰 사용 확정 — 실제 order UUID로 연결
       if (activeCoupon) {
-        await markCouponIssuanceUsed(activeCoupon.issuance_id);
+        await markCouponIssuanceUsed(activeCoupon.issuance_id, result.orderId);
       }
 
       track('purchase', {
-        order_id: demoOrderId,
+        order_id: result.orderId,
         transaction_id: null,
         total,
         subtotal,
@@ -237,40 +304,8 @@ export function CheckoutClient({
         payment_method: payMethod,
       });
 
-      // ─── Stripe 국제결제 연동 예시 (활성화 전 주석 처리) ──────────────────────
-      // 패키지: npm i @stripe/stripe-js @stripe/react-stripe-js
-      // 환경변수: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-      //
-      // 1) PaymentIntent 생성 (서버)
-      //    POST /api/payments/create-intent → { clientSecret }
-      //
-      // 2) Stripe Elements로 결제 진행 (클라이언트)
-      //    import { loadStripe } from '@stripe/stripe-js';
-      //    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      //    const res = await fetch('/api/payments/create-intent', {
-      //      method: 'POST',
-      //      headers: { 'Content-Type': 'application/json' },
-      //      body: JSON.stringify({
-      //        amount: total,
-      //        currency: locale === 'ko' ? 'krw' : locale === 'ja' ? 'jpy' : locale === 'de' ? 'eur' : 'usd',
-      //        metadata: { cart_id: cart.id, coupon_code: couponApplied ? couponCode : '' },
-      //      }),
-      //    });
-      //    const { clientSecret, paymentIntentId } = await res.json();
-      //
-      // 3) 결제 확인
-      //    const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
-      //      payment_method: { card: cardElement },
-      //    });
-      //    if (error) { /* 실패 처리 */ return; }
-      //
-      // 4) 주문 생성 → 성공 페이지
-      //    const order = await createOrder({ cartId: cart.id, paymentIntentId });
-      //    router.push(`/checkout/success?order_id=${order.id}`);
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // 데모: 실제 결제 연동 전 임시 라우팅
-      router.push(`/checkout/success?order_id=${demoOrderId}`);
+      // Payment gateway call goes here in a separate task (PENDING_PAYMENT → PAID)
+      router.push(`/checkout/success?order_id=${result.orderId}`);
     });
   }
 
@@ -675,6 +710,13 @@ export function CheckoutClient({
               </p>
             </div>
 
+            {placeOrderError && (
+              <p className="text-[12px] text-red-500 font-medium text-center">
+                {placeOrderError === 'unauthorized'
+                  ? '로그인이 필요합니다.'
+                  : `주문 생성 실패: ${placeOrderError}`}
+              </p>
+            )}
             <div className="flex gap-3">
               <Button variant="ghost" size="lg" className="flex-1" onClick={handlePrevStep}>
                 ← {t('steps.payment')}
