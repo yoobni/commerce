@@ -1,21 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { type AdminRole, hasPermission } from './roles';
+
+export type { AdminRole };
+export { hasPermission };
 
 export const COOKIE_NAME = 'admin_session';
 const EXPIRY = '8h';
-
-export type AdminRole = 'SUPER_ADMIN' | 'OPERATOR';
-
-const ROLE_RANK: Record<AdminRole, number> = {
-  OPERATOR: 1,
-  SUPER_ADMIN: 2,
-};
-
-/** Returns true if userRole meets or exceeds minRole. */
-export function hasPermission(userRole: string, minRole: AdminRole): boolean {
-  const userRank = ROLE_RANK[userRole as AdminRole] ?? 0;
-  return userRank >= ROLE_RANK[minRole];
-}
 
 function getSecret(): Uint8Array {
   const secret = process.env.ADMIN_JWT_SECRET;

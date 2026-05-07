@@ -27,7 +27,7 @@ export interface AdminReviewListParams {
 export async function adminListReviews(
   params: AdminReviewListParams = {}
 ): Promise<PaginatedResponse<AdminReviewRow>> {
-  const { status = 'ALL', isBest, isPhoto, minRating, search, page = 1, per_page = 20 } = params;
+  const { status = 'ALL', isBest, isPhoto, minRating, page = 1, per_page = 20 } = params;
   const supabase = createServiceClient();
   const offset = (page - 1) * per_page;
 

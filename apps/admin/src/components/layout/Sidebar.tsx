@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from './nav-config';
-import { hasPermission, type AdminRole } from '@/lib/auth/session';
+import { hasPermission, type AdminRole } from '@/lib/auth/roles';
 import { cn } from '@/lib/cn';
 
 interface SidebarProps {

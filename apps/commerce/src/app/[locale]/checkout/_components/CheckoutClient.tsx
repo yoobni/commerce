@@ -95,7 +95,7 @@ export function CheckoutClient({
   const [activeCoupon, setActiveCoupon] = useState<Coupon | null>(null);
 
   // Point state
-  const [pointsToUse, setPointsToUse] = useState(0);
+  const pointsToUse = 0;
 
   const subtotal = cart.items.reduce((sum, item) => sum + getItemPrice(item, locale), 0);
   const shippingFee =

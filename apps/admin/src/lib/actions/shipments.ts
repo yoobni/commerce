@@ -17,7 +17,7 @@
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
 import { getSession } from '@/lib/auth/session';
-import type { Carrier, Country, ShipmentStatus } from '@commerce/types';
+import type { Carrier, ShipmentStatus } from '@commerce/types';
 
 // ─── Input invoice & start shipment ──────────────────────────────────────────
 
