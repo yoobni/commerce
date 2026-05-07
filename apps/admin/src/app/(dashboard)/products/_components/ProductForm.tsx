@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { Category, Size, ProductStatus } from '@commerce/types';
 import type { ProductDetail } from '@/lib/queries/products';
 import type { SaveOptionInput } from '@/lib/actions/products';
-import { uploadProductImage, saveProduct } from '@/lib/actions/products';
+import { uploadProductImage, saveProduct, deleteProduct } from '@/lib/actions/products';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -238,6 +238,20 @@ export function ProductForm({ product, categories, sizes }: Props) {
     );
   }
 
+  function handleDelete() {
+    if (!product) return;
+    if (!window.confirm('상품을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    startTransition(async () => {
+      try {
+        await deleteProduct(product.id);
+        router.push('/products');
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '삭제 실패');
+      }
+    });
+  }
+
   function handleSubmit() {
     setError(null);
     if (!form.category_id) {
@@ -291,14 +305,26 @@ export function ProductForm({ product, categories, sizes }: Props) {
             {product ? '상품 수정' : '상품 등록'}
           </h1>
         </div>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isPending}
-          className="px-5 py-2 text-sm font-medium bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 disabled:opacity-60"
-        >
-          {isPending ? '저장 중...' : '저장'}
-        </button>
+        <div className="flex gap-2">
+          {product && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-medium border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-60"
+            >
+              삭제
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="px-5 py-2 text-sm font-medium bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 disabled:opacity-60"
+          >
+            {isPending ? '저장 중...' : '저장'}
+          </button>
+        </div>
       </div>
 
       {error && (

@@ -226,6 +226,24 @@ export async function saveCategory(
   }
 }
 
+// ─── Delete product ───────────────────────────────────────────────────────────
+
+export async function deleteProduct(productId: string): Promise<void> {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+
+  const supabase = createServiceClient();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('products') as any).delete().eq('id', productId);
+
+  if (error) throw new Error(`상품 삭제 실패: ${error.message}`);
+
+  revalidatePath('/products');
+}
+
+// ─── Category CRUD ────────────────────────────────────────────────────────────
+
 export async function deleteCategory(categoryId: string): Promise<void> {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
