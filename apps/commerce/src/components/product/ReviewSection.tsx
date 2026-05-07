@@ -69,9 +69,9 @@ export function ReviewSection({
 
   const ratingTotal = reviewStats.ratingBreakdown.total;
   const sizeFeedbackTotal =
-    reviewStats.sizeFeedback.SMALL +
-    reviewStats.sizeFeedback.PERFECT +
-    reviewStats.sizeFeedback.LARGE;
+    (reviewStats.sizeFeedback?.SMALL ?? 0) +
+    (reviewStats.sizeFeedback?.PERFECT ?? 0) +
+    (reviewStats.sizeFeedback?.LARGE ?? 0);
 
   return (
     <section id="reviews" className="mb-16" aria-label={tProduct('reviews')}>
@@ -101,7 +101,7 @@ export function ReviewSection({
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="text-4xl font-bold text-[var(--color-text-primary)]">
-                {avgRating.toFixed(1)}
+                {Number.isFinite(avgRating) ? avgRating.toFixed(1) : '0.0'}
               </span>
               <div>
                 <div className="flex items-center gap-0.5">

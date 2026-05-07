@@ -28,6 +28,7 @@ interface CommentRowProps {
   onDelete: (id: string) => void;
   onLikeToggle: (id: string, liked: boolean, count: number) => void;
   onReply: (parentId: string, parentAuthor: string) => void;
+  locale: string;
   depth?: number;
 }
 
@@ -40,6 +41,7 @@ function CommentRow({
   onDelete,
   onLikeToggle,
   onReply,
+  locale,
   depth = 0,
 }: CommentRowProps) {
   const t = useTranslations('community');
@@ -88,7 +90,7 @@ function CommentRow({
               {comment.user?.name ?? ''}
             </span>
             <span className="text-xs text-[var(--color-text-tertiary)]">
-              {formatRelativeTime(comment.created_at)}
+              {formatRelativeTime(comment.created_at, locale)}
             </span>
           </div>
 
@@ -144,6 +146,7 @@ function CommentRow({
               onDelete={onDelete}
               onLikeToggle={onLikeToggle}
               onReply={onReply}
+              locale={locale}
               depth={1}
             />
           ))}
@@ -159,7 +162,7 @@ export function CommentSection({
   initialLikedCommentIds,
   isAuthenticated,
   currentUserId,
-  locale: _locale,
+  locale,
 }: CommentSectionProps) {
   const t = useTranslations('community');
   const [comments, setComments] = useState<CommentWithUser[]>(initialComments);
@@ -311,6 +314,7 @@ export function CommentSection({
                 onDelete={handleDelete}
                 onLikeToggle={handleLikeToggle}
                 onReply={handleReply}
+                locale={locale}
               />
 
               {/* Reply input inline */}
@@ -382,14 +386,15 @@ function SmallHeartIcon({ filled }: { filled: boolean }) {
   );
 }
 
-function formatRelativeTime(isoString: string): string {
+function formatRelativeTime(isoString: string, locale: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return '방금 전';
-  if (minutes < 60) return `${minutes}분 전`;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (minutes < 1) return rtf.format(0, 'minute');
+  if (minutes < 60) return rtf.format(-minutes, 'minute');
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
+  if (hours < 24) return rtf.format(-hours, 'hour');
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}일 전`;
-  return new Date(isoString).toLocaleDateString('ko-KR');
+  if (days < 7) return rtf.format(-days, 'day');
+  return new Date(isoString).toLocaleDateString(locale);
 }

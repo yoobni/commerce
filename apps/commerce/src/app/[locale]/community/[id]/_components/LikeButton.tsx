@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { togglePostLikeAction } from '@/lib/community/actions';
 
@@ -22,10 +22,10 @@ export function LikeButton({
   const t = useTranslations('community');
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<string | null>(null);
 
-  async function handleClick() {
+  function handleClick() {
     if (!isAuthenticated) {
       setToast(t('loginToLike'));
       setTimeout(() => setToast(null), 2500);
@@ -38,21 +38,19 @@ export function LikeButton({
     const prevCount = count;
     setLiked(!liked);
     setCount(liked ? count - 1 : count + 1);
-    setIsPending(true);
 
-    const result = await togglePostLikeAction(postId);
-    setIsPending(false);
-
-    if (!result.success) {
-      // Revert
-      setLiked(prevLiked);
-      setCount(prevCount);
-      setToast(t('error.likeFailed'));
-      setTimeout(() => setToast(null), 2500);
-    } else {
-      setLiked(result.liked);
-      setCount(result.likeCount);
-    }
+    startTransition(async () => {
+      const result = await togglePostLikeAction(postId);
+      if (!result.success) {
+        setLiked(prevLiked);
+        setCount(prevCount);
+        setToast(t('error.likeFailed'));
+        setTimeout(() => setToast(null), 2500);
+      } else {
+        setLiked(result.liked);
+        setCount(result.likeCount);
+      }
+    });
   }
 
   return (

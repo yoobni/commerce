@@ -62,6 +62,7 @@
   },
   "product": {
     "addToCart": "In den Warenkorb",
+    "addToCartError": "Fehler beim Hinzufügen zum Warenkorb. Bitte versuchen Sie es erneut.",
     "addToWishlist": "Auf die Wunschliste",
     "outOfStock": "Ausverkauft",
     "sizeGuide": "Größentabelle",
@@ -231,13 +232,16 @@
       "recipientPlaceholder": "Name eingeben",
       "phone": "Telefon",
       "phonePlaceholder": "Nur Ziffern",
+      "postalCode": "Postleitzahl",
+      "postalCodePlaceholder": "00000",
       "address": "Adresse",
       "addressSearch": "Adresse suchen",
       "addressDetail": "Adresszusatz",
       "addressDetailPlaceholder": "Wohnung, Stockwerk usw.",
       "deliveryNote": "Lieferhinweis",
       "deliveryNotePlaceholder": "Besondere Anweisungen für die Lieferung (optional)",
-      "useRegisteredAddress": "Gespeicherte Adresse verwenden"
+      "useRegisteredAddress": "Gespeicherte Adresse verwenden",
+      "defaultAddress": "Standard"
     },
     "payment": {
       "title": "Zahlungsmethode",

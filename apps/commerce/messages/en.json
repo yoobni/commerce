@@ -62,6 +62,7 @@
   },
   "product": {
     "addToCart": "Add to Cart",
+    "addToCartError": "Failed to add to cart. Please try again.",
     "addToWishlist": "Add to Wishlist",
     "outOfStock": "Out of Stock",
     "sizeGuide": "Size Guide",
@@ -231,13 +232,16 @@
       "recipientPlaceholder": "Enter recipient name",
       "phone": "Phone",
       "phonePlaceholder": "Numbers only",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "00000",
       "address": "Address",
       "addressSearch": "Search address",
       "addressDetail": "Address detail",
       "addressDetailPlaceholder": "Apt, suite, unit, etc.",
       "deliveryNote": "Delivery note",
       "deliveryNotePlaceholder": "Special instructions for delivery (optional)",
-      "useRegisteredAddress": "Use saved address"
+      "useRegisteredAddress": "Use saved address",
+      "defaultAddress": "Default"
     },
     "payment": {
       "title": "Payment Method",

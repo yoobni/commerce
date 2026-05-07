@@ -62,6 +62,7 @@
   },
   "product": {
     "addToCart": "장바구니 담기",
+    "addToCartError": "장바구니 담기에 실패했습니다. 다시 시도해 주세요.",
     "addToWishlist": "찜하기",
     "outOfStock": "품절",
     "sizeGuide": "사이즈 가이드",
@@ -231,13 +232,16 @@
       "recipientPlaceholder": "이름을 입력해 주세요",
       "phone": "연락처",
       "phonePlaceholder": "숫자만 입력해 주세요",
+      "postalCode": "우편번호",
+      "postalCodePlaceholder": "00000",
       "address": "주소",
       "addressSearch": "주소 검색",
       "addressDetail": "상세 주소",
       "addressDetailPlaceholder": "동, 호수 등을 입력해 주세요",
       "deliveryNote": "배송 메시지",
       "deliveryNotePlaceholder": "배송 시 요청사항을 입력해 주세요 (선택)",
-      "useRegisteredAddress": "등록된 주소 사용"
+      "useRegisteredAddress": "등록된 주소 사용",
+      "defaultAddress": "기본"
     },
     "payment": {
       "title": "결제 수단",

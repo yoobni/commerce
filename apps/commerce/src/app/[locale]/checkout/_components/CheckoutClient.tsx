@@ -357,7 +357,7 @@ export function CheckoutClient({
                         )}
                         {addr.is_default && (
                           <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-neutral-100)] text-[var(--color-text-tertiary)]">
-                            기본
+                            {t('shipping.defaultAddress')}
                           </span>
                         )}
                       </div>
@@ -393,10 +393,10 @@ export function CheckoutClient({
             </div>
             <div className="grid grid-cols-[120px_1fr] gap-3">
               <Input
-                label="우편번호"
+                label={t('shipping.postalCode')}
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
-                placeholder="00000"
+                placeholder={t('shipping.postalCodePlaceholder')}
                 required
               />
               <Input
@@ -453,7 +453,7 @@ export function CheckoutClient({
               size="lg"
               className="w-full"
               onClick={handleNextStep}
-              disabled={!recipient || !phone || !addressLine1}
+              disabled={!recipient || !phone || !postalCode || !addressLine1}
             >
               {t('steps.payment')} →
             </Button>

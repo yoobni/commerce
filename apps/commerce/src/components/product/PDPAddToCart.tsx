@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
 import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { addToCartAction } from '@/lib/cart/actions';
 import { addToGuestCart } from '@/lib/cart/guest';
 import type { ProductOption, Locale } from '@commerce/types';
@@ -37,6 +38,7 @@ export function PDPAddToCart({
   isAuthenticated,
 }: PDPAddToCartProps) {
   const t = useTranslations('product');
+  const { toast } = useToast();
   const track = useTrack();
   const [isPending, startTransition] = useTransition();
   const [justAdded, setJustAdded] = useState(false);
@@ -74,7 +76,7 @@ export function PDPAddToCart({
         setJustAdded(true);
         setTimeout(() => setJustAdded(false), 2500);
       } catch {
-        // silently fail — user-facing feedback via justAdded state
+        toast(t('addToCartError'), 'error');
       }
     });
   }
