@@ -45,7 +45,7 @@ function WeeklyBarChart({
 
   return (
     <div
-      className="bg-white border border-[var(--color-border)] rounded-xl p-5"
+      className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5"
       role="img"
       aria-label="주간 매출 추이"
     >
@@ -183,16 +183,16 @@ export default async function DashboardPage() {
         <WeeklyBarChart data={trend} />
 
         {/* Quick links */}
-        <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
+        <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5">
           <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">빠른 메뉴</h2>
           <div className="grid grid-cols-2 gap-3">
             {QUICK_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 p-3 border border-[var(--color-border)] rounded-lg hover:border-[var(--color-brand-accent)] hover:bg-amber-50/30 transition-colors group"
+                className="flex items-center gap-3 p-3 border border-[var(--color-border)] rounded-[var(--radius-md)] hover:border-[var(--color-brand-accent)] hover:bg-[var(--mz-accent-soft)]/40 transition-colors group"
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-amber-100/50 flex items-center justify-center shrink-0 transition-colors">
+                <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-gray-50 group-hover:bg-[var(--mz-accent-soft)] flex items-center justify-center shrink-0 transition-colors">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -217,7 +217,7 @@ export default async function DashboardPage() {
 
       {/* Recent orders */}
       <section aria-label="최근 주문">
-        <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--color-border)] bg-gray-50">
             <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">최근 주문</h2>
             <Link href="/orders" className="text-xs text-blue-600 hover:underline">
