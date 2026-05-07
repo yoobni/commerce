@@ -237,12 +237,12 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
     return (
       <div className="space-y-4">
         {[1, 2].map((i) => (
-          <div key={i} className="bg-white rounded-xl p-4 flex gap-4 shadow-sm animate-pulse">
-            <div className="w-24 h-24 rounded-lg bg-[var(--color-neutral-100)] shrink-0" />
+          <div key={i} className="bg-[var(--mz-surface)] rounded-[var(--radius-lg)] p-4 flex gap-4 animate-pulse">
+            <div className="w-24 h-24 rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)] shrink-0" />
             <div className="flex-1 space-y-3 py-1">
-              <div className="h-3 w-1/4 bg-[var(--color-neutral-100)] rounded" />
-              <div className="h-5 w-2/3 bg-[var(--color-neutral-100)] rounded" />
-              <div className="h-4 w-1/3 bg-[var(--color-neutral-100)] rounded" />
+              <div className="h-3 w-1/4 bg-[var(--mz-bg-deep)] rounded-[var(--radius-sm)]" />
+              <div className="h-5 w-2/3 bg-[var(--mz-bg-deep)] rounded-[var(--radius-sm)]" />
+              <div className="h-4 w-1/3 bg-[var(--mz-bg-deep)] rounded-[var(--radius-sm)]" />
             </div>
           </div>
         ))}
@@ -252,11 +252,11 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
 
   return (
     <>
-      {/* Page title */}
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-6">
+      {/* Page title — Fraunces Display L spec: 32/36/500/-0.025em */}
+      <h1 className="font-serif text-[28px] md:text-[32px] font-[500] leading-[1.15] tracking-[-0.025em] text-[var(--mz-ink)] mb-6">
         {t('title')}
         {items.length > 0 && (
-          <span className="ml-2 text-base font-normal text-[var(--color-text-secondary)]">
+          <span className="ml-2 text-[16px] font-[400] text-[var(--mz-ink-mute)] font-sans">
             ({items.length})
           </span>
         )}
@@ -292,7 +292,7 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
             <div className="mt-4">
               <a
                 href={`/${locale}/products`}
-                className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] underline-offset-2 hover:underline transition-colors"
+                className="text-[13px] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] underline-offset-2 hover:underline transition-colors duration-150"
               >
                 ← {t('continueShopping')}
               </a>

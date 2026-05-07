@@ -79,7 +79,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
   return (
     <article
       className={cn(
-        'bg-white rounded-xl p-4 flex gap-4 shadow-sm transition-opacity',
+        'bg-[var(--mz-surface)] rounded-[var(--radius-lg)] p-4 flex gap-4 border border-[var(--mz-line)] transition-opacity',
         isPending && 'opacity-60'
       )}
       aria-label={productName}
@@ -87,7 +87,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
       {/* Thumbnail */}
       <Link
         href={productPath}
-        className="shrink-0 rounded-lg overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--color-neutral-100)]"
+        className="shrink-0 rounded-[var(--radius-md)] overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--mz-bg-deep)]"
         tabIndex={-1}
         aria-hidden="true"
       >
@@ -108,38 +108,38 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
           <div className="flex items-center gap-2 flex-wrap">
             {item.color_hex && (
               <span
-                className="inline-block w-3 h-3 rounded-full border border-[var(--color-neutral-200)]"
+                className="inline-block w-3 h-3 rounded-full border border-[var(--mz-line-strong)]"
                 style={{ backgroundColor: item.color_hex }}
                 aria-label={item.color}
               />
             )}
-            <span className="text-xs text-[var(--color-text-secondary)]">{item.color}</span>
+            <span className="text-[11px] text-[var(--mz-ink-mute)]">{item.color}</span>
             {item.size_label && (
               <>
-                <span className="text-[var(--color-neutral-300)] text-xs">·</span>
-                <span className="text-xs text-[var(--color-text-secondary)]">
+                <span className="text-[var(--mz-ink-mute)] text-[11px]">·</span>
+                <span className="text-[11px] text-[var(--mz-ink-mute)]">
                   {item.size_label}
                 </span>
               </>
             )}
           </div>
 
-          {/* Product name */}
+          {/* Product name — Fraunces 14/500 per Product Card spec */}
           <Link
             href={productPath}
-            className="block text-sm font-medium text-[var(--color-text-primary)] hover:underline truncate"
+            className="block text-[14px] font-[500] leading-[18px] font-serif text-[var(--mz-ink)] hover:text-[var(--mz-ink-soft)] transition-colors duration-150 truncate"
           >
             {productName}
           </Link>
 
-          {/* Unit price */}
-          <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+          {/* Unit price — Price type: Fraunces 13/600 */}
+          <p className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">
             {formatPrice(unitPrice, locale)}
           </p>
 
           {/* Low stock warning */}
           {isLowStock && (
-            <p className="text-xs text-[var(--color-error)]" role="status">
+            <p className="text-[11px] text-[var(--color-error)]" role="status">
               {item.stock === 0 ? '품절' : `재고 ${item.stock}개 남음`}
             </p>
           )}
@@ -149,7 +149,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           {/* Quantity stepper */}
           <div
-            className="flex items-center border border-[var(--color-neutral-200)] rounded-lg overflow-hidden"
+            className="flex items-center border border-[var(--mz-line-strong)] rounded-[var(--radius-md)] overflow-hidden"
             role="group"
             aria-label={t('quantity')}
           >
@@ -157,7 +157,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleDecrement}
               disabled={isPending || item.quantity <= 1}
-              className="w-9 h-9 flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-mute)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
               aria-label="수량 감소"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -165,7 +165,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               </svg>
             </button>
             <span
-              className="w-10 text-center text-sm font-medium text-[var(--color-text-primary)]"
+              className="w-10 text-center text-[13px] font-medium text-[var(--mz-ink)]"
               aria-live="polite"
               aria-label={`${t('quantity')}: ${item.quantity}`}
             >
@@ -175,7 +175,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleIncrement}
               disabled={isPending || item.quantity >= item.stock}
-              className="w-9 h-9 flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-mute)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
               aria-label="수량 증가"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -191,14 +191,14 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
 
           {/* Line total + Remove */}
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+            <span className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">
               {formatPrice(unitPrice * item.quantity, locale)}
             </span>
             <button
               type="button"
               onClick={handleRemove}
               disabled={isPending}
-              className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors disabled:opacity-40"
+              className="text-[12px] text-[var(--mz-ink-mute)] hover:text-[var(--color-error)] transition-colors duration-150 disabled:opacity-40"
               aria-label={`${productName} ${t('remove')}`}
             >
               {t('remove')}
