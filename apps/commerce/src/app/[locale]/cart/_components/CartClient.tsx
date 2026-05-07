@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
-import { formatPrice } from '@/lib/format';
 import { getGuestCart, removeFromGuestCart } from '@/lib/cart/guest';
 import { updateCartItemQuantityAction, removeCartItemAction } from '@/lib/cart/actions';
 import { createClient } from '@/lib/supabase/client';

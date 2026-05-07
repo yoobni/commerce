@@ -19,7 +19,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, id } = await params;
+  const { id } = await params;
   const post = await getPost(id);
   return { title: post?.title ?? 'Community Post' };
 }

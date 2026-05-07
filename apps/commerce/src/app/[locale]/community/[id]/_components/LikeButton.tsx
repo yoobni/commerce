@@ -17,7 +17,7 @@ export function LikeButton({
   initialLiked,
   initialCount,
   isAuthenticated,
-  locale,
+  locale: _locale,
 }: LikeButtonProps) {
   const t = useTranslations('community');
   const [liked, setLiked] = useState(initialLiked);

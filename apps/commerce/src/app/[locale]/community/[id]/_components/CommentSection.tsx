@@ -159,7 +159,7 @@ export function CommentSection({
   initialLikedCommentIds,
   isAuthenticated,
   currentUserId,
-  locale,
+  locale: _locale,
 }: CommentSectionProps) {
   const t = useTranslations('community');
   const [comments, setComments] = useState<CommentWithUser[]>(initialComments);
@@ -189,7 +189,7 @@ export function CommentSection({
   function handleLikeToggle(id: string, liked: boolean, count: number) {
     setLikedIds((prev) => {
       const next = new Set(prev);
-      liked ? next.add(id) : next.delete(id);
+      if (liked) { next.add(id); } else { next.delete(id); }
       return next;
     });
     setComments((prev) =>

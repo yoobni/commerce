@@ -59,7 +59,7 @@ export function FitForHanaCard({
           <PawPlaceholder />
         </div>
         <span className="text-[13px] text-[var(--mz-ink-mute)] flex-1 font-medium">
-          Set up your hound's profile →
+          Set up your hound&apos;s profile →
         </span>
       </Link>
     );

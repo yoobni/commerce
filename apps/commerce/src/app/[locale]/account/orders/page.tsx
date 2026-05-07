@@ -72,7 +72,6 @@ export default async function OrdersPage({ params, searchParams }: Props) {
       ) : (
         <div className="space-y-3">
           {result.data.map((order) => {
-            const statusKey = order.status.toLowerCase() as keyof typeof STATUS_COLORS;
             const statusLabel =
               (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;
             const statusClass =

@@ -165,17 +165,6 @@ export function CheckoutClient({
     }
   }
 
-  function handlePointUse(points: number) {
-    const clamped = Math.max(0, Math.min(points, pointBalance));
-    setPointsToUse(clamped);
-    if (clamped > 0) {
-      track('point_use', {
-        points_used: clamped,
-        order_total_before: subtotal,
-      });
-    }
-  }
-
   function handleNextStep() {
     const currentIndex = STEP_ORDER.indexOf(step);
     if (currentIndex < STEP_ORDER.length - 1) {

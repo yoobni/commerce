@@ -9,6 +9,7 @@ import { Container } from '@/components/layout/Container';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { Suspense } from 'react';
+import { Link } from '@/i18n/navigation';
 import { SearchBar } from './_components/SearchBar';
 
 // SSR — query depends on search param
@@ -107,12 +108,12 @@ export default async function SearchPage({ params, searchParams }: Props) {
             <p className="text-sm text-[var(--color-text-secondary)] mb-6">
               {tEmpty('search.description')}
             </p>
-            <a
+            <Link
               href="/products"
               className="inline-flex items-center justify-center h-10 px-5 rounded border border-[var(--color-brand-primary)] text-[var(--color-brand-primary)] text-sm font-medium hover:bg-[var(--color-brand-primary)] hover:text-white transition-colors"
             >
               {tEmpty('search.action')}
-            </a>
+            </Link>
           </div>
         ) : (
           <>
