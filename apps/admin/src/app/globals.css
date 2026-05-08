@@ -1,6 +1,22 @@
 @import 'tailwindcss';
+@source '../../../../packages/ui/src';
 
 @theme {
+  /* ===== Muzzle shared tokens (required for @muzzle/ui components) ===== */
+  --color-mz-bg: #f7f6f3;
+  --color-mz-bg-deep: #efede7;
+  --color-mz-surface: #ffffff;
+  --color-mz-ink: #0e0e0c;
+  --color-mz-ink-soft: #4d4d48;
+  --color-mz-ink-mute: #8f8f88;
+  --color-mz-accent: #6b2020;
+  --color-mz-accent-soft: #f1e5e0;
+  --color-mz-accent-ink: #4a1818;
+  --color-error: #c0392b;
+  --color-success: #27ae60;
+  --color-warning: #d68910;
+  --color-info: #2563eb;
+
   /* Admin color palette — neutral, functional */
   --color-bg: #f5f5f5;
   --color-surface: #ffffff;
@@ -38,6 +54,27 @@
 }
 
 :root {
+  /* Muzzle CSS custom properties for components that use var(--mz-*) */
+  --mz-bg: #f7f6f3;
+  --mz-bg-deep: #efede7;
+  --mz-surface: #ffffff;
+  --mz-ink: #0e0e0c;
+  --mz-ink-soft: #4d4d48;
+  --mz-ink-mute: #8f8f88;
+  --mz-line: rgba(14, 14, 12, 0.08);
+  --mz-line-strong: rgba(14, 14, 12, 0.18);
+  --mz-accent: #6b2020;
+  --mz-accent-soft: #f1e5e0;
+  --mz-accent-ink: #4a1818;
+  --mz-radius-sm: 4px;
+  --mz-radius-md: 10px;
+  --mz-radius-lg: 16px;
+  --mz-radius-xl: 22px;
+  --mz-radius-pill: 999px;
+  --mz-error: #c0392b;
+  --mz-success: #27ae60;
+  --mz-warning: #d68910;
+
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --sidebar-width: 240px;
   --header-height: 56px;
@@ -83,13 +120,27 @@ body {
 }
 
 @keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes mz-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes mz-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mz-fade-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mz-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 .skeleton {

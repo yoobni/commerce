@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source '../../../../packages/ui/src';
 
 @theme {
   /* ===== Muzzle Color Tokens ===== */
@@ -134,13 +135,17 @@
 
 /* ===== Keyframes ===== */
 @keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes mz-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes mz-spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes mz-blink {

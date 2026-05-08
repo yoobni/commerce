@@ -17,7 +17,8 @@
     "@supabase/ssr": "^0.5.0",
     "next-intl": "^4.1.0",
     "@commerce/shared": "*",
-    "@commerce/types": "*"
+    "@commerce/types": "*",
+    "@muzzle/ui": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -1,0 +1,99 @@
+/*
+ * Muzzle Design System — Direction B (Modern) + Burgundy accent
+ * Confirmed: 2026-04-24
+ *
+ * Source of truth for all --mz-* CSS custom properties.
+ * Import in each app's globals.css:
+ *   @import '../../../../packages/ui/src/tokens/tokens.css';
+ */
+
+:root {
+  /* ===== Background ===== */
+  --mz-bg: #f7f6f3;         /* bone white — page background */
+  --mz-bg-deep: #efede7;    /* image/card backdrop */
+  --mz-surface: #ffffff;    /* cards, inputs above bg */
+
+  /* ===== Ink (text + icon) ===== */
+  --mz-ink: #0e0e0c;        /* primary text, primary button */
+  --mz-ink-soft: #4d4d48;   /* body prose */
+  --mz-ink-mute: #8f8f88;   /* meta, labels */
+
+  /* ===== Lines ===== */
+  --mz-line: rgba(14, 14, 12, 0.08);       /* dividers */
+  --mz-line-strong: rgba(14, 14, 12, 0.18); /* input border, chip outline */
+
+  /* ===== Accent — Burgundy (신호용, 장식 아님) ===== */
+  --mz-accent: #6b2020;
+  --mz-accent-soft: #f1e5e0;
+  --mz-accent-ink: #4a1818;
+
+  /* ===== System colors ===== */
+  --mz-error: #c0392b;
+  --mz-success: #27ae60;
+  --mz-warning: #d68910;
+  --mz-info: #2563eb;
+
+  /* ===== Typography ===== */
+  --mz-font-serif: 'Fraunces', 'Pretendard Variable', 'Noto Sans JP', Georgia, serif;
+  --mz-font-sans: 'Inter', 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mz-font-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+
+  /* ===== Spacing (4-base) ===== */
+  --mz-space-xs: 4px;
+  --mz-space-sm: 8px;
+  --mz-space-md: 12px;
+  --mz-space-lg: 16px;
+  --mz-space-xl: 22px;
+  --mz-space-2xl: 32px;
+  --mz-space-3xl: 44px;
+
+  /* ===== Radii ===== */
+  --mz-radius-sm: 4px;
+  --mz-radius-md: 10px;
+  --mz-radius-lg: 16px;
+  --mz-radius-xl: 22px;
+  --mz-radius-pill: 999px;
+
+  /* ===== Motion ===== */
+  --mz-transition-fast: 150ms ease;
+  --mz-transition-base: 250ms ease-out;
+  --mz-transition-slow: 400ms ease;
+
+  /* ===== Layout ===== */
+  --mz-container-max: 1280px;
+  --mz-container-padding: 20px;
+  --mz-container-padding-md: 32px;
+  --mz-container-padding-lg: 48px;
+}
+
+/* ===== Dark mode tokens (MVP: token-only, not applied) ===== */
+[data-theme="dark"] {
+  --mz-bg: #0c0c0b;
+  --mz-bg-deep: #050504;
+  --mz-surface: #171715;
+  --mz-ink: #f5f4f0;
+  --mz-ink-soft: #b4b3ae;
+  --mz-ink-mute: #757571;
+  --mz-line: rgba(245, 244, 240, 0.08);
+  --mz-line-strong: rgba(245, 244, 240, 0.18);
+}
+
+/* ===== Keyframes (shared) ===== */
+@keyframes mz-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes mz-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes mz-fade-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mz-spin {
+  to { transform: rotate(360deg); }
+}

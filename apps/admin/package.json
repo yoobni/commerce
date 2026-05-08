@@ -18,7 +18,8 @@
     "jose": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "@commerce/shared": "*",
-    "@commerce/types": "*"
+    "@commerce/types": "*",
+    "@muzzle/ui": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
