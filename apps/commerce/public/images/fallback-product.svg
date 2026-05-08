@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#F4F2EE"/>
+  <!-- Large dog silhouette (side view, sitting) -->
+  <g transform="translate(80, 60)" fill="#C8C0B4" opacity="0.6">
+    <!-- Body -->
+    <ellipse cx="130" cy="200" rx="90" ry="70"/>
+    <!-- Head -->
+    <circle cx="220" cy="120" r="52"/>
+    <!-- Snout -->
+    <ellipse cx="258" cy="138" rx="26" ry="20"/>
+    <!-- Ear (floppy) -->
+    <ellipse cx="200" cy="88" rx="20" ry="38" transform="rotate(-15 200 88)"/>
+    <!-- Front leg -->
+    <rect x="160" y="250" width="24" height="60" rx="12"/>
+    <!-- Back leg -->
+    <rect x="76" y="250" width="24" height="60" rx="12"/>
+    <!-- Tail -->
+    <path d="M46 200 Q10 160 30 130 Q50 100 70 130" stroke="#C8C0B4" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <!-- Eye -->
+    <circle cx="238" cy="114" r="6" fill="#9E9488"/>
+    <!-- Nose -->
+    <ellipse cx="270" cy="148" rx="8" ry="6" fill="#9E9488"/>
+    <!-- Clothing hint (vest/coat outline) -->
+    <path d="M90 180 Q130 155 200 165 Q240 170 240 195 Q240 230 200 240 Q130 250 90 240 Z"
+          fill="none" stroke="#A8A09A" stroke-width="3" stroke-dasharray="8 4" opacity="0.7"/>
+  </g>
+  <!-- Text -->
+  <text x="200" y="370" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#A8A09A" letter-spacing="2">RAVI DOG</text>
+</svg>

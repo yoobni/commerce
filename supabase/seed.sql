@@ -80,8 +80,8 @@ VALUES
     'Warmer Steppmantel, speziell für große Hunde entwickelt. Wasserabweisende Außenhülle mit Mikrofaserfüllung für Wärme im Winter.',
     89000, 68.00, 9800, 62.00,
     '아우터: 폴리에스터 100% / 충전재: 폴리에스터 극세사', '30도 이하 손세탁 권장, 건조기 사용 금지', 420,
-    '/mock/products/padded-coat-01-thumb.jpg',
-    '["/mock/products/padded-coat-01-1.jpg","/mock/products/padded-coat-01-2.jpg","/mock/products/padded-coat-01-3.jpg"]',
+    'https://placedog.net/400/400?id=1',
+    '["https://placedog.net/800/800?id=1","https://placedog.net/800/600?id=51","https://placedog.net/600/800?id=71"]',
     'ACTIVE', TRUE, 1240, 38, 4.7,
     '2026-01-15T00:00:00Z', '2026-01-10T00:00:00Z', '2026-03-01T00:00:00Z'
   ),
@@ -94,8 +94,8 @@ VALUES
     'Leichter Windbreaker für Outdoor-Aktivitäten. Packbares Design, ideal für Frühling und Herbst.',
     55000, 42.00, 6000, 38.00,
     '나일론 100%', '손세탁 또는 30도 이하 세탁기 약세탁', 180,
-    '/mock/products/windbreaker-01-thumb.jpg',
-    '["/mock/products/windbreaker-01-1.jpg","/mock/products/windbreaker-01-2.jpg"]',
+    'https://placedog.net/400/400?id=2',
+    '["https://placedog.net/800/800?id=2","https://placedog.net/800/600?id=52"]',
     'ACTIVE', FALSE, 430, 9, 4.4,
     '2026-03-01T00:00:00Z', '2026-02-20T00:00:00Z', '2026-03-15T00:00:00Z'
   ),
@@ -109,8 +109,8 @@ VALUES
     'Bequemer Hoodie aus weichem Fleece. Geräumige Passform, die die Bewegungsfreiheit aktiver großer Hunde nicht einschränkt.',
     59000, 45.00, 6500, 41.00,
     '폴리에스터 80% / 면 20%', '40도 이하 세탁, 뒤집어서 세탁 권장', 280,
-    '/mock/products/fleece-hoodie-01-thumb.jpg',
-    '["/mock/products/fleece-hoodie-01-1.jpg","/mock/products/fleece-hoodie-01-2.jpg"]',
+    'https://placedog.net/400/400?id=3',
+    '["https://placedog.net/800/800?id=3","https://placedog.net/800/600?id=53"]',
     'ACTIVE', TRUE, 890, 24, 4.5,
     '2026-01-20T00:00:00Z', '2026-01-15T00:00:00Z', '2026-02-20T00:00:00Z'
   ),
@@ -123,8 +123,8 @@ VALUES
     'Streifen-T-Shirt für Sommerspaziergänge. Kühlstoff mit Feuchtigkeitsaufnahme und Schnelltrocknungseigenschaften.',
     38000, 29.00, 4100, 26.00,
     '폴리에스터 90% / 스판덱스 10%', '30도 이하 세탁기 세탁', 150,
-    '/mock/products/stripe-tshirt-01-thumb.jpg',
-    '["/mock/products/stripe-tshirt-01-1.jpg","/mock/products/stripe-tshirt-01-2.jpg"]',
+    'https://placedog.net/400/400?id=4',
+    '["https://placedog.net/800/800?id=4","https://placedog.net/800/600?id=54"]',
     'ACTIVE', FALSE, 320, 7, 4.3,
     '2026-03-15T00:00:00Z', '2026-03-10T00:00:00Z', '2026-03-20T00:00:00Z'
   ),
@@ -138,8 +138,8 @@ VALUES
     'Overall aus weichem Strickstoff. Rückenreißverschluss-Design für einfaches An- und Ausziehen.',
     65000, 50.00, 7100, 46.00,
     '아크릴 60% / 울 30% / 스판덱스 10%', '30도 이하 울 코스 세탁', 260,
-    '/mock/products/onepiece-01-thumb.jpg',
-    '["/mock/products/onepiece-01-1.jpg","/mock/products/onepiece-01-2.jpg"]',
+    'https://placedog.net/400/400?id=5',
+    '["https://placedog.net/800/800?id=5","https://placedog.net/800/600?id=55"]',
     'ACTIVE', TRUE, 540, 12, 4.6,
     '2026-02-10T00:00:00Z', '2026-02-05T00:00:00Z', '2026-03-05T00:00:00Z'
   ),
@@ -153,8 +153,8 @@ VALUES
     'Vollständig wasserdichter Regenmantel. Integriertes Kapuzendesign für vollständigen Schutz von Kopf bis Schwanz.',
     72000, 55.00, 7900, 50.00,
     'PU 코팅 폴리에스터 100%', '스폰지로 닦아서 세척, 세탁기 사용 금지', 310,
-    '/mock/products/raincoat-01-thumb.jpg',
-    '["/mock/products/raincoat-01-1.jpg","/mock/products/raincoat-01-2.jpg","/mock/products/raincoat-01-3.jpg","/mock/products/raincoat-01-4.jpg"]',
+    'https://placedog.net/400/400?id=6',
+    '["https://placedog.net/800/800?id=6","https://placedog.net/800/600?id=56","https://placedog.net/600/800?id=76","https://placedog.net/800/800?id=86"]',
     'ACTIVE', FALSE, 620, 15, 4.8,
     '2026-02-01T00:00:00Z', '2026-01-25T00:00:00Z', '2026-03-10T00:00:00Z'
   ),
@@ -168,8 +168,8 @@ VALUES
     '100 % Baumwoll-Bandana. Verschiedene Muster für den täglichen Styling-Akzent.',
     18000, 14.00, 1900, 13.00,
     '면 100%', '40도 이하 세탁기 세탁 가능', 40,
-    '/mock/products/bandana-01-thumb.jpg',
-    '["/mock/products/bandana-01-1.jpg","/mock/products/bandana-01-2.jpg"]',
+    'https://placedog.net/400/400?id=7',
+    '["https://placedog.net/800/800?id=7","https://placedog.net/800/600?id=57"]',
     'ACTIVE', FALSE, 780, 31, 4.9,
     '2026-02-15T00:00:00Z', '2026-02-10T00:00:00Z', '2026-03-20T00:00:00Z'
   ),
@@ -182,8 +182,8 @@ VALUES
     'Gepolsterte Abdeckung, die über das Geschirr getragen wird. Reduziert Reibung und hält die Körperwärme.',
     32000, 24.00, 3500, 22.00,
     '폴리에스터 100% (충전재: 극세사)', '30도 이하 손세탁', 120,
-    '/mock/products/harness-cover-01-thumb.jpg',
-    '["/mock/products/harness-cover-01-1.jpg","/mock/products/harness-cover-01-2.jpg"]',
+    'https://placedog.net/400/400?id=8',
+    '["https://placedog.net/800/800?id=8","https://placedog.net/800/600?id=58"]',
     'ACTIVE', TRUE, 260, 5, 4.6,
     '2026-03-01T00:00:00Z', '2026-02-25T00:00:00Z', '2026-03-25T00:00:00Z'
   )

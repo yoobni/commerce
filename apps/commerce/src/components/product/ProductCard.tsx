@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/cn';
@@ -7,6 +8,8 @@ import { getProductName, getProductPrice, formatPrice } from '@/lib/format';
 import { WishlistButton } from './WishlistButton';
 import { FitBadge } from '@/components/ui/Badge';
 import type { Product, Locale } from '@commerce/types';
+
+const FALLBACK_IMG = '/images/fallback-product.svg';
 
 // Spec: Direction B — Product Card
 // Image block: bgDeep, 1:1 ratio (changed from 3:4), radius 10, relative
@@ -37,6 +40,7 @@ export function ProductCard({
   const price = getProductPrice(product, locale);
   const formattedPrice = formatPrice(price, locale);
   const isSoldOut = product.status === 'SOLD_OUT';
+  const [imgSrc, setImgSrc] = useState(product.thumbnail_url || FALLBACK_IMG);
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
@@ -44,7 +48,7 @@ export function ProductCard({
       <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)]">
         <Link href={`/products/${product.slug}`} className="block w-full h-full" aria-label={name}>
           <Image
-            src={product.thumbnail_url}
+            src={imgSrc}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -54,6 +58,7 @@ export function ProductCard({
               isSoldOut && 'opacity-60'
             )}
             priority={priority}
+            onError={() => setImgSrc(FALLBACK_IMG)}
           />
         </Link>
 
