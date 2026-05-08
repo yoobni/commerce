@@ -15,14 +15,14 @@
 -- ─────────────────────────────────────────────────────────────
 -- ⚠ DEV ONLY — 운영 환경에서는 반드시 교체할 것
 -- email   : admin@ravidog.com
--- password: admin1234!  (bcrypt 10 rounds)
+-- password: ravi1234  (bcrypt 10 rounds)
 -- UUID key: uuid5(DNS_NAMESPACE, 'admin:super@ravidog.com')
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO admins (id, email, password_hash, name, role, status, created_at, updated_at)
 VALUES (
   '476f493e-bacf-5a60-89a4-69c5ebd7b5eb',
   'admin@ravidog.com',
-  '$2a$10$bIq0UTm4pYbGrk6FylNtVeV5Rl5odEesYCpLdinJusvM2kXhC4tLm',
+  '$2a$10$y1agnTlANY.N5DQwqcwhROKMJ1tLnKkEavLH3lbzmcUy0VQsh8R1G',
   'Super Admin',
   'SUPER_ADMIN',
   'ACTIVE',
