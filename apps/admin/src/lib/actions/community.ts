@@ -2,14 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { PostStatus, UserStatus } from '@commerce/types';
 
 // ─── Post status ──────────────────────────────────────────────────────────────
 
 export async function setPostStatus(postId: string, status: PostStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,8 +24,7 @@ export async function setPostStatus(postId: string, status: PostStatus): Promise
 // ─── Post pin ─────────────────────────────────────────────────────────────────
 
 export async function setPostPinned(postId: string, isPinned: boolean): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,8 +44,7 @@ export async function setCommentStatus(
   postId: string,
   status: PostStatus
 ): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,8 +63,7 @@ export async function setUserStatus(
   status: UserStatus,
   refererPostId?: string
 ): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('SUPER_ADMIN');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

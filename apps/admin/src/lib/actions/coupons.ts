@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { CouponType, CouponStatus, Currency } from '@commerce/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,8 +28,7 @@ export interface SaveCouponInput {
 // ─── Save coupon (create or update) ──────────────────────────────────────────
 
 export async function saveCoupon(couponId: string | null, input: SaveCouponInput): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  const session = await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   const now = new Date().toISOString();
@@ -66,8 +65,7 @@ export async function saveCoupon(couponId: string | null, input: SaveCouponInput
 // ─── Update coupon status ─────────────────────────────────────────────────────
 
 export async function updateCouponStatus(couponId: string, status: CouponStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,8 +81,7 @@ export async function updateCouponStatus(couponId: string, status: CouponStatus)
 // ─── Issue coupon to user by email ────────────────────────────────────────────
 
 export async function issueCouponToUserByEmail(couponId: string, email: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
 
@@ -151,8 +148,7 @@ export async function issueCouponToUserByEmail(couponId: string, email: string):
 // ─── Revoke issuance ──────────────────────────────────────────────────────────
 
 export async function revokeCouponIssuance(issuanceId: string, couponId: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

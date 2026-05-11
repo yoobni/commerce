@@ -132,6 +132,11 @@ export interface EventMap {
   };
 
   // ─── Cart ────────────────────────────────────────────────────────────
+  add_to_cart_clicked: {
+    product_id: string;
+    source: 'pdp_inline' | 'pdp_sticky';
+    has_selection: boolean;
+  };
   cart_view: {
     items: ProductSummary[];
     item_count: number;

@@ -4,12 +4,14 @@ import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { SizeGuideModal } from './SizeGuideModal';
+import { FitForHanaCard, type HoundProfile } from '@/components/ui/FitForHanaCard';
 import type { ProductOption, Size } from '@commerce/types';
 
 interface PDPVariantSelectorProps {
   options: ProductOption[];
   productId: string;
   onSelectionChange: (option: ProductOption | null) => void;
+  houndProfile?: HoundProfile | null;
 }
 
 interface ColorGroup {
@@ -22,6 +24,7 @@ export function PDPVariantSelector({
   options,
   productId,
   onSelectionChange,
+  houndProfile = null,
 }: PDPVariantSelectorProps) {
   const t = useTranslations('product');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -116,6 +119,15 @@ export function PDPVariantSelector({
           ))}
         </div>
       </div>
+
+      {/* Fit-for-Hana — size recommendation, directly above size selector */}
+      <FitForHanaCard
+        profile={houndProfile}
+        recommendation={
+          houndProfile ? `${houndProfile.name}에게 추천 · 사이즈 ${houndProfile.size}` : undefined
+        }
+        setupHref="/onboarding"
+      />
 
       {/* Size selector */}
       <div className="space-y-2.5">

@@ -16,7 +16,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { Carrier, ShipmentStatus } from '@commerce/types';
 
 // ─── Input invoice & start shipment ──────────────────────────────────────────
@@ -29,8 +29,7 @@ export interface StartShipmentInput {
 }
 
 export async function startShipment(input: StartShipmentInput): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const { orderId, carrier, trackingNumber, country } = input;
   if (!trackingNumber.trim()) throw new Error('운송장 번호를 입력해주세요.');
@@ -86,8 +85,7 @@ export async function updateShipmentStatus(
   shipmentId: string,
   newStatus: ShipmentStatus
 ): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,8 +118,7 @@ export async function setReturnTracking(
   shipmentId: string,
   returnTrackingNumber: string
 ): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

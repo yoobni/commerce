@@ -12,6 +12,7 @@ import type { Locale } from '@/i18n/routing';
 import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { FitForHanaCard } from '@/components/ui/FitForHanaCard';
 
 type PriceKey =
   | 'additional_price_krw'
@@ -275,6 +276,8 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           {/* Cart items list */}
           <section aria-label="장바구니 상품 목록">
+            {/* Fit-for-Hana — 사이즈 추천 카드, 라인아이템 상단 */}
+            <FitForHanaCard profile={null} setupHref="/onboarding" className="mb-3" />
             <ul className="space-y-3 list-none p-0 m-0">
               {items.map((item) => (
                 <li key={item.id}>

@@ -2,14 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { UserStatus } from '@commerce/types';
 
 // ─── Update member status ─────────────────────────────────────────────────────
 
 export async function updateMemberStatus(memberId: string, newStatus: UserStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('SUPER_ADMIN');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

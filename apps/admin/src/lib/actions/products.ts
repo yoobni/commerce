@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { ProductStatus } from '@commerce/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -62,8 +62,7 @@ export interface CategoryInput {
 // Requires a public Supabase Storage bucket named "product-images".
 
 export async function uploadProductImage(formData: FormData): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const file = formData.get('file') as File | null;
   if (!file) throw new Error('파일이 없습니다.');
@@ -90,8 +89,7 @@ export async function saveProduct(
   input: SaveProductInput,
   options: SaveOptionInput[]
 ): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   const now = new Date().toISOString();
@@ -180,8 +178,7 @@ export async function saveProduct(
 // ─── Update product status (quick action) ────────────────────────────────────
 
 export async function updateProductStatus(productId: string, status: ProductStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   const now = new Date().toISOString();
@@ -203,8 +200,7 @@ export async function saveCategory(
   categoryId: string | null,
   input: CategoryInput
 ): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
 
@@ -229,8 +225,7 @@ export async function saveCategory(
 // ─── Delete product ───────────────────────────────────────────────────────────
 
 export async function deleteProduct(productId: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('SUPER_ADMIN');
 
   const supabase = createServiceClient();
 
@@ -245,8 +240,7 @@ export async function deleteProduct(productId: string): Promise<void> {
 // ─── Category CRUD ────────────────────────────────────────────────────────────
 
 export async function deleteCategory(categoryId: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('SUPER_ADMIN');
 
   const supabase = createServiceClient();
 

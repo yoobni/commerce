@@ -2,14 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/guard';
 import type { ReviewStatus } from '@commerce/types';
 
 // ─── Set review status (ACTIVE ↔ HIDDEN / DELETED) ───────────────────────────
 
 export async function setReviewStatus(id: string, status: ReviewStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,8 +24,7 @@ export async function setReviewStatus(id: string, status: ReviewStatus): Promise
 // ─── Toggle best review flag ──────────────────────────────────────────────────
 
 export async function toggleReviewBest(id: string, isBest: boolean): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,8 +40,7 @@ export async function toggleReviewBest(id: string, isBest: boolean): Promise<voi
 // ─── Toggle point rewarded flag ───────────────────────────────────────────────
 
 export async function setReviewPointRewarded(id: string, rewarded: boolean): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  await requireRole('OPERATOR');
 
   const supabase = createServiceClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
