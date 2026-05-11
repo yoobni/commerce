@@ -15,12 +15,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "i18n:qa": "npx tsx scripts/i18n-qa.ts",
-    "i18n:qa:strict": "npx tsx scripts/i18n-qa.ts --strict --fix-hint"
+    "i18n:qa:strict": "npx tsx scripts/i18n-qa.ts --strict --fix-hint",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
     "@eslint/eslintrc": "^3.0.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "@playwright/test": "^1.49.0"
   },
   "engines": {
     "node": ">=20"

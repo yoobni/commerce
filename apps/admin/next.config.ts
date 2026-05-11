@@ -3,6 +3,18 @@ import type { NextConfig } from 'next';
 const STATIC_IMMUTABLE = 'public, max-age=31536000, immutable';
 const NO_STORE = 'no-store, must-revalidate';
 
+const SECURITY_HEADERS = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-XSS-Protection', value: '1; mode=block' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()',
+  },
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
+];
+
 const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -18,6 +30,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/(.*)',
+        headers: SECURITY_HEADERS,
+      },
       {
         source: '/_next/static/(.*)',
         headers: [{ key: 'Cache-Control', value: STATIC_IMMUTABLE }],

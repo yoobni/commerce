@@ -8,6 +8,7 @@ import { AuthProvider } from '@/components/providers/AuthProvider';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { TabBar } from '@/components/layout/TabBar';
+import { WebVitals } from '@/components/WebVitals';
 
 type Props = {
   children: React.ReactNode;
@@ -52,6 +53,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider locale={locale as Locale} messages={messages}>
+      <WebVitals />
       <AuthProvider>
         <AnalyticsProvider locale={locale as Locale}>
           <div className="flex flex-col min-h-screen bg-[var(--mz-bg)]">
