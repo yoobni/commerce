@@ -30,7 +30,7 @@ export default async function CartPage({ params }: Props) {
   const initialCart = user ? await getCartWithItems() : null;
 
   return (
-    <div className="min-h-screen bg-[var(--color-neutral-50)]">
+    <div className="min-h-screen bg-[var(--mz-bg)]">
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
         <CartClient locale={locale as Locale} initialCart={initialCart} isAuthenticated={!!user} />
       </div>

@@ -17,6 +17,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   trailingAction?: React.ReactNode;
   /** Floating label activates on focus or when the field has a value */
   floatingLabel?: boolean;
+  /** Background color token for floating label cutout — match the container background */
+  labelBg?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -27,6 +29,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     leadingIcon,
     trailingAction,
     floatingLabel = false,
+    labelBg = 'var(--mz-surface)',
     className,
     id,
     required,
@@ -142,6 +145,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {label && (
           <label
             htmlFor={inputId}
+            style={isFloated ? { backgroundColor: labelBg } : undefined}
             className={cn(
               'absolute pointer-events-none select-none transition-all duration-150',
               isFloated
@@ -149,7 +153,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
                     'top-0 -translate-y-1/2 left-3',
                     'px-1.5 py-0',
                     'text-[10px] font-semibold tracking-[0.14em] uppercase',
-                    'bg-[var(--mz-surface)]',
                     error ? 'text-[var(--color-error)]' : 'text-[var(--mz-ink)]'
                   )
                 : cn(

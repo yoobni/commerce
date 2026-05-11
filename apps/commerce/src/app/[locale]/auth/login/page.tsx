@@ -112,6 +112,7 @@ export default function LoginPage() {
             required
             autoComplete="email"
             floatingLabel
+            labelBg="var(--mz-bg)"
           />
           <PasswordInput
             label={t('password')}
@@ -120,6 +121,7 @@ export default function LoginPage() {
             required
             autoComplete="current-password"
             floatingLabel
+            labelBg="var(--mz-bg)"
           />
 
           <div className="flex justify-center">
