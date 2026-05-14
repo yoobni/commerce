@@ -22,6 +22,7 @@ import { CategoryBreadcrumb } from '@/components/product/CategoryBreadcrumb';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductGridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { PDPClient } from './_components/PDPClient';
+import { buildAlternates } from '@/lib/seo/alternates';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       images: product.images[0] ? [{ url: product.images[0] }] : [],
     },
+    alternates: buildAlternates(`/products/${slug}`, locale),
   };
 }
 
@@ -74,8 +76,41 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const relatedProducts = relatedResult.data.filter((p) => p.id !== product.id).slice(0, 4);
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: productName,
+    description: productDescription.slice(0, 300),
+    image: product.images?.length ? product.images : undefined,
+    sku: product.id,
+    brand: { '@type': 'Brand', name: 'RAVI' },
+    offers: {
+      '@type': 'Offer',
+      price,
+      priceCurrency:
+        locale === 'ko' ? 'KRW' : locale === 'ja' ? 'JPY' : locale === 'de' ? 'EUR' : 'USD',
+      availability:
+        product.status === 'ACTIVE'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      url: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/${locale}/products/${slug}`,
+    },
+    aggregateRating:
+      product.review_count > 0
+        ? {
+            '@type': 'AggregateRating',
+            ratingValue: product.review_avg_rating,
+            reviewCount: product.review_count,
+          }
+        : undefined,
+  };
+
   return (
     <div className="bg-[var(--color-bg)] min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <Container className="py-6 md:py-10">
         {/* Breadcrumb */}
         <div className="mb-6">
@@ -228,9 +263,19 @@ export default async function ProductDetailPage({ params }: Props) {
                     <ChevronIcon />
                   </summary>
                   <div className="mt-3 space-y-1 text-sm text-[var(--color-text-secondary)]">
-                    <p>소재: {product.material}</p>
-                    {product.care_instruction && <p>관리: {product.care_instruction}</p>}
-                    {product.weight_g && <p>무게: {product.weight_g}g</p>}
+                    <p>
+                      {t('material')}: {product.material}
+                    </p>
+                    {product.care_instruction && (
+                      <p>
+                        {t('care')}: {product.care_instruction}
+                      </p>
+                    )}
+                    {product.weight_g && (
+                      <p>
+                        {t('weight')}: {product.weight_g}g
+                      </p>
+                    )}
                   </div>
                 </details>
               )}
@@ -281,7 +326,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   href={`/products?category=${product.category.slug}`}
                   className="text-sm text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-primary)] underline-offset-2 hover:underline transition-colors"
                 >
-                  {tCommon('viewAll', { defaultValue: '전체 보기' })}
+                  {tCommon('viewAll')}
                 </Link>
               )}
             </div>

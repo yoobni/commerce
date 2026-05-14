@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Muzzle · Hifi Exploration</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #E8E4DB; font-family: 'Inter', -apple-system, sans-serif; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="hifi/design-canvas.jsx"></script>
+<script type="text/babel" src="hifi/ios-frame.jsx"></script>
+<script type="text/babel" src="hifi/tokens.jsx"></script>
+<script type="text/babel" src="hifi/illus.jsx"></script>
+<script type="text/babel" src="hifi/shell.jsx"></script>
+<script type="text/babel" src="hifi/dir-a.jsx"></script>
+<script type="text/babel" src="hifi/dir-b.jsx"></script>
+<script type="text/babel" src="hifi/dir-b-extra.jsx"></script>
+<script type="text/babel" src="hifi/dir-b-ds.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "mode": "light",
+  "accentA": "burgundy",
+  "accentB": "olive"
+}/*EDITMODE-END*/;
+
+function TweakPanel({ active, tw, set }) {
+  if (!active) return null;
+  const row = (label, val, opts, onChange) => (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 10, letterSpacing: '0.14em', color: '#777', textTransform: 'uppercase', marginBottom: 6 }}>{label}</div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {opts.map(o => (
+          <button key={o.v} onClick={() => onChange(o.v)} style={{
+            padding: '6px 10px', borderRadius: 6, border: '1px solid ' + (val === o.v ? '#000' : '#ddd'),
+            background: val === o.v ? '#000' : '#fff', color: val === o.v ? '#fff' : '#000',
+            fontSize: 11, cursor: 'pointer', fontFamily: 'Inter',
+          }}>{o.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <div style={{
+      position: 'fixed', right: 20, bottom: 20, zIndex: 99,
+      background: '#fff', padding: 16, borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+      border: '1px solid #e5e5e5', width: 280, fontFamily: 'Inter',
+    }}>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', marginBottom: 12 }}>TWEAKS</div>
+      {row('Mode', tw.mode, [{v:'light',label:'Light'},{v:'dark',label:'Dark'}], v => set({ mode: v }))}
+      {row('Editorial · accent', tw.accentA, [{v:'burgundy',label:'Burgundy'},{v:'olive',label:'Olive'},{v:'ink',label:'Ink'}], v => set({ accentA: v }))}
+      {row('Modern · accent', tw.accentB, [{v:'burgundy',label:'Burgundy'},{v:'olive',label:'Olive'},{v:'ink',label:'Ink'}], v => set({ accentB: v }))}
+    </div>
+  );
+}
+
+function App() {
+  const [tw, setTw] = useState(TWEAKS);
+  const [tweaksOn, setTweaksOn] = useState(false);
+  const set = (patch) => {
+    const next = { ...tw, ...patch };
+    setTw(next);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*');
+  };
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data) return;
+      if (e.data.type === '__activate_edit_mode') setTweaksOn(true);
+      if (e.data.type === '__deactivate_edit_mode') setTweaksOn(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const tA = paletteFor(DIR_A, tw.mode, tw.accentA);
+  const tB = paletteFor(DIR_B, tw.mode, tw.accentB);
+
+  return (
+    <DesignCanvas title="Muzzle · Hifi screens" subtitle="Commerce for large-breed dogs · 2 directions, iOS" defaultBg="#EBE6DB">
+      <DCSection id="editorial" title="Direction A · Editorial" subtitle="Warm paper · Instrument Serif italic accents · magazine rhythm">
+        <DCArtboard id="a-home" label="Home" width={430} height={880}><A_Home t={tA}/></DCArtboard>
+        <DCArtboard id="a-plp" label="PLP · Outerwear" width={430} height={880}><A_PLP t={tA}/></DCArtboard>
+        <DCArtboard id="a-pdp" label="PDP · Field Trench" width={430} height={880}><A_PDP t={tA}/></DCArtboard>
+        <DCArtboard id="a-cart" label="Bag" width={430} height={880}><A_Cart t={tA}/></DCArtboard>
+        <DCArtboard id="a-checkout" label="Checkout" width={430} height={880}><A_Checkout t={tA}/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="modern" title="Direction B · Modern" subtitle="Bone white · Fraunces display · disciplined product grid">
+        <DCArtboard id="b-home" label="Home" width={430} height={880}><B_Home t={tB}/></DCArtboard>
+        <DCArtboard id="b-plp" label="PLP · Outerwear" width={430} height={880}><B_PLP t={tB}/></DCArtboard>
+        <DCArtboard id="b-pdp" label="PDP · Field Trench" width={430} height={880}><B_PDP t={tB}/></DCArtboard>
+        <DCArtboard id="b-cart" label="Bag" width={430} height={880}><B_Cart t={tB}/></DCArtboard>
+        <DCArtboard id="b-checkout" label="Checkout" width={430} height={880}><B_Checkout t={tB}/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="modern-more" title="Direction B · Full journey" subtitle="Login · onboarding · search · post-purchase · account">
+        <DCArtboard id="b-login" label="Login" width={430} height={880}><B_Login t={tB}/></DCArtboard>
+        <DCArtboard id="b-onb" label="Onboarding · hound profile" width={430} height={880}><B_Onboarding t={tB}/></DCArtboard>
+        <DCArtboard id="b-search" label="Search" width={430} height={880}><B_Search t={tB}/></DCArtboard>
+        <DCArtboard id="b-done" label="Order complete" width={430} height={880}><B_OrderDone t={tB}/></DCArtboard>
+        <DCArtboard id="b-track" label="Tracking" width={430} height={880}><B_Tracking t={tB}/></DCArtboard>
+        <DCArtboard id="b-me" label="My page" width={430} height={880}><B_MyPage t={tB}/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="ds-b" title="Direction B · Design system" subtitle="Tokens · type · components, ready for handoff">
+        <DCArtboard id="b-ds" label="Design system reference" width={1280} height={2600}><B_DesignSystem t={tB}/></DCArtboard>
+      </DCSection>
+
+      <TweakPanel active={tweaksOn} tw={tw} set={set}/>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

@@ -5,6 +5,26 @@
 
 import type { Product, ProductWithDetails, PaginatedResponse } from '@commerce/types';
 import { createClient } from '../supabase/server';
+import { safeImageSrc } from '@/lib/images/safeSrc';
+
+function sanitizeProductImages<T extends Partial<Product>>(p: T): T {
+  if (!p) return p;
+  const thumb = safeImageSrc(p.thumbnail_url ?? null);
+  // Sanitize each image URL and dedupe — if seed data has multiple external
+  // URLs they all collapse to the same fallback, which would produce duplicate
+  // React keys in galleries. Keep insertion order, but drop duplicates.
+  const seen = new Set<string>();
+  const images = Array.isArray(p.images)
+    ? p.images
+        .map((s) => safeImageSrc(s))
+        .filter((s) => {
+          if (seen.has(s)) return false;
+          seen.add(s);
+          return true;
+        })
+    : p.images;
+  return { ...p, thumbnail_url: thumb, images } as T;
+}
 
 export interface ProductListParams {
   category_slug?: string;
@@ -120,8 +140,17 @@ export async function listProducts(
   if (min_price_krw !== undefined) query = query.gte('base_price_krw', min_price_krw);
   if (max_price_krw !== undefined) query = query.lte('base_price_krw', max_price_krw);
   if (q && q.trim()) {
-    const term = `%${q.trim()}%`;
-    query = query.or(`name_ko.ilike.${term},name_en.ilike.${term}`);
+    // Strip PostgREST filter meta chars and escape ilike wildcards to prevent
+    // injection into the .or() expression (CVE-style filter break-out).
+    const safe = q
+      .trim()
+      .replace(/[,()\\:*"']/g, ' ')
+      .replace(/[%_]/g, (m) => `\\${m}`)
+      .slice(0, 100);
+    if (safe.trim()) {
+      const term = `%${safe}%`;
+      query = query.or(`name_ko.ilike.${term},name_en.ilike.${term}`);
+    }
   }
 
   const { column, ascending } = SORT_MAP[sort];
@@ -132,7 +161,7 @@ export async function listProducts(
 
   const total = count ?? 0;
   return {
-    data: (data ?? []) as Product[],
+    data: ((data ?? []) as Product[]).map(sanitizeProductImages),
     total,
     page,
     per_page,
@@ -160,7 +189,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithDetails
     .single();
 
   if (error || !product) return null;
-  return product as ProductWithDetails;
+  return sanitizeProductImages(product as ProductWithDetails);
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
@@ -173,7 +202,7 @@ export async function getProductById(id: string): Promise<Product | null> {
     .single();
 
   if (error || !data) return null;
-  return data as Product;
+  return sanitizeProductImages(data as Product);
 }
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {

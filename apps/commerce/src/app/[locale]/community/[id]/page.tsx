@@ -13,15 +13,19 @@ import {
 import { PostDetailContent } from './_components/PostDetailContent';
 import { LikeButton } from './_components/LikeButton';
 import { CommentSection } from './_components/CommentSection';
+import { buildAlternates } from '@/lib/seo/alternates';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
   const post = await getPost(id);
-  return { title: post?.title ?? 'Community Post' };
+  return {
+    title: post?.title ?? 'Community Post',
+    alternates: buildAlternates(`/community/${id}`, locale),
+  };
 }
 
 export default async function PostDetailPage({ params }: Props) {

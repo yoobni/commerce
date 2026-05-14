@@ -77,10 +77,12 @@ export async function GET(request: NextRequest) {
 
     const { email, name, profile_image } = profileData.response;
 
-    // 3. Find or create Supabase user via admin API
+    // 3. Find or create Supabase user via admin API.
+    //    Reject if an existing account uses a different provider — accepting the
+    //    Naver login would let anyone who controls a Naver account with the same
+    //    email take over an existing email/password (or other-provider) account.
     const admin = createAdminClient();
 
-    // Look up existing user by email via the public users table (service role bypasses RLS)
     const { data: existingRow } = await admin
       .from('users')
       .select('id')
@@ -88,14 +90,30 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (existingRow?.id) {
-      // Update provider metadata on the existing auth user
+      const { data: existingAuth, error: getError } = await admin.auth.admin.getUserById(
+        existingRow.id as string
+      );
+      if (getError || !existingAuth?.user) {
+        return errorRedirect('naver_lookup_failed');
+      }
+      const existingProvider =
+        (existingAuth.user.app_metadata?.provider as string | undefined) ??
+        (existingAuth.user.user_metadata?.provider as string | undefined);
+      const isNaverAccount =
+        existingProvider === 'naver' ||
+        (existingAuth.user.identities ?? []).some((i) => i.provider === 'naver');
+      if (existingProvider && !isNaverAccount) {
+        return errorRedirect('naver_provider_mismatch');
+      }
       await admin.auth.admin.updateUserById(existingRow.id as string, {
+        app_metadata: { provider: 'naver' },
         user_metadata: { provider: 'naver', name, profile_image },
       });
     } else {
       const { error: createError } = await admin.auth.admin.createUser({
         email,
         email_confirm: true,
+        app_metadata: { provider: 'naver' },
         user_metadata: { name: name ?? email.split('@')[0], profile_image, provider: 'naver' },
       });
       if (createError) return errorRedirect('naver_create_failed');

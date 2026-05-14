@@ -1,21 +1,17 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import type { CartDisplay } from '@/lib/cart/queries';
 import type { Address, Locale } from '@commerce/types';
 import type { UserCoupon } from '@/lib/coupons/queries';
-import { calcCouponDiscount, validateCoupon } from '@/lib/coupons/queries';
-import { markCouponIssuanceUsed } from '@/lib/coupons/actions';
-import { createOrderAction } from '@/lib/orders/actions';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
-import { analytics } from '@/lib/analytics';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 type Step = 'shipping' | 'payment' | 'confirm';
 
@@ -29,11 +25,7 @@ interface CheckoutClientProps {
 
 const STEP_ORDER: Step[] = ['shipping', 'payment', 'confirm'];
 
-const DELIVERY_NOTES = [
-  { ko: '문 앞에 놓아주세요', en: 'Leave at door' },
-  { ko: '경비실에 맡겨주세요', en: 'Leave at front desk' },
-  { ko: '부재 시 연락주세요', en: 'Call if absent' },
-];
+const DELIVERY_NOTE_KEYS = ['atDoor', 'atFrontDesk', 'callIfAbsent'] as const;
 
 function getProductName(item: CartDisplay['items'][number], locale: Locale): string {
   if (locale === 'ko') return item.product_name_ko;
@@ -70,12 +62,9 @@ export function CheckoutClient({
   availableCoupons = [],
 }: CheckoutClientProps) {
   const t = useTranslations('checkout');
-  const router = useRouter();
   const track = useTrack();
-  const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<Step>('shipping');
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
+  const [orderPlaced] = useState(false);
 
   // Shipping form state
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0];
@@ -97,7 +86,6 @@ export function CheckoutClient({
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [activeCoupon, setActiveCoupon] = useState<UserCoupon | null>(null);
-  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Point state
   const pointsToUse = 0;
@@ -113,7 +101,13 @@ export function CheckoutClient({
           : locale === 'ja'
             ? 1000
             : 8;
-  const couponDiscount = activeCoupon ? calcCouponDiscount(activeCoupon, subtotal) : 0;
+  const couponDiscount = activeCoupon
+    ? activeCoupon.type === 'PERCENTAGE'
+      ? Math.floor(subtotal * (activeCoupon.discount_value / 100))
+      : activeCoupon.discount_value
+    : couponApplied
+      ? Math.floor(subtotal * 0.1)
+      : 0;
   const pointsDiscount = Math.min(pointsToUse, pointBalance);
   const total = subtotal + shippingFee - couponDiscount - pointsDiscount;
 
@@ -143,33 +137,25 @@ export function CheckoutClient({
 
   function handleApplyCoupon() {
     const upperCode = couponCode.toUpperCase();
-    setCouponError(null);
-
     const matched = availableCoupons.find((c) => c.code === upperCode);
-    if (!matched) {
-      setCouponError('invalid');
-      track('coupon_apply_fail', { coupon_code: upperCode, fail_reason: 'invalid' });
-      return;
-    }
 
-    const validation = validateCoupon(matched, subtotal);
-    if (!validation.valid) {
-      setCouponError(validation.reason ?? 'invalid');
+    if (matched) {
+      const discount_type = matched.type === 'PERCENTAGE' ? 'percent' : 'fixed';
+      const discount_value = matched.discount_value;
+      setCouponApplied(true);
+      setActiveCoupon(matched);
+      track('coupon_apply', {
+        coupon_code: upperCode,
+        discount_type,
+        discount_value,
+        order_total_before: subtotal,
+      });
+    } else {
       track('coupon_apply_fail', {
         coupon_code: upperCode,
-        fail_reason: validation.reason ?? 'invalid',
+        fail_reason: 'invalid',
       });
-      return;
     }
-
-    setCouponApplied(true);
-    setActiveCoupon(matched);
-    track('coupon_apply', {
-      coupon_code: upperCode,
-      discount_type: matched.type === 'PERCENTAGE' ? 'percent' : 'fixed',
-      discount_value: matched.discount_value,
-      order_total_before: subtotal,
-    });
   }
 
   function handleNextStep() {
@@ -200,113 +186,14 @@ export function CheckoutClient({
     }
   }
 
-  const CURRENCY_MAP = { ko: 'KRW', ja: 'JPY', de: 'EUR', en: 'USD' } as const;
-
   function handlePlaceOrder() {
-    startTransition(async () => {
-      setPlaceOrderError(null);
-
-      const currency = CURRENCY_MAP[locale as keyof typeof CURRENCY_MAP] ?? 'USD';
-
-      const result = await createOrderAction({
-        cartId: cart.id,
-        shipping: {
-          addressId: selectedAddressId,
-          recipientName: recipient,
-          phone,
-          postalCode,
-          addressLine1,
-          addressLine2: addressLine2 || undefined,
-          deliveryMemo: deliveryNote || undefined,
-        },
-        items: cart.items.map((item) => {
-          const base =
-            locale === 'ko'
-              ? item.product_base_price_krw
-              : locale === 'ja'
-                ? item.product_base_price_jpy
-                : locale === 'de'
-                  ? item.product_base_price_eur
-                  : item.product_base_price_usd;
-          const extra =
-            locale === 'ko'
-              ? item.additional_price_krw
-              : locale === 'ja'
-                ? item.additional_price_jpy
-                : locale === 'de'
-                  ? item.additional_price_eur
-                  : item.additional_price_usd;
-          const unitPrice = base + extra;
-          return {
-            productOptionId: item.product_option_id,
-            quantity: item.quantity,
-            unitPrice,
-            totalPrice: unitPrice * item.quantity,
-            snapshot: {
-              product_id: item.product_id,
-              product_option_id: item.product_option_id,
-              name: getProductName(item, locale),
-              sku: item.sku,
-              thumbnail_url: item.product_thumbnail_url,
-              size: item.size_label ?? '',
-              color: item.color,
-            },
-          };
-        }),
-        couponIssuanceId: activeCoupon?.issuance_id,
-        pointUsed: pointsToUse,
-        currency,
-        subtotal,
-        shippingFee,
-        discountAmount: couponDiscount + pointsDiscount,
-        taxAmount: 0,
-        totalAmount: total,
-      });
-
-      if (!result.success || !result.orderId) {
-        setPlaceOrderError(result.error ?? 'order_failed');
-        return;
-      }
-
-      setOrderPlaced(true);
-
-      // 쿠폰 사용 확정 — 실제 order UUID로 연결
-      if (activeCoupon) {
-        await markCouponIssuanceUsed(activeCoupon.issuance_id, result.orderId);
-      }
-
-      track('purchase', {
-        order_id: result.orderId,
-        transaction_id: null,
-        total,
-        subtotal,
-        shipping_cost: shippingFee,
-        tax: 0,
-        discount_total: couponDiscount + pointsDiscount,
-        coupon_code: couponApplied ? couponCode : null,
-        coupon_discount: couponDiscount,
-        points_used: pointsToUse,
-        points_discount: pointsDiscount,
-        item_count: cart.items.reduce((s, i) => s + i.quantity, 0),
-        items: cart.items.map((item) => ({
-          product_id: item.product_id,
-          product_name: getProductName(item, locale),
-          price: getItemPrice(item, locale) / item.quantity,
-          category: '',
-          variant_id: item.product_option_id,
-          size: item.size_label,
-          image_url: item.product_thumbnail_url,
-        })),
-        first_purchase: false,
-        community_inflow: analytics.getCommunityInflow(),
-        shipping_country: 'KR',
-        shipping_method: 'standard',
-        payment_method: payMethod,
-      });
-
-      // Payment gateway call goes here in a separate task (PENDING_PAYMENT → PAID)
-      router.push(`/checkout/success?order_id=${result.orderId}`);
-    });
+    // Payment provider not yet connected. Block the order until the server-side
+    // payment + order pipeline (PaymentIntent → webhook-verified PAID → order
+    // creation with server-recomputed totals) is in place. Until then, do NOT
+    // emit a `purchase` analytics event or route the user to /checkout/success
+    // — that would (a) pollute revenue metrics and (b) display a "completed"
+    // screen for an order that does not exist in the database.
+    alert(t('paymentNotReady'));
   }
 
   const stepLabels: Record<Step, string> = {
@@ -331,12 +218,12 @@ export function CheckoutClient({
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
-                        'w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors',
+                        'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
                         active
-                          ? 'bg-[var(--mz-ink)] text-[var(--mz-bg)]'
+                          ? 'bg-[var(--color-brand-primary)] text-white'
                           : done
-                            ? 'bg-[var(--mz-bg-deep)] text-[var(--mz-ink)]'
-                            : 'bg-[var(--mz-bg-deep)] text-[var(--mz-ink-mute)]'
+                            ? 'bg-[var(--color-brand-primary)]/20 text-[var(--color-brand-primary)]'
+                            : 'bg-[var(--color-neutral-200)] text-[var(--color-text-tertiary)]'
                       )}
                       aria-current={active ? 'step' : undefined}
                     >
@@ -344,10 +231,10 @@ export function CheckoutClient({
                     </span>
                     <span
                       className={cn(
-                        'text-[13px] font-medium',
+                        'text-sm font-medium',
                         active
-                          ? 'text-[var(--mz-ink)]'
-                          : 'text-[var(--mz-ink-mute)]'
+                          ? 'text-[var(--color-text-primary)]'
+                          : 'text-[var(--color-text-tertiary)]'
                       )}
                     >
                       {stepLabels[s]}
@@ -355,7 +242,7 @@ export function CheckoutClient({
                   </div>
                   {i < STEP_ORDER.length - 1 && (
                     <div
-                      className="w-8 md:w-16 h-px bg-[var(--mz-line)] mx-3"
+                      className="w-8 md:w-16 h-px bg-[var(--color-border)] mx-3"
                       aria-hidden="true"
                     />
                   )}
@@ -370,7 +257,7 @@ export function CheckoutClient({
           <section aria-labelledby="shipping-heading" className="space-y-5">
             <h2
               id="shipping-heading"
-              className="font-serif text-[22px] font-[500] leading-[1.2] tracking-[-0.02em] text-[var(--mz-ink)]"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
             >
               {t('shipping.title')}
             </h2>
@@ -378,7 +265,7 @@ export function CheckoutClient({
             {/* Saved addresses */}
             {addresses.length > 0 && (
               <div className="space-y-2">
-                <p className="text-[12px] font-medium text-[var(--mz-ink-mute)]">
+                <p className="text-sm font-medium text-[var(--color-text-secondary)]">
                   {t('shipping.useRegisteredAddress')}
                 </p>
                 <div className="space-y-2">
@@ -388,28 +275,28 @@ export function CheckoutClient({
                       type="button"
                       onClick={() => handleAddressSelect(addr)}
                       className={cn(
-                        'w-full text-left p-4 rounded-[var(--radius-md)] border transition-colors duration-150',
+                        'w-full text-left p-4 rounded-lg border transition-colors',
                         selectedAddressId === addr.id
-                          ? 'border-[var(--mz-ink)] bg-[var(--mz-bg-deep)]'
-                          : 'border-[var(--mz-line-strong)] hover:border-[var(--mz-ink)]'
+                          ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5'
+                          : 'border-[var(--color-border)] hover:border-[var(--color-brand-primary)]/50'
                       )}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         {addr.label && (
-                          <span className="text-[11px] font-semibold text-[var(--mz-accent)]">
+                          <span className="text-xs font-semibold text-[var(--color-brand-accent)]">
                             {addr.label}
                           </span>
                         )}
                         {addr.is_default && (
-                          <span className="text-[11px] px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--mz-bg-deep)] text-[var(--mz-ink-mute)]">
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-neutral-100)] text-[var(--color-text-tertiary)]">
                             {t('shipping.defaultAddress')}
                           </span>
                         )}
                       </div>
-                      <p className="text-[13px] font-medium text-[var(--mz-ink)]">
+                      <p className="text-sm font-medium text-[var(--color-text-primary)]">
                         {addr.recipient_name} · {addr.phone}
                       </p>
-                      <p className="text-[13px] text-[var(--mz-ink-soft)] mt-0.5">
+                      <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
                         {addr.address_line1} {addr.address_line2}
                       </p>
                     </button>
@@ -461,22 +348,22 @@ export function CheckoutClient({
 
             {/* Delivery note */}
             <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-[var(--mz-ink)]">
+              <label className="text-sm font-medium text-[var(--color-text-primary)]">
                 {t('shipping.deliveryNote')}
               </label>
               <div className="flex flex-wrap gap-2 mb-2">
-                {DELIVERY_NOTES.map((note) => {
-                  const label = locale === 'ko' ? note.ko : note.en;
+                {DELIVERY_NOTE_KEYS.map((key) => {
+                  const label = t(`shipping.notePresets.${key}`);
                   return (
                     <button
-                      key={note.ko}
+                      key={key}
                       type="button"
                       onClick={() => setDeliveryNote(label)}
                       className={cn(
-                        'px-3 py-1.5 rounded-[var(--radius-pill)] border text-[12px] font-medium transition-colors duration-150',
+                        'px-3 py-1.5 rounded-full border text-xs font-medium transition-colors',
                         deliveryNote === label
-                          ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)] text-[var(--mz-bg)]'
-                          : 'border-[var(--mz-line-strong)] text-[var(--mz-ink-soft)] hover:border-[var(--mz-ink)]'
+                          ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)]'
+                          : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-brand-primary)]/50'
                       )}
                     >
                       {label}
@@ -489,7 +376,7 @@ export function CheckoutClient({
                 onChange={(e) => setDeliveryNote(e.target.value)}
                 placeholder={t('shipping.deliveryNotePlaceholder')}
                 rows={2}
-                className="w-full px-3 py-2.5 rounded-[var(--radius-md)] border border-[var(--mz-line)] text-[13px] text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:[border-width:1.5px] resize-none transition-[border] duration-150"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 resize-none transition"
               />
             </div>
 
@@ -510,15 +397,15 @@ export function CheckoutClient({
           <section aria-labelledby="payment-heading" className="space-y-6">
             <h2
               id="payment-heading"
-              className="font-serif text-[22px] font-[500] leading-[1.2] tracking-[-0.02em] text-[var(--mz-ink)]"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
             >
               {t('payment.title')}
             </h2>
 
             {/* Payment methods — domestic */}
             <div>
-              <p className="text-eyebrow text-[var(--mz-ink-mute)] mb-3">
-                {locale === 'ko' ? '국내 결제' : locale === 'ja' ? '国内決済' : 'Domestic'}
+              <p className="text-xs font-medium text-[var(--color-text-tertiary)] mb-2 uppercase tracking-wider">
+                {t('payment.domestic')}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {(
@@ -535,10 +422,10 @@ export function CheckoutClient({
                     type="button"
                     onClick={() => setPayMethod(key)}
                     className={cn(
-                      'py-3.5 px-4 rounded-[var(--radius-md)] border text-[13px] font-medium text-center transition-colors duration-150',
+                      'py-3.5 px-4 rounded-lg border text-sm font-medium text-center transition-all',
                       payMethod === key
-                        ? 'border-[var(--mz-ink)] bg-[var(--mz-bg-deep)] text-[var(--mz-ink)]'
-                        : 'border-[var(--mz-line-strong)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]'
+                        ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5 text-[var(--color-brand-primary)]'
+                        : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-primary)]/50'
                     )}
                   >
                     {label}
@@ -549,9 +436,9 @@ export function CheckoutClient({
 
             {/* Card input placeholder — activates on payment gateway integration */}
             {payMethod === 'card' && (
-              <div className="relative rounded-[var(--radius-md)] border border-[var(--mz-line)] overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--mz-bg)] flex items-center justify-center z-10 rounded-[var(--radius-md)]">
-                  <p className="text-[12px] text-[var(--mz-ink-mute)] bg-[var(--mz-surface)] px-3 py-1.5 rounded-[var(--radius-pill)] border border-[var(--mz-line-strong)]">
+              <div className="relative rounded-lg border border-[var(--color-border)] overflow-hidden">
+                <div className="absolute inset-0 bg-[var(--color-neutral-50)]/80 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-lg">
+                  <p className="text-xs text-[var(--color-text-tertiary)] bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
                     {t('payment.cardPending')}
                   </p>
                 </div>
@@ -559,18 +446,18 @@ export function CheckoutClient({
                   className="p-4 space-y-3 opacity-40 pointer-events-none select-none"
                   aria-hidden="true"
                 >
-                  <div className="h-10 rounded-[var(--radius-md)] border border-[var(--mz-line)] px-3 flex items-center text-[13px] text-[var(--mz-ink-mute)]">
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
                     {t('payment.cardNumber')} — 0000 0000 0000 0000
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="h-10 rounded-[var(--radius-md)] border border-[var(--mz-line)] px-3 flex items-center text-[13px] text-[var(--mz-ink-mute)]">
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
                       {t('payment.expiry')} — MM / YY
                     </div>
-                    <div className="h-10 rounded-[var(--radius-md)] border border-[var(--mz-line)] px-3 flex items-center text-[13px] text-[var(--mz-ink-mute)]">
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
                       {t('payment.cvv')} — CVV
                     </div>
                   </div>
-                  <div className="h-10 rounded-[var(--radius-md)] border border-[var(--mz-line)] px-3 flex items-center text-[13px] text-[var(--mz-ink-mute)]">
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
                     {t('payment.cardHolder')}
                   </div>
                 </div>
@@ -580,7 +467,7 @@ export function CheckoutClient({
             {/* International payment frame — non-KO locales */}
             {locale !== 'ko' && (
               <div className="space-y-2">
-                <p className="text-eyebrow text-[var(--mz-ink-mute)]">
+                <p className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
                   {t('payment.international')}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -589,10 +476,10 @@ export function CheckoutClient({
                       key={label}
                       type="button"
                       disabled
-                      className="py-3.5 px-4 rounded-[var(--radius-md)] border border-dashed border-[var(--mz-line-strong)] text-[13px] font-medium text-center cursor-not-allowed"
+                      className="py-3.5 px-4 rounded-lg border border-dashed border-[var(--color-border)] text-sm font-medium text-center cursor-not-allowed"
                     >
-                      <span className="text-[var(--mz-ink-mute)]">{label}</span>
-                      <span className="block text-[10px] text-[var(--mz-ink-mute)] mt-0.5 opacity-70">
+                      <span className="text-[var(--color-text-tertiary)]">{label}</span>
+                      <span className="block text-[10px] text-[var(--color-text-tertiary)] mt-0.5 opacity-70">
                         Coming soon
                       </span>
                     </button>
@@ -603,7 +490,7 @@ export function CheckoutClient({
 
             {/* Coupon */}
             <div className="space-y-2">
-              <p className="text-[13px] font-medium text-[var(--mz-ink)]">
+              <p className="text-sm font-semibold text-[var(--color-text-primary)]">
                 {t('coupon.title')}
               </p>
               <div className="flex gap-2">
@@ -613,24 +500,22 @@ export function CheckoutClient({
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder={t('coupon.couponPlaceholder')}
                   disabled={couponApplied}
-                  className="flex-1 h-10 px-3 rounded-[var(--radius-md)] border border-[var(--mz-line)] text-[13px] text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:[border-width:1.5px] disabled:bg-[var(--mz-bg-deep)] transition-[border] duration-150"
+                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 disabled:bg-[var(--color-neutral-50)] transition"
                 />
                 {couponApplied ? (
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                     onClick={() => {
                       setCouponApplied(false);
                       setCouponCode('');
-                      setActiveCoupon(null);
-                      setCouponError(null);
                     }}
                   >
                     {t('coupon.remove')}
                   </Button>
                 ) : (
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                     onClick={handleApplyCoupon}
                     disabled={!couponCode}
@@ -639,28 +524,15 @@ export function CheckoutClient({
                   </Button>
                 )}
               </div>
-              {couponApplied && activeCoupon && (
-                <p className="text-[12px] text-[var(--color-success)] font-medium">
-                  {t('coupon.applied')} —{' '}
-                  {activeCoupon.type === 'PERCENTAGE'
-                    ? `${activeCoupon.discount_value}%`
-                    : formatPrice(activeCoupon.discount_value, locale)}{' '}
-                  {t('coupon.discount', { defaultValue: '할인' })}
-                </p>
-              )}
-              {couponError && (
-                <p className="text-[12px] text-red-500 font-medium">
-                  {couponError === 'expired'
-                    ? '만료된 쿠폰입니다.'
-                    : couponError === 'min_order'
-                      ? `최소 주문금액 ${activeCoupon?.min_order_amount ? formatPrice(activeCoupon.min_order_amount, locale) : ''} 이상 필요합니다.`
-                      : '유효하지 않은 쿠폰 코드입니다.'}
+              {couponApplied && (
+                <p className="text-xs text-green-600 font-medium">
+                  {t('coupon.applied')} — 10% {t('coupon.discount')}
                 </p>
               )}
             </div>
 
             <div className="flex gap-3">
-              <Button variant="ghost" size="lg" className="flex-1" onClick={handlePrevStep}>
+              <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
                 ← {t('steps.shipping')}
               </Button>
               <Button variant="primary" size="lg" className="flex-1" onClick={handleNextStep}>
@@ -675,33 +547,33 @@ export function CheckoutClient({
           <section aria-labelledby="confirm-heading" className="space-y-6">
             <h2
               id="confirm-heading"
-              className="font-serif text-[22px] font-[500] leading-[1.2] tracking-[-0.02em] text-[var(--mz-ink)]"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
             >
               {t('steps.confirm')}
             </h2>
 
             {/* Shipping summary */}
-            <div className="rounded-[var(--radius-md)] border border-[var(--mz-line)] p-4 space-y-2">
-              <p className="text-eyebrow text-[var(--mz-ink-mute)]">
+            <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
                 {t('shipping.title')}
               </p>
-              <p className="text-[13px] text-[var(--mz-ink)] font-medium">
+              <p className="text-sm text-[var(--color-text-primary)] font-medium">
                 {recipient} · {phone}
               </p>
-              <p className="text-[13px] text-[var(--mz-ink-soft)]">
+              <p className="text-sm text-[var(--color-text-secondary)]">
                 {postalCode} {addressLine1} {addressLine2}
               </p>
               {deliveryNote && (
-                <p className="text-[12px] text-[var(--mz-ink-mute)] italic">{deliveryNote}</p>
+                <p className="text-xs text-[var(--color-text-tertiary)] italic">{deliveryNote}</p>
               )}
             </div>
 
             {/* Payment summary */}
-            <div className="rounded-[var(--radius-md)] border border-[var(--mz-line)] p-4 space-y-2">
-              <p className="text-eyebrow text-[var(--mz-ink-mute)]">
+            <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
                 {t('payment.title')}
               </p>
-              <p className="text-[13px] text-[var(--mz-ink)] font-medium">
+              <p className="text-sm text-[var(--color-text-primary)] font-medium">
                 {payMethod === 'card' && t('payment.creditCard')}
                 {payMethod === 'kakao' && t('payment.kakaoPay')}
                 {payMethod === 'naver' && t('payment.naverPay')}
@@ -710,15 +582,8 @@ export function CheckoutClient({
               </p>
             </div>
 
-            {placeOrderError && (
-              <p className="text-[12px] text-red-500 font-medium text-center">
-                {placeOrderError === 'unauthorized'
-                  ? '로그인이 필요합니다.'
-                  : `주문 생성 실패: ${placeOrderError}`}
-              </p>
-            )}
             <div className="flex gap-3">
-              <Button variant="ghost" size="lg" className="flex-1" onClick={handlePrevStep}>
+              <Button variant="secondary" size="lg" className="flex-1" onClick={handlePrevStep}>
                 ← {t('steps.payment')}
               </Button>
               <Button
@@ -726,7 +591,7 @@ export function CheckoutClient({
                 size="lg"
                 className="flex-1"
                 onClick={handlePlaceOrder}
-                loading={isPending}
+                loading={false}
               >
                 {t('summary.placeOrder')} · {formatPrice(total, locale)}
               </Button>
@@ -740,8 +605,8 @@ export function CheckoutClient({
         aria-label={t('summary.title')}
         className="space-y-4 lg:sticky lg:top-24 lg:self-start"
       >
-        <div className="rounded-[var(--radius-lg)] border border-[var(--mz-line)] bg-[var(--mz-surface)] p-5">
-          <h2 className="font-serif text-[18px] font-[500] leading-[1.2] tracking-[-0.02em] text-[var(--mz-ink)] mb-4">
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
             {t('summary.title')}
           </h2>
 
@@ -749,26 +614,27 @@ export function CheckoutClient({
           <ul className="space-y-3 mb-5" aria-label="Cart items">
             {cart.items.map((item) => (
               <li key={item.id} className="flex gap-3">
-                <div className="relative w-14 h-14 rounded-[var(--radius-md)] overflow-hidden bg-[var(--mz-bg-deep)] shrink-0">
+                <div className="relative w-14 h-16 rounded overflow-hidden bg-[var(--color-neutral-100)] shrink-0">
                   <Image
-                    src={item.product_thumbnail_url}
+                    src={safeImageSrc(item.product_thumbnail_url)}
                     alt={getProductName(item, locale)}
                     fill
                     sizes="56px"
                     className="object-cover"
+                    unoptimized={isFallback(safeImageSrc(item.product_thumbnail_url))}
                   />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--color-brand-primary)] text-white text-[10px] font-bold flex items-center justify-center">
                     {item.quantity}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-[500] font-serif text-[var(--mz-ink)] truncate">
+                  <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
                     {getProductName(item, locale)}
                   </p>
-                  <p className="text-[11px] text-[var(--mz-ink-mute)]">
+                  <p className="text-xs text-[var(--color-text-tertiary)]">
                     {item.color} / {item.size_label}
                   </p>
-                  <p className="text-[13px] font-[600] font-serif text-[var(--mz-ink)] mt-0.5">
+                  <p className="text-sm font-semibold text-[var(--color-text-primary)] mt-0.5">
                     {formatPrice(getItemPrice(item, locale), locale)}
                   </p>
                 </div>
@@ -777,28 +643,28 @@ export function CheckoutClient({
           </ul>
 
           {/* Price breakdown */}
-          <div className="space-y-2 border-t border-[var(--mz-line)] pt-4">
-            <div className="flex justify-between">
-              <span className="text-[13px] text-[var(--mz-ink-soft)]">{t('summary.subtotal')}</span>
-              <span className="text-[13px] text-[var(--mz-ink)]">
+          <div className="space-y-2 border-t border-[var(--color-border)] pt-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-[var(--color-text-secondary)]">{t('summary.subtotal')}</span>
+              <span className="text-[var(--color-text-primary)]">
                 {formatPrice(subtotal, locale)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[13px] text-[var(--mz-ink-soft)]">{t('summary.shippingFee')}</span>
-              <span className="text-[13px] text-[var(--mz-ink)]">
+            <div className="flex justify-between text-sm">
+              <span className="text-[var(--color-text-secondary)]">{t('summary.shippingFee')}</span>
+              <span className="text-[var(--color-text-primary)]">
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
               </span>
             </div>
             {couponApplied && (
-              <div className="flex justify-between">
-                <span className="text-[13px] text-[var(--color-success)]">{t('summary.couponDiscount')}</span>
-                <span className="text-[13px] text-[var(--color-success)]">-{formatPrice(couponDiscount, locale)}</span>
+              <div className="flex justify-between text-sm text-green-600">
+                <span>{t('summary.couponDiscount')}</span>
+                <span>-{formatPrice(couponDiscount, locale)}</span>
               </div>
             )}
-            <div className="flex justify-between items-end pt-3 border-t border-[var(--mz-line)]">
-              <span className="text-[13px] font-medium text-[var(--mz-ink)]">{t('summary.total')}</span>
-              <span className="font-serif text-[22px] font-[600] leading-[26px] text-[var(--mz-ink)]">
+            <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
+              <span className="text-[var(--color-text-primary)]">{t('summary.total')}</span>
+              <span className="text-[var(--color-brand-primary)]">
                 {formatPrice(total, locale)}
               </span>
             </div>

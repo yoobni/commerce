@@ -8,6 +8,7 @@ import {
   deleteCommentAction,
   toggleCommentLikeAction,
 } from '@/lib/community/actions';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 import type { CommentWithUser } from '@/lib/community/queries';
 
 interface CommentSectionProps {
@@ -72,11 +73,12 @@ function CommentRow({
         {/* Avatar */}
         {comment.user?.profile_image_url ? (
           <Image
-            src={comment.user.profile_image_url}
+            src={safeImageSrc(comment.user.profile_image_url)}
             alt={comment.user.name}
             width={32}
             height={32}
             className="rounded-full shrink-0 object-cover"
+            unoptimized={isFallback(safeImageSrc(comment.user.profile_image_url))}
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-[var(--color-neutral-200)] shrink-0 flex items-center justify-center text-xs text-[var(--color-text-secondary)] font-medium">

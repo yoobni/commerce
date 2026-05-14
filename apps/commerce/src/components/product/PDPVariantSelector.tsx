@@ -10,6 +10,8 @@ interface PDPVariantSelectorProps {
   options: ProductOption[];
   productId: string;
   onSelectionChange: (option: ProductOption | null) => void;
+  /** Hound profile recommended size (e.g. 'L') — adds ★ marker on matching cell */
+  fitSize?: string | null;
 }
 
 interface ColorGroup {
@@ -22,6 +24,7 @@ export function PDPVariantSelector({
   options,
   productId,
   onSelectionChange,
+  fitSize = null,
 }: PDPVariantSelectorProps) {
   const t = useTranslations('product');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -117,26 +120,38 @@ export function PDPVariantSelector({
         </div>
       </div>
 
-      {/* Size selector */}
+      {/* Size selector — 4-cell grid per dir-b spec */}
       <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">{t('size')}</span>
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-[13px] font-semibold text-[var(--mz-ink)]">{t('size')}</span>
           <button
             type="button"
             onClick={() => setSizeGuideOpen(true)}
-            className="text-xs text-[var(--color-brand-secondary)] underline underline-offset-2 hover:text-[var(--color-brand-primary)] transition-colors"
+            className="text-[12px] font-medium text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors"
           >
-            {t('sizeGuide')}
+            {t('sizeGuide')} →
           </button>
         </div>
 
         {!selectedColor ? (
-          <p className="text-sm text-[var(--color-text-tertiary)]">{t('selectColor')}</p>
+          <p className="text-sm text-[var(--mz-ink-mute)]">{t('selectColor')}</p>
         ) : (
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('selectSize')}>
+          <div
+            className="grid grid-cols-4 gap-2"
+            role="radiogroup"
+            aria-label={t('selectSize')}
+          >
             {availableSizes.map((size) => {
-              const available = isOptionAvailable(selectedColor, size.id);
+              const option = getOption(selectedColor, size.id);
+              const stock = option?.stock ?? 0;
+              const available = stock > 0;
               const isSelected = selectedSize === size.id;
+              const isFitMatch = !!fitSize && size.label === fitSize;
+              const stockText = !available
+                ? 'sold'
+                : stock <= 5
+                  ? `${stock} left`
+                  : `${stock}`;
               return (
                 <button
                   key={size.id}
@@ -147,26 +162,30 @@ export function PDPVariantSelector({
                   disabled={!available}
                   onClick={() => handleSizeSelect(size.id)}
                   className={cn(
-                    'relative min-w-[52px] h-10 px-3 rounded text-sm font-medium',
-                    'border transition-all duration-150',
-                    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-accent)]',
+                    'py-[11px] text-center rounded-[var(--radius-md)] transition-all duration-150',
+                    'border-[1.5px]',
+                    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mz-accent)]',
                     isSelected
-                      ? 'bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]'
-                      : available
-                        ? 'bg-white text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary)]'
-                        : 'bg-[var(--color-neutral-50)] text-[var(--color-text-tertiary)] border-[var(--color-border)] cursor-not-allowed'
+                      ? 'bg-[var(--mz-ink)] text-[var(--mz-bg)] border-[var(--mz-ink)]'
+                      : 'bg-[var(--mz-surface)] text-[var(--mz-ink)] border-[var(--mz-line)] hover:border-[var(--mz-line-strong)]',
+                    !available && 'opacity-35 cursor-not-allowed'
                   )}
                 >
-                  {/* Strikethrough for out of stock */}
-                  {!available && (
-                    <span
-                      className="absolute inset-0 flex items-center justify-center"
-                      aria-hidden="true"
-                    >
-                      <span className="absolute w-full h-px bg-[var(--color-text-tertiary)] rotate-[-45deg]" />
-                    </span>
-                  )}
-                  {size.label}
+                  <div className="font-serif text-[15px] font-[500] leading-none">
+                    {size.label}
+                    {isFitMatch && (
+                      <span
+                        className={cn(
+                          'ml-[3px]',
+                          isSelected ? 'text-[var(--mz-bg)]' : 'text-[var(--mz-accent)]'
+                        )}
+                        aria-label="recommended fit"
+                      >
+                        ★
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[9px] mt-[2px] opacity-75 leading-none">{stockText}</div>
                 </button>
               );
             })}

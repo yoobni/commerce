@@ -48,14 +48,14 @@ export function FitForHanaCard({
       <Link
         href={setupHref}
         className={cn(
-          'flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)]',
+          'flex items-center gap-3 p-[14px] rounded-[var(--radius-md)]',
           'border border-[var(--mz-line-strong)] bg-[var(--mz-surface)]',
           'transition-colors duration-150 hover:bg-[var(--mz-bg-deep)]',
           'no-underline',
           className
         )}
       >
-        <div className="w-10 h-10 rounded-full bg-[var(--mz-bg-deep)] flex items-center justify-center shrink-0">
+        <div className="w-10 h-10 rounded-full bg-[var(--mz-bg)] flex items-center justify-center shrink-0">
           <PawPlaceholder />
         </div>
         <span className="text-[13px] text-[var(--mz-ink-mute)] flex-1 font-medium">
@@ -71,16 +71,16 @@ export function FitForHanaCard({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)]',
+        'flex items-center gap-3 p-[14px] rounded-[var(--radius-md)]',
         'bg-[var(--mz-accent-soft)]',
         className
       )}
       role="region"
       aria-label={`Fit for ${profile.name}`}
     >
-      {/* Hound avatar */}
+      {/* Hound avatar — 40×40, page-bg fill per spec */}
       <div
-        className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-[var(--mz-accent-soft)] border-2 border-[var(--mz-accent)] flex items-center justify-center"
+        className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-[var(--mz-bg)] flex items-center justify-center"
         aria-hidden="true"
       >
         {profile.avatarUrl ? (
@@ -93,8 +93,10 @@ export function FitForHanaCard({
 
       {/* Text stack */}
       <div className="flex-1 min-w-0">
-        {/* Eyebrow */}
-        <p className="text-eyebrow text-[var(--mz-accent-ink)] mb-0.5">Fit for {profile.name}</p>
+        {/* Eyebrow — Inter 10/700 +0.16em UPPERCASE */}
+        <p className="font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--mz-accent-ink)] mb-0.5">
+          Fit for {profile.name}
+        </p>
         {/* Recommendation — Fraunces 15/500 */}
         <p
           className="text-[15px] font-[500] leading-[20px] text-[var(--mz-accent-ink)] font-serif truncate"
@@ -104,16 +106,23 @@ export function FitForHanaCard({
         </p>
       </div>
 
-      {/* Why button */}
-      {onWhyClick && (
+      {/* Why CTA — Inter 11/600, always visible per spec */}
+      {onWhyClick ? (
         <button
           type="button"
           onClick={onWhyClick}
-          className="text-[12px] font-medium text-[var(--mz-accent-ink)] shrink-0 hover:underline underline-offset-2 transition-opacity active:opacity-70"
+          className="text-[11px] font-semibold text-[var(--mz-accent-ink)] shrink-0 hover:underline underline-offset-2 transition-opacity active:opacity-70"
           aria-label={`Why is size ${profile.size} recommended for ${profile.name}?`}
         >
           Why →
         </button>
+      ) : (
+        <span
+          aria-hidden="true"
+          className="text-[11px] font-semibold text-[var(--mz-accent-ink)] shrink-0"
+        >
+          Why →
+        </span>
       )}
     </div>
   );

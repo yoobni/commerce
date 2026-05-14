@@ -8,6 +8,7 @@ import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@/i18n/routing';
 import type { CartItemDisplay } from '@/lib/cart/queries';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 type PriceKey =
   | 'additional_price_krw'
@@ -53,6 +54,7 @@ interface CartItemRowProps {
 
 export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartItemRowProps) {
   const t = useTranslations('cart');
+  const tProduct = useTranslations('product');
   const [isPending, startTransition] = useTransition();
 
   const map = LOCALE_MAP[locale];
@@ -79,7 +81,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
   return (
     <article
       className={cn(
-        'bg-[var(--mz-surface)] rounded-[var(--radius-lg)] p-4 flex gap-4 border border-[var(--mz-line)] transition-opacity',
+        'bg-white rounded-xl p-4 flex gap-4 shadow-sm transition-opacity',
         isPending && 'opacity-60'
       )}
       aria-label={productName}
@@ -87,17 +89,18 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
       {/* Thumbnail */}
       <Link
         href={productPath}
-        className="shrink-0 rounded-[var(--radius-md)] overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--mz-bg-deep)]"
+        className="shrink-0 rounded-lg overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--color-neutral-100)]"
         tabIndex={-1}
         aria-hidden="true"
       >
         <Image
-          src={item.product_thumbnail_url}
+          src={safeImageSrc(item.product_thumbnail_url)}
           alt={productName}
           fill
           sizes="(max-width: 768px) 96px, 112px"
           className="object-cover"
           loading="lazy"
+          unoptimized={isFallback(safeImageSrc(item.product_thumbnail_url))}
         />
       </Link>
 
@@ -108,39 +111,41 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
           <div className="flex items-center gap-2 flex-wrap">
             {item.color_hex && (
               <span
-                className="inline-block w-3 h-3 rounded-full border border-[var(--mz-line-strong)]"
+                className="inline-block w-3 h-3 rounded-full border border-[var(--color-neutral-200)]"
                 style={{ backgroundColor: item.color_hex }}
                 aria-label={item.color}
               />
             )}
-            <span className="text-[11px] text-[var(--mz-ink-mute)]">{item.color}</span>
+            <span className="text-xs text-[var(--color-text-secondary)]">{item.color}</span>
             {item.size_label && (
               <>
-                <span className="text-[var(--mz-ink-mute)] text-[11px]">·</span>
-                <span className="text-[11px] text-[var(--mz-ink-mute)]">
+                <span className="text-[var(--color-neutral-300)] text-xs">·</span>
+                <span className="text-xs text-[var(--color-text-secondary)]">
                   {item.size_label}
                 </span>
               </>
             )}
           </div>
 
-          {/* Product name — Fraunces 14/500 per Product Card spec */}
+          {/* Product name */}
           <Link
             href={productPath}
-            className="block text-[14px] font-[500] leading-[18px] font-serif text-[var(--mz-ink)] hover:text-[var(--mz-ink-soft)] transition-colors duration-150 truncate"
+            className="block text-sm font-medium text-[var(--color-text-primary)] hover:underline truncate"
           >
             {productName}
           </Link>
 
-          {/* Unit price — Price type: Fraunces 13/600 */}
-          <p className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">
+          {/* Unit price */}
+          <p className="text-sm font-semibold text-[var(--color-text-primary)]">
             {formatPrice(unitPrice, locale)}
           </p>
 
           {/* Low stock warning */}
           {isLowStock && (
-            <p className="text-[11px] text-[var(--color-error)]" role="status">
-              {item.stock === 0 ? '품절' : `재고 ${item.stock}개 남음`}
+            <p className="text-xs text-[var(--color-error)]" role="status">
+              {item.stock === 0
+                ? tProduct('outOfStock')
+                : tProduct('lowStock', { count: item.stock })}
             </p>
           )}
         </div>
@@ -149,7 +154,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           {/* Quantity stepper */}
           <div
-            className="flex items-center border border-[var(--mz-line-strong)] rounded-[var(--radius-md)] overflow-hidden"
+            className="flex items-center border border-[var(--color-neutral-200)] rounded-lg overflow-hidden"
             role="group"
             aria-label={t('quantity')}
           >
@@ -157,15 +162,15 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleDecrement}
               disabled={isPending || item.quantity <= 1}
-              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-mute)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
-              aria-label="수량 감소"
+              className="w-9 h-9 flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('qtyDecrease')}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
             <span
-              className="w-10 text-center text-[13px] font-medium text-[var(--mz-ink)]"
+              className="w-10 text-center text-sm font-medium text-[var(--color-text-primary)]"
               aria-live="polite"
               aria-label={`${t('quantity')}: ${item.quantity}`}
             >
@@ -175,8 +180,8 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleIncrement}
               disabled={isPending || item.quantity >= item.stock}
-              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-mute)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
-              aria-label="수량 증가"
+              className="w-9 h-9 flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('qtyIncrease')}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
@@ -191,14 +196,14 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
 
           {/* Line total + Remove */}
           <div className="flex items-center gap-3">
-            <span className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">
+            <span className="text-sm font-semibold text-[var(--color-text-primary)]">
               {formatPrice(unitPrice * item.quantity, locale)}
             </span>
             <button
               type="button"
               onClick={handleRemove}
               disabled={isPending}
-              className="text-[12px] text-[var(--mz-ink-mute)] hover:text-[var(--color-error)] transition-colors duration-150 disabled:opacity-40"
+              className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors disabled:opacity-40"
               aria-label={`${productName} ${t('remove')}`}
             >
               {t('remove')}

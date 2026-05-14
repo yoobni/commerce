@@ -10,6 +10,7 @@ import { Link } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@commerce/types';
 import { CancelOrderButton } from './_components/CancelOrderButton';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -99,11 +100,12 @@ export default async function OrderDetailPage({ params }: Props) {
             <li key={item.id} className="flex gap-4">
               <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-[var(--color-neutral-100)] shrink-0">
                 <Image
-                  src={item.product_snapshot.thumbnail_url}
+                  src={safeImageSrc(item.product_snapshot.thumbnail_url)}
                   alt={item.product_snapshot.name}
                   fill
                   sizes="64px"
                   className="object-cover"
+                  unoptimized={isFallback(safeImageSrc(item.product_snapshot.thumbnail_url))}
                 />
               </div>
               <div className="flex-1 min-w-0">

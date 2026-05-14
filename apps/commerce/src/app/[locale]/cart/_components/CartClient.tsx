@@ -274,7 +274,7 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
           {/* Cart items list */}
-          <section aria-label="장바구니 상품 목록">
+          <section aria-label={t('itemsAriaLabel')}>
             <ul className="space-y-3 list-none p-0 m-0">
               {items.map((item) => (
                 <li key={item.id}>

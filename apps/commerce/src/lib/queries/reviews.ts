@@ -1,5 +1,6 @@
 import type { Review, PaginatedResponse } from '@commerce/types';
 import { createClient } from '../supabase/server';
+import { safeImageSrc } from '@/lib/images/safeSrc';
 
 export interface ReviewWithUser extends Review {
   user: { id: string; name: string; profile_image_url: string | null };
@@ -47,7 +48,10 @@ export async function listProductReviews(
 
   const total = count ?? 0;
   return {
-    data: (data ?? []) as ReviewWithUser[],
+    data: ((data ?? []) as ReviewWithUser[]).map((r) => ({
+      ...r,
+      user: { ...r.user, profile_image_url: safeImageSrc(r.user.profile_image_url) },
+    })),
     total,
     page,
     per_page,

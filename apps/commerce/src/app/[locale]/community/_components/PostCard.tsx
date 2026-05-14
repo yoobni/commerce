@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { PostWithUser } from '@/lib/community/queries';
 import type { BoardType } from '@commerce/types';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 interface PostCardProps {
   post: PostWithUser;
@@ -27,7 +28,7 @@ const BOARD_COLORS: Record<BoardType, string> = {
 
 export function PostCard({ post, locale }: PostCardProps) {
   const t = useTranslations('community');
-  const firstImage = post.images?.[0] ?? null;
+  const firstImage = post.images?.[0] ? safeImageSrc(post.images[0]) : null;
 
   return (
     <Link
@@ -43,6 +44,7 @@ export function PostCard({ post, locale }: PostCardProps) {
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
+            unoptimized={isFallback(firstImage)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -93,11 +95,12 @@ export function PostCard({ post, locale }: PostCardProps) {
           <div className="flex items-center gap-2 min-w-0">
             {post.user?.profile_image_url ? (
               <Image
-                src={post.user.profile_image_url}
+                src={safeImageSrc(post.user.profile_image_url)}
                 alt={post.user.name}
                 width={20}
                 height={20}
                 className="rounded-full shrink-0 object-cover"
+                unoptimized={isFallback(safeImageSrc(post.user.profile_image_url))}
               />
             ) : (
               <div className="w-5 h-5 rounded-full bg-[var(--color-neutral-200)] shrink-0 flex items-center justify-center">

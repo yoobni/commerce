@@ -1,5 +1,32 @@
 import type { Post, Comment, User, BoardType, PaginatedResponse } from '@commerce/types';
 import { createClient } from '@/lib/supabase/server';
+import { safeImageSrc } from '@/lib/images/safeSrc';
+
+function sanitizePost<T extends { images?: string[] | null; user?: { profile_image_url?: string | null } | null }>(p: T): T {
+  let images = p.images;
+  if (Array.isArray(p.images)) {
+    const seen = new Set<string>();
+    images = p.images
+      .map((s) => safeImageSrc(s))
+      .filter((s) => {
+        if (seen.has(s)) return false;
+        seen.add(s);
+        return true;
+      });
+  }
+  return {
+    ...p,
+    images,
+    user: p.user ? { ...p.user, profile_image_url: safeImageSrc(p.user.profile_image_url) } : p.user,
+  };
+}
+
+function sanitizeComment<T extends { user?: { profile_image_url?: string | null } | null }>(c: T): T {
+  return {
+    ...c,
+    user: c.user ? { ...c.user, profile_image_url: safeImageSrc(c.user.profile_image_url) } : c.user,
+  };
+}
 
 // ─── Extended types ────────────────────────────────────────────────────────────
 
@@ -37,7 +64,11 @@ export async function listPosts(
     .eq('status', 'ACTIVE');
 
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
-  if (search) query = query.ilike('title', `%${search}%`);
+  if (search) {
+    // Escape ilike wildcards so user input can't match unintended rows.
+    const safeSearch = search.replace(/[%_\\]/g, (m) => `\\${m}`).slice(0, 100);
+    if (safeSearch) query = query.ilike('title', `%${safeSearch}%`);
+  }
 
   if (sort === 'popular') {
     query = query
@@ -56,7 +87,7 @@ export async function listPosts(
 
   const total = count ?? 0;
   return {
-    data: (data ?? []) as PostWithUser[],
+    data: ((data ?? []) as PostWithUser[]).map(sanitizePost),
     total,
     page,
     per_page,
@@ -84,7 +115,7 @@ export async function getPost(id: string): Promise<PostWithUser | null> {
     .update({ view_count: (data as PostWithUser).view_count + 1 })
     .eq('id', id);
 
-  return data as PostWithUser;
+  return sanitizePost(data as PostWithUser);
 }
 
 // ─── List comments for a post ─────────────────────────────────────────────────
@@ -101,7 +132,7 @@ export async function listComments(postId: string): Promise<CommentWithUser[]> {
 
   if (error) throw error;
 
-  const allComments = (data ?? []) as CommentWithUser[];
+  const allComments = ((data ?? []) as CommentWithUser[]).map(sanitizeComment);
 
   // Build tree: top-level + nested replies
   const topLevel: CommentWithUser[] = [];

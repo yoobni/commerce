@@ -1,5 +1,21 @@
 import type { Order, OrderWithItems, PaginatedResponse } from '@commerce/types';
 import { createClient } from '../supabase/server';
+import { safeImageSrc } from '@/lib/images/safeSrc';
+
+function sanitizeOrder(o: OrderWithItems): OrderWithItems {
+  return {
+    ...o,
+    items: o.items?.map((item) => ({
+      ...item,
+      product_snapshot: item.product_snapshot
+        ? {
+            ...item.product_snapshot,
+            thumbnail_url: safeImageSrc(item.product_snapshot.thumbnail_url),
+          }
+        : item.product_snapshot,
+    })),
+  } as OrderWithItems;
+}
 
 export async function listUserOrders(
   userId: string,
@@ -46,5 +62,5 @@ export async function getOrderById(
     .single();
 
   if (error || !data) return null;
-  return data as OrderWithItems;
+  return sanitizeOrder(data as OrderWithItems);
 }

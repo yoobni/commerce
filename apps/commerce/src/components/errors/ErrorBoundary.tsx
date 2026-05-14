@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode, type ErrorInfo } from 'react';
+import { useTranslations } from 'next-intl';
 import { logError } from '@/lib/errors';
 
 type Props = {
@@ -11,6 +12,18 @@ type Props = {
 type State = {
   error: Error | null;
 };
+
+function DefaultFallback({ onReset }: { onReset: () => void }) {
+  const t = useTranslations('error');
+  return (
+    <div className="py-8 text-center text-sm text-[var(--color-text-secondary)]">
+      <p>{t('description')}</p>
+      <button onClick={onReset} className="mt-3 underline text-[var(--color-brand-primary)]">
+        {t('retry')}
+      </button>
+    </div>
+  );
+}
 
 /**
  * ErrorBoundary — catches render errors in the React tree.
@@ -42,14 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
       if (fallback) {
         return fallback({ error, reset: this.reset });
       }
-      return (
-        <div className="py-8 text-center text-sm text-[var(--color-text-secondary)]">
-          <p>콘텐츠를 불러오지 못했습니다.</p>
-          <button onClick={this.reset} className="mt-3 underline text-[var(--color-brand-primary)]">
-            다시 시도
-          </button>
-        </div>
-      );
+      return <DefaultFallback onReset={this.reset} />;
     }
 
     return children;

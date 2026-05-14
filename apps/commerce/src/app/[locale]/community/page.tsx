@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { listPosts } from '@/lib/community/queries';
 import { CommunityListClient } from './_components/CommunityListClient';
 import type { BoardType } from '@commerce/types';
+import { buildAlternates } from '@/lib/seo/alternates';
 
 type BoardFilter = BoardType | 'ALL';
 type SortOption = 'newest' | 'popular';
@@ -19,7 +20,10 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'community' });
-  return { title: t('title') };
+  return {
+    title: t('title'),
+    alternates: buildAlternates('/community', locale),
+  };
 }
 
 const VALID_BOARDS: BoardFilter[] = ['ALL', 'DAILY', 'STYLE', 'TIP', 'QUESTION'];

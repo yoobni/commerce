@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { safeImageSrc } from '@/lib/images/safeSrc';
 
 export interface CartItemDisplay {
   id: string;
@@ -120,7 +121,7 @@ export async function getCartWithItems(): Promise<CartDisplay | null> {
       product_base_price_usd: prod.base_price_usd as number,
       product_base_price_jpy: prod.base_price_jpy as number,
       product_base_price_eur: prod.base_price_eur as number,
-      product_thumbnail_url: prod.thumbnail_url as string,
+      product_thumbnail_url: safeImageSrc(prod.thumbnail_url as string),
     };
   });
 

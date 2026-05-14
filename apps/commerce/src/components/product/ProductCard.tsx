@@ -8,8 +8,7 @@ import { getProductName, getProductPrice, formatPrice } from '@/lib/format';
 import { WishlistButton } from './WishlistButton';
 import { FitBadge } from '@/components/ui/Badge';
 import type { Product, Locale } from '@commerce/types';
-
-const FALLBACK_IMG = '/images/fallback-product.svg';
+import { safeImageSrc, isFallback, FALLBACK_THUMB } from '@/lib/images/safeSrc';
 
 // Spec: Direction B — Product Card
 // Image block: bgDeep, 1:1 ratio (changed from 3:4), radius 10, relative
@@ -40,7 +39,9 @@ export function ProductCard({
   const price = getProductPrice(product, locale);
   const formattedPrice = formatPrice(price, locale);
   const isSoldOut = product.status === 'SOLD_OUT';
-  const [imgSrc, setImgSrc] = useState(product.thumbnail_url || FALLBACK_IMG);
+  const [imgError, setImgError] = useState(false);
+  const initial = safeImageSrc(product.thumbnail_url);
+  const thumbSrc = imgError ? FALLBACK_THUMB : initial;
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
@@ -48,7 +49,7 @@ export function ProductCard({
       <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)]">
         <Link href={`/products/${product.slug}`} className="block w-full h-full" aria-label={name}>
           <Image
-            src={imgSrc}
+            src={thumbSrc}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -58,21 +59,22 @@ export function ProductCard({
               isSoldOut && 'opacity-60'
             )}
             priority={priority}
-            onError={() => setImgSrc(FALLBACK_IMG)}
+            onError={() => setImgError(true)}
+            unoptimized={isFallback(thumbSrc)}
           />
         </Link>
 
-        {/* Fit badge — top-left, only when Fit profile matches */}
+        {/* Fit badge — top:8 left:8 per dir-b-ds spec */}
         {fitSize && !isSoldOut && (
-          <div className="absolute top-2.5 left-2.5 pointer-events-none">
+          <div className="absolute top-2 left-2 pointer-events-none">
             <FitBadge size={fitSize} />
           </div>
         )}
 
-        {/* New badge — top-left when no Fit badge */}
+        {/* New badge — same slot when no Fit badge — bg ink, color bg, 9/700/0.08em, padding 3/7 */}
         {!fitSize && isNew(product.published_at) && !isSoldOut && (
-          <div className="absolute top-2.5 left-2.5 pointer-events-none">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em] bg-[var(--mz-ink)] text-[var(--mz-bg)]">
+          <div className="absolute top-2 left-2 pointer-events-none">
+            <span className="inline-flex items-center px-[7px] py-[3px] rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em] bg-[var(--mz-ink)] text-[var(--mz-bg)]">
               NEW
             </span>
           </div>
@@ -87,8 +89,8 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Wishlist button — top-right, 28×28 circular */}
-        <div className="absolute top-2.5 right-2.5">
+        {/* Wishlist button — top:8 right:8, 28×28 circular surface-colored */}
+        <div className="absolute top-2 right-2">
           <WishlistButton
             productId={product.id}
             productName={name}
@@ -102,12 +104,12 @@ export function ProductCard({
       </div>
 
       {/* ── Product meta — gap 8px from image ── */}
-      <div className="mt-2 flex flex-col gap-0.5">
+      <div className="mt-2">
         {/* Name — Fraunces 14/500 */}
         <Link
           href={`/products/${product.slug}`}
           className={cn(
-            'text-[14px] font-[500] leading-[18px] font-serif',
+            'block text-[14px] font-[500] leading-[18px] font-serif',
             'text-[var(--mz-ink)] line-clamp-2',
             'hover:text-[var(--mz-ink-soft)] transition-colors duration-150'
           )}
@@ -115,10 +117,15 @@ export function ProductCard({
           {name}
         </Link>
 
-        {/* Price — Fraunces 13/600 */}
-        <p className="text-[13px] font-[600] font-serif text-[var(--mz-ink)]">{formattedPrice}</p>
+        {/* Material / spec line — Inter 11/inkMute, mt 2 (when available) */}
+        {product.material && (
+          <p className="mt-0.5 text-[11px] text-[var(--mz-ink-mute)] truncate">{product.material}</p>
+        )}
 
-        {/* Rating — Inter 11/400/inkMute */}
+        {/* Price — Inter 13/600, mt 4 */}
+        <p className="mt-1 text-[13px] font-[600] text-[var(--mz-ink)]">{formattedPrice}</p>
+
+        {/* Rating — Inter 11/inkMute (kept as a small enhancement) */}
         {product.review_count > 0 && (
           <div
             className="flex items-center gap-1 mt-0.5"

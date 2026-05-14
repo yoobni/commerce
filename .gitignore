@@ -30,3 +30,9 @@ yarn-error.log*
 # Misc
 *.tsbuildinfo
 var/
+
+# Claude Code local settings
+.claude/
+
+# Supabase CLI temp state
+supabase/.temp/

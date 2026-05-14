@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
 import { Modal } from '@/components/ui/Modal';
-
-const FALLBACK_IMG = '/images/fallback-product.svg';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 interface PDPImageGalleryProps {
   images: string[];
@@ -20,6 +19,16 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
   const track = useTrack();
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
+  const safeImages = useMemo(() => {
+    const seen = new Set<string>();
+    return images
+      .map(safeImageSrc)
+      .filter((s) => {
+        if (seen.has(s)) return false;
+        seen.add(s);
+        return true;
+      });
+  }, [images]);
 
   const handleThumbnailClick = useCallback((index: number) => {
     setActiveIndex(index);
@@ -42,13 +51,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
     setActiveIndex((i) => (i === images.length - 1 ? 0 : i + 1));
   }, [images.length]);
 
-  const [errored, setErrored] = useState<Set<number>>(new Set());
-  const handleImgError = useCallback((idx: number) => {
-    setErrored((prev) => new Set(prev).add(idx));
-  }, []);
-
-  const resolvedImages = images.map((src, i) => (errored.has(i) ? FALLBACK_IMG : src));
-  const activeImage = resolvedImages[activeIndex] ?? resolvedImages[0] ?? FALLBACK_IMG;
+  const activeImage = safeImages[activeIndex] ?? safeImages[0];
 
   return (
     <div className="space-y-3">
@@ -66,7 +69,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition-opacity duration-300"
             priority={activeIndex === 0}
-            onError={() => handleImgError(activeIndex)}
+            unoptimized={isFallback(activeImage)}
           />
 
           {/* Zoom hint */}
@@ -146,7 +149,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
           role="tablist"
           aria-label="Product images"
         >
-          {resolvedImages.map((src, i) => (
+          {safeImages.map((src, i) => (
             <button
               key={i}
               type="button"
@@ -169,7 +172,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
                 fill
                 sizes="64px"
                 className="object-cover"
-                onError={() => handleImgError(i)}
+                unoptimized={isFallback(src)}
               />
             </button>
           ))}
@@ -202,6 +205,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
             fill
             sizes="(max-width: 800px) 100vw, 800px"
             className="object-contain"
+            unoptimized={isFallback(activeImage)}
           />
         </div>
 

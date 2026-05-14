@@ -77,7 +77,10 @@ export async function uploadProductImage(formData: FormData): Promise<string> {
     .from('products')
     .upload(path, bytes, { contentType: file.type, upsert: false });
 
-  if (error) throw new Error(`이미지 업로드 실패: ${error.message}`);
+  if (error) {
+    console.error('[uploadProductImage]', error);
+    throw new Error('이미지 업로드 실패');
+  }
 
   const { data } = supabase.storage.from('products').getPublicUrl(path);
   return data.publicUrl;
@@ -114,7 +117,10 @@ export async function saveProduct(
       .select('id')
       .single();
 
-    if (error) throw new Error(`상품 등록 실패: ${error.message}`);
+    if (error) {
+      console.error('[saveProduct/create]', error);
+      throw new Error('상품 등록 실패');
+    }
     id = data.id as string;
   } else {
     // Update
@@ -124,7 +130,10 @@ export async function saveProduct(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
 
-    if (error) throw new Error(`상품 수정 실패: ${error.message}`);
+    if (error) {
+      console.error('[saveProduct/update]', error);
+      throw new Error('상품 수정 실패');
+    }
   }
 
   const finalId = id!;
@@ -136,7 +145,10 @@ export async function saveProduct(
   if (toDelete.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('product_options') as any).delete().in('id', toDelete);
-    if (error) throw new Error(`옵션 삭제 실패: ${error.message}`);
+    if (error) {
+      console.error('[saveProduct/option-delete]', error);
+      throw new Error('옵션 삭제 실패');
+    }
   }
 
   for (const opt of toUpsert) {
@@ -161,14 +173,20 @@ export async function saveProduct(
       const { error } = await (supabase.from('product_options') as any)
         .update(row)
         .eq('id', opt.id);
-      if (error) throw new Error(`옵션 수정 실패: ${error.message}`);
+      if (error) {
+        console.error('[saveProduct/option-update]', error);
+        throw new Error('옵션 수정 실패');
+      }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase.from('product_options') as any).insert({
         ...row,
         created_at: now,
       });
-      if (error) throw new Error(`옵션 추가 실패: ${error.message}`);
+      if (error) {
+        console.error('[saveProduct/option-insert]', error);
+        throw new Error('옵션 추가 실패');
+      }
     }
   }
 
@@ -191,7 +209,10 @@ export async function updateProductStatus(productId: string, status: ProductStat
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
 
-  if (error) throw new Error(`상태 변경 실패: ${error.message}`);
+  if (error) {
+    console.error('[setProductStatus]', error);
+    throw new Error('상태 변경 실패');
+  }
 
   revalidatePath('/products');
   revalidatePath(`/products/${productId}`);
@@ -214,13 +235,19 @@ export async function saveCategory(
       .insert({ ...input, created_at: new Date().toISOString() })
       .select('id')
       .single();
-    if (error) throw new Error(`카테고리 생성 실패: ${error.message}`);
+    if (error) {
+      console.error('[saveCategory/create]', error);
+      throw new Error('카테고리 생성 실패');
+    }
     revalidatePath('/products/categories');
     return data.id as string;
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('categories') as any).update(input).eq('id', categoryId);
-    if (error) throw new Error(`카테고리 수정 실패: ${error.message}`);
+    if (error) {
+      console.error('[saveCategory/update]', error);
+      throw new Error('카테고리 수정 실패');
+    }
     revalidatePath('/products/categories');
     return categoryId;
   }
@@ -237,7 +264,10 @@ export async function deleteProduct(productId: string): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('products') as any).delete().eq('id', productId);
 
-  if (error) throw new Error(`상품 삭제 실패: ${error.message}`);
+  if (error) {
+    console.error('[deleteProduct]', error);
+    throw new Error('상품 삭제 실패');
+  }
 
   revalidatePath('/products');
 }
@@ -263,6 +293,9 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('categories') as any).delete().eq('id', categoryId);
 
-  if (error) throw new Error(`카테고리 삭제 실패: ${error.message}`);
+  if (error) {
+    console.error('[deleteCategory]', error);
+    throw new Error('카테고리 삭제 실패');
+  }
   revalidatePath('/products/categories');
 }

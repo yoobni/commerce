@@ -53,6 +53,7 @@
     "required": "Pflichtfeld",
     "optional": "Optional",
     "zoom": "Vergrößern",
+    "viewAll": "Alle anzeigen",
     "currency": {
       "usd": "USD",
       "krw": "KRW",
@@ -65,12 +66,16 @@
     "addToCartError": "Fehler beim Hinzufügen zum Warenkorb. Bitte versuchen Sie es erneut.",
     "addToWishlist": "Auf die Wunschliste",
     "outOfStock": "Ausverkauft",
+    "size": "Größe",
     "sizeGuide": "Größentabelle",
     "selectSize": "Größe wählen",
     "shipping": "Versand",
     "returns": "Rückgabe",
     "description": "Beschreibung",
     "details": "Details",
+    "material": "Material",
+    "care": "Pflege",
+    "weight": "Gewicht",
     "reviews": "Bewertungen",
     "relatedProducts": "Das könnte dir auch gefallen",
     "addedToCart": "In den Warenkorb gelegt",
@@ -104,7 +109,11 @@
     "quantity": "Anz.",
     "freeShipping": "Kostenlos",
     "freeShippingThreshold": "Noch {amount} bis zum kostenlosen Versand",
-    "taxIncluded": "Inkl. MwSt."
+    "taxIncluded": "Inkl. MwSt.",
+    "itemsAriaLabel": "Artikel im Warenkorb",
+    "summaryAriaLabel": "Bestellübersicht",
+    "qtyDecrease": "Menge verringern",
+    "qtyIncrease": "Menge erhöhen"
   },
   "empty": {
     "cart": {
@@ -221,6 +230,7 @@
   },
   "checkout": {
     "title": "Bestellung",
+    "paymentNotReady": "Die Kasse ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     "steps": {
       "shipping": "Versand",
       "payment": "Zahlung",
@@ -241,10 +251,16 @@
       "deliveryNote": "Lieferhinweis",
       "deliveryNotePlaceholder": "Besondere Anweisungen für die Lieferung (optional)",
       "useRegisteredAddress": "Gespeicherte Adresse verwenden",
-      "defaultAddress": "Standard"
+      "defaultAddress": "Standard",
+      "notePresets": {
+        "atDoor": "Vor der Tür abstellen",
+        "atFrontDesk": "Bei der Rezeption abgeben",
+        "callIfAbsent": "Bei Abwesenheit anrufen"
+      }
     },
     "payment": {
       "title": "Zahlungsmethode",
+      "domestic": "Inland",
       "creditCard": "Kredit- / Debitkarte",
       "bankTransfer": "Überweisung",
       "kakaoPay": "Kakao Pay",
@@ -256,6 +272,7 @@
     },
     "coupon": {
       "title": "Gutschein / Punkte",
+      "discount": "Rabatt",
       "couponCode": "Gutscheincode",
       "couponPlaceholder": "Gutscheincode eingeben",
       "apply": "Einlösen",
@@ -283,6 +300,7 @@
       "orderNumber": "Bestellnummer",
       "message": "Eine Bestätigungs-E-Mail wurde gesendet.",
       "estimatedDelivery": "Voraussichtliche Lieferung",
+      "estimatedDeliveryRange": "3-5 Werktage",
       "continueShopping": "Weiter einkaufen",
       "viewOrders": "Bestellungen anzeigen"
     },

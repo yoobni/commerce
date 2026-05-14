@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { deletePostAction } from '@/lib/community/actions';
 import type { PostWithUser } from '@/lib/community/queries';
 import type { BoardType } from '@commerce/types';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 const BOARD_COLORS: Record<BoardType, string> = {
   DAILY: 'bg-amber-100 text-amber-800',
@@ -35,7 +36,7 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
   const [activeImage, setActiveImage] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const images = post.images ?? [];
+  const images = (post.images ?? []).map(safeImageSrc);
 
   async function handleDelete() {
     if (!window.confirm(t('deletePostConfirm'))) return;
@@ -73,11 +74,12 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
         <div className="flex items-center gap-3">
           {post.user?.profile_image_url ? (
             <Image
-              src={post.user.profile_image_url}
+              src={safeImageSrc(post.user.profile_image_url)}
               alt={post.user.name}
               width={36}
               height={36}
               className="rounded-full object-cover"
+              unoptimized={isFallback(safeImageSrc(post.user.profile_image_url))}
             />
           ) : (
             <div className="w-9 h-9 rounded-full bg-[var(--color-neutral-200)] flex items-center justify-center text-sm font-medium text-[var(--color-text-secondary)]">
@@ -109,11 +111,12 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
           <div className="relative aspect-[4/3] bg-[var(--color-neutral-100)] rounded-2xl overflow-hidden mb-2">
             <Image
               src={images[activeImage]}
-              alt={`${post.title} — 이미지 ${activeImage + 1}`}
+              alt={`${post.title} — ${activeImage + 1}`}
               fill
               sizes="(max-width: 768px) 100vw, 720px"
               className="object-contain"
               priority={activeImage === 0}
+              unoptimized={isFallback(images[activeImage])}
             />
           </div>
 
@@ -132,10 +135,11 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
                 >
                   <Image
                     src={img}
-                    alt={`썸네일 ${idx + 1}`}
+                    alt={`thumbnail ${idx + 1}`}
                     fill
                     sizes="64px"
                     className="object-cover"
+                    unoptimized={isFallback(img)}
                   />
                 </button>
               ))}

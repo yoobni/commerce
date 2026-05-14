@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { routing, type Locale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
+import { buildAlternates } from '@/lib/seo/alternates';
 import { createClient } from '@/lib/supabase/server';
 import { getFeaturedProducts, listProducts } from '@/lib/queries/products';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -23,7 +24,11 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
-  return { title: t('title'), description: t('description') };
+  return {
+    title: t('title'),
+    description: t('description'),
+    alternates: buildAlternates('/', locale),
+  };
 }
 
 export default async function HomePage({ params }: Props) {

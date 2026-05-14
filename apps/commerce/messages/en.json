@@ -53,6 +53,7 @@
     "required": "Required",
     "optional": "Optional",
     "zoom": "Zoom",
+    "viewAll": "View all",
     "currency": {
       "usd": "USD",
       "krw": "KRW",
@@ -65,12 +66,16 @@
     "addToCartError": "Failed to add to cart. Please try again.",
     "addToWishlist": "Add to Wishlist",
     "outOfStock": "Out of Stock",
+    "size": "Size",
     "sizeGuide": "Size Guide",
     "selectSize": "Select Size",
     "shipping": "Shipping",
     "returns": "Returns",
     "description": "Description",
     "details": "Details",
+    "material": "Material",
+    "care": "Care",
+    "weight": "Weight",
     "reviews": "Reviews",
     "relatedProducts": "You might also like",
     "addedToCart": "Added to Cart",
@@ -104,7 +109,11 @@
     "quantity": "Qty",
     "freeShipping": "Free",
     "freeShippingThreshold": "Add {amount} more for free shipping",
-    "taxIncluded": "Tax included."
+    "taxIncluded": "Tax included.",
+    "itemsAriaLabel": "Cart items",
+    "summaryAriaLabel": "Order summary",
+    "qtyDecrease": "Decrease quantity",
+    "qtyIncrease": "Increase quantity"
   },
   "empty": {
     "cart": {
@@ -221,6 +230,7 @@
   },
   "checkout": {
     "title": "Checkout",
+    "paymentNotReady": "Checkout is temporarily unavailable. Please try again later.",
     "steps": {
       "shipping": "Shipping",
       "payment": "Payment",
@@ -241,10 +251,16 @@
       "deliveryNote": "Delivery note",
       "deliveryNotePlaceholder": "Special instructions for delivery (optional)",
       "useRegisteredAddress": "Use saved address",
-      "defaultAddress": "Default"
+      "defaultAddress": "Default",
+      "notePresets": {
+        "atDoor": "Leave at door",
+        "atFrontDesk": "Leave at front desk",
+        "callIfAbsent": "Call if absent"
+      }
     },
     "payment": {
       "title": "Payment Method",
+      "domestic": "Domestic",
       "creditCard": "Credit / Debit Card",
       "bankTransfer": "Bank Transfer",
       "kakaoPay": "Kakao Pay",
@@ -256,6 +272,7 @@
     },
     "coupon": {
       "title": "Coupon / Points",
+      "discount": "off",
       "couponCode": "Coupon code",
       "couponPlaceholder": "Enter coupon code",
       "apply": "Apply",
@@ -283,6 +300,7 @@
       "orderNumber": "Order number",
       "message": "A confirmation email has been sent.",
       "estimatedDelivery": "Estimated delivery",
+      "estimatedDeliveryRange": "3-5 days",
       "continueShopping": "Continue Shopping",
       "viewOrders": "View Orders"
     },

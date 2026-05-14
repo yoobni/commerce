@@ -2,11 +2,15 @@ import { createServerClient } from '@supabase/ssr';
 import { NextRequest, NextResponse } from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
+import { rateLimit, getClientIp } from './lib/rate-limit';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Path segments (after the locale prefix) that require authentication
 const PROTECTED_SEGMENTS = new Set(['account', 'checkout', 'orders', 'wishlist']);
+
+// Auth-adjacent segments that need brute-force protection
+const RATE_LIMITED_AUTH_SEGMENTS = new Set(['auth']);
 
 function getSegmentAfterLocale(pathname: string): string {
   // pathname format: /[locale]/[segment]/...
@@ -15,6 +19,24 @@ function getSegmentAfterLocale(pathname: string): string {
 }
 
 export async function middleware(request: NextRequest) {
+  // 0. Rate-limit auth-adjacent POSTs (login, signup, password reset)
+  const segment = getSegmentAfterLocale(request.nextUrl.pathname);
+  if (
+    request.method === 'POST' &&
+    (RATE_LIMITED_AUTH_SEGMENTS.has(segment) ||
+      request.nextUrl.pathname.startsWith('/api/auth/'))
+  ) {
+    const ip = getClientIp(request.headers);
+    const key = `commerce:${ip}:${segment || 'api-auth'}`;
+    const { ok, retryAfterSec } = rateLimit(key);
+    if (!ok) {
+      return new NextResponse('Too Many Requests', {
+        status: 429,
+        headers: { 'Retry-After': String(retryAfterSec) },
+      });
+    }
+  }
+
   // 1. Run next-intl middleware for locale routing
   const intlResponse = intlMiddleware(request);
 
@@ -53,7 +75,6 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 3. Guard protected routes
-  const segment = getSegmentAfterLocale(request.nextUrl.pathname);
   if (PROTECTED_SEGMENTS.has(segment) && !user) {
     const locale = request.nextUrl.pathname.split('/').filter(Boolean)[0] ?? routing.defaultLocale;
     const loginUrl = new URL(`/${locale}/auth/login`, request.url);

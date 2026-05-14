@@ -8,6 +8,7 @@ import { ReviewWriteForm } from './ReviewWriteForm';
 import { loadMoreReviewsAction } from '@/lib/reviews/actions';
 import type { ReviewWithUser, ReviewStats } from '@/lib/queries/reviews';
 import type { Locale } from '@commerce/types';
+import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 interface ReviewSectionProps {
   productId: string;
@@ -320,11 +321,12 @@ function ReviewCard({ review, locale }: ReviewCardProps) {
           <div className="w-9 h-9 rounded-full bg-[var(--color-neutral-200)] overflow-hidden shrink-0">
             {review.user.profile_image_url ? (
               <Image
-                src={review.user.profile_image_url}
+                src={safeImageSrc(review.user.profile_image_url)}
                 alt={review.user.name}
                 width={36}
                 height={36}
                 className="object-cover w-full h-full"
+                unoptimized={isFallback(safeImageSrc(review.user.profile_image_url))}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs font-medium text-[var(--color-text-tertiary)]">

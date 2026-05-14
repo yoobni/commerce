@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
+import { rateLimit, getClientIp } from './lib/rate-limit';
 
 const PUBLIC_PATHS = ['/login', '/unauthorized'];
 const COOKIE_NAME = 'admin_session';
@@ -13,7 +14,10 @@ const ROLE_RANK: Record<string, number> = {
 };
 
 function getSecret(): Uint8Array {
-  const secret = process.env.ADMIN_JWT_SECRET ?? '';
+  const secret = process.env.ADMIN_JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error('ADMIN_JWT_SECRET must be set and at least 32 characters');
+  }
   return new TextEncoder().encode(secret);
 }
 
@@ -44,6 +48,18 @@ async function isSessionRevoked(tokenHash: string): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Rate-limit POSTs against the login route to slow down brute force.
+  if (request.method === 'POST' && pathname.startsWith('/login')) {
+    const ip = getClientIp(request.headers);
+    const { ok, retryAfterSec } = rateLimit(`admin:${ip}:login`);
+    if (!ok) {
+      return new NextResponse('Too Many Requests', {
+        status: 429,
+        headers: { 'Retry-After': String(retryAfterSec) },
+      });
+    }
+  }
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();

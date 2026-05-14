@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/layout/Container';
+import { createClient } from '@/lib/supabase/server';
+import { getOrderById } from '@/lib/queries/orders';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -14,7 +16,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'checkout' });
-  return { title: t('success.title') };
+  return { title: t('success.title'), robots: { index: false, follow: false } };
 }
 
 export default async function CheckoutSuccessPage({ params, searchParams }: Props) {
@@ -23,6 +25,22 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
 
   const sp = await searchParams;
   const orderId = sp.order_id;
+
+  // Only show the success screen for an order that (a) exists in the database,
+  // (b) belongs to the current user, and (c) is in a paid/processing state.
+  // Reject demo/placeholder IDs and any direct URL hits.
+  if (!orderId || orderId.startsWith('demo_')) notFound();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) notFound();
+
+  const order = await getOrderById(orderId, user.id);
+  if (!order) notFound();
+  const paidStatuses = new Set(['PAID', 'PREPARING', 'SHIPPED', 'DELIVERED']);
+  if (!paidStatuses.has((order as { status: string }).status)) notFound();
 
   const t = await getTranslations({ locale, namespace: 'checkout' });
   const tAccount = await getTranslations({ locale, namespace: 'account' });
@@ -65,7 +83,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
         )}
 
         <p className="text-sm text-[var(--color-text-secondary)] mb-8">
-          {t('success.estimatedDelivery')}: 3~5{locale === 'ko' ? '일' : ' days'}
+          {t('success.estimatedDelivery')}: {t('success.estimatedDeliveryRange')}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

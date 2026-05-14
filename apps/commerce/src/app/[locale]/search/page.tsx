@@ -26,6 +26,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const t = await getTranslations({ locale, namespace: 'search' });
   return {
     title: sp.q ? `"${sp.q}" — ${t('title')}` : t('title'),
+    robots: { index: false, follow: true },
   };
 }
 

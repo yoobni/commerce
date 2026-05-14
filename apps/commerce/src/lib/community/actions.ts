@@ -46,7 +46,7 @@ export async function createPostAction(input: CreatePostInput): Promise<ActionRe
     .select('id')
     .single();
 
-  if (error) return { success: false, error: (error as { message: string }).message };
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const id = (data as any).id as string;
@@ -97,7 +97,7 @@ export async function updatePostAction(
     })
     .eq('id', postId);
 
-  if (error) return { success: false, error: (error as { message: string }).message };
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   revalidatePath('/[locale]/community', 'page');
   revalidatePath(`/[locale]/community/${postId}`, 'page');
@@ -129,7 +129,7 @@ export async function deletePostAction(postId: string): Promise<ActionResult> {
     .update({ status: 'DELETED', updated_at: new Date().toISOString() })
     .eq('id', postId);
 
-  if (error) return { success: false, error: (error as { message: string }).message };
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   revalidatePath('/[locale]/community', 'page');
   return { success: true };
@@ -161,7 +161,7 @@ export async function createCommentAction(
     .select('id')
     .single();
 
-  if (error) return { success: false, error: (error as { message: string }).message };
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   // Increment post comment_count (fire-and-forget)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -211,7 +211,7 @@ export async function deleteCommentAction(
     .update({ status: 'DELETED', updated_at: new Date().toISOString() })
     .eq('id', commentId);
 
-  if (error) return { success: false, error: (error as { message: string }).message };
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   revalidatePath(`/[locale]/community/${postId}`, 'page');
   return { success: true };
@@ -262,7 +262,7 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
         success: false,
         liked: true,
         likeCount: currentCount,
-        error: (error as { message: string }).message,
+        error: 'COMMUNITY_DB_ERROR',
       };
 
     const newCount = Math.max(0, currentCount - 1);
@@ -281,7 +281,7 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
         success: false,
         liked: false,
         likeCount: currentCount,
-        error: (error as { message: string }).message,
+        error: 'COMMUNITY_DB_ERROR',
       };
 
     const newCount = currentCount + 1;
@@ -326,7 +326,7 @@ export async function toggleCommentLikeAction(commentId: string): Promise<LikeRe
         success: false,
         liked: true,
         likeCount: currentCount,
-        error: (error as { message: string }).message,
+        error: 'COMMUNITY_DB_ERROR',
       };
 
     const newCount = Math.max(0, currentCount - 1);
@@ -344,7 +344,7 @@ export async function toggleCommentLikeAction(commentId: string): Promise<LikeRe
         success: false,
         liked: false,
         likeCount: currentCount,
-        error: (error as { message: string }).message,
+        error: 'COMMUNITY_DB_ERROR',
       };
 
     const newCount = currentCount + 1;
