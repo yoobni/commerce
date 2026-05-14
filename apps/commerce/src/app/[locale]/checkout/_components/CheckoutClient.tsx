@@ -220,10 +220,10 @@ export function CheckoutClient({
                       className={cn(
                         'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
                         active
-                          ? 'bg-[var(--color-brand-primary)] text-white'
+                          ? 'bg-[var(--mz-ink)] text-[var(--mz-bg)]'
                           : done
-                            ? 'bg-[var(--color-brand-primary)]/20 text-[var(--color-brand-primary)]'
-                            : 'bg-[var(--color-neutral-200)] text-[var(--color-text-tertiary)]'
+                            ? 'bg-[var(--mz-ink)]/20 text-[var(--mz-ink)]'
+                            : 'bg-[var(--mz-line-strong)] text-[var(--mz-ink-mute)]'
                       )}
                       aria-current={active ? 'step' : undefined}
                     >
@@ -233,8 +233,8 @@ export function CheckoutClient({
                       className={cn(
                         'text-sm font-medium',
                         active
-                          ? 'text-[var(--color-text-primary)]'
-                          : 'text-[var(--color-text-tertiary)]'
+                          ? 'text-[var(--mz-ink)]'
+                          : 'text-[var(--mz-ink-mute)]'
                       )}
                     >
                       {stepLabels[s]}
@@ -257,7 +257,7 @@ export function CheckoutClient({
           <section aria-labelledby="shipping-heading" className="space-y-5">
             <h2
               id="shipping-heading"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              className="text-lg font-semibold text-[var(--mz-ink)]"
             >
               {t('shipping.title')}
             </h2>
@@ -265,7 +265,7 @@ export function CheckoutClient({
             {/* Saved addresses */}
             {addresses.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+                <p className="text-sm font-medium text-[var(--mz-ink-soft)]">
                   {t('shipping.useRegisteredAddress')}
                 </p>
                 <div className="space-y-2">
@@ -277,26 +277,26 @@ export function CheckoutClient({
                       className={cn(
                         'w-full text-left p-4 rounded-lg border transition-colors',
                         selectedAddressId === addr.id
-                          ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5'
-                          : 'border-[var(--color-border)] hover:border-[var(--color-brand-primary)]/50'
+                          ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/5'
+                          : 'border-[var(--color-border)] hover:border-[var(--mz-ink)]/50'
                       )}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         {addr.label && (
-                          <span className="text-xs font-semibold text-[var(--color-brand-accent)]">
+                          <span className="text-xs font-semibold text-[var(--mz-accent)]">
                             {addr.label}
                           </span>
                         )}
                         {addr.is_default && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-neutral-100)] text-[var(--color-text-tertiary)]">
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--mz-bg-deep)] text-[var(--mz-ink-mute)]">
                             {t('shipping.defaultAddress')}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                      <p className="text-sm font-medium text-[var(--mz-ink)]">
                         {addr.recipient_name} · {addr.phone}
                       </p>
-                      <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+                      <p className="text-sm text-[var(--mz-ink-soft)] mt-0.5">
                         {addr.address_line1} {addr.address_line2}
                       </p>
                     </button>
@@ -348,7 +348,7 @@ export function CheckoutClient({
 
             {/* Delivery note */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[var(--color-text-primary)]">
+              <label className="text-sm font-medium text-[var(--mz-ink)]">
                 {t('shipping.deliveryNote')}
               </label>
               <div className="flex flex-wrap gap-2 mb-2">
@@ -362,8 +362,8 @@ export function CheckoutClient({
                       className={cn(
                         'px-3 py-1.5 rounded-full border text-xs font-medium transition-colors',
                         deliveryNote === label
-                          ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)]'
-                          : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-brand-primary)]/50'
+                          ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/10 text-[var(--mz-ink)]'
+                          : 'border-[var(--color-border)] text-[var(--mz-ink-soft)] hover:border-[var(--mz-ink)]/50'
                       )}
                     >
                       {label}
@@ -376,7 +376,7 @@ export function CheckoutClient({
                 onChange={(e) => setDeliveryNote(e.target.value)}
                 placeholder={t('shipping.deliveryNotePlaceholder')}
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 resize-none transition"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 resize-none transition"
               />
             </div>
 
@@ -397,14 +397,14 @@ export function CheckoutClient({
           <section aria-labelledby="payment-heading" className="space-y-6">
             <h2
               id="payment-heading"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              className="text-lg font-semibold text-[var(--mz-ink)]"
             >
               {t('payment.title')}
             </h2>
 
             {/* Payment methods — domestic */}
             <div>
-              <p className="text-xs font-medium text-[var(--color-text-tertiary)] mb-2 uppercase tracking-wider">
+              <p className="text-xs font-medium text-[var(--mz-ink-mute)] mb-2 uppercase tracking-wider">
                 {t('payment.domestic')}
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -424,8 +424,8 @@ export function CheckoutClient({
                     className={cn(
                       'py-3.5 px-4 rounded-lg border text-sm font-medium text-center transition-all',
                       payMethod === key
-                        ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/5 text-[var(--color-brand-primary)]'
-                        : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-primary)]/50'
+                        ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/5 text-[var(--mz-ink)]'
+                        : 'border-[var(--color-border)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]/50'
                     )}
                   >
                     {label}
@@ -437,8 +437,8 @@ export function CheckoutClient({
             {/* Card input placeholder — activates on payment gateway integration */}
             {payMethod === 'card' && (
               <div className="relative rounded-lg border border-[var(--color-border)] overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--color-neutral-50)]/80 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-lg">
-                  <p className="text-xs text-[var(--color-text-tertiary)] bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
+                <div className="absolute inset-0 bg-[var(--mz-bg-deep)]/80 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-lg">
+                  <p className="text-xs text-[var(--mz-ink-mute)] bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
                     {t('payment.cardPending')}
                   </p>
                 </div>
@@ -446,18 +446,18 @@ export function CheckoutClient({
                   className="p-4 space-y-3 opacity-40 pointer-events-none select-none"
                   aria-hidden="true"
                 >
-                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
                     {t('payment.cardNumber')} — 0000 0000 0000 0000
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
                       {t('payment.expiry')} — MM / YY
                     </div>
-                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
                       {t('payment.cvv')} — CVV
                     </div>
                   </div>
-                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--color-text-tertiary)]">
+                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
                     {t('payment.cardHolder')}
                   </div>
                 </div>
@@ -467,7 +467,7 @@ export function CheckoutClient({
             {/* International payment frame — non-KO locales */}
             {locale !== 'ko' && (
               <div className="space-y-2">
-                <p className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+                <p className="text-xs font-medium text-[var(--mz-ink-mute)] uppercase tracking-wider">
                   {t('payment.international')}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -478,8 +478,8 @@ export function CheckoutClient({
                       disabled
                       className="py-3.5 px-4 rounded-lg border border-dashed border-[var(--color-border)] text-sm font-medium text-center cursor-not-allowed"
                     >
-                      <span className="text-[var(--color-text-tertiary)]">{label}</span>
-                      <span className="block text-[10px] text-[var(--color-text-tertiary)] mt-0.5 opacity-70">
+                      <span className="text-[var(--mz-ink-mute)]">{label}</span>
+                      <span className="block text-[10px] text-[var(--mz-ink-mute)] mt-0.5 opacity-70">
                         Coming soon
                       </span>
                     </button>
@@ -490,7 +490,7 @@ export function CheckoutClient({
 
             {/* Coupon */}
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              <p className="text-sm font-semibold text-[var(--mz-ink)]">
                 {t('coupon.title')}
               </p>
               <div className="flex gap-2">
@@ -500,7 +500,7 @@ export function CheckoutClient({
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder={t('coupon.couponPlaceholder')}
                   disabled={couponApplied}
-                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-2 focus:ring-[var(--color-brand-primary)]/20 disabled:bg-[var(--color-neutral-50)] transition"
+                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 disabled:bg-[var(--mz-bg-deep)] transition"
                 />
                 {couponApplied ? (
                   <Button
@@ -525,7 +525,7 @@ export function CheckoutClient({
                 )}
               </div>
               {couponApplied && (
-                <p className="text-xs text-green-600 font-medium">
+                <p className="text-xs text-[var(--color-success)] font-medium">
                   {t('coupon.applied')} — 10% {t('coupon.discount')}
                 </p>
               )}
@@ -547,33 +547,33 @@ export function CheckoutClient({
           <section aria-labelledby="confirm-heading" className="space-y-6">
             <h2
               id="confirm-heading"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              className="text-lg font-semibold text-[var(--mz-ink)]"
             >
               {t('steps.confirm')}
             </h2>
 
             {/* Shipping summary */}
             <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--mz-ink-mute)]">
                 {t('shipping.title')}
               </p>
-              <p className="text-sm text-[var(--color-text-primary)] font-medium">
+              <p className="text-sm text-[var(--mz-ink)] font-medium">
                 {recipient} · {phone}
               </p>
-              <p className="text-sm text-[var(--color-text-secondary)]">
+              <p className="text-sm text-[var(--mz-ink-soft)]">
                 {postalCode} {addressLine1} {addressLine2}
               </p>
               {deliveryNote && (
-                <p className="text-xs text-[var(--color-text-tertiary)] italic">{deliveryNote}</p>
+                <p className="text-xs text-[var(--mz-ink-mute)] italic">{deliveryNote}</p>
               )}
             </div>
 
             {/* Payment summary */}
             <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--mz-ink-mute)]">
                 {t('payment.title')}
               </p>
-              <p className="text-sm text-[var(--color-text-primary)] font-medium">
+              <p className="text-sm text-[var(--mz-ink)] font-medium">
                 {payMethod === 'card' && t('payment.creditCard')}
                 {payMethod === 'kakao' && t('payment.kakaoPay')}
                 {payMethod === 'naver' && t('payment.naverPay')}
@@ -606,7 +606,7 @@ export function CheckoutClient({
         className="space-y-4 lg:sticky lg:top-24 lg:self-start"
       >
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+          <h2 className="text-sm font-semibold text-[var(--mz-ink)] mb-4">
             {t('summary.title')}
           </h2>
 
@@ -614,7 +614,7 @@ export function CheckoutClient({
           <ul className="space-y-3 mb-5" aria-label="Cart items">
             {cart.items.map((item) => (
               <li key={item.id} className="flex gap-3">
-                <div className="relative w-14 h-16 rounded overflow-hidden bg-[var(--color-neutral-100)] shrink-0">
+                <div className="relative w-14 h-16 rounded overflow-hidden bg-[var(--mz-bg-deep)] shrink-0">
                   <Image
                     src={safeImageSrc(item.product_thumbnail_url)}
                     alt={getProductName(item, locale)}
@@ -623,18 +623,18 @@ export function CheckoutClient({
                     className="object-cover"
                     unoptimized={isFallback(safeImageSrc(item.product_thumbnail_url))}
                   />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--color-brand-primary)] text-white text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[10px] font-bold flex items-center justify-center">
                     {item.quantity}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                  <p className="text-sm font-medium text-[var(--mz-ink)] truncate">
                     {getProductName(item, locale)}
                   </p>
-                  <p className="text-xs text-[var(--color-text-tertiary)]">
+                  <p className="text-xs text-[var(--mz-ink-mute)]">
                     {item.color} / {item.size_label}
                   </p>
-                  <p className="text-sm font-semibold text-[var(--color-text-primary)] mt-0.5">
+                  <p className="text-sm font-semibold text-[var(--mz-ink)] mt-0.5">
                     {formatPrice(getItemPrice(item, locale), locale)}
                   </p>
                 </div>
@@ -645,26 +645,26 @@ export function CheckoutClient({
           {/* Price breakdown */}
           <div className="space-y-2 border-t border-[var(--color-border)] pt-4">
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">{t('summary.subtotal')}</span>
-              <span className="text-[var(--color-text-primary)]">
+              <span className="text-[var(--mz-ink-soft)]">{t('summary.subtotal')}</span>
+              <span className="text-[var(--mz-ink)]">
                 {formatPrice(subtotal, locale)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">{t('summary.shippingFee')}</span>
-              <span className="text-[var(--color-text-primary)]">
+              <span className="text-[var(--mz-ink-soft)]">{t('summary.shippingFee')}</span>
+              <span className="text-[var(--mz-ink)]">
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
               </span>
             </div>
             {couponApplied && (
-              <div className="flex justify-between text-sm text-green-600">
+              <div className="flex justify-between text-sm text-[var(--color-success)]">
                 <span>{t('summary.couponDiscount')}</span>
                 <span>-{formatPrice(couponDiscount, locale)}</span>
               </div>
             )}
             <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
-              <span className="text-[var(--color-text-primary)]">{t('summary.total')}</span>
-              <span className="text-[var(--color-brand-primary)]">
+              <span className="text-[var(--mz-ink)]">{t('summary.total')}</span>
+              <span className="text-[var(--mz-ink)]">
                 {formatPrice(total, locale)}
               </span>
             </div>
