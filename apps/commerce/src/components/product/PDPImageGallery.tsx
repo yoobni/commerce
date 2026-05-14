@@ -7,6 +7,8 @@ import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
 import { Modal } from '@/components/ui/Modal';
 
+const FALLBACK_IMG = '/images/fallback-product.svg';
+
 interface PDPImageGalleryProps {
   images: string[];
   productName: string;
@@ -40,7 +42,13 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
     setActiveIndex((i) => (i === images.length - 1 ? 0 : i + 1));
   }, [images.length]);
 
-  const activeImage = images[activeIndex] ?? images[0];
+  const [errored, setErrored] = useState<Set<number>>(new Set());
+  const handleImgError = useCallback((idx: number) => {
+    setErrored((prev) => new Set(prev).add(idx));
+  }, []);
+
+  const resolvedImages = images.map((src, i) => (errored.has(i) ? FALLBACK_IMG : src));
+  const activeImage = resolvedImages[activeIndex] ?? resolvedImages[0] ?? FALLBACK_IMG;
 
   return (
     <div className="space-y-3">
@@ -58,6 +66,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition-opacity duration-300"
             priority={activeIndex === 0}
+            onError={() => handleImgError(activeIndex)}
           />
 
           {/* Zoom hint */}
@@ -137,9 +146,9 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
           role="tablist"
           aria-label="Product images"
         >
-          {images.map((src, i) => (
+          {resolvedImages.map((src, i) => (
             <button
-              key={src}
+              key={i}
               type="button"
               role="tab"
               aria-selected={i === activeIndex}
@@ -160,6 +169,7 @@ export function PDPImageGallery({ images, productName, productId }: PDPImageGall
                 fill
                 sizes="64px"
                 className="object-cover"
+                onError={() => handleImgError(i)}
               />
             </button>
           ))}
