@@ -1,17 +1,19 @@
 @import 'tailwindcss';
 
 @theme {
-  /* ===== Muzzle Color Tokens ===== */
-  /* Tailwind utilities: bg-mz-ink, text-mz-accent, etc. */
+  /* ===== Muzzle Color Tokens (Direction B · Olive — locked) ===== */
+  /* Tailwind utilities: bg-mz-ink, text-mz-accent, border-mz-line, etc. */
   --color-mz-bg: #f7f6f3;
   --color-mz-bg-deep: #efede7;
   --color-mz-surface: #ffffff;
   --color-mz-ink: #0e0e0c;
   --color-mz-ink-soft: #4d4d48;
   --color-mz-ink-mute: #8f8f88;
-  --color-mz-accent: #6b2020;
-  --color-mz-accent-soft: #f1e5e0;
-  --color-mz-accent-ink: #4a1818;
+  --color-mz-line: rgba(14, 14, 12, 0.08);
+  --color-mz-line-strong: rgba(14, 14, 12, 0.18);
+  --color-mz-accent: #4a5237;
+  --color-mz-accent-soft: #e5e7d8;
+  --color-mz-accent-ink: #2e3422;
 
   /* System colors */
   --color-error: #c0392b;
@@ -42,7 +44,7 @@
 
 :root {
   /* ===== Muzzle Design Tokens (--mz-*) ===== */
-  /* Direction B · Modern — Burgundy accent — confirmed 2026-04-24 */
+  /* Direction B · Modern — Olive accent (디자인 핸드오프 디폴트) */
 
   /* Background */
   --mz-bg: #f7f6f3; /* bone white — page background */
@@ -58,10 +60,10 @@
   --mz-line: rgba(14, 14, 12, 0.08); /* dividers */
   --mz-line-strong: rgba(14, 14, 12, 0.18); /* input border, chip outline */
 
-  /* Accent — Burgundy (신호용, 장식 아님) */
-  --mz-accent: #6b2020;
-  --mz-accent-soft: #f1e5e0;
-  --mz-accent-ink: #4a1818;
+  /* Accent — Olive (locked, 신호용·장식 금지) */
+  --mz-accent: #4a5237;
+  --mz-accent-soft: #e5e7d8;
+  --mz-accent-ink: #2e3422;
 
   /* System */
   --color-error: #c0392b;

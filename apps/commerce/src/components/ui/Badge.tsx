@@ -1,8 +1,7 @@
 import { cn } from '@/lib/cn';
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
-// Added: `fit` variant — Fit-for-Hana badge (★ FIT L)
-// Spec: pill, accent bg (#6B2020), white text, 9px/700/+0.08em
+// `fit` variant — Fit-for-Hana badge (★ FIT L): pill, mz-accent bg, white text.
 
 export type BadgeVariant = 'new' | 'sale' | 'soldOut' | 'lowStock' | 'fit' | 'default';
 
