@@ -43,28 +43,30 @@ export function CartSummary({
   }
 
   return (
-    <aside className="bg-[var(--mz-surface)] rounded-xl p-6 shadow-sm h-fit sticky top-6" aria-label={t('summaryAriaLabel')}>
-      <h2 className="text-base font-semibold text-[var(--mz-ink)] mb-4">
-        {t('title')} ({itemCount})
+    <aside
+      className="bg-[var(--mz-surface)] rounded-[var(--radius-md)] border border-[var(--mz-line)] p-5 h-fit lg:sticky lg:top-6"
+      aria-label={t('summaryAriaLabel')}
+    >
+      <h2 className="font-serif text-[18px] font-medium leading-[1.2] text-[var(--mz-ink)] mb-4">
+        {t('title')}{' '}
+        <span className="font-sans text-[12px] font-normal text-[var(--mz-ink-mute)]">
+          ({itemCount})
+        </span>
       </h2>
 
-      <dl className="space-y-3 text-sm">
+      <dl className="space-y-[10px] text-[12.5px]">
         {/* Subtotal */}
         <div className="flex items-center justify-between">
-          <dt className="text-[var(--mz-ink-soft)]">{t('subtotal')}</dt>
-          <dd className="font-medium text-[var(--mz-ink)]">
-            {formatPrice(subtotal, locale)}
-          </dd>
+          <dt className="text-[var(--mz-ink-mute)]">{t('subtotal')}</dt>
+          <dd className="text-[var(--mz-ink)]">{formatPrice(subtotal, locale)}</dd>
         </div>
 
         {/* Shipping */}
         <div className="flex items-center justify-between">
-          <dt className="text-[var(--mz-ink-soft)]">{t('shipping')}</dt>
+          <dt className="text-[var(--mz-ink-mute)]">{t('shipping')}</dt>
           <dd
             className={
-              isFreeShipping
-                ? 'text-[var(--color-success,#22c55e)] font-medium'
-                : 'font-medium text-[var(--mz-ink)]'
+              isFreeShipping ? 'uppercase tracking-[0.08em] text-[var(--mz-ink)]' : 'text-[var(--mz-ink)]'
             }
           >
             {isFreeShipping ? t('freeShipping') : formatPrice(shippingFee, locale)}
@@ -73,16 +75,18 @@ export function CartSummary({
 
         {/* Free shipping progress (only if not yet free) */}
         {!isFreeShipping && (
-          <div className="text-xs text-[var(--mz-ink-soft)] bg-[var(--mz-bg-deep)] rounded-lg px-3 py-2">
+          <p className="text-[11px] text-[var(--mz-ink-mute)] bg-[var(--mz-bg-deep)] rounded-[var(--radius-sm)] px-3 py-2">
             {t('freeShippingThreshold', { amount: formatPrice(freeThreshold - subtotal, locale) })}
-          </div>
+          </p>
         )}
 
-        {/* Divider */}
-        <div className="pt-3 border-t border-[var(--mz-bg-deep)]">
-          <div className="flex items-center justify-between">
-            <dt className="font-semibold text-[var(--mz-ink)]">{t('total')}</dt>
-            <dd className="font-bold text-lg text-[var(--mz-ink)]">
+        {/* Divider + total — Fraunces Price · big spec */}
+        <div className="pt-3 border-t border-[var(--mz-line)] mt-1">
+          <div className="flex items-baseline justify-between">
+            <dt className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--mz-ink-mute)]">
+              {t('total')}
+            </dt>
+            <dd className="font-serif text-[24px] font-semibold tracking-[-0.02em] text-[var(--mz-ink)]">
               {formatPrice(total, locale)}
             </dd>
           </div>
@@ -97,10 +101,10 @@ export function CartSummary({
         disabled={itemCount === 0 || loading}
         aria-label={t('checkout')}
       >
-        {t('checkout')}
+        {t('checkout')} · {formatPrice(total, locale)}
       </Button>
 
-      <p className="text-xs text-center text-[var(--mz-ink-soft)] mt-3">
+      <p className="text-[10px] text-center text-[var(--mz-ink-mute)] mt-3 tracking-[0.04em]">
         {t('taxIncluded')}
       </p>
     </aside>

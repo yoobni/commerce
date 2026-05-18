@@ -90,33 +90,40 @@ export function PDPVariantSelector({
 
   return (
     <div className="space-y-5">
-      {/* Color selector */}
+      {/* Color selector — M8 spec: 34×34 swatch, 2px ink ring + 3px inset on active */}
       <div className="space-y-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">{t('color')}</span>
+        <p className="text-[13px] font-semibold text-[var(--mz-ink)]">
+          {t('color')}
           {selectedColor && (
-            <span className="text-sm text-[var(--color-text-secondary)]">— {selectedColor}</span>
+            <span className="ml-1 font-normal text-[var(--mz-ink-mute)]">· {selectedColor}</span>
           )}
-        </div>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('selectColor')}>
-          {colors.map(({ name, hex }) => (
-            <button
-              key={name}
-              type="button"
-              role="radio"
-              aria-checked={selectedColor === name}
-              aria-label={name}
-              onClick={() => handleColorSelect(name)}
-              className={cn(
-                'w-8 h-8 rounded-full border-2 transition-all duration-150 flex-shrink-0',
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-accent)]',
-                selectedColor === name
-                  ? 'border-[var(--color-brand-primary)] scale-110 shadow-md'
-                  : 'border-transparent hover:border-[var(--color-neutral-300)] hover:scale-105'
-              )}
-              style={{ backgroundColor: hex ?? '#cccccc' }}
-            />
-          ))}
+        </p>
+        <div className="flex flex-wrap gap-[10px]" role="radiogroup" aria-label={t('selectColor')}>
+          {colors.map(({ name, hex }) => {
+            const isActive = selectedColor === name;
+            return (
+              <button
+                key={name}
+                type="button"
+                role="radio"
+                aria-checked={isActive}
+                aria-label={name}
+                onClick={() => handleColorSelect(name)}
+                className={cn(
+                  'relative box-border h-[34px] w-[34px] rounded-full transition-all duration-150',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mz-ink)]',
+                  isActive
+                    ? 'border-2 border-[var(--mz-ink)] p-[3px]'
+                    : 'border border-[var(--mz-line-strong)] p-0 hover:border-[var(--mz-ink)]'
+                )}
+              >
+                <span
+                  className="block h-full w-full rounded-full"
+                  style={{ background: hex ?? '#cccccc' }}
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
 

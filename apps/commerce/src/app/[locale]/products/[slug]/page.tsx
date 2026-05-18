@@ -20,6 +20,7 @@ import { Container } from '@/components/layout/Container';
 import { PDPImageGallery } from '@/components/product/PDPImageGallery';
 import { CategoryBreadcrumb } from '@/components/product/CategoryBreadcrumb';
 import { ProductCard } from '@/components/product/ProductCard';
+import { FitForHanaCard } from '@/components/ui/FitForHanaCard';
 import { ProductGridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { PDPClient } from './_components/PDPClient';
 import { buildAlternates } from '@/lib/seo/alternates';
@@ -63,7 +64,6 @@ export default async function ProductDetailPage({ params }: Props) {
   const productDescription = getProductDescription(product, locale as Locale);
   const price = getProductPrice(product, locale as Locale);
 
-  // Parallel fetch: reviews + review stats + related products
   const [reviews, reviewStats, relatedResult] = await Promise.all([
     listProductReviews(product.id, { per_page: 5 }),
     getReviewStats(product.id),
@@ -105,8 +105,16 @@ export default async function ProductDetailPage({ params }: Props) {
         : undefined,
   };
 
+  // Spec rows — Muzzle M8 "About this piece" 4-row table.
+  // Source fields are optional; render only rows that have data.
+  const specRows: [string, string][] = [
+    product.material ? [t('material'), product.material] : null,
+    product.care_instruction ? [t('care'), product.care_instruction] : null,
+    product.weight_g ? [t('weight'), `${product.weight_g}g`] : null,
+  ].filter((row): row is [string, string] => row !== null);
+
   return (
-    <div className="bg-[var(--color-bg)] min-h-screen">
+    <div className="bg-[var(--mz-bg)] min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -125,12 +133,9 @@ export default async function ProductDetailPage({ params }: Props) {
             />
           ) : (
             <nav aria-label="Breadcrumb">
-              <ol className="flex items-center gap-1 text-xs text-[var(--color-text-tertiary)]">
+              <ol className="flex items-center gap-1 text-[11px] text-[var(--mz-ink-mute)]">
                 <li>
-                  <Link
-                    href="/"
-                    className="hover:text-[var(--color-text-primary)] transition-colors"
-                  >
+                  <Link href="/" className="hover:text-[var(--mz-ink)] transition-colors">
                     {tNav('home')}
                   </Link>
                 </li>
@@ -138,17 +143,14 @@ export default async function ProductDetailPage({ params }: Props) {
                   <span aria-hidden="true">›</span>
                   <Link
                     href="/products"
-                    className="hover:text-[var(--color-text-primary)] transition-colors"
+                    className="hover:text-[var(--mz-ink)] transition-colors"
                   >
                     {tNav('shop')}
                   </Link>
                 </li>
                 <li className="flex items-center gap-1">
                   <span aria-hidden="true">›</span>
-                  <span
-                    className="text-[var(--color-text-primary)] font-medium"
-                    aria-current="page"
-                  >
+                  <span className="text-[var(--mz-ink)] font-medium" aria-current="page">
                     {productName}
                   </span>
                 </li>
@@ -157,9 +159,9 @@ export default async function ProductDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* Main PDP layout */}
+        {/* Main PDP layout — 2-col on md+, stacked on mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 mb-16">
-          {/* Left: Image gallery */}
+          {/* Left: Image gallery (sticky on desktop) */}
           <div className="md:sticky md:top-24 md:self-start">
             <PDPImageGallery
               images={product.images.length > 0 ? product.images : [product.thumbnail_url]}
@@ -168,61 +170,48 @@ export default async function ProductDetailPage({ params }: Props) {
             />
           </div>
 
-          {/* Right: Product info */}
+          {/* Right: Buy rail */}
           <div className="space-y-6">
-            {/* Category + badges */}
-            <div className="flex items-center gap-2">
-              {product.category && (
+            {/* Eyebrow — category */}
+            {product.category && (
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--mz-ink-mute)]">
                 <Link
                   href={`/products?category=${product.category.slug}`}
-                  className="text-xs font-semibold uppercase tracking-widest text-[var(--color-brand-accent)] hover:text-[var(--color-brand-primary)] transition-colors"
+                  className="hover:text-[var(--mz-ink)] transition-colors"
                 >
                   {getCategoryName(product.category, locale as Locale)}
                 </Link>
-              )}
-              {product.is_featured && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)]">
-                  Featured
-                </span>
-              )}
-            </div>
+              </p>
+            )}
 
-            {/* Name */}
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-primary)] leading-tight">
+            {/* Title — Fraunces 26-32/500 -0.025em */}
+            <h1 className="font-serif text-[26px] md:text-[32px] font-medium leading-[1.1] tracking-[-0.025em] text-[var(--mz-ink)] mt-1">
               {productName}
             </h1>
 
-            {/* Rating */}
-            {product.review_count > 0 && (
-              <div className="flex items-center gap-2">
-                <div
-                  className="flex items-center gap-0.5"
-                  aria-label={`Rating: ${product.review_avg_rating.toFixed(1)} out of 5`}
-                >
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <StarIcon key={i} filled={i < Math.round(product.review_avg_rating)} />
-                  ))}
-                </div>
-                <span className="text-sm text-[var(--color-text-secondary)]">
-                  {product.review_avg_rating.toFixed(1)}
-                </span>
-                <a
-                  href="#reviews"
-                  className="text-sm text-[var(--color-brand-secondary)] underline underline-offset-2 hover:text-[var(--color-brand-primary)] transition-colors"
-                >
-                  ({product.review_count})
-                </a>
-              </div>
-            )}
-
-            {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-2xl font-bold text-[var(--color-text-primary)]">
+            {/* Price + rating row */}
+            <div className="flex items-baseline gap-4 -mt-2">
+              <span className="font-serif text-[22px] font-semibold text-[var(--mz-ink)]">
                 {formatPrice(price, locale as Locale)}
               </span>
+              {product.review_count > 0 && (
+                <a
+                  href="#reviews"
+                  className="text-[12px] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors"
+                  aria-label={`Rating: ${product.review_avg_rating.toFixed(1)} out of 5, ${product.review_count} reviews`}
+                >
+                  <span className="text-[var(--mz-accent)]" aria-hidden="true">
+                    ★
+                  </span>{' '}
+                  {product.review_avg_rating.toFixed(1)} ({product.review_count})
+                </a>
+              )}
             </div>
 
-            {/* Variant selector + Add to cart + Wishlist */}
+            {/* Fit-for-Hana card — fallback until profile system ships */}
+            <FitForHanaCard profile={null} setupHref="#" />
+
+            {/* Variant + add to bag + wishlist */}
             <Suspense
               fallback={
                 <div className="space-y-6">
@@ -242,60 +231,49 @@ export default async function ProductDetailPage({ params }: Props) {
               />
             </Suspense>
 
-            {/* Product details accordion */}
-            <div className="border-t border-[var(--color-border)] pt-6 space-y-4">
-              {productDescription && (
-                <details className="group" open>
-                  <summary className="flex items-center justify-between cursor-pointer py-2 text-sm font-semibold text-[var(--color-text-primary)] list-none focus-visible:outline-none">
-                    <span>{t('description')}</span>
-                    <ChevronIcon />
-                  </summary>
-                  <p className="mt-3 text-sm text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-line">
-                    {productDescription}
-                  </p>
-                </details>
-              )}
+            {/* About this piece — flat paragraph + spec table (M8) */}
+            {productDescription && (
+              <div className="pt-2">
+                <p className="mb-2 text-[13px] font-semibold text-[var(--mz-ink)]">
+                  {t('description')}
+                </p>
+                <p className="text-[13px] leading-[1.6] text-[var(--mz-ink-soft)] whitespace-pre-line">
+                  {productDescription}
+                </p>
+              </div>
+            )}
 
-              {product.material && (
-                <details className="group border-t border-[var(--color-border)] pt-4">
-                  <summary className="flex items-center justify-between cursor-pointer py-2 text-sm font-semibold text-[var(--color-text-primary)] list-none focus-visible:outline-none">
-                    <span>{t('details')}</span>
-                    <ChevronIcon />
-                  </summary>
-                  <div className="mt-3 space-y-1 text-sm text-[var(--color-text-secondary)]">
-                    <p>
-                      {t('material')}: {product.material}
-                    </p>
-                    {product.care_instruction && (
-                      <p>
-                        {t('care')}: {product.care_instruction}
-                      </p>
-                    )}
-                    {product.weight_g && (
-                      <p>
-                        {t('weight')}: {product.weight_g}g
-                      </p>
-                    )}
+            {specRows.length > 0 && (
+              <dl className="pt-2">
+                {specRows.map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex justify-between border-b border-[var(--mz-line)] py-[11px] text-[12.5px]"
+                  >
+                    <dt className="text-[var(--mz-ink-mute)]">{key}</dt>
+                    <dd className="font-medium text-[var(--mz-ink)]">{value}</dd>
                   </div>
-                </details>
-              )}
+                ))}
+              </dl>
+            )}
 
-              <details className="group border-t border-[var(--color-border)] pt-4">
-                <summary className="flex items-center justify-between cursor-pointer py-2 text-sm font-semibold text-[var(--color-text-primary)] list-none focus-visible:outline-none">
+            {/* Shipping & returns — collapsible micro-rows */}
+            <div className="pt-2">
+              <details className="group border-t border-[var(--mz-line)]">
+                <summary className="flex items-center justify-between cursor-pointer py-3 text-[12.5px] font-medium text-[var(--mz-ink)] list-none focus-visible:outline-none">
                   <span>{t('shipping')}</span>
                   <ChevronIcon />
                 </summary>
-                <p className="mt-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                <p className="pb-3 text-[12.5px] leading-[1.6] text-[var(--mz-ink-soft)]">
                   {t('shippingContent')}
                 </p>
               </details>
-
-              <details className="group border-t border-[var(--color-border)] pt-4">
-                <summary className="flex items-center justify-between cursor-pointer py-2 text-sm font-semibold text-[var(--color-text-primary)] list-none focus-visible:outline-none">
+              <details className="group border-t border-[var(--mz-line)]">
+                <summary className="flex items-center justify-between cursor-pointer py-3 text-[12.5px] font-medium text-[var(--mz-ink)] list-none focus-visible:outline-none">
                   <span>{t('returns')}</span>
                   <ChevronIcon />
                 </summary>
-                <p className="mt-3 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                <p className="pb-3 text-[12.5px] leading-[1.6] text-[var(--mz-ink-soft)]">
                   {t('returnsContent')}
                 </p>
               </details>
@@ -316,17 +294,17 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* Related products */}
         {relatedProducts.length > 0 && (
-          <section aria-label={t('relatedProducts')}>
+          <section aria-label={t('relatedProducts')} className="mt-16">
             <div className="flex items-end justify-between mb-6">
-              <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
+              <h2 className="font-serif text-[24px] md:text-[28px] font-medium leading-[1.15] tracking-[-0.02em] text-[var(--mz-ink)]">
                 {t('relatedProducts')}
               </h2>
               {product.category && (
                 <Link
                   href={`/products?category=${product.category.slug}`}
-                  className="text-sm text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-primary)] underline-offset-2 hover:underline transition-colors"
+                  className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] transition-colors"
                 >
-                  {tCommon('viewAll')}
+                  {tCommon('viewAll')} →
                 </Link>
               )}
             </div>
@@ -349,37 +327,19 @@ export default async function ProductDetailPage({ params }: Props) {
   );
 }
 
-function StarIcon({ filled, size = 14 }: { filled: boolean; size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill={filled ? '#F5A623' : 'none'}
-      stroke={filled ? '#F5A623' : '#D1D5DB'}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
 function ChevronIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="shrink-0 transition-transform duration-200 group-open:rotate-180"
+      className="shrink-0 transition-transform duration-200 group-open:rotate-180 text-[var(--mz-ink-mute)]"
     >
       <polyline points="6 9 12 15 18 9" />
     </svg>

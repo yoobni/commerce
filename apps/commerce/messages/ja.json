@@ -6,10 +6,16 @@
   },
   "home": {
     "headline": "大きな子たちのために",
+    "headlineRich": "<em>大きな子</em>たちのための一着。",
     "subheadline": "大型犬のために特別に設計されたプレミアムウェア。",
     "shopNow": "ショッピングする",
     "newArrivals": "新着",
     "featuredCollection": "おすすめコレクション",
+    "curatedForHana": "Hanaのためのおすすめ",
+    "shopByHound": "犬種から探す",
+    "shopByHoundEyebrow": "By breed",
+    "journal": "Journal",
+    "journalEyebrow": "Reading",
     "community": "コミュニティ",
     "viewAll": "すべて見る"
   },
@@ -98,6 +104,7 @@
   },
   "cart": {
     "title": "カート",
+    "headline": "Hanaのための{count}点。",
     "empty": "カートは空です",
     "emptyDescription": "お気に入りの商品を追加してください。",
     "continueShopping": "ショッピングを続ける",
@@ -232,9 +239,11 @@
     "title": "注文する",
     "paymentNotReady": "決済システムを準備中です。しばらくしてからもう一度お試しください。",
     "steps": {
+      "bag": "カート",
       "shipping": "配送情報",
       "payment": "お支払い方法",
-      "confirm": "注文確認"
+      "confirm": "注文確認",
+      "done": "完了"
     },
     "shipping": {
       "title": "配送情報",

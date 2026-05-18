@@ -6,10 +6,16 @@
   },
   "home": {
     "headline": "Für die Großen",
+    "headlineRich": "Mode für den <em>größeren</em> Hund.",
     "subheadline": "Premium-Mode, speziell für große Hunderassen entworfen.",
     "shopNow": "Jetzt einkaufen",
     "newArrivals": "Neuheiten",
     "featuredCollection": "Empfohlene Kollektion",
+    "curatedForHana": "Für Hana ausgewählt",
+    "shopByHound": "Nach Rasse",
+    "shopByHoundEyebrow": "By breed",
+    "journal": "Journal",
+    "journalEyebrow": "Reading",
     "community": "Community",
     "viewAll": "Alle anzeigen"
   },
@@ -98,6 +104,7 @@
   },
   "cart": {
     "title": "Warenkorb",
+    "headline": "{count} Teile für Hana.",
     "empty": "Dein Warenkorb ist leer",
     "emptyDescription": "Füge Artikel hinzu, um loszulegen.",
     "continueShopping": "Weiter einkaufen",
@@ -232,9 +239,11 @@
     "title": "Bestellung",
     "paymentNotReady": "Die Kasse ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     "steps": {
+      "bag": "Warenkorb",
       "shipping": "Versand",
       "payment": "Zahlung",
-      "confirm": "Bestätigung"
+      "confirm": "Bestätigung",
+      "done": "Fertig"
     },
     "shipping": {
       "title": "Versandinformationen",

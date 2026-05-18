@@ -50,9 +50,11 @@ export default async function CheckoutPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'checkout' });
 
   return (
-    <div className="bg-[var(--color-bg)] min-h-screen">
-      <Container className="py-8 md:py-12">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-8">{t('title')}</h1>
+    <div className="bg-[var(--mz-bg)] min-h-screen">
+      <Container className="py-8 md:py-12 pb-32 lg:pb-12">
+        <h1 className="font-serif text-[28px] md:text-[34px] font-medium leading-[1.1] tracking-[-0.025em] text-[var(--mz-ink)] mb-6">
+          {t('title')}
+        </h1>
         <CheckoutClient
           cart={cart}
           addresses={addresses}

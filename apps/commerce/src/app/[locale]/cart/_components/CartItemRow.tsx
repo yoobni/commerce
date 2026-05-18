@@ -81,15 +81,16 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
   return (
     <article
       className={cn(
-        'bg-[var(--mz-surface)] rounded-xl p-4 flex gap-4 shadow-sm transition-opacity',
+        'bg-[var(--mz-surface)] rounded-[var(--radius-md)] p-[14px]',
+        'border border-[var(--mz-line)] flex gap-4 transition-opacity',
         isPending && 'opacity-60'
       )}
       aria-label={productName}
     >
-      {/* Thumbnail */}
+      {/* Thumbnail — M11 spec: 76×94 portrait, radius sm */}
       <Link
         href={productPath}
-        className="shrink-0 rounded-lg overflow-hidden w-24 h-24 md:w-28 md:h-28 relative bg-[var(--mz-bg-deep)]"
+        className="shrink-0 rounded-[var(--radius-sm)] overflow-hidden w-[76px] h-[94px] md:w-[88px] md:h-[110px] relative bg-[var(--mz-bg-deep)]"
         tabIndex={-1}
         aria-hidden="true"
       >
@@ -97,7 +98,7 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
           src={safeImageSrc(item.product_thumbnail_url)}
           alt={productName}
           fill
-          sizes="(max-width: 768px) 96px, 112px"
+          sizes="(max-width: 768px) 76px, 88px"
           className="object-cover"
           loading="lazy"
           unoptimized={isFallback(safeImageSrc(item.product_thumbnail_url))}
@@ -105,44 +106,42 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
       </Link>
 
       {/* Details */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-        <div className="space-y-0.5">
-          {/* Color + Size badges */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {item.color_hex && (
-              <span
-                className="inline-block w-3 h-3 rounded-full border border-[var(--mz-line-strong)]"
-                style={{ backgroundColor: item.color_hex }}
-                aria-label={item.color}
-              />
-            )}
-            <span className="text-xs text-[var(--mz-ink-soft)]">{item.color}</span>
-            {item.size_label && (
-              <>
-                <span className="text-[var(--mz-line-strong)] text-xs">·</span>
-                <span className="text-xs text-[var(--mz-ink-soft)]">
-                  {item.size_label}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Product name */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div>
+          {/* Product name — Fraunces 15/500 */}
           <Link
             href={productPath}
-            className="block text-sm font-medium text-[var(--mz-ink)] hover:underline truncate"
+            className="block font-serif text-[15px] font-medium leading-[20px] text-[var(--mz-ink)] hover:underline truncate"
           >
             {productName}
           </Link>
 
-          {/* Unit price */}
-          <p className="text-sm font-semibold text-[var(--mz-ink)]">
+          {/* Color + Size meta — Inter 11/inkMute */}
+          <p className="mt-[2px] flex items-center gap-1.5 text-[11px] text-[var(--mz-ink-mute)]">
+            {item.color_hex && (
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full border border-[var(--mz-line-strong)]"
+                style={{ backgroundColor: item.color_hex }}
+                aria-hidden="true"
+              />
+            )}
+            <span>{item.color}</span>
+            {item.size_label && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>{item.size_label}</span>
+              </>
+            )}
+          </p>
+
+          {/* Unit price — Inter 13/600 */}
+          <p className="mt-1 text-[13px] font-semibold text-[var(--mz-ink)]">
             {formatPrice(unitPrice, locale)}
           </p>
 
           {/* Low stock warning */}
           {isLowStock && (
-            <p className="text-xs text-[var(--color-error)]" role="status">
+            <p className="mt-1 text-[11px] text-[var(--color-error)]" role="status">
               {item.stock === 0
                 ? tProduct('outOfStock')
                 : tProduct('lowStock', { count: item.stock })}
@@ -150,11 +149,11 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
           )}
         </div>
 
-        {/* Quantity + Remove row */}
-        <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
-          {/* Quantity stepper */}
+        {/* Quantity + Line total + Remove */}
+        <div className="flex items-center justify-between mt-3 gap-2 flex-wrap">
+          {/* Quantity stepper — borderless minimal per M11 */}
           <div
-            className="flex items-center border border-[var(--mz-line-strong)] rounded-lg overflow-hidden"
+            className="flex items-center border border-[var(--mz-line-strong)] rounded-[var(--radius-sm)] overflow-hidden h-8"
             role="group"
             aria-label={t('quantity')}
           >
@@ -162,15 +161,15 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleDecrement}
               disabled={isPending || item.quantity <= 1}
-              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-soft)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-[var(--mz-ink-soft)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label={t('qtyDecrease')}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
             <span
-              className="w-10 text-center text-sm font-medium text-[var(--mz-ink)]"
+              className="w-8 text-center font-mono text-[12px] text-[var(--mz-ink)]"
               aria-live="polite"
               aria-label={`${t('quantity')}: ${item.quantity}`}
             >
@@ -180,10 +179,10 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
               type="button"
               onClick={handleIncrement}
               disabled={isPending || item.quantity >= item.stock}
-              className="w-9 h-9 flex items-center justify-center text-[var(--mz-ink-soft)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-[var(--mz-ink-soft)] hover:bg-[var(--mz-bg-deep)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label={t('qtyIncrease')}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
                   d="M7 2v10M2 7h10"
                   stroke="currentColor"
@@ -196,14 +195,14 @@ export function CartItemRow({ item, locale, onQuantityChange, onRemove }: CartIt
 
           {/* Line total + Remove */}
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-[var(--mz-ink)]">
+            <span className="font-serif text-[15px] font-semibold text-[var(--mz-ink)]">
               {formatPrice(unitPrice * item.quantity, locale)}
             </span>
             <button
               type="button"
               onClick={handleRemove}
               disabled={isPending}
-              className="text-xs text-[var(--mz-ink-soft)] hover:text-[var(--color-error)] transition-colors disabled:opacity-40"
+              className="text-[11px] text-[var(--mz-ink-mute)] hover:text-[var(--color-error)] transition-colors disabled:opacity-40 underline-offset-2 hover:underline"
               aria-label={`${productName} ${t('remove')}`}
             >
               {t('remove')}

@@ -6,10 +6,16 @@
   },
   "home": {
     "headline": "큰 아이들을 위해",
+    "headlineRich": "<em>큰 아이들</em>을 위한 옷차림.",
     "subheadline": "대형견을 위해 특별히 설계된 프리미엄 의류입니다.",
     "shopNow": "쇼핑하기",
     "newArrivals": "신상품",
     "featuredCollection": "추천 컬렉션",
+    "curatedForHana": "Hana를 위한 추천",
+    "shopByHound": "견종별 보기",
+    "shopByHoundEyebrow": "By breed",
+    "journal": "Journal",
+    "journalEyebrow": "Reading",
     "community": "커뮤니티",
     "viewAll": "전체 보기"
   },
@@ -98,6 +104,7 @@
   },
   "cart": {
     "title": "장바구니",
+    "headline": "{count}벌, Hana를 위해.",
     "empty": "장바구니가 비어있습니다",
     "emptyDescription": "마음에 드는 상품을 담아보세요.",
     "continueShopping": "쇼핑 계속하기",
@@ -232,9 +239,11 @@
     "title": "주문하기",
     "paymentNotReady": "결제 시스템 점검 중입니다. 잠시 후 다시 시도해 주세요.",
     "steps": {
+      "bag": "장바구니",
       "shipping": "배송 정보",
       "payment": "결제 수단",
-      "confirm": "주문 확인"
+      "confirm": "주문 확인",
+      "done": "완료"
     },
     "shipping": {
       "title": "배송 정보",

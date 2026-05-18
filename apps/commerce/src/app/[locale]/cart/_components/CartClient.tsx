@@ -12,6 +12,17 @@ import type { Locale } from '@/i18n/routing';
 import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { FitForHanaCard } from '@/components/ui/FitForHanaCard';
+import { formatPrice } from '@/lib/format';
+
+// Mirror of CartSummary's SHIPPING table — kept duplicated here so the mobile
+// sticky-bar total stays in sync without a roundtrip through props.
+const MOBILE_SHIPPING: Record<Locale, { freeThreshold: number; fee: number }> = {
+  ko: { freeThreshold: 50000, fee: 3000 },
+  en: { freeThreshold: 50, fee: 5 },
+  ja: { freeThreshold: 5000, fee: 500 },
+  de: { freeThreshold: 50, fee: 5 },
+};
 
 type PriceKey =
   | 'additional_price_krw'
@@ -250,17 +261,23 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
     );
   }
 
+  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const { freeThreshold, fee } = MOBILE_SHIPPING[locale];
+  const mobileTotal = subtotal + (subtotal >= freeThreshold ? 0 : fee);
+
   return (
     <>
-      {/* Page title — Fraunces Display L spec: 32/36/500/-0.025em */}
-      <h1 className="font-serif text-[28px] md:text-[32px] font-[500] leading-[1.15] tracking-[-0.025em] text-[var(--mz-ink)] mb-6">
-        {t('title')}
-        {items.length > 0 && (
-          <span className="ml-2 text-[16px] font-[400] text-[var(--mz-ink-mute)] font-sans">
-            ({items.length})
-          </span>
-        )}
+      {/* Title — M11 spec: "{n} pieces for Hana" Fraunces 28/500 (locale-aware copy) */}
+      <h1 className="font-serif text-[28px] md:text-[34px] font-medium leading-[1.1] tracking-[-0.025em] text-[var(--mz-ink)] mb-3">
+        {items.length > 0 ? t('headline', { count: itemCount }) : t('title')}
       </h1>
+
+      {/* Fit-for-Hana card — fallback until profile system ships */}
+      {items.length > 0 && (
+        <div className="mb-6 max-w-md">
+          <FitForHanaCard profile={null} setupHref="#" />
+        </div>
+      )}
 
       {items.length === 0 ? (
         <EmptyState
@@ -272,42 +289,60 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
-          {/* Cart items list */}
-          <section aria-label={t('itemsAriaLabel')}>
-            <ul className="space-y-3 list-none p-0 m-0">
-              {items.map((item) => (
-                <li key={item.id}>
-                  <CartItemRow
-                    item={item}
-                    locale={locale}
-                    onQuantityChange={handleQuantityChange}
-                    onRemove={handleRemove}
-                  />
-                </li>
-              ))}
-            </ul>
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+            {/* Cart items list */}
+            <section aria-label={t('itemsAriaLabel')}>
+              <ul className="space-y-[10px] list-none p-0 m-0">
+                {items.map((item) => (
+                  <li key={item.id}>
+                    <CartItemRow
+                      item={item}
+                      locale={locale}
+                      onQuantityChange={handleQuantityChange}
+                      onRemove={handleRemove}
+                    />
+                  </li>
+                ))}
+              </ul>
 
-            {/* Continue shopping link */}
-            <div className="mt-4">
-              <a
-                href={`/${locale}/products`}
-                className="text-[13px] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] underline-offset-2 hover:underline transition-colors duration-150"
-              >
-                ← {t('continueShopping')}
-              </a>
-            </div>
-          </section>
+              {/* Continue shopping link */}
+              <div className="mt-4">
+                <a
+                  href={`/${locale}/products`}
+                  className="text-[12px] uppercase tracking-[0.1em] text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] underline-offset-2 hover:underline transition-colors duration-150"
+                >
+                  ← {t('continueShopping')}
+                </a>
+              </div>
+            </section>
 
-          {/* Order summary */}
-          <CartSummary
-            subtotal={subtotal}
-            locale={locale}
-            itemCount={items.reduce((sum, i) => sum + i.quantity, 0)}
-            onCheckout={handleCheckout}
-            isCheckingOut={isCheckingOut}
-          />
-        </div>
+            {/* Order summary */}
+            <CartSummary
+              subtotal={subtotal}
+              locale={locale}
+              itemCount={itemCount}
+              onCheckout={handleCheckout}
+              isCheckingOut={isCheckingOut}
+            />
+          </div>
+
+          {/* Mobile sticky bottom CTA — hidden on lg+ where the sidebar takes over */}
+          <div
+            className="lg:hidden fixed bottom-14 left-0 right-0 z-30 border-t border-[var(--mz-line)] bg-[var(--mz-bg)] px-5 py-3"
+            role="region"
+            aria-label={t('summaryAriaLabel')}
+          >
+            <button
+              type="button"
+              onClick={handleCheckout}
+              disabled={itemCount === 0 || isCheckingOut}
+              className="w-full h-[50px] rounded-[var(--radius-md)] bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[13px] font-medium tracking-[0.02em] transition-opacity hover:opacity-85 active:opacity-75 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {t('checkout')} · {formatPrice(mobileTotal, locale)}
+            </button>
+          </div>
+        </>
       )}
     </>
   );

@@ -6,10 +6,16 @@
   },
   "home": {
     "headline": "Made for the Big Ones",
+    "headlineRich": "Outfitters for the <em>larger</em> hound.",
     "subheadline": "Premium apparel designed specifically for large breeds.",
     "shopNow": "Shop Now",
     "newArrivals": "New Arrivals",
     "featuredCollection": "Featured Collection",
+    "curatedForHana": "Curated for Hana",
+    "shopByHound": "Shop by hound",
+    "shopByHoundEyebrow": "By breed",
+    "journal": "Journal",
+    "journalEyebrow": "Reading",
     "community": "Community",
     "viewAll": "View All"
   },
@@ -98,6 +104,7 @@
   },
   "cart": {
     "title": "Shopping Cart",
+    "headline": "{count} pieces for Hana.",
     "empty": "Your cart is empty",
     "emptyDescription": "Add items to get started.",
     "continueShopping": "Continue Shopping",
@@ -232,9 +239,11 @@
     "title": "Checkout",
     "paymentNotReady": "Checkout is temporarily unavailable. Please try again later.",
     "steps": {
+      "bag": "Bag",
       "shipping": "Shipping",
       "payment": "Payment",
-      "confirm": "Confirmation"
+      "confirm": "Confirmation",
+      "done": "Done"
     },
     "shipping": {
       "title": "Shipping Information",

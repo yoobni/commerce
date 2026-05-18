@@ -202,53 +202,67 @@ export function CheckoutClient({
     confirm: t('steps.confirm'),
   };
 
+  // M12 4-step progress: Bag ✓ (always done) → Checkout/Payment/Confirm → Done (always future).
+  // Active step uses --mz-accent per "current step uses accent" rule.
+  const stepIdx = STEP_ORDER.indexOf(step);
+  const progress: { key: string; label: string; state: 'done' | 'active' | 'future' }[] = [
+    { key: 'bag', label: t('steps.bag'), state: 'done' },
+    { key: 'shipping', label: stepLabels.shipping, state: step === 'shipping' ? 'active' : stepIdx > 0 ? 'done' : 'future' },
+    { key: 'payment', label: stepLabels.payment, state: step === 'payment' ? 'active' : stepIdx > 1 ? 'done' : 'future' },
+    { key: 'confirm', label: stepLabels.confirm, state: step === 'confirm' ? 'active' : 'future' },
+    { key: 'done', label: t('steps.done'), state: 'future' },
+  ];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
       {/* Left: Steps */}
       <div className="space-y-6">
-        {/* Step indicator */}
+        {/* Step indicator — M12 4-step with accent active */}
         <nav aria-label="Checkout steps">
-          <ol className="flex items-center gap-0">
-            {STEP_ORDER.map((s, i) => {
-              const idx = STEP_ORDER.indexOf(step);
-              const done = i < idx;
-              const active = s === step;
-              return (
-                <li key={s} className="flex items-center">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
-                        active
-                          ? 'bg-[var(--mz-ink)] text-[var(--mz-bg)]'
-                          : done
-                            ? 'bg-[var(--mz-ink)]/20 text-[var(--mz-ink)]'
-                            : 'bg-[var(--mz-line-strong)] text-[var(--mz-ink-mute)]'
-                      )}
-                      aria-current={active ? 'step' : undefined}
-                    >
-                      {done ? '✓' : i + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        'text-sm font-medium',
-                        active
+          <ol className="flex items-center gap-1">
+            {progress.map((p, i) => (
+              <li key={p.key} className="flex items-center min-w-0 flex-1 last:flex-none">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className={cn(
+                      'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
+                      'text-[10px] font-semibold transition-colors',
+                      p.state === 'active' &&
+                        'bg-[var(--mz-accent)] text-white ring-4 ring-[var(--mz-accent-soft)]',
+                      p.state === 'done' && 'bg-[var(--mz-ink)] text-[var(--mz-bg)]',
+                      p.state === 'future' &&
+                        'bg-[var(--mz-bg-deep)] text-[var(--mz-ink-mute)] border border-[var(--mz-line-strong)]'
+                    )}
+                    aria-current={p.state === 'active' ? 'step' : undefined}
+                  >
+                    {p.state === 'done' ? '✓' : i + 1}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[11px] font-semibold uppercase tracking-[0.1em] truncate hidden md:inline',
+                      p.state === 'active'
+                        ? 'text-[var(--mz-accent-ink)]'
+                        : p.state === 'done'
                           ? 'text-[var(--mz-ink)]'
                           : 'text-[var(--mz-ink-mute)]'
-                      )}
-                    >
-                      {stepLabels[s]}
-                    </span>
-                  </div>
-                  {i < STEP_ORDER.length - 1 && (
-                    <div
-                      className="w-8 md:w-16 h-px bg-[var(--color-border)] mx-3"
-                      aria-hidden="true"
-                    />
-                  )}
-                </li>
-              );
-            })}
+                    )}
+                  >
+                    {p.label}
+                  </span>
+                </div>
+                {i < progress.length - 1 && (
+                  <div
+                    className={cn(
+                      'flex-1 h-px mx-2 md:mx-3 min-w-[12px]',
+                      p.state === 'done' || progress[i + 1].state !== 'future'
+                        ? 'bg-[var(--mz-ink)]'
+                        : 'bg-[var(--mz-line)]'
+                    )}
+                    aria-hidden="true"
+                  />
+                )}
+              </li>
+            ))}
           </ol>
         </nav>
 
@@ -257,7 +271,7 @@ export function CheckoutClient({
           <section aria-labelledby="shipping-heading" className="space-y-5">
             <h2
               id="shipping-heading"
-              className="text-lg font-semibold text-[var(--mz-ink)]"
+              className="font-serif text-[22px] font-medium leading-[1.2] tracking-[-0.015em] text-[var(--mz-ink)]"
             >
               {t('shipping.title')}
             </h2>
@@ -278,7 +292,7 @@ export function CheckoutClient({
                         'w-full text-left p-4 rounded-lg border transition-colors',
                         selectedAddressId === addr.id
                           ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/5'
-                          : 'border-[var(--color-border)] hover:border-[var(--mz-ink)]/50'
+                          : 'border-[var(--mz-line)] hover:border-[var(--mz-ink)]/50'
                       )}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -363,7 +377,7 @@ export function CheckoutClient({
                         'px-3 py-1.5 rounded-full border text-xs font-medium transition-colors',
                         deliveryNote === label
                           ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/10 text-[var(--mz-ink)]'
-                          : 'border-[var(--color-border)] text-[var(--mz-ink-soft)] hover:border-[var(--mz-ink)]/50'
+                          : 'border-[var(--mz-line)] text-[var(--mz-ink-soft)] hover:border-[var(--mz-ink)]/50'
                       )}
                     >
                       {label}
@@ -376,7 +390,7 @@ export function CheckoutClient({
                 onChange={(e) => setDeliveryNote(e.target.value)}
                 placeholder={t('shipping.deliveryNotePlaceholder')}
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 resize-none transition"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--mz-line)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 resize-none transition"
               />
             </div>
 
@@ -397,7 +411,7 @@ export function CheckoutClient({
           <section aria-labelledby="payment-heading" className="space-y-6">
             <h2
               id="payment-heading"
-              className="text-lg font-semibold text-[var(--mz-ink)]"
+              className="font-serif text-[22px] font-medium leading-[1.2] tracking-[-0.015em] text-[var(--mz-ink)]"
             >
               {t('payment.title')}
             </h2>
@@ -425,7 +439,7 @@ export function CheckoutClient({
                       'py-3.5 px-4 rounded-lg border text-sm font-medium text-center transition-all',
                       payMethod === key
                         ? 'border-[var(--mz-ink)] bg-[var(--mz-ink)]/5 text-[var(--mz-ink)]'
-                        : 'border-[var(--color-border)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]/50'
+                        : 'border-[var(--mz-line)] text-[var(--mz-ink)] hover:border-[var(--mz-ink)]/50'
                     )}
                   >
                     {label}
@@ -434,33 +448,15 @@ export function CheckoutClient({
               </div>
             </div>
 
-            {/* Card input placeholder — activates on payment gateway integration */}
+            {/* Card input — M12 spec: pending integration, render as accent-soft notice card */}
             {payMethod === 'card' && (
-              <div className="relative rounded-lg border border-[var(--color-border)] overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--mz-bg-deep)]/80 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-lg">
-                  <p className="text-xs text-[var(--mz-ink-mute)] bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
-                    {t('payment.cardPending')}
-                  </p>
+              <div className="rounded-[var(--radius-md)] bg-[var(--mz-accent-soft)] px-4 py-[14px] flex items-center gap-3">
+                <div className="grid h-8 w-12 place-items-center rounded-[var(--radius-sm)] bg-[var(--mz-accent-ink)] text-[10px] font-bold tracking-[0.1em] text-white">
+                  VISA
                 </div>
-                <div
-                  className="p-4 space-y-3 opacity-40 pointer-events-none select-none"
-                  aria-hidden="true"
-                >
-                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
-                    {t('payment.cardNumber')} — 0000 0000 0000 0000
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
-                      {t('payment.expiry')} — MM / YY
-                    </div>
-                    <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
-                      {t('payment.cvv')} — CVV
-                    </div>
-                  </div>
-                  <div className="h-10 rounded-lg border border-[var(--color-border)] px-3 flex items-center text-sm text-[var(--mz-ink-mute)]">
-                    {t('payment.cardHolder')}
-                  </div>
-                </div>
+                <p className="flex-1 text-[12.5px] font-medium text-[var(--mz-accent-ink)]">
+                  {t('payment.cardPending')}
+                </p>
               </div>
             )}
 
@@ -476,7 +472,7 @@ export function CheckoutClient({
                       key={label}
                       type="button"
                       disabled
-                      className="py-3.5 px-4 rounded-lg border border-dashed border-[var(--color-border)] text-sm font-medium text-center cursor-not-allowed"
+                      className="py-3.5 px-4 rounded-lg border border-dashed border-[var(--mz-line)] text-sm font-medium text-center cursor-not-allowed"
                     >
                       <span className="text-[var(--mz-ink-mute)]">{label}</span>
                       <span className="block text-[10px] text-[var(--mz-ink-mute)] mt-0.5 opacity-70">
@@ -500,7 +496,7 @@ export function CheckoutClient({
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder={t('coupon.couponPlaceholder')}
                   disabled={couponApplied}
-                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--color-border)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 disabled:bg-[var(--mz-bg-deep)] transition"
+                  className="flex-1 h-10 px-3 rounded-lg border border-[var(--mz-line)] text-sm text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] focus:outline-none focus:border-[var(--mz-ink)] focus:ring-2 focus:ring-[var(--mz-ink)]/20 disabled:bg-[var(--mz-bg-deep)] transition"
                 />
                 {couponApplied ? (
                   <Button
@@ -547,13 +543,13 @@ export function CheckoutClient({
           <section aria-labelledby="confirm-heading" className="space-y-6">
             <h2
               id="confirm-heading"
-              className="text-lg font-semibold text-[var(--mz-ink)]"
+              className="font-serif text-[22px] font-medium leading-[1.2] tracking-[-0.015em] text-[var(--mz-ink)]"
             >
               {t('steps.confirm')}
             </h2>
 
             {/* Shipping summary */}
-            <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
+            <div className="rounded-lg border border-[var(--mz-line)] p-4 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--mz-ink-mute)]">
                 {t('shipping.title')}
               </p>
@@ -569,7 +565,7 @@ export function CheckoutClient({
             </div>
 
             {/* Payment summary */}
-            <div className="rounded-lg border border-[var(--color-border)] p-4 space-y-2">
+            <div className="rounded-lg border border-[var(--mz-line)] p-4 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--mz-ink-mute)]">
                 {t('payment.title')}
               </p>
@@ -600,77 +596,117 @@ export function CheckoutClient({
         )}
       </div>
 
-      {/* Right: Order summary sidebar */}
+      {/* Right: Order summary sidebar — M12: bgDeep, 4-up thumbnail tiles, Fraunces total */}
       <aside
         aria-label={t('summary.title')}
         className="space-y-4 lg:sticky lg:top-24 lg:self-start"
       >
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-          <h2 className="text-sm font-semibold text-[var(--mz-ink)] mb-4">
+        <div className="rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--mz-ink-mute)] mb-4">
             {t('summary.title')}
-          </h2>
+          </p>
 
-          {/* Items */}
-          <ul className="space-y-3 mb-5" aria-label="Cart items">
-            {cart.items.map((item) => (
-              <li key={item.id} className="flex gap-3">
-                <div className="relative w-14 h-16 rounded overflow-hidden bg-[var(--mz-bg-deep)] shrink-0">
+          {/* Thumbnail tile grid — M12 spec: 4-up grid above totals */}
+          <ul className="grid grid-cols-4 gap-2 mb-5" aria-label="Cart items">
+            {cart.items.slice(0, 4).map((item) => (
+              <li key={item.id} className="relative aspect-[4/5]">
+                <div className="absolute inset-0 rounded-[var(--radius-sm)] overflow-hidden bg-[var(--mz-surface)]">
                   <Image
                     src={safeImageSrc(item.product_thumbnail_url)}
                     alt={getProductName(item, locale)}
                     fill
-                    sizes="56px"
+                    sizes="80px"
                     className="object-cover"
                     unoptimized={isFallback(safeImageSrc(item.product_thumbnail_url))}
                   />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[10px] font-bold flex items-center justify-center">
-                    {item.quantity}
-                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--mz-ink)] truncate">
-                    {getProductName(item, locale)}
-                  </p>
-                  <p className="text-xs text-[var(--mz-ink-mute)]">
-                    {item.color} / {item.size_label}
-                  </p>
-                  <p className="text-sm font-semibold text-[var(--mz-ink)] mt-0.5">
-                    {formatPrice(getItemPrice(item, locale), locale)}
-                  </p>
-                </div>
+                <span
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[10px] font-bold flex items-center justify-center px-1"
+                  aria-label={`${getProductName(item, locale)} × ${item.quantity}`}
+                >
+                  ×{item.quantity}
+                </span>
               </li>
             ))}
+            {cart.items.length > 4 && (
+              <li className="relative aspect-[4/5] flex items-center justify-center rounded-[var(--radius-sm)] border border-[var(--mz-line-strong)] bg-[var(--mz-surface)]">
+                <span className="font-serif text-[15px] font-medium text-[var(--mz-ink-soft)]">
+                  +{cart.items.length - 4}
+                </span>
+              </li>
+            )}
           </ul>
 
           {/* Price breakdown */}
-          <div className="space-y-2 border-t border-[var(--color-border)] pt-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-[var(--mz-ink-soft)]">{t('summary.subtotal')}</span>
-              <span className="text-[var(--mz-ink)]">
-                {formatPrice(subtotal, locale)}
-              </span>
+          <dl className="space-y-[10px] border-t border-[var(--mz-line-strong)] pt-4 text-[12.5px]">
+            <div className="flex justify-between">
+              <dt className="text-[var(--mz-ink-mute)]">{t('summary.subtotal')}</dt>
+              <dd className="text-[var(--mz-ink)]">{formatPrice(subtotal, locale)}</dd>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[var(--mz-ink-soft)]">{t('summary.shippingFee')}</span>
-              <span className="text-[var(--mz-ink)]">
+            <div className="flex justify-between">
+              <dt className="text-[var(--mz-ink-mute)]">{t('summary.shippingFee')}</dt>
+              <dd
+                className={
+                  shippingFee === 0
+                    ? 'uppercase tracking-[0.08em] text-[var(--mz-ink)]'
+                    : 'text-[var(--mz-ink)]'
+                }
+              >
                 {shippingFee === 0 ? t('summary.freeShipping') : formatPrice(shippingFee, locale)}
-              </span>
+              </dd>
             </div>
             {couponApplied && (
-              <div className="flex justify-between text-sm text-[var(--color-success)]">
-                <span>{t('summary.couponDiscount')}</span>
-                <span>-{formatPrice(couponDiscount, locale)}</span>
+              <div className="flex justify-between">
+                <dt className="text-[var(--mz-accent-ink)]">{t('summary.couponDiscount')}</dt>
+                <dd className="text-[var(--mz-accent-ink)] font-medium">
+                  −{formatPrice(couponDiscount, locale)}
+                </dd>
               </div>
             )}
-            <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--color-border)]">
-              <span className="text-[var(--mz-ink)]">{t('summary.total')}</span>
-              <span className="text-[var(--mz-ink)]">
+            <div className="flex items-baseline justify-between pt-3 border-t border-[var(--mz-line-strong)] mt-1">
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--mz-ink-mute)]">
+                {t('summary.total')}
+              </dt>
+              <dd className="font-serif text-[26px] font-semibold tracking-[-0.02em] text-[var(--mz-ink)]">
                 {formatPrice(total, locale)}
-              </span>
+              </dd>
             </div>
-          </div>
+          </dl>
         </div>
       </aside>
+
+      {/* Mobile sticky bottom CTA — M12: TOTAL eyebrow + price + Place order */}
+      <div
+        className="lg:hidden fixed bottom-14 left-0 right-0 z-30 border-t border-[var(--mz-line)] bg-[var(--mz-bg)] px-5 py-3"
+        role="region"
+        aria-label={t('summary.title')}
+      >
+        <div className="flex items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--mz-ink-mute)]">
+              {t('summary.total')}
+            </p>
+            <p className="font-serif text-[18px] font-semibold leading-none text-[var(--mz-ink)] mt-1">
+              {formatPrice(total, locale)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={step === 'confirm' ? handlePlaceOrder : handleNextStep}
+            disabled={
+              step === 'shipping' &&
+              (!recipient || !phone || !postalCode || !addressLine1)
+            }
+            className="ml-auto h-[50px] flex-1 max-w-[260px] rounded-[var(--radius-md)] bg-[var(--mz-ink)] text-[var(--mz-bg)] text-[13px] font-medium tracking-[0.02em] transition-opacity hover:opacity-85 active:opacity-75 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {step === 'confirm'
+              ? t('summary.placeOrder')
+              : step === 'shipping'
+                ? `${stepLabels.payment} →`
+                : `${stepLabels.confirm} →`}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
