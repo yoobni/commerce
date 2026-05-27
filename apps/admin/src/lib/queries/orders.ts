@@ -62,6 +62,33 @@ export const ORDER_STATUS_BADGE: Record<OrderStatus, string> = {
   DELIVERY_FAILED: 'bg-red-100 text-red-700',
 };
 
+/**
+ * 어드민 UI Badge variant 매핑. 새 Badge 색 신호(info/processing 등)에 맞춤.
+ * - info: 결제됨/확정됨 (파랑) — 처리됐다는 신호
+ * - processing: 진행 중 (보라) — 작업 중인 상태
+ * - success: 완료 (초록)
+ * - warning: 대기/요청 (앰버) — 주의 필요
+ * - destructive: 환불/실패 (빨강)
+ * - muted: 종결/취소 (회색)
+ */
+export const ORDER_STATUS_VARIANT: Record<
+  OrderStatus,
+  'info' | 'processing' | 'success' | 'warning' | 'destructive' | 'muted'
+> = {
+  PENDING_PAYMENT: 'warning',
+  PAID: 'info',
+  PREPARING: 'processing',
+  SHIPPED: 'processing',
+  DELIVERED: 'success',
+  CONFIRMED: 'success',
+  RETURN_REQUESTED: 'warning',
+  RETURNED: 'muted',
+  REFUND_REQUESTED: 'destructive',
+  REFUNDED: 'muted',
+  CANCELLED: 'muted',
+  DELIVERY_FAILED: 'destructive',
+};
+
 // ─── Params ───────────────────────────────────────────────────────────────────
 
 export interface AdminOrderListParams {

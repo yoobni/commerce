@@ -2,36 +2,17 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import type { OrderStatus } from '@commerce/types';
-import { adminGetOrder, ORDER_STATUS_LABEL } from '@/lib/queries/orders';
 import {
-  Badge,
-  type BadgeProps,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui';
+  adminGetOrder,
+  ORDER_STATUS_LABEL,
+  ORDER_STATUS_VARIANT,
+} from '@/lib/queries/orders';
+import { Badge, Button, InfoRow, InfoSection } from '@/components/ui';
 import { OrderStatusActions } from './_components/OrderStatusActions';
 import { AdminMemoForm } from './_components/AdminMemoForm';
 import { RefundForm } from './_components/RefundForm';
 
 export const metadata = { title: '주문 상세' };
-
-const STATUS_VARIANT: Record<OrderStatus, BadgeProps['variant']> = {
-  PENDING_PAYMENT: 'warning',
-  PAID: 'accent',
-  PREPARING: 'accent',
-  SHIPPED: 'accent',
-  DELIVERED: 'success',
-  CONFIRMED: 'success',
-  RETURN_REQUESTED: 'warning',
-  RETURNED: 'muted',
-  REFUND_REQUESTED: 'destructive',
-  REFUNDED: 'muted',
-  CANCELLED: 'muted',
-  DELIVERY_FAILED: 'destructive',
-};
 
 function formatAmount(amount: number, currency: string): string {
   try {
@@ -43,30 +24,6 @@ function formatAmount(amount: number, currency: string): string {
   } catch {
     return `${amount.toLocaleString()} ${currency}`;
   }
-}
-
-function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex gap-4 border-b border-border py-2 last:border-0">
-      <dt className="w-28 shrink-0 pt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="flex-1 text-[13px] text-foreground">{children}</dd>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
-  );
 }
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -92,7 +49,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <p className="mt-0.5 font-mono text-[12px] text-muted-foreground">{order.order_number}</p>
         </div>
         <div className="ml-auto">
-          <Badge variant={STATUS_VARIANT[order.status as OrderStatus]}>
+          <Badge variant={ORDER_STATUS_VARIANT[order.status as OrderStatus]}>
             {ORDER_STATUS_LABEL[order.status as OrderStatus]}
           </Badge>
         </div>
@@ -102,7 +59,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {/* Left column */}
         <div className="space-y-4 lg:col-span-2">
           {/* Order items */}
-          <Section title="주문 상품">
+          <InfoSection title="주문 상품">
             <div className="space-y-3">
               {order.items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
@@ -136,10 +93,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </div>
               ))}
             </div>
-          </Section>
+          </InfoSection>
 
           {/* Payment summary */}
-          <Section title="결제 요약">
+          <InfoSection title="결제 요약">
             <dl>
               <InfoRow label="소계">{formatAmount(order.subtotal, order.currency)}</InfoRow>
               <InfoRow label="배송비">{formatAmount(order.shipping_fee, order.currency)}</InfoRow>
@@ -164,16 +121,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </span>
               </InfoRow>
             </dl>
-          </Section>
+          </InfoSection>
 
           {/* Status actions */}
-          <Section title="상태 변경">
+          <InfoSection title="상태 변경">
             <OrderStatusActions orderId={order.id} currentStatus={order.status as OrderStatus} />
-          </Section>
+          </InfoSection>
 
           {/* Payment info + Refund */}
           {order.payment && (
-            <Section title="결제 정보">
+            <InfoSection title="결제 정보">
               <dl className="mb-4">
                 <InfoRow label="결제 수단">{order.payment.method}</InfoRow>
                 <InfoRow label="PG사">{order.payment.provider}</InfoRow>
@@ -201,19 +158,19 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   currency={order.currency}
                 />
               )}
-            </Section>
+            </InfoSection>
           )}
 
           {/* Admin memo */}
-          <Section title="관리자 메모">
+          <InfoSection title="관리자 메모">
             <AdminMemoForm orderId={order.id} initialMemo={order.admin_memo} />
-          </Section>
+          </InfoSection>
         </div>
 
         {/* Right column */}
         <div className="space-y-4">
           {/* Customer */}
-          <Section title="고객 정보">
+          <InfoSection title="고객 정보">
             {order.user ? (
               <dl>
                 <InfoRow label="이름">{order.user.name}</InfoRow>
@@ -231,11 +188,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             ) : (
               <p className="text-[13px] text-muted-foreground">고객 정보 없음</p>
             )}
-          </Section>
+          </InfoSection>
 
           {/* Shipping address */}
           {addr && (
-            <Section title="배송지">
+            <InfoSection title="배송지">
               <dl>
                 <InfoRow label="수령인">{addr.recipient_name}</InfoRow>
                 <InfoRow label="연락처">{addr.phone}</InfoRow>
@@ -252,11 +209,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   </div>
                 </InfoRow>
               </dl>
-            </Section>
+            </InfoSection>
           )}
 
           {/* Order meta */}
-          <Section title="주문 정보">
+          <InfoSection title="주문 정보">
             <dl>
               <InfoRow label="주문일">
                 {new Date(order.ordered_at).toLocaleString('ko-KR')}
@@ -274,7 +231,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </InfoRow>
               )}
             </dl>
-          </Section>
+          </InfoSection>
         </div>
       </div>
     </div>

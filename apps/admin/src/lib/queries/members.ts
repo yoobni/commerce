@@ -50,6 +50,29 @@ export const AUTH_PROVIDER_BADGE: Record<AuthProvider, string> = {
   twitter: 'bg-sky-100 text-sky-700',
 };
 
+/* ─── 새 UI Badge variant 매핑 (어드민 페이지에서 사용) ───────────────── */
+
+export const MEMBER_STATUS_VARIANT: Record<
+  UserStatus,
+  'success' | 'destructive' | 'muted'
+> = {
+  ACTIVE: 'success',
+  SUSPENDED: 'destructive',
+  WITHDRAWN: 'muted',
+};
+
+export const AUTH_PROVIDER_VARIANT: Record<
+  AuthProvider,
+  'outline' | 'secondary' | 'success' | 'warning' | 'info'
+> = {
+  email: 'outline',
+  google: 'info',
+  apple: 'secondary',
+  kakao: 'warning',
+  naver: 'success',
+  twitter: 'info',
+};
+
 // ─── Params ───────────────────────────────────────────────────────────────────
 
 export interface AdminMemberListParams {

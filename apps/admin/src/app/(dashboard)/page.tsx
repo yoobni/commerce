@@ -14,10 +14,9 @@ import {
 } from 'lucide-react';
 import type { OrderStatus } from '@commerce/types';
 import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
-import { ORDER_STATUS_LABEL } from '@/lib/queries/orders';
+import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from '@/lib/queries/orders';
 import {
   Badge,
-  type BadgeProps,
   Card,
   CardContent,
   CardHeader,
@@ -51,21 +50,6 @@ function formatKRW(amount: number): string {
   if (amount >= 10_000) return `${(amount / 10_000).toFixed(1)}만`;
   return `${amount.toLocaleString()}`;
 }
-
-const STATUS_VARIANT: Record<OrderStatus, BadgeProps['variant']> = {
-  PENDING_PAYMENT: 'warning',
-  PAID: 'accent',
-  PREPARING: 'accent',
-  SHIPPED: 'accent',
-  DELIVERED: 'success',
-  CONFIRMED: 'success',
-  RETURN_REQUESTED: 'warning',
-  RETURNED: 'muted',
-  REFUND_REQUESTED: 'destructive',
-  REFUNDED: 'muted',
-  CANCELLED: 'muted',
-  DELIVERY_FAILED: 'destructive',
-};
 
 /* ─── KPI card ────────────────────────────────────────────────────────────── */
 
@@ -251,7 +235,7 @@ function recentOrderColumns(): DataTableColumn<RecentOrder>[] {
       key: 'status',
       header: '상태',
       cell: (o) => (
-        <Badge variant={STATUS_VARIANT[o.status as OrderStatus]}>
+        <Badge variant={ORDER_STATUS_VARIANT[o.status as OrderStatus]}>
           {ORDER_STATUS_LABEL[o.status as OrderStatus]}
         </Badge>
       ),

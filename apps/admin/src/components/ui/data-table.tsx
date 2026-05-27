@@ -12,6 +12,7 @@
  */
 
 import * as React from 'react';
+import { Inbox } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
   Table,
@@ -86,9 +87,14 @@ export function DataTable<T>({
               </TableRow>
             ))
           ) : rows.length === 0 ? (
-            <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
-                {empty ?? '데이터가 없습니다.'}
+            <TableRow className="border-0 hover:bg-transparent">
+              <TableCell colSpan={columns.length} className="px-3 py-12 text-center">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                    <Inbox className="h-5 w-5" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-[13px]">{empty ?? '데이터가 없습니다.'}</p>
+                </div>
               </TableCell>
             </TableRow>
           ) : (

@@ -107,3 +107,14 @@ export {
 } from './pagination';
 export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 export { PageHeader, type PageHeaderProps } from './page-header';
+export { InfoRow, type InfoRowProps } from './info-row';
+export { InfoSection, type InfoSectionProps } from './info-section';
+export {
+  DataTablePagination,
+  type DataTablePaginationProps,
+} from './data-table-pagination';
+export {
+  FilterPills,
+  type FilterPill,
+  type FilterPillsProps,
+} from './filter-pills';

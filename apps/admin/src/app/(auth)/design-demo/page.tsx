@@ -86,6 +86,10 @@ import {
   TooltipContent,
   DataTable,
   type DataTableColumn,
+  DataTablePagination,
+  FilterPills,
+  InfoRow,
+  InfoSection,
   PageHeader,
 } from '@/components/ui';
 
@@ -105,8 +109,8 @@ const DEMO_ORDERS: DemoOrder[] = [
 ];
 
 const STATUS_VARIANT: Record<DemoOrder['status'], React.ComponentProps<typeof Badge>['variant']> = {
-  paid: 'success',
-  shipping: 'accent',
+  paid: 'info',
+  shipping: 'processing',
   refunded: 'destructive',
 };
 
@@ -197,6 +201,18 @@ export default function AdminDesignDemo() {
 
           <Section title="14. DataTable (어드민 표준 list 패턴)">
             <DataTableDemo />
+          </Section>
+
+          <Section title="15. FilterPills (URL 기반 상태 필터)">
+            <FilterPillsDemo />
+          </Section>
+
+          <Section title="16. DataTablePagination (list 푸터 표준)">
+            <DataTablePaginationDemo />
+          </Section>
+
+          <Section title="17. InfoSection + InfoRow (detail 페이지 표준)">
+            <InfoSectionDemo />
           </Section>
 
           <div className="h-20" />
@@ -339,18 +355,50 @@ function ButtonDemo() {
 
 function BadgeTagDemo() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <Label2>Badge — 주문/회원/리뷰 상태</Label2>
+        <Label2>일반 — 라벨/카테고리</Label2>
         <div className="flex flex-wrap gap-1.5">
           <Badge>Default</Badge>
           <Badge variant="secondary">Secondary</Badge>
           <Badge variant="outline">Outline</Badge>
           <Badge variant="muted">Muted</Badge>
-          <Badge variant="success">결제완료</Badge>
-          <Badge variant="warning">대기</Badge>
-          <Badge variant="destructive">환불</Badge>
-          <Badge variant="accent">배송중</Badge>
+          <Badge variant="accent">Accent (Olive)</Badge>
+        </div>
+      </div>
+      <div>
+        <Label2>상태 신호 — 어드민에서 스캔용으로 사용</Label2>
+        <div className="space-y-2">
+          <BadgeRow
+            note="success — 완료/활성"
+            examples={['결제완료', '배송완료', '활성', '구매확정']}
+            variant="success"
+          />
+          <BadgeRow
+            note="info — 결제됨/확정됨 ('처리됐다' 신호)"
+            examples={['결제완료', '구매확정', '입금확인']}
+            variant="info"
+          />
+          <BadgeRow
+            note="processing — 진행 중 ('지금 작업 중' 신호)"
+            examples={['배송중', '준비중', '검토중']}
+            variant="processing"
+          />
+          <BadgeRow
+            note="warning — 대기/요청 ('주의 필요' 신호)"
+            examples={['결제대기', '반품요청', '환불요청']}
+            variant="warning"
+          />
+          <BadgeRow
+            note="destructive — 실패/환불/정지"
+            examples={['환불완료', '배송실패', '정지', '거절']}
+            variant="destructive"
+          />
+          <BadgeRow
+            note="muted — 종결/취소 (영향 없음)"
+            examples={['취소', '탈퇴', '만료', '미사용']}
+            variant="muted"
+          />
         </div>
       </div>
       <div>
@@ -365,6 +413,32 @@ function BadgeTagDemo() {
             필터 · 재고있음
           </Tag>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BadgeRow({
+  note,
+  examples,
+  variant,
+}: {
+  note: string;
+  examples: string[];
+  variant: React.ComponentProps<typeof Badge>['variant'];
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex w-64 shrink-0 flex-col">
+        <code className="font-mono text-[11px] font-medium text-foreground">{variant}</code>
+        <span className="text-[11px] text-muted-foreground">{note}</span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {examples.map((ex) => (
+          <Badge key={ex} variant={variant}>
+            {ex}
+          </Badge>
+        ))}
       </div>
     </div>
   );
@@ -822,6 +896,77 @@ function DataTableDemo() {
         </>
       }
     />
+  );
+}
+
+/* ──────────────────────── 15. filter pills ──────────────────────── */
+
+function FilterPillsDemo() {
+  // 데모용 정적 표시 — 실제 사용 시 URL state 기반.
+  const pills = [
+    { value: 'ALL', label: '전체 1,248' },
+    { value: 'PAID', label: '결제완료 982' },
+    { value: 'SHIPPED', label: '배송중 142' },
+    { value: 'REFUND', label: '환불 124' },
+  ] as const;
+  return (
+    <FilterPills
+      pills={pills}
+      activeValue="PAID"
+      buildHref={() => '#'}
+      wrapInCard={false}
+    />
+  );
+}
+
+/* ──────────────────────── 16. pagination demo ──────────────────────── */
+
+function DataTablePaginationDemo() {
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+      <DataTablePagination
+        page={2}
+        total={836}
+        perPage={20}
+        unit="건"
+        buildHref={() => '#'}
+      />
+    </div>
+  );
+}
+
+/* ──────────────────────── 17. info section ──────────────────────── */
+
+function InfoSectionDemo() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <InfoSection title="고객 정보">
+        <dl>
+          <InfoRow label="이름">박서연</InfoRow>
+          <InfoRow label="이메일">seoyeon.park@example.com</InfoRow>
+          <InfoRow label="전화">010-1234-5678</InfoRow>
+          <InfoRow label="국가">대한민국</InfoRow>
+          <InfoRow label="가입일">2024-11-12</InfoRow>
+        </dl>
+      </InfoSection>
+      <InfoSection
+        title="결제 요약"
+        actions={
+          <Button variant="ghost" size="sm">
+            영수증
+          </Button>
+        }
+      >
+        <dl>
+          <InfoRow label="소계"><span className="font-mono">₩148,000</span></InfoRow>
+          <InfoRow label="배송비"><span className="font-mono">₩3,000</span></InfoRow>
+          <InfoRow label="할인"><span className="font-mono text-destructive">−₩10,000</span></InfoRow>
+          <InfoRow label="최종 결제">
+            <span className="font-mono text-base font-semibold">₩141,000</span>
+          </InfoRow>
+        </dl>
+      </InfoSection>
+    </div>
   );
 }
 

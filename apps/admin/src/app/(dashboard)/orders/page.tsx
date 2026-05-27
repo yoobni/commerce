@@ -1,31 +1,25 @@
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import type { OrderStatus } from '@commerce/types';
-import { adminListOrders, ORDER_STATUS_LABEL } from '@/lib/queries/orders';
+import {
+  adminListOrders,
+  ORDER_STATUS_LABEL,
+  ORDER_STATUS_VARIANT,
+} from '@/lib/queries/orders';
 import {
   Badge,
-  type BadgeProps,
   Button,
-  Card,
   DataTable,
   type DataTableColumn,
+  DataTablePagination,
+  FilterPills,
   Input,
   PageHeader,
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from '@/components/ui';
-import { cn } from '@/lib/cn';
 
 export const metadata = { title: '주문 관리' };
 
-/* ─── status filter ───────────────────────────────────────────────────────── */
-
-const STATUS_TABS: Array<{ value: OrderStatus | 'ALL'; label: string }> = [
+const STATUS_TABS = [
   { value: 'ALL', label: '전체' },
   { value: 'PENDING_PAYMENT', label: '결제대기' },
   { value: 'PAID', label: '결제완료' },
@@ -35,22 +29,7 @@ const STATUS_TABS: Array<{ value: OrderStatus | 'ALL'; label: string }> = [
   { value: 'CONFIRMED', label: '구매확정' },
   { value: 'RETURN_REQUESTED', label: '반품요청' },
   { value: 'CANCELLED', label: '취소' },
-];
-
-const STATUS_VARIANT: Record<OrderStatus, BadgeProps['variant']> = {
-  PENDING_PAYMENT: 'warning',
-  PAID: 'accent',
-  PREPARING: 'accent',
-  SHIPPED: 'accent',
-  DELIVERED: 'success',
-  CONFIRMED: 'success',
-  RETURN_REQUESTED: 'warning',
-  RETURNED: 'muted',
-  REFUND_REQUESTED: 'destructive',
-  REFUNDED: 'muted',
-  CANCELLED: 'muted',
-  DELIVERY_FAILED: 'destructive',
-};
+] as const;
 
 function formatAmount(amount: number, currency: string): string {
   try {
@@ -63,23 +42,6 @@ function formatAmount(amount: number, currency: string): string {
     return `${amount.toLocaleString()} ${currency}`;
   }
 }
-
-/* ─── pagination helper ───────────────────────────────────────────────────── */
-
-function pageItems(current: number, total: number): Array<number | 'ellipsis'> {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  const items: Array<number | 'ellipsis'> = [];
-  items.push(1);
-  if (current > 4) items.push('ellipsis');
-  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
-    items.push(p);
-  }
-  if (current < total - 3) items.push('ellipsis');
-  items.push(total);
-  return items;
-}
-
-/* ─── page ────────────────────────────────────────────────────────────────── */
 
 type AdminOrder = Awaited<ReturnType<typeof adminListOrders>>['data'][number];
 
@@ -94,7 +56,6 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   const page = Math.max(1, Number(params.page ?? 1));
 
   const result = await adminListOrders({ status, search: search || undefined, page });
-  const totalPages = Math.max(1, Math.ceil(result.total / result.per_page));
 
   function buildQuery(overrides: Record<string, string | undefined>): string {
     const q = new URLSearchParams();
@@ -153,7 +114,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       header: '상태',
       width: '110px',
       cell: (o) => (
-        <Badge variant={STATUS_VARIANT[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge>
+        <Badge variant={ORDER_STATUS_VARIANT[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge>
       ),
     },
     {
@@ -171,51 +132,35 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      <PageHeader
-        title="주문 관리"
-        description={`총 ${result.total.toLocaleString()}건`}
-      />
+      <PageHeader title="주문 관리" description={`총 ${result.total.toLocaleString()}건`} />
 
-      {/* Status filter — URL-driven pills (no client state) */}
-      <Card className="mb-4 p-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {STATUS_TABS.map((tab) => {
-            const active = tab.value === status;
-            return (
-              <Link
-                key={tab.value}
-                href={buildQuery({ status: tab.value, page: '1' })}
-                className={cn(
-                  'rounded-full px-3 py-1 text-[12.5px] font-medium transition-colors',
-                  active
-                    ? 'bg-[var(--mz-ink)] text-white'
-                    : 'bg-muted text-foreground hover:bg-secondary',
-                )}
-                aria-current={active ? 'page' : undefined}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* Search */}
-      <form method="GET" action="/orders" className="mb-4 flex gap-2">
-        <input type="hidden" name="status" value={status} />
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input name="search" defaultValue={search} placeholder="주문번호 검색" className="pl-9" />
-        </div>
-        <Button type="submit" variant="outline">
-          검색
-        </Button>
-        {search && (
-          <Button type="button" variant="ghost" asChild>
-            <Link href={buildQuery({ search: undefined, page: '1' })}>초기화</Link>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <FilterPills
+          pills={STATUS_TABS}
+          activeValue={status}
+          buildHref={(v) => buildQuery({ status: v, page: '1' })}
+        />
+        <form method="GET" action="/orders" className="ml-auto flex gap-2">
+          <input type="hidden" name="status" value={status} />
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              name="search"
+              defaultValue={search}
+              placeholder="주문번호 검색"
+              className="pl-9"
+            />
+          </div>
+          <Button type="submit" variant="outline" size="md">
+            검색
           </Button>
-        )}
-      </form>
+          {search && (
+            <Button type="button" variant="ghost" size="md" asChild>
+              <Link href={buildQuery({ search: undefined, page: '1' })}>초기화</Link>
+            </Button>
+          )}
+        </form>
+      </div>
 
       <DataTable<AdminOrder>
         columns={columns}
@@ -223,51 +168,14 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         rowKey={(o) => o.id}
         empty="조건에 맞는 주문이 없습니다."
         footer={
-          totalPages > 1 && (
-            <>
-              <span className="text-[12.5px] text-muted-foreground">
-                {result.data.length}건 표시 · 총 {result.total.toLocaleString()}건
-              </span>
-              <Pagination className="m-0 w-auto justify-end">
-                <PaginationContent>
-                  <PaginationItem>
-                    {page > 1 ? (
-                      <PaginationPrevious href={buildQuery({ page: String(page - 1) })} />
-                    ) : (
-                      <span className="pointer-events-none opacity-40">
-                        <PaginationPrevious href="#" />
-                      </span>
-                    )}
-                  </PaginationItem>
-                  {pageItems(page, totalPages).map((it, i) =>
-                    it === 'ellipsis' ? (
-                      <PaginationItem key={`e-${i}`}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    ) : (
-                      <PaginationItem key={it}>
-                        <PaginationLink
-                          href={buildQuery({ page: String(it) })}
-                          isActive={it === page}
-                        >
-                          {it}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ),
-                  )}
-                  <PaginationItem>
-                    {page < totalPages ? (
-                      <PaginationNext href={buildQuery({ page: String(page + 1) })} />
-                    ) : (
-                      <span className="pointer-events-none opacity-40">
-                        <PaginationNext href="#" />
-                      </span>
-                    )}
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </>
-          )
+          <DataTablePagination
+            page={page}
+            total={result.total}
+            perPage={result.per_page}
+            displayed={result.data.length}
+            unit="건"
+            buildHref={(p) => buildQuery({ page: String(p) })}
+          />
         }
       />
     </div>
