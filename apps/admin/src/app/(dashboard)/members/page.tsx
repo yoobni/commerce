@@ -1,19 +1,31 @@
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 import type { UserStatus } from '@commerce/types';
 import {
   adminListMembers,
   MEMBER_STATUS_LABEL,
-  MEMBER_STATUS_BADGE,
   AUTH_PROVIDER_LABEL,
-  AUTH_PROVIDER_BADGE,
 } from '@/lib/queries/members';
-import { Badge } from '@/components/ui/legacy/Badge';
-import { Pagination } from '@/components/ui/legacy/Pagination';
-import { StatusTabs } from '@/components/ui/legacy/StatusTabs';
+import {
+  Badge,
+  type BadgeProps,
+  Button,
+  Card,
+  DataTable,
+  type DataTableColumn,
+  Input,
+  PageHeader,
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
 
 export const metadata = { title: '회원 관리' };
-
-// ─── Status tabs ──────────────────────────────────────────────────────────────
 
 const STATUS_TABS: Array<{ value: UserStatus | 'ALL'; label: string }> = [
   { value: 'ALL', label: '전체' },
@@ -22,7 +34,34 @@ const STATUS_TABS: Array<{ value: UserStatus | 'ALL'; label: string }> = [
   { value: 'WITHDRAWN', label: '탈퇴' },
 ];
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const MEMBER_STATUS_VARIANT: Record<UserStatus, BadgeProps['variant']> = {
+  ACTIVE: 'success',
+  SUSPENDED: 'destructive',
+  WITHDRAWN: 'muted',
+};
+
+const PROVIDER_VARIANT: Partial<Record<string, BadgeProps['variant']>> = {
+  EMAIL: 'outline',
+  GOOGLE: 'secondary',
+  APPLE: 'secondary',
+  KAKAO: 'warning',
+  NAVER: 'success',
+};
+
+function pageItems(current: number, total: number): Array<number | 'ellipsis'> {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const items: Array<number | 'ellipsis'> = [];
+  items.push(1);
+  if (current > 4) items.push('ellipsis');
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
+    items.push(p);
+  }
+  if (current < total - 3) items.push('ellipsis');
+  items.push(total);
+  return items;
+}
+
+type AdminMember = Awaited<ReturnType<typeof adminListMembers>>['data'][number];
 
 interface PageProps {
   searchParams: Promise<{ status?: string; search?: string; page?: string }>;
@@ -35,6 +74,7 @@ export default async function MembersPage({ searchParams }: PageProps) {
   const page = Math.max(1, Number(params.page ?? 1));
 
   const result = await adminListMembers({ status, search: search || undefined, page });
+  const totalPages = Math.max(1, Math.ceil(result.total / result.per_page));
 
   function buildQuery(overrides: Record<string, string | undefined>): string {
     const q = new URLSearchParams();
@@ -45,142 +85,175 @@ export default async function MembersPage({ searchParams }: PageProps) {
       ...overrides,
     };
     Object.entries(merged).forEach(([k, v]) => {
-      if (v !== undefined) q.set(k, v);
+      if (v !== undefined && v !== '' && v !== 'ALL') q.set(k, v);
     });
     const str = q.toString();
     return str ? `/members?${str}` : '/members';
   }
 
+  const columns: DataTableColumn<AdminMember>[] = [
+    {
+      key: 'member',
+      header: '회원',
+      cell: (m) => (
+        <Link href={`/members/${m.id}`} className="group flex flex-col">
+          <span className="text-[13px] font-medium text-foreground group-hover:text-[var(--mz-accent)] group-hover:underline">
+            {m.name}
+          </span>
+          <span className="text-[11px] text-muted-foreground">{m.email}</span>
+        </Link>
+      ),
+    },
+    {
+      key: 'provider',
+      header: '가입경로',
+      width: '110px',
+      cell: (m) => (
+        <Badge variant={PROVIDER_VARIANT[m.provider] ?? 'outline'}>
+          {AUTH_PROVIDER_LABEL[m.provider]}
+        </Badge>
+      ),
+    },
+    {
+      key: 'country',
+      header: '국가',
+      width: '80px',
+      cell: (m) => <span className="text-[12.5px] text-muted-foreground">{m.country}</span>,
+    },
+    {
+      key: 'status',
+      header: '상태',
+      width: '90px',
+      cell: (m) => (
+        <Badge variant={MEMBER_STATUS_VARIANT[m.status]}>{MEMBER_STATUS_LABEL[m.status]}</Badge>
+      ),
+    },
+    {
+      key: 'last_login',
+      header: '마지막 로그인',
+      width: '130px',
+      cell: (m) =>
+        m.last_login_at ? (
+          <span className="text-[12.5px] text-muted-foreground">
+            {new Date(m.last_login_at).toLocaleDateString('ko-KR')}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: 'created',
+      header: '가입일',
+      width: '120px',
+      align: 'right',
+      cell: (m) => (
+        <span className="text-[12.5px] text-muted-foreground">
+          {new Date(m.created_at).toLocaleDateString('ko-KR')}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">회원 관리</h1>
-      </div>
+      <PageHeader title="회원 관리" description={`총 ${result.total.toLocaleString()}명`} />
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <StatusTabs
-          tabs={STATUS_TABS}
-          activeValue={status}
-          buildUrl={(v) => buildQuery({ status: v, page: '1' })}
-        />
+      <Card className="mb-4 p-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {STATUS_TABS.map((tab) => {
+            const active = tab.value === status;
+            return (
+              <Link
+                key={tab.value}
+                href={buildQuery({ status: tab.value, page: '1' })}
+                className={cn(
+                  'rounded-full px-3 py-1 text-[12.5px] font-medium transition-colors',
+                  active
+                    ? 'bg-[var(--mz-ink)] text-white'
+                    : 'bg-muted text-foreground hover:bg-secondary',
+                )}
+                aria-current={active ? 'page' : undefined}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
+      </Card>
 
-        <form method="GET" action="/members" className="flex gap-2 ml-auto">
-          <input type="hidden" name="status" value={status} />
-          <input
-            type="text"
+      <form method="GET" action="/members" className="mb-4 flex gap-2">
+        <input type="hidden" name="status" value={status} />
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
             name="search"
             defaultValue={search}
             placeholder="이름 / 이메일 검색"
-            className="px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-9"
           />
-          <button
-            type="submit"
-            className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            검색
-          </button>
-        </form>
-      </div>
+        </div>
+        <Button type="submit" variant="outline">
+          검색
+        </Button>
+        {search && (
+          <Button type="button" variant="ghost" asChild>
+            <Link href={buildQuery({ search: undefined, page: '1' })}>초기화</Link>
+          </Button>
+        )}
+      </form>
 
-      {/* Table */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                회원
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                가입경로
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                국가
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상태
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                마지막 로그인
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                가입일
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {result.data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-16 text-center text-[var(--color-text-tertiary)]"
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      className="w-10 h-10 text-[var(--color-border)]"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span>회원이 없습니다.</span>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              result.data.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <Link href={`/members/${member.id}`} className="flex flex-col group">
-                      <span className="font-medium text-[var(--color-text-primary)] group-hover:text-blue-600 transition-colors">
-                        {member.name}
-                      </span>
-                      <span className="text-xs text-[var(--color-text-tertiary)]">
-                        {member.email}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge className={AUTH_PROVIDER_BADGE[member.provider]}>
-                      {AUTH_PROVIDER_LABEL[member.provider]}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{member.country}</td>
-                  <td className="px-4 py-3">
-                    <Badge className={MEMBER_STATUS_BADGE[member.status]}>
-                      {MEMBER_STATUS_LABEL[member.status]}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {member.last_login_at ? (
-                      new Date(member.last_login_at).toLocaleDateString('ko-KR')
+      <DataTable<AdminMember>
+        columns={columns}
+        rows={result.data}
+        rowKey={(m) => m.id}
+        empty="조건에 맞는 회원이 없습니다."
+        footer={
+          totalPages > 1 && (
+            <>
+              <span className="text-[12.5px] text-muted-foreground">
+                {result.data.length}명 표시 · 총 {result.total.toLocaleString()}명
+              </span>
+              <Pagination className="m-0 w-auto justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    {page > 1 ? (
+                      <PaginationPrevious href={buildQuery({ page: String(page - 1) })} />
                     ) : (
-                      <span className="text-[var(--color-text-tertiary)]">—</span>
+                      <span className="pointer-events-none opacity-40">
+                        <PaginationPrevious href="#" />
+                      </span>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {new Date(member.created_at).toLocaleDateString('ko-KR')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <Pagination
-        page={page}
-        total={result.total}
-        perPage={result.per_page}
-        buildUrl={(p) => buildQuery({ page: String(p) })}
+                  </PaginationItem>
+                  {pageItems(page, totalPages).map((it, i) =>
+                    it === 'ellipsis' ? (
+                      <PaginationItem key={`e-${i}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={it}>
+                        <PaginationLink
+                          href={buildQuery({ page: String(it) })}
+                          isActive={it === page}
+                        >
+                          {it}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    {page < totalPages ? (
+                      <PaginationNext href={buildQuery({ page: String(page + 1) })} />
+                    ) : (
+                      <span className="pointer-events-none opacity-40">
+                        <PaginationNext href="#" />
+                      </span>
+                    )}
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </>
+          )
+        }
       />
     </div>
   );
