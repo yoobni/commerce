@@ -1,39 +1,123 @@
 import Link from 'next/link';
+import {
+  ShoppingBag,
+  Coins,
+  Users as UsersIcon,
+  Package,
+  Plus,
+  Ticket,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  TrendingUp,
+  ArrowRight,
+} from 'lucide-react';
 import type { OrderStatus } from '@commerce/types';
 import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
-import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { KpiCard } from '@/components/ui/legacy/KpiCard';
-import { MiniChart } from '@/components/ui/legacy/MiniChart';
-import { Badge } from '@/components/ui/legacy/Badge';
+import { ORDER_STATUS_LABEL } from '@/lib/queries/orders';
+import {
+  Badge,
+  type BadgeProps,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  DataTable,
+  type DataTableColumn,
+  PageHeader,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
 
 export const metadata = { title: '대시보드' };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+/* ─── helpers ─────────────────────────────────────────────────────────────── */
 
-function trendText(
-  today: number,
-  yesterday: number
-): { direction: 'up' | 'down' | 'neutral'; text: string } {
+function trend(today: number, yesterday: number) {
   if (yesterday === 0) {
-    if (today === 0) return { direction: 'neutral', text: '전일 대비 동일' };
-    return { direction: 'up', text: '전일 대비 신규' };
+    if (today === 0) return { dir: 'neutral' as const, text: '전일 대비 동일' };
+    return { dir: 'up' as const, text: '신규' };
   }
   const pct = ((today - yesterday) / yesterday) * 100;
-  if (Math.abs(pct) < 0.5) return { direction: 'neutral', text: '전일 대비 동일' };
+  if (Math.abs(pct) < 0.5) return { dir: 'neutral' as const, text: '전일 대비 동일' };
   const sign = pct > 0 ? '+' : '';
   return {
-    direction: pct > 0 ? 'up' : 'down',
-    text: `${sign}${pct.toFixed(1)}% 전일 대비`,
+    dir: pct > 0 ? ('up' as const) : ('down' as const),
+    text: `${sign}${pct.toFixed(1)}%`,
   };
 }
 
 function formatKRW(amount: number): string {
-  if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억원`;
-  if (amount >= 10_000) return `${(amount / 10_000).toFixed(1)}만원`;
-  return `${amount.toLocaleString()}원`;
+  if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억`;
+  if (amount >= 10_000) return `${(amount / 10_000).toFixed(1)}만`;
+  return `${amount.toLocaleString()}`;
 }
 
-// ─── Bar chart (weekly revenue) ───────────────────────────────────────────────
+const STATUS_VARIANT: Record<OrderStatus, BadgeProps['variant']> = {
+  PENDING_PAYMENT: 'warning',
+  PAID: 'accent',
+  PREPARING: 'accent',
+  SHIPPED: 'accent',
+  DELIVERED: 'success',
+  CONFIRMED: 'success',
+  RETURN_REQUESTED: 'warning',
+  RETURNED: 'muted',
+  REFUND_REQUESTED: 'destructive',
+  REFUNDED: 'muted',
+  CANCELLED: 'muted',
+  DELIVERY_FAILED: 'destructive',
+};
+
+/* ─── KPI card ────────────────────────────────────────────────────────────── */
+
+type KpiProps = {
+  label: string;
+  value: string;
+  unit?: string;
+  sub: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  trend?: { dir: 'up' | 'down' | 'neutral'; text: string };
+};
+
+function Kpi({ label, value, unit, sub, icon: Icon, trend: t }: KpiProps) {
+  const TrendIcon = t?.dir === 'up' ? ArrowUpRight : t?.dir === 'down' ? ArrowDownRight : Minus;
+  const trendColor =
+    t?.dir === 'up'
+      ? 'text-[var(--mz-accent)]'
+      : t?.dir === 'down'
+        ? 'text-destructive'
+        : 'text-muted-foreground';
+  return (
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between">
+          <span className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
+            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+          </div>
+        </div>
+        <div className="mt-3 flex items-baseline gap-1">
+          <span className="font-mono text-[28px] font-semibold leading-none tracking-tight text-foreground">
+            {value}
+          </span>
+          {unit && <span className="text-[13px] text-muted-foreground">{unit}</span>}
+        </div>
+        <div className="mt-2 flex items-center gap-2 text-[12px]">
+          {t && (
+            <span className={cn('inline-flex items-center gap-0.5', trendColor)}>
+              <TrendIcon className="h-3 w-3" strokeWidth={2} />
+              {t.text}
+            </span>
+          )}
+          <span className="text-muted-foreground">{sub}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ─── Weekly bar chart ────────────────────────────────────────────────────── */
 
 function WeeklyBarChart({
   data,
@@ -42,255 +126,223 @@ function WeeklyBarChart({
 }) {
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
   const days = ['일', '월', '화', '수', '목', '금', '토'];
-
   return (
-    <div
-      className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5"
-      role="img"
-      aria-label="주간 매출 추이"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">주간 매출 추이</h2>
-        <span className="text-xs text-[var(--color-text-tertiary)]">최근 7일</span>
-      </div>
-      <div className="flex items-end gap-2 h-32" aria-hidden="true">
-        {data.map((d) => {
-          const heightPct = maxRevenue > 0 ? (d.revenue / maxRevenue) * 100 : 0;
-          const dayLabel = days[new Date(d.date + 'T12:00:00').getDay()];
-          return (
-            <div key={d.date} className="flex flex-col items-center gap-1.5 flex-1 group">
-              <div className="relative flex flex-col justify-end w-full h-24 cursor-default">
-                {/* Tooltip */}
-                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  <p className="font-medium">{formatKRW(d.revenue)}</p>
-                  <p className="text-gray-300">{d.orders}건</p>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <TrendingUp className="h-3.5 w-3.5" strokeWidth={2} />
+          주간 매출 추이
+        </CardTitle>
+        <span className="text-[11px] text-muted-foreground">최근 7일</span>
+      </CardHeader>
+      <CardContent>
+        <div className="flex h-32 items-end gap-2" role="img" aria-label="주간 매출 추이">
+          {data.map((d) => {
+            const heightPct = maxRevenue > 0 ? (d.revenue / maxRevenue) * 100 : 0;
+            const dayLabel = days[new Date(d.date + 'T12:00:00').getDay()];
+            return (
+              <div key={d.date} className="group flex flex-1 flex-col items-center gap-1.5">
+                <div className="relative flex h-24 w-full cursor-default flex-col justify-end">
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[11px] text-background opacity-0 transition-opacity group-hover:opacity-100">
+                    <p className="font-medium">{formatKRW(d.revenue)}원</p>
+                    <p className="text-background/70">{d.orders}건</p>
+                  </div>
+                  <div
+                    className="w-full rounded-t bg-[var(--mz-accent)] transition-all"
+                    style={{
+                      height: `${Math.max(heightPct, d.revenue > 0 ? 4 : 0)}%`,
+                      opacity: 0.92,
+                    }}
+                  />
                 </div>
-                <div
-                  className="w-full rounded-t transition-all"
-                  style={{
-                    height: `${Math.max(heightPct, d.revenue > 0 ? 4 : 0)}%`,
-                    background: 'var(--color-brand-accent)',
-                    opacity: 0.85,
-                  }}
-                />
+                <span className="text-[11px] text-muted-foreground">{dayLabel}</span>
               </div>
-              <span className="text-xs text-[var(--color-text-tertiary)]">{dayLabel}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-// ─── Quick links ──────────────────────────────────────────────────────────────
+/* ─── Quick links ─────────────────────────────────────────────────────────── */
 
 const QUICK_LINKS = [
-  {
-    label: '주문 관리',
-    href: '/orders',
-    iconPath:
-      'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
-  },
-  { label: '상품 등록', href: '/products/new', iconPath: 'M12 4v16m8-8H4' },
-  {
-    label: '쿠폰 생성',
-    href: '/coupons/new',
-    iconPath:
-      'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
-  },
-  {
-    label: '회원 관리',
-    href: '/members',
-    iconPath:
-      'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-  },
+  { label: '주문 관리', href: '/orders', icon: ShoppingBag },
+  { label: '상품 등록', href: '/products/new', icon: Plus },
+  { label: '쿠폰 생성', href: '/coupons/new', icon: Ticket },
+  { label: '회원 관리', href: '/members', icon: UsersIcon },
 ];
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function QuickLinks() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+          빠른 메뉴
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-2">
+          {QUICK_LINKS.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group flex items-center gap-3 rounded-md border border-border bg-card p-3 transition-colors hover:border-[var(--mz-accent)] hover:bg-accent/50"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted transition-colors group-hover:bg-[var(--mz-accent)] group-hover:text-white">
+                  <Icon className="h-4 w-4" strokeWidth={1.75} />
+                </div>
+                <span className="text-sm font-medium text-foreground">{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ─── Recent orders ───────────────────────────────────────────────────────── */
+
+type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
+
+function recentOrderColumns(): DataTableColumn<RecentOrder>[] {
+  return [
+    {
+      key: 'order',
+      header: '주문번호',
+      cell: (o) => (
+        <Link
+          href={`/orders/${o.id}`}
+          className="font-mono text-[12.5px] text-foreground hover:text-[var(--mz-accent)] hover:underline"
+        >
+          {o.order_number}
+        </Link>
+      ),
+      width: '180px',
+    },
+    {
+      key: 'customer',
+      header: '고객',
+      cell: (o) =>
+        o.user ? (
+          <div>
+            <div className="text-[13px] font-medium text-foreground">{o.user.name}</div>
+            <div className="text-[11px] text-muted-foreground">{o.user.email}</div>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: 'amount',
+      header: '금액',
+      cell: (o) => (
+        <span className="font-mono text-[13px] font-medium">
+          ₩{o.total_amount.toLocaleString()}
+        </span>
+      ),
+      align: 'right',
+    },
+    {
+      key: 'status',
+      header: '상태',
+      cell: (o) => (
+        <Badge variant={STATUS_VARIANT[o.status as OrderStatus]}>
+          {ORDER_STATUS_LABEL[o.status as OrderStatus]}
+        </Badge>
+      ),
+    },
+    {
+      key: 'date',
+      header: '주문일',
+      cell: (o) => (
+        <span className="text-[12.5px] text-muted-foreground">
+          {new Date(o.ordered_at).toLocaleDateString('ko-KR')}
+        </span>
+      ),
+      align: 'right',
+    },
+  ];
+}
+
+/* ─── Page ────────────────────────────────────────────────────────────────── */
 
 export default async function DashboardPage() {
-  const [stats, trend, recentOrders] = await Promise.all([
+  const [stats, weekly, recentOrders] = await Promise.all([
     getDashboardStats(),
     getWeeklySalesTrend(),
     getRecentOrders(5),
   ]);
 
-  const revenueTrendData = trend.map((d) => d.revenue);
-  const orderTrendData = trend.map((d) => d.orders);
-
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">대시보드</h1>
+    <div>
+      <PageHeader
+        title="대시보드"
+        description={`오늘 · ${new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}`}
+      />
 
-      {/* KPI cards */}
-      <section aria-label="핵심 지표">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <KpiCard
+      <section aria-label="핵심 지표" className="mb-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Kpi
             label="오늘 주문"
             value={stats.todayOrders.toLocaleString()}
-            subLabel={`어제: ${stats.yesterdayOrders.toLocaleString()}건`}
-            trend={trendText(stats.todayOrders, stats.yesterdayOrders)}
-            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
-            chart={
-              <MiniChart
-                data={orderTrendData.length >= 2 ? orderTrendData : [0, 0]}
-                color="#3b82f6"
-                height={36}
-              />
-            }
+            unit="건"
+            sub={`어제 ${stats.yesterdayOrders.toLocaleString()}건`}
+            icon={ShoppingBag}
+            trend={trend(stats.todayOrders, stats.yesterdayOrders)}
           />
-          <KpiCard
+          <Kpi
             label="오늘 매출"
             value={formatKRW(stats.todayRevenue)}
-            subLabel={`어제: ${formatKRW(stats.yesterdayRevenue)}`}
-            trend={trendText(stats.todayRevenue, stats.yesterdayRevenue)}
-            iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            iconBg="bg-amber-50"
-            iconColor="text-amber-600"
-            chart={
-              <MiniChart
-                data={revenueTrendData.length >= 2 ? revenueTrendData : [0, 0]}
-                color="#f59e0b"
-                height={36}
-              />
-            }
+            unit="원"
+            sub={`어제 ${formatKRW(stats.yesterdayRevenue)}원`}
+            icon={Coins}
+            trend={trend(stats.todayRevenue, stats.yesterdayRevenue)}
           />
-          <KpiCard
+          <Kpi
             label="총 회원"
             value={stats.totalMembers.toLocaleString()}
-            subLabel={`오늘 신규: ${stats.newMembersToday}명`}
-            trend={trendText(stats.newMembersToday, 0)}
-            iconPath="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-            iconBg="bg-emerald-50"
-            iconColor="text-emerald-600"
+            unit="명"
+            sub={`오늘 신규 ${stats.newMembersToday}명`}
+            icon={UsersIcon}
           />
-          <KpiCard
+          <Kpi
             label="판매 상품"
             value={stats.activeProducts.toLocaleString()}
-            subLabel={`전체: ${stats.totalProducts.toLocaleString()}개`}
-            iconPath="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-            iconBg="bg-purple-50"
-            iconColor="text-purple-600"
+            unit="개"
+            sub={`전체 ${stats.totalProducts.toLocaleString()}개`}
+            icon={Package}
           />
         </div>
       </section>
 
-      {/* Charts row */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="통계 차트">
-        <WeeklyBarChart data={trend} />
-
-        {/* Quick links */}
-        <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">빠른 메뉴</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-3 p-3 border border-[var(--color-border)] rounded-[var(--radius-md)] hover:border-[var(--color-brand-accent)] hover:bg-[var(--mz-accent-soft)]/40 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-gray-50 group-hover:bg-[var(--mz-accent-soft)] flex items-center justify-center shrink-0 transition-colors">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.75}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-4 h-4 text-[var(--color-text-secondary)] group-hover:text-[var(--color-brand-accent)] transition-colors"
-                    aria-hidden="true"
-                  >
-                    <path d={link.iconPath} />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {link.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+      <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2" aria-label="통계 차트">
+        <WeeklyBarChart data={weekly} />
+        <QuickLinks />
       </section>
 
-      {/* Recent orders */}
       <section aria-label="최근 주문">
-        <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--color-border)] bg-gray-50">
-            <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">최근 주문</h2>
-            <Link href="/orders" className="text-xs text-blue-600 hover:underline">
-              전체 보기 →
-            </Link>
-          </div>
-          {recentOrders.length === 0 ? (
-            <div className="py-12 text-center text-sm text-[var(--color-text-tertiary)]">
-              아직 주문이 없습니다.
-            </div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="border-b border-[var(--color-border)]">
-                <tr>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
-                    주문번호
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
-                    고객
-                  </th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-[var(--color-text-secondary)]">
-                    금액
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
-                    상태
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)]">
-                    주문일
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border)]">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3">
-                      <Link
-                        href={`/orders/${order.id}`}
-                        className="font-mono text-xs text-blue-600 hover:underline"
-                      >
-                        {order.order_number}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3">
-                      {order.user ? (
-                        <div>
-                          <p className="font-medium text-[var(--color-text-primary)]">
-                            {order.user.name}
-                          </p>
-                          <p className="text-xs text-[var(--color-text-tertiary)]">
-                            {order.user.email}
-                          </p>
-                        </div>
-                      ) : (
-                        <span className="text-[var(--color-text-tertiary)]">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-right font-medium text-[var(--color-text-primary)]">
-                      {order.total_amount.toLocaleString()}
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge className={ORDER_STATUS_BADGE[order.status as OrderStatus]}>
-                        {ORDER_STATUS_LABEL[order.status as OrderStatus]}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-3 text-[var(--color-text-secondary)]">
-                      {new Date(order.ordered_at).toLocaleDateString('ko-KR')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+            최근 주문
+          </h2>
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-0.5 text-[12px] font-medium text-[var(--mz-accent)] hover:underline"
+          >
+            전체 보기 <ArrowRight className="h-3 w-3" strokeWidth={2} />
+          </Link>
         </div>
+        <DataTable<RecentOrder>
+          columns={recentOrderColumns()}
+          rows={recentOrders}
+          rowKey={(o) => o.id}
+          empty="아직 주문이 없습니다."
+        />
       </section>
     </div>
   );
