@@ -2,18 +2,31 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
 import type { Coupon, CouponType, Currency } from '@commerce/types';
 import type { SaveCouponInput } from '@/lib/actions/coupons';
 import { saveCoupon } from '@/lib/actions/coupons';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  toast,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Convert ISO timestamp to datetime-local input value (YYYY-MM-DDTHH:mm) */
 function toDatetimeLocal(iso: string): string {
   return iso.slice(0, 16);
 }
 
-/** Convert datetime-local value to ISO string */
 function fromDatetimeLocal(val: string): string {
   if (!val) return '';
   return new Date(val).toISOString();
@@ -66,22 +79,24 @@ function couponToInput(c: Coupon): SaveCouponInput {
 
 const CURRENCY_OPTIONS: Currency[] = ['KRW', 'USD', 'JPY', 'EUR'];
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+const NAME_FIELDS = [
+  { key: 'name_ko' as const, label: '이름 (KO) *' },
+  { key: 'name_en' as const, label: '이름 (EN)' },
+  { key: 'name_ja' as const, label: '이름 (JA)' },
+  { key: 'name_de' as const, label: '이름 (DE)' },
+];
 
 interface Props {
   coupon: Coupon | null;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function CouponForm({ coupon }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [form, setForm] = useState<SaveCouponInput>(() =>
-    coupon ? couponToInput(coupon) : makeDefault()
+    coupon ? couponToInput(coupon) : makeDefault(),
   );
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   function patch<K extends keyof SaveCouponInput>(key: K, value: SaveCouponInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -98,7 +113,6 @@ export function CouponForm({ coupon }: Props) {
 
   function handleSubmit() {
     setError(null);
-    setSuccess(false);
 
     if (!form.code.trim()) {
       setError('쿠폰 코드를 입력해주세요.');
@@ -128,15 +142,15 @@ export function CouponForm({ coupon }: Props) {
     startTransition(async () => {
       try {
         const id = await saveCoupon(coupon?.id ?? null, form);
+        toast.success(coupon ? '쿠폰을 수정했습니다.' : '쿠폰을 생성했습니다.');
         if (!coupon) {
           router.push(`/coupons/${id}`);
-          router.refresh();
-        } else {
-          setSuccess(true);
-          router.refresh();
         }
+        router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : '저장 실패');
+        const msg = e instanceof Error ? e.message : '저장 실패';
+        setError(msg);
+        toast.error(msg);
       }
     });
   }
@@ -144,236 +158,192 @@ export function CouponForm({ coupon }: Props) {
   return (
     <div className="space-y-5">
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {error}
-        </p>
-      )}
-      {success && (
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-          저장되었습니다.
-        </p>
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
-      {/* Code & names */}
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            쿠폰 코드 *
-          </label>
-          <input
-            type="text"
-            value={form.code}
-            onChange={(e) => patch('code', e.target.value.toUpperCase())}
-            placeholder="SUMMER2024"
-            disabled={!!coupon}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-[var(--color-text-secondary)]"
-          />
-          {!coupon && (
-            <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
-              영문 대문자, 숫자, 하이픈 사용 권장
-            </p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {(
-            [
-              { key: 'name_ko' as const, label: '이름 (KO) *' },
-              { key: 'name_en' as const, label: '이름 (EN)' },
-              { key: 'name_ja' as const, label: '이름 (JA)' },
-              { key: 'name_de' as const, label: '이름 (DE)' },
-            ] as Array<{ key: keyof SaveCouponInput; label: string }>
-          ).map(({ key, label }) => (
-            <div key={String(key)}>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                {label}
-              </label>
-              <input
-                type="text"
-                value={form[key] as string}
-                onChange={(e) => patch(key, e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          ))}
-        </div>
+      {/* Code */}
+      <div className="space-y-1.5">
+        <Label htmlFor="coupon-code">쿠폰 코드 *</Label>
+        <Input
+          id="coupon-code"
+          value={form.code}
+          onChange={(e) => patch('code', e.target.value.toUpperCase())}
+          placeholder="SUMMER2024"
+          disabled={!!coupon}
+          className={cn('font-mono uppercase', !!coupon && 'cursor-not-allowed bg-muted')}
+        />
+        {!coupon && (
+          <p className="text-[11px] text-muted-foreground">
+            영문 대문자, 숫자, 하이픈 사용 권장
+          </p>
+        )}
       </div>
 
-      {/* Discount settings */}
-      <div className="space-y-3 pt-1">
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="coupon-type"
-              checked={form.type === 'FIXED_AMOUNT'}
-              onChange={() => handleTypeChange('FIXED_AMOUNT')}
-              className="w-4 h-4"
+      {/* Names (KO/EN/JA/DE) */}
+      <div className="grid grid-cols-2 gap-3">
+        {NAME_FIELDS.map(({ key, label }) => (
+          <div key={key} className="space-y-1.5">
+            <Label htmlFor={`coupon-${key}`}>{label}</Label>
+            <Input
+              id={`coupon-${key}`}
+              value={form[key]}
+              onChange={(e) => patch(key, e.target.value)}
             />
-            <span className="text-sm text-[var(--color-text-primary)]">정액 할인</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="coupon-type"
-              checked={form.type === 'PERCENTAGE'}
-              onChange={() => handleTypeChange('PERCENTAGE')}
-              className="w-4 h-4"
-            />
-            <span className="text-sm text-[var(--color-text-primary)]">정률 할인 (%)</span>
-          </label>
+          </div>
+        ))}
+      </div>
+
+      {/* Discount type */}
+      <div className="space-y-2">
+        <Label>할인 종류</Label>
+        <Tabs value={form.type} onValueChange={(v) => handleTypeChange(v as CouponType)}>
+          <TabsList>
+            <TabsTrigger value="FIXED_AMOUNT">정액 할인</TabsTrigger>
+            <TabsTrigger value="PERCENTAGE">정률 할인 (%)</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Discount value + currency/max */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="discount-value">
+            {form.type === 'PERCENTAGE' ? '할인율 (%) *' : '할인 금액 *'}
+          </Label>
+          <Input
+            id="discount-value"
+            type="number"
+            value={form.discount_value}
+            onChange={(e) => patch('discount_value', Number(e.target.value))}
+            min={0}
+            max={form.type === 'PERCENTAGE' ? 100 : undefined}
+            step={0.01}
+            className="font-mono"
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-              {form.type === 'PERCENTAGE' ? '할인율 (%) *' : '할인 금액 *'}
-            </label>
-            <input
-              type="number"
-              value={form.discount_value}
-              onChange={(e) => patch('discount_value', Number(e.target.value))}
-              min="0"
-              max={form.type === 'PERCENTAGE' ? 100 : undefined}
-              step="0.01"
-              className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {form.type === 'FIXED_AMOUNT' ? (
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                통화 *
-              </label>
-              <select
-                value={form.currency ?? ''}
-                onChange={(e) => patch('currency', e.target.value as Currency)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
-              >
+        {form.type === 'FIXED_AMOUNT' ? (
+          <div className="space-y-1.5">
+            <Label>통화 *</Label>
+            <Select
+              value={form.currency ?? 'KRW'}
+              onValueChange={(v) => patch('currency', v as Currency)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {CURRENCY_OPTIONS.map((c) => (
-                  <option key={c} value={c}>
+                  <SelectItem key={c} value={c}>
                     {c}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
-            </div>
-          ) : (
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                최대 할인 금액 (KRW, 선택)
-              </label>
-              <input
-                type="number"
-                value={form.max_discount_amount ?? ''}
-                onChange={(e) =>
-                  patch('max_discount_amount', e.target.value ? Number(e.target.value) : null)
-                }
-                min="0"
-                placeholder="제한 없음"
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-              최소 주문 금액 (선택)
-            </label>
-            <input
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            <Label htmlFor="max-discount">최대 할인 금액 (KRW, 선택)</Label>
+            <Input
+              id="max-discount"
               type="number"
-              value={form.min_order_amount ?? ''}
+              value={form.max_discount_amount ?? ''}
               onChange={(e) =>
-                patch('min_order_amount', e.target.value ? Number(e.target.value) : null)
+                patch('max_discount_amount', e.target.value ? Number(e.target.value) : null)
               }
-              min="0"
+              min={0}
               placeholder="제한 없음"
-              className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="font-mono"
             />
           </div>
+        )}
+
+        <div className="space-y-1.5">
+          <Label htmlFor="min-order">최소 주문 금액 (선택)</Label>
+          <Input
+            id="min-order"
+            type="number"
+            value={form.min_order_amount ?? ''}
+            onChange={(e) =>
+              patch('min_order_amount', e.target.value ? Number(e.target.value) : null)
+            }
+            min={0}
+            placeholder="제한 없음"
+            className="font-mono"
+          />
         </div>
       </div>
 
       {/* Issuance limits */}
-      <div className="grid grid-cols-2 gap-3 pt-1">
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            총 발급 한도 (선택)
-          </label>
-          <input
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="max-issuance">총 발급 한도 (선택)</Label>
+          <Input
+            id="max-issuance"
             type="number"
             value={form.max_issuance_count ?? ''}
             onChange={(e) =>
               patch('max_issuance_count', e.target.value ? Number(e.target.value) : null)
             }
-            min="1"
+            min={1}
             placeholder="무제한"
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="font-mono"
           />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            1인당 발급 한도
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="max-per-user">1인당 발급 한도</Label>
+          <Input
+            id="max-per-user"
             type="number"
             value={form.max_use_per_user}
             onChange={(e) => patch('max_use_per_user', Number(e.target.value))}
-            min="1"
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            min={1}
+            className="font-mono"
           />
         </div>
       </div>
 
       {/* Validity */}
-      <div className="grid grid-cols-2 gap-3 pt-1">
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            시작일 *
-          </label>
-          <input
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="starts-at">시작일 *</Label>
+          <Input
+            id="starts-at"
             type="datetime-local"
             value={toDatetimeLocal(form.starts_at)}
             onChange={(e) => patch('starts_at', fromDatetimeLocal(e.target.value))}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            종료일 *
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="expires-at">종료일 *</Label>
+          <Input
+            id="expires-at"
             type="datetime-local"
             value={toDatetimeLocal(form.expires_at)}
             onChange={(e) => patch('expires_at', fromDatetimeLocal(e.target.value))}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      {/* Options */}
-      <div className="pt-1">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.is_combinable}
-            onChange={(e) => patch('is_combinable', e.target.checked)}
-            className="w-4 h-4 rounded"
-          />
-          <span className="text-sm text-[var(--color-text-secondary)]">
-            다른 쿠폰과 중복 사용 허용
-          </span>
-        </label>
-      </div>
+      {/* Combinable */}
+      <label className="flex cursor-pointer items-center gap-2">
+        <Checkbox
+          checked={form.is_combinable}
+          onCheckedChange={(c) => patch('is_combinable', c === true)}
+        />
+        <span className="text-[13px] text-foreground">다른 쿠폰과 중복 사용 허용</span>
+      </label>
 
       {/* Submit */}
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={isPending}
-        className="w-full py-2.5 text-sm font-medium bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 disabled:opacity-60"
-      >
-        {isPending ? '저장 중...' : coupon ? '수정 저장' : '쿠폰 생성'}
-      </button>
+      <Button onClick={handleSubmit} disabled={isPending} className="w-full" size="md">
+        {isPending ? '저장 중…' : coupon ? '수정 저장' : '쿠폰 생성'}
+      </Button>
     </div>
   );
 }

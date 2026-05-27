@@ -1,27 +1,33 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { CouponStatus } from '@commerce/types';
+import {
+  Badge,
+  Button,
+  type ButtonProps,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  toast,
+} from '@/components/ui';
+import { COUPON_STATUS_LABEL, COUPON_STATUS_VARIANT } from '@/lib/queries/coupons';
 import { updateCouponStatus } from '@/lib/actions/coupons';
 
-const STATUS_LABEL: Record<CouponStatus, string> = {
-  ACTIVE: '활성',
-  PAUSED: '일시정지',
-  EXPIRED: '만료',
-  DEPLETED: '소진',
-};
-
-const STATUS_BADGE: Record<CouponStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  PAUSED: 'bg-yellow-100 text-yellow-700',
-  EXPIRED: 'bg-gray-100 text-gray-500',
-  DEPLETED: 'bg-red-100 text-red-700',
-};
-
-const NEXT_STATUS: Partial<Record<CouponStatus, Array<CouponStatus>>> = {
+const NEXT_STATUS: Partial<Record<CouponStatus, CouponStatus[]>> = {
   ACTIVE: ['PAUSED'],
   PAUSED: ['ACTIVE'],
+};
+
+const TRANSITION_VARIANT: Record<CouponStatus, ButtonProps['variant']> = {
+  ACTIVE: 'accent',
+  PAUSED: 'outline',
+  EXPIRED: 'outline',
+  DEPLETED: 'outline',
 };
 
 interface Props {
@@ -32,52 +38,76 @@ interface Props {
 export function CouponStatusActions({ couponId, currentStatus }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [target, setTarget] = useState<CouponStatus | null>(null);
 
-  function handleChange(status: CouponStatus) {
+  const nextStatuses = NEXT_STATUS[currentStatus] ?? [];
+
+  function confirm(s: CouponStatus) {
     startTransition(async () => {
       try {
-        await updateCouponStatus(couponId, status);
+        await updateCouponStatus(couponId, s);
+        toast.success(`상태를 "${COUPON_STATUS_LABEL[s]}"(으)로 변경했습니다.`);
+        setTarget(null);
         router.refresh();
       } catch (e) {
-        alert(e instanceof Error ? e.message : '상태 변경 실패');
+        toast.error(e instanceof Error ? e.message : '상태 변경에 실패했습니다.');
       }
     });
   }
 
-  const nextStatuses = NEXT_STATUS[currentStatus] ?? [];
-
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--color-text-secondary)]">현재 상태</span>
-        <span
-          className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_BADGE[currentStatus]}`}
-        >
-          {STATUS_LABEL[currentStatus]}
-        </span>
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">현재</span>
+        <Badge variant={COUPON_STATUS_VARIANT[currentStatus]}>
+          {COUPON_STATUS_LABEL[currentStatus]}
+        </Badge>
       </div>
 
-      {nextStatuses.length > 0 && (
+      {nextStatuses.length > 0 ? (
         <div className="flex flex-col gap-2">
           {nextStatuses.map((s) => (
-            <button
+            <Button
               key={s}
-              type="button"
-              onClick={() => handleChange(s)}
+              variant={TRANSITION_VARIANT[s]}
+              size="md"
+              onClick={() => setTarget(s)}
               disabled={isPending}
-              className="w-full py-2 text-sm font-medium border border-[var(--color-border)] rounded-lg hover:bg-gray-50 disabled:opacity-60 text-[var(--color-text-secondary)]"
+              className="w-full"
             >
-              {isPending ? '변경 중...' : `${STATUS_LABEL[s]}으로 변경`}
-            </button>
+              {COUPON_STATUS_LABEL[s]}으로 변경
+            </Button>
           ))}
         </div>
-      )}
-
-      {currentStatus === 'EXPIRED' || currentStatus === 'DEPLETED' ? (
-        <p className="text-xs text-[var(--color-text-tertiary)]">
+      ) : (
+        <p className="text-[11.5px] text-muted-foreground">
           이 쿠폰은 더 이상 상태를 변경할 수 없습니다.
         </p>
-      ) : null}
+      )}
+
+      <Dialog open={target !== null} onOpenChange={(open) => !open && setTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>쿠폰 상태 변경</DialogTitle>
+            <DialogDescription>
+              쿠폰 상태를{' '}
+              <strong className="text-foreground">
+                {target ? COUPON_STATUS_LABEL[target] : ''}
+              </strong>
+              (으)로 변경합니다.
+              {target === 'PAUSED' && ' 일시정지된 쿠폰은 사용할 수 없습니다.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTarget(null)} disabled={isPending}>
+              취소
+            </Button>
+            <Button onClick={() => target && confirm(target)} disabled={isPending}>
+              {isPending ? '처리 중…' : '확정'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

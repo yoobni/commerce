@@ -1,27 +1,10 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
+import { Button, Input, Label, toast } from '@/components/ui';
 import { issueCouponToUserByEmail } from '@/lib/actions/coupons';
-
-interface State {
-  error: string | null;
-  success: boolean;
-}
-
-function makeAction(couponId: string) {
-  return async (_: State, formData: FormData): Promise<State> => {
-    const email = formData.get('email') as string;
-    if (!email?.trim()) return { error: '이메일을 입력해주세요.', success: false };
-
-    try {
-      await issueCouponToUserByEmail(couponId, email.trim());
-      return { error: null, success: true };
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : '발급 실패', success: false };
-    }
-  };
-}
 
 interface Props {
   couponId: string;
@@ -29,40 +12,63 @@ interface Props {
 
 export function IssueForm({ couponId }: Props) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(makeAction(couponId), {
-    error: null,
-    success: false,
-  });
+  const [isPending, startTransition] = useTransition();
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  if (state.success) {
-    router.refresh();
+  useEffect(() => {
+    setError(null);
+  }, [email]);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError('이메일을 입력해주세요.');
+      return;
+    }
+    setError(null);
+    startTransition(async () => {
+      try {
+        await issueCouponToUserByEmail(couponId, email.trim());
+        toast.success(`쿠폰을 ${email.trim()}에 발급했습니다.`);
+        setEmail('');
+        router.refresh();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : '발급 실패';
+        setError(msg);
+        toast.error(msg);
+      }
+    });
   }
 
   return (
-    <form action={formAction} className="space-y-3">
-      <div>
-        <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-          회원 이메일
-        </label>
-        <input
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="space-y-1.5">
+        <Label htmlFor="issue-email">회원 이메일</Label>
+        <Input
+          id="issue-email"
           type="email"
-          name="email"
-          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="user@example.com"
-          className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+          disabled={isPending}
         />
       </div>
 
-      {state.error && <p className="text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="text-xs text-green-700">쿠폰이 발급되었습니다.</p>}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-1.5 text-[11.5px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
-      >
-        {isPending ? '발급 중...' : '발급'}
-      </button>
+      <Button type="submit" disabled={isPending || !email} className="w-full" size="md">
+        {isPending ? '발급 중…' : '발급'}
+      </Button>
     </form>
   );
 }
