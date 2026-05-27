@@ -55,12 +55,7 @@ export function LoginForm() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full py-2.5 px-4 rounded-md text-sm font-semibold text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
-          style={{ background: 'var(--color-primary)' }}
-        >
+        <button type="submit" disabled={isPending} className="btn btn-primary w-full py-2.5">
           {isPending ? '로그인 중...' : '로그인'}
         </button>
       </div>

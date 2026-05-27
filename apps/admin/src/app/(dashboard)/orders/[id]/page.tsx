@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { OrderStatus } from '@commerce/types';
 import { adminGetOrder, ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/legacy/Badge';
 import { OrderStatusActions } from './_components/OrderStatusActions';
 import { AdminMemoForm } from './_components/AdminMemoForm';
 import { RefundForm } from './_components/RefundForm';

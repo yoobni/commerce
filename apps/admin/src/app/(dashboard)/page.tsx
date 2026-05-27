@@ -2,9 +2,9 @@ import Link from 'next/link';
 import type { OrderStatus } from '@commerce/types';
 import { getDashboardStats, getWeeklySalesTrend, getRecentOrders } from '@/lib/queries/stats';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { KpiCard } from '@/components/ui/KpiCard';
-import { MiniChart } from '@/components/ui/MiniChart';
-import { Badge } from '@/components/ui/Badge';
+import { KpiCard } from '@/components/ui/legacy/KpiCard';
+import { MiniChart } from '@/components/ui/legacy/MiniChart';
+import { Badge } from '@/components/ui/legacy/Badge';
 
 export const metadata = { title: '대시보드' };
 

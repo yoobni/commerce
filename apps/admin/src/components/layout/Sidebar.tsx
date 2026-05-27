@@ -24,8 +24,7 @@ export function Sidebar({ role, onClose }: SidebarProps) {
 
   return (
     <aside
-      className="flex flex-col h-full"
-      style={{ background: 'var(--color-sidebar)' }}
+      className="flex flex-col h-full bg-[var(--mz-ink)]"
       aria-label="사이드바 내비게이션"
     >
       {/* Logo */}
@@ -65,10 +64,9 @@ export function Sidebar({ role, onClose }: SidebarProps) {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
                     active
-                      ? 'text-white'
-                      : 'text-[var(--color-sidebar-text)] hover:text-white hover:bg-white/10'
+                      ? 'bg-[var(--mz-accent)] text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
                   )}
-                  style={active ? { background: 'var(--color-sidebar-active)' } : undefined}
                   aria-current={active ? 'page' : undefined}
                 >
                   <svg

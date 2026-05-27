@@ -10,7 +10,7 @@ import {
   AUTH_PROVIDER_BADGE,
 } from '@/lib/queries/members';
 import { ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/legacy/Badge';
 import { MemberStatusActions } from './_components/MemberStatusActions';
 
 export const metadata = { title: '회원 상세' };

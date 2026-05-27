@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { rateLimit, getClientIp } from './lib/rate-limit';
 
-const PUBLIC_PATHS = ['/login', '/unauthorized'];
+const PUBLIC_PATHS = ['/login', '/unauthorized', '/design-demo'];
 const COOKIE_NAME = 'admin_session';
 
 /** Routes that require SUPER_ADMIN role. */

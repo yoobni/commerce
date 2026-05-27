@@ -7,9 +7,9 @@ import {
   AUTH_PROVIDER_LABEL,
   AUTH_PROVIDER_BADGE,
 } from '@/lib/queries/members';
-import { Badge } from '@/components/ui/Badge';
-import { Pagination } from '@/components/ui/Pagination';
-import { StatusTabs } from '@/components/ui/StatusTabs';
+import { Badge } from '@/components/ui/legacy/Badge';
+import { Pagination } from '@/components/ui/legacy/Pagination';
+import { StatusTabs } from '@/components/ui/legacy/StatusTabs';
 
 export const metadata = { title: '회원 관리' };
 

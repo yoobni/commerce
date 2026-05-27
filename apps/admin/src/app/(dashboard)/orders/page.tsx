@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import type { OrderStatus } from '@commerce/types';
 import { adminListOrders, ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { Badge } from '@/components/ui/Badge';
-import { Pagination } from '@/components/ui/Pagination';
-import { StatusTabs } from '@/components/ui/StatusTabs';
+import { Badge } from '@/components/ui/legacy/Badge';
+import { Pagination } from '@/components/ui/legacy/Pagination';
+import { StatusTabs } from '@/components/ui/legacy/StatusTabs';
 
 export const metadata = { title: '주문 관리' };
 
