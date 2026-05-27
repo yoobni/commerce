@@ -1,6 +1,7 @@
 'use client';
 
-import { useTransition, useRef } from 'react';
+import { useTransition, useRef, useState } from 'react';
+import { Button, Textarea, toast } from '@/components/ui';
 import { updateOrderAdminMemo } from '@/lib/actions/orders';
 
 interface AdminMemoFormProps {
@@ -11,41 +12,34 @@ interface AdminMemoFormProps {
 export function AdminMemoForm({ orderId, initialMemo }: AdminMemoFormProps) {
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLTextAreaElement>(null);
+  const [dirty, setDirty] = useState(false);
 
   const handleSave = () => {
     const memo = ref.current?.value ?? '';
     startTransition(async () => {
       try {
         await updateOrderAdminMemo(orderId, memo);
+        toast.success('메모가 저장되었습니다.');
+        setDirty(false);
       } catch {
-        alert('저장에 실패했습니다.');
+        toast.error('저장에 실패했습니다.');
       }
     });
   };
 
   return (
     <div className="space-y-2">
-      <label
-        htmlFor="admin-memo"
-        className="text-xs font-medium text-[var(--color-text-secondary)]"
-      >
-        관리자 메모
-      </label>
-      <textarea
+      <Textarea
         id="admin-memo"
         ref={ref}
         defaultValue={initialMemo ?? ''}
         rows={3}
         placeholder="내부용 메모를 입력하세요. 고객에게 노출되지 않습니다."
-        className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onChange={() => setDirty(true)}
       />
-      <button
-        onClick={handleSave}
-        disabled={isPending}
-        className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-      >
+      <Button onClick={handleSave} disabled={isPending || !dirty} size="sm">
         {isPending ? '저장 중…' : '메모 저장'}
-      </button>
+      </Button>
     </div>
   );
 }

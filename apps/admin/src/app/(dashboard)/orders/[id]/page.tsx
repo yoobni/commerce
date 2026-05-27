@@ -1,13 +1,37 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import type { OrderStatus } from '@commerce/types';
-import { adminGetOrder, ORDER_STATUS_LABEL, ORDER_STATUS_BADGE } from '@/lib/queries/orders';
-import { Badge } from '@/components/ui/legacy/Badge';
+import { adminGetOrder, ORDER_STATUS_LABEL } from '@/lib/queries/orders';
+import {
+  Badge,
+  type BadgeProps,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 import { OrderStatusActions } from './_components/OrderStatusActions';
 import { AdminMemoForm } from './_components/AdminMemoForm';
 import { RefundForm } from './_components/RefundForm';
 
 export const metadata = { title: '주문 상세' };
+
+const STATUS_VARIANT: Record<OrderStatus, BadgeProps['variant']> = {
+  PENDING_PAYMENT: 'warning',
+  PAID: 'accent',
+  PREPARING: 'accent',
+  SHIPPED: 'accent',
+  DELIVERED: 'success',
+  CONFIRMED: 'success',
+  RETURN_REQUESTED: 'warning',
+  RETURNED: 'muted',
+  REFUND_REQUESTED: 'destructive',
+  REFUNDED: 'muted',
+  CANCELLED: 'muted',
+  DELIVERY_FAILED: 'destructive',
+};
 
 function formatAmount(amount: number, currency: string): string {
   try {
@@ -21,25 +45,27 @@ function formatAmount(amount: number, currency: string): string {
   }
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-      <div className="px-5 py-3.5 border-b border-[var(--color-border)] bg-gray-50">
-        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h2>
-      </div>
-      <div className="p-5">{children}</div>
+    <div className="flex gap-4 border-b border-border py-2 last:border-0">
+      <dt className="w-28 shrink-0 pt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="flex-1 text-[13px] text-foreground">{children}</dd>
     </div>
   );
 }
 
-function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="flex gap-4 py-2 border-b border-[var(--color-border-subtle)] last:border-0">
-      <dt className="w-32 shrink-0 text-xs font-medium text-[var(--color-text-tertiary)] pt-0.5">
-        {label}
-      </dt>
-      <dd className="flex-1 text-sm text-[var(--color-text-primary)]">{children}</dd>
-    </div>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 }
 
@@ -53,43 +79,30 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link
-          href="/orders"
-          className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors"
-          aria-label="목록으로"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-4 h-4"
-            aria-hidden="true"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </Link>
-        <div>
-          <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">주문 상세</h1>
-          <p className="text-xs font-mono text-[var(--color-text-tertiary)]">
-            {order.order_number}
-          </p>
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <Button variant="outline" size="icon" asChild>
+          <Link href="/orders" aria-label="목록으로">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="min-w-0">
+          <h1 className="text-[22px] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+            주문 상세
+          </h1>
+          <p className="mt-0.5 font-mono text-[12px] text-muted-foreground">{order.order_number}</p>
         </div>
-        <div className="ml-auto flex items-center gap-3">
-          <Badge className={ORDER_STATUS_BADGE[order.status as OrderStatus]}>
+        <div className="ml-auto">
+          <Badge variant={STATUS_VARIANT[order.status as OrderStatus]}>
             {ORDER_STATUS_LABEL[order.status as OrderStatus]}
           </Badge>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left column */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4 lg:col-span-2">
           {/* Order items */}
-          <SectionCard title="주문 상품">
+          <Section title="주문 상품">
             <div className="space-y-3">
               {order.items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
@@ -98,42 +111,42 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                     <img
                       src={item.product_snapshot.thumbnail_url}
                       alt={item.product_snapshot.name}
-                      className="w-12 h-12 object-cover rounded-lg border border-[var(--color-border)] shrink-0"
+                      className="h-12 w-12 shrink-0 rounded-md border border-border object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg border border-[var(--color-border)] shrink-0" />
+                    <div className="h-12 w-12 shrink-0 rounded-md border border-border bg-muted" />
                   )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-medium text-foreground">
                       {item.product_snapshot.name}
                     </p>
-                    <p className="text-xs text-[var(--color-text-tertiary)]">
+                    <p className="text-[11px] text-muted-foreground">
                       {item.product_snapshot.size} / {item.product_snapshot.color} · SKU:{' '}
-                      {item.product_snapshot.sku}
+                      <span className="font-mono">{item.product_snapshot.sku}</span>
                     </p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                  <div className="shrink-0 text-right">
+                    <p className="font-mono text-[13px] font-medium text-foreground">
                       {formatAmount(item.unit_price, order.currency)} × {item.quantity}
                     </p>
-                    <p className="text-xs text-[var(--color-text-tertiary)]">
-                      {formatAmount(item.total_price, order.currency)}
+                    <p className="font-mono text-[11px] text-muted-foreground">
+                      = {formatAmount(item.total_price, order.currency)}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </SectionCard>
+          </Section>
 
           {/* Payment summary */}
-          <SectionCard title="결제 요약">
-            <dl className="space-y-0">
+          <Section title="결제 요약">
+            <dl>
               <InfoRow label="소계">{formatAmount(order.subtotal, order.currency)}</InfoRow>
               <InfoRow label="배송비">{formatAmount(order.shipping_fee, order.currency)}</InfoRow>
               {order.discount_amount > 0 && (
                 <InfoRow label="할인">
-                  <span className="text-red-500">
-                    - {formatAmount(order.discount_amount, order.currency)}
+                  <span className="text-destructive">
+                    − {formatAmount(order.discount_amount, order.currency)}
                   </span>
                 </InfoRow>
               )}
@@ -142,26 +155,26 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               )}
               {order.point_used > 0 && (
                 <InfoRow label="포인트 사용">
-                  <span className="text-red-500">- {order.point_used.toLocaleString()}P</span>
+                  <span className="text-destructive">− {order.point_used.toLocaleString()}P</span>
                 </InfoRow>
               )}
               <InfoRow label="최종 결제">
-                <span className="text-base font-bold">
+                <span className="font-mono text-base font-semibold">
                   {formatAmount(order.total_amount, order.currency)}
                 </span>
               </InfoRow>
             </dl>
-          </SectionCard>
+          </Section>
 
           {/* Status actions */}
-          <SectionCard title="상태 변경">
+          <Section title="상태 변경">
             <OrderStatusActions orderId={order.id} currentStatus={order.status as OrderStatus} />
-          </SectionCard>
+          </Section>
 
           {/* Payment info + Refund */}
           {order.payment && (
-            <SectionCard title="결제 정보">
-              <dl className="space-y-0 mb-4">
+            <Section title="결제 정보">
+              <dl className="mb-4">
                 <InfoRow label="결제 수단">{order.payment.method}</InfoRow>
                 <InfoRow label="PG사">{order.payment.provider}</InfoRow>
                 <InfoRow label="결제 상태">{order.payment.status}</InfoRow>
@@ -170,7 +183,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </InfoRow>
                 {order.payment.refund_amount != null && order.payment.refund_amount > 0 && (
                   <InfoRow label="환불 금액">
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       {formatAmount(order.payment.refund_amount, order.currency)}
                     </span>
                   </InfoRow>
@@ -188,19 +201,19 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   currency={order.currency}
                 />
               )}
-            </SectionCard>
+            </Section>
           )}
 
           {/* Admin memo */}
-          <SectionCard title="관리자 메모">
+          <Section title="관리자 메모">
             <AdminMemoForm orderId={order.id} initialMemo={order.admin_memo} />
-          </SectionCard>
+          </Section>
         </div>
 
         {/* Right column */}
         <div className="space-y-4">
-          {/* Customer info */}
-          <SectionCard title="고객 정보">
+          {/* Customer */}
+          <Section title="고객 정보">
             {order.user ? (
               <dl>
                 <InfoRow label="이름">{order.user.name}</InfoRow>
@@ -209,56 +222,59 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 <InfoRow label="회원 ID">
                   <Link
                     href={`/members/${order.user.id}`}
-                    className="text-blue-600 hover:underline font-mono text-xs"
+                    className="font-mono text-[12px] text-[var(--mz-accent)] hover:underline"
                   >
                     {order.user.id.slice(0, 8)}…
                   </Link>
                 </InfoRow>
               </dl>
             ) : (
-              <p className="text-sm text-[var(--color-text-tertiary)]">고객 정보 없음</p>
+              <p className="text-[13px] text-muted-foreground">고객 정보 없음</p>
             )}
-          </SectionCard>
+          </Section>
 
           {/* Shipping address */}
           {addr && (
-            <SectionCard title="배송지">
+            <Section title="배송지">
               <dl>
                 <InfoRow label="수령인">{addr.recipient_name}</InfoRow>
                 <InfoRow label="연락처">{addr.phone}</InfoRow>
                 <InfoRow label="주소">
-                  <div>
-                    <p>{addr.postal_code}</p>
+                  <div className="space-y-0.5">
+                    <p className="font-mono text-[12px]">{addr.postal_code}</p>
                     <p>
-                      {addr.city}, {addr.state_province ?? ''}
+                      {addr.city}
+                      {addr.state_province ? `, ${addr.state_province}` : ''}
                     </p>
                     <p>{addr.address_line1}</p>
                     {addr.address_line2 && <p>{addr.address_line2}</p>}
-                    <p>{addr.country}</p>
+                    <p className="text-muted-foreground">{addr.country}</p>
                   </div>
                 </InfoRow>
               </dl>
-            </SectionCard>
+            </Section>
           )}
 
           {/* Order meta */}
-          <SectionCard title="주문 정보">
+          <Section title="주문 정보">
             <dl>
-              <InfoRow label="주문일">{new Date(order.ordered_at).toLocaleString('ko-KR')}</InfoRow>
+              <InfoRow label="주문일">
+                {new Date(order.ordered_at).toLocaleString('ko-KR')}
+              </InfoRow>
               <InfoRow label="통화">{order.currency}</InfoRow>
               {order.memo && <InfoRow label="고객 메모">{order.memo}</InfoRow>}
               {order.cancel_reason && (
                 <InfoRow label="취소 사유">
-                  <span className="text-red-500">{order.cancel_reason}</span>
+                  <span className="text-destructive">{order.cancel_reason}</span>
                 </InfoRow>
               )}
               {order.return_reason && (
                 <InfoRow label="반품 사유">
-                  <span className="text-orange-500">{order.return_reason}</span>
+                  <span className="text-[var(--mz-accent)]">{order.return_reason}</span>
                 </InfoRow>
               )}
             </dl>
-          </SectionCard>
+          </Section>
         </div>
       </div>
     </div>

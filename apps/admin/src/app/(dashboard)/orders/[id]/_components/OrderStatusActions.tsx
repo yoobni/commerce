@@ -1,11 +1,20 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import type { OrderStatus } from '@commerce/types';
-import { updateOrderStatus } from '@/lib/actions/orders';
+import {
+  Button,
+  type ButtonProps,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  toast,
+} from '@/components/ui';
 import { ORDER_STATUS_LABEL } from '@/lib/queries/orders';
-
-// ─── Valid next transitions (must match server-side actions/orders.ts) ────────
+import { updateOrderStatus } from '@/lib/actions/orders';
 
 const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PENDING_PAYMENT: ['CANCELLED'],
@@ -19,16 +28,15 @@ const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   DELIVERY_FAILED: ['RETURN_REQUESTED', 'CANCELLED'],
 };
 
-const NEXT_STATUS_STYLE: Partial<Record<OrderStatus, string>> = {
-  PREPARING: 'bg-indigo-600 text-white hover:bg-indigo-700',
-  SHIPPED: 'bg-violet-600 text-white hover:bg-violet-700',
-  DELIVERED: 'bg-green-600 text-white hover:bg-green-700',
-  CONFIRMED: 'bg-emerald-600 text-white hover:bg-emerald-700',
-  RETURNED: 'bg-amber-600 text-white hover:bg-amber-700',
-  REFUNDED: 'bg-gray-600 text-white hover:bg-gray-700',
-  CANCELLED: 'border border-red-300 text-red-600 hover:bg-red-50',
-  RETURN_REQUESTED: 'border border-orange-300 text-orange-600 hover:bg-orange-50',
-  REFUND_REQUESTED: 'border border-red-300 text-red-600 hover:bg-red-50',
+const TRANSITION_VARIANT: Partial<Record<OrderStatus, ButtonProps['variant']>> = {
+  PREPARING: 'primary',
+  SHIPPED: 'primary',
+  DELIVERED: 'accent',
+  CONFIRMED: 'accent',
+  RETURNED: 'outline',
+  REFUND_REQUESTED: 'destructive',
+  CANCELLED: 'destructive',
+  RETURN_REQUESTED: 'outline',
 };
 
 interface OrderStatusActionsProps {
@@ -38,38 +46,68 @@ interface OrderStatusActionsProps {
 
 export function OrderStatusActions({ orderId, currentStatus }: OrderStatusActionsProps) {
   const [isPending, startTransition] = useTransition();
+  const [target, setTarget] = useState<OrderStatus | null>(null);
   const nextStatuses = ORDER_TRANSITIONS[currentStatus] ?? [];
 
-  if (nextStatuses.length === 0) return null;
+  if (nextStatuses.length === 0) {
+    return (
+      <p className="text-[12.5px] text-muted-foreground">
+        현재 상태에서 변경 가능한 다음 단계가 없습니다.
+      </p>
+    );
+  }
 
-  const handleChange = (newStatus: OrderStatus) => {
-    const label = ORDER_STATUS_LABEL[newStatus];
-    if (!confirm(`주문 상태를 "${label}"(으)로 변경하시겠습니까?`)) return;
-
+  const confirm = (newStatus: OrderStatus) => {
     startTransition(async () => {
       try {
         await updateOrderStatus(orderId, newStatus);
+        toast.success(`상태를 "${ORDER_STATUS_LABEL[newStatus]}"(으)로 변경했습니다.`);
+        setTarget(null);
       } catch (err) {
-        alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
+        toast.error(err instanceof Error ? err.message : '상태 변경에 실패했습니다.');
       }
     });
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {nextStatuses.map((next) => (
-        <button
-          key={next}
-          onClick={() => handleChange(next)}
-          disabled={isPending}
-          className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors disabled:opacity-50 ${
-            NEXT_STATUS_STYLE[next] ??
-            'border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-gray-50'
-          }`}
-        >
-          {ORDER_STATUS_LABEL[next]}으로 변경
-        </button>
-      ))}
-    </div>
+    <>
+      <div className="flex flex-wrap gap-2">
+        {nextStatuses.map((next) => (
+          <Button
+            key={next}
+            variant={TRANSITION_VARIANT[next] ?? 'outline'}
+            size="sm"
+            onClick={() => setTarget(next)}
+            disabled={isPending}
+          >
+            {ORDER_STATUS_LABEL[next]}으로 변경
+          </Button>
+        ))}
+      </div>
+
+      <Dialog open={target !== null} onOpenChange={(open) => !open && setTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>상태 변경 확인</DialogTitle>
+            <DialogDescription>
+              주문 상태를 <strong className="text-foreground">{target ? ORDER_STATUS_LABEL[target] : ''}</strong>(으)로
+              변경합니다. 이 작업은 즉시 반영됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTarget(null)} disabled={isPending}>
+              취소
+            </Button>
+            <Button
+              variant={target && TRANSITION_VARIANT[target] === 'destructive' ? 'destructive' : 'primary'}
+              onClick={() => target && confirm(target)}
+              disabled={isPending}
+            >
+              {isPending ? '처리 중…' : '확정'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
