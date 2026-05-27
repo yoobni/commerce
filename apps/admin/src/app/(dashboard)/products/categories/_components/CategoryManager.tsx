@@ -2,18 +2,38 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { AlertCircle, Plus } from 'lucide-react';
 import type { Category } from '@commerce/types';
 import type { CategoryInput } from '@/lib/actions/products';
 import { saveCategory, deleteCategory } from '@/lib/actions/products';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import {
+  Badge,
+  Button,
+  Checkbox,
+  DataTable,
+  type DataTableColumn,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  InfoSection,
+  Input,
+  Label,
+  PageHeader,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  toast,
+} from '@/components/ui';
 
 type Mode =
   | 'list'
   | { type: 'new'; parentId: string | null }
   | { type: 'edit'; category: Category };
-
-// ─── Blank form factory ───────────────────────────────────────────────────────
 
 function blankInput(parentId: string | null): CategoryInput {
   return {
@@ -41,7 +61,7 @@ function categoryToInput(c: Category): CategoryInput {
   };
 }
 
-// ─── Category form ────────────────────────────────────────────────────────────
+/* ─── form panel ──────────────────────────────────────────────────────────── */
 
 interface FormPanelProps {
   title: string;
@@ -75,196 +95,191 @@ function CategoryFormPanel({ title, initial, categoryId, roots, onDone }: FormPa
     startTransition(async () => {
       try {
         await saveCategory(categoryId, form);
+        toast.success(categoryId ? '카테고리를 수정했습니다.' : '카테고리를 추가했습니다.');
         router.refresh();
         onDone();
       } catch (e) {
-        setError(e instanceof Error ? e.message : '저장 실패');
+        const msg = e instanceof Error ? e.message : '저장 실패';
+        setError(msg);
+        toast.error(msg);
       }
     });
   }
 
   return (
-    <div className="border border-[var(--color-border)] rounded-xl p-5 bg-white space-y-4">
-      <h3 className="font-medium text-[var(--color-text-primary)]">{title}</h3>
-
+    <InfoSection title={title}>
       {error && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
-          {error}
-        </p>
+        <div
+          role="alert"
+          className="mb-3 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12.5px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        {/* parent */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            상위 카테고리
-          </label>
-          <select
-            value={form.parent_id ?? ''}
-            onChange={(e) => patch('parent_id', e.target.value || null)}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
+        <div className="space-y-1.5">
+          <Label>상위 카테고리</Label>
+          <Select
+            value={form.parent_id ?? 'NONE'}
+            onValueChange={(v) => patch('parent_id', v === 'NONE' ? null : v)}
           >
-            <option value="">없음 (최상위)</option>
-            {roots.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name_ko}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="NONE">없음 (최상위)</SelectItem>
+              {roots.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  {r.name_ko}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* slug */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            슬러그 *
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-slug">슬러그 *</Label>
+          <Input
+            id="cat-slug"
             value={form.slug}
             onChange={(e) => patch('slug', e.target.value)}
             placeholder="category-slug"
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg font-mono focus:outline-none"
+            className="font-mono"
           />
         </div>
 
-        {/* name_ko */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            이름 (KO) *
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-name-ko">이름 (KO) *</Label>
+          <Input
+            id="cat-name-ko"
             value={form.name_ko}
             onChange={(e) => patch('name_ko', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
           />
         </div>
-
-        {/* name_en */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            이름 (EN)
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-name-en">이름 (EN)</Label>
+          <Input
+            id="cat-name-en"
             value={form.name_en}
             onChange={(e) => patch('name_en', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
           />
         </div>
-
-        {/* name_ja */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            이름 (JA)
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-name-ja">이름 (JA)</Label>
+          <Input
+            id="cat-name-ja"
             value={form.name_ja}
             onChange={(e) => patch('name_ja', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
           />
         </div>
-
-        {/* name_de */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            이름 (DE)
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-name-de">이름 (DE)</Label>
+          <Input
+            id="cat-name-de"
             value={form.name_de}
             onChange={(e) => patch('name_de', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
           />
         </div>
 
-        {/* sort_order */}
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            정렬 순서
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-sort">정렬 순서</Label>
+          <Input
+            id="cat-sort"
             type="number"
             value={form.sort_order}
             onChange={(e) => patch('sort_order', Number(e.target.value))}
-            min="0"
-            className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
+            min={0}
+            className="font-mono"
           />
         </div>
-
-        {/* is_active */}
-        <div className="flex items-center pt-5">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
+        <div className="flex items-end pb-2">
+          <label className="flex cursor-pointer items-center gap-2">
+            <Checkbox
               checked={form.is_active}
-              onChange={(e) => patch('is_active', e.target.checked)}
-              className="w-4 h-4 rounded"
+              onCheckedChange={(c) => patch('is_active', c === true)}
             />
-            <span className="text-sm text-[var(--color-text-secondary)]">활성 표시</span>
+            <span className="text-[13px] text-foreground">활성 표시</span>
           </label>
         </div>
       </div>
 
-      <div className="flex gap-2 pt-1">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 disabled:opacity-60"
-        >
-          {isPending ? '저장 중...' : '저장'}
-        </button>
-        <button
-          type="button"
-          onClick={onDone}
-          className="px-4 py-2 text-sm border border-[var(--color-border)] rounded-lg hover:bg-gray-50 text-[var(--color-text-secondary)]"
-        >
+      <div className="mt-4 flex gap-2">
+        <Button onClick={handleSubmit} disabled={isPending} size="sm">
+          {isPending ? '저장 중…' : '저장'}
+        </Button>
+        <Button variant="outline" onClick={onDone} size="sm">
           취소
-        </button>
+        </Button>
       </div>
-    </div>
+    </InfoSection>
   );
 }
 
-// ─── Delete button ─────────────────────────────────────────────────────────────
+/* ─── delete confirm ──────────────────────────────────────────────────────── */
 
-function DeleteButton({ categoryId }: { categoryId: string }) {
+function DeleteButton({ category }: { category: Category }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
-    if (!confirm('이 카테고리를 삭제하시겠습니까? 사용 중인 상품이 있으면 삭제할 수 없습니다.'))
-      return;
-
     startTransition(async () => {
       try {
-        await deleteCategory(categoryId);
+        await deleteCategory(category.id);
+        toast.success('카테고리를 삭제했습니다.');
         router.refresh();
+        setOpen(false);
       } catch (e) {
-        alert(e instanceof Error ? e.message : '삭제 실패');
+        const msg = e instanceof Error ? e.message : '삭제 실패';
+        toast.error(msg);
       }
     });
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      disabled={isPending}
-      className="text-xs text-red-500 hover:text-red-700 disabled:opacity-60"
-    >
-      {isPending ? '삭제 중...' : '삭제'}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        disabled={isPending}
+        className="text-[12px] text-destructive hover:underline disabled:opacity-60"
+      >
+        삭제
+      </button>
+      <Dialog open={open} onOpenChange={(o) => !isPending && setOpen(o)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>카테고리 삭제</DialogTitle>
+            <DialogDescription>
+              <strong className="text-foreground">{category.name_ko}</strong>을(를) 삭제합니다.
+              사용 중인 상품이 있으면 삭제할 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
+              취소
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
+              {isPending ? '삭제 중…' : '삭제 확정'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
-// ─── Main component ────────────────────────────────────────────────────────────
+/* ─── main component ──────────────────────────────────────────────────────── */
 
 interface Props {
   categories: Category[];
 }
+
+type Row =
+  | { kind: 'root'; cat: Category }
+  | { kind: 'child'; cat: Category };
 
 export function CategoryManager({ categories }: Props) {
   const [mode, setMode] = useState<Mode>('list');
@@ -272,148 +287,111 @@ export function CategoryManager({ categories }: Props) {
   const roots = categories.filter((c) => c.parent_id === null);
   const childrenOf = (id: string) => categories.filter((c) => c.parent_id === id);
 
-  return (
-    <div className="max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">카테고리 관리</h1>
-        <button
-          type="button"
-          onClick={() => setMode({ type: 'new', parentId: null })}
-          className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90"
-        >
-          + 카테고리 추가
-        </button>
-      </div>
+  // Flatten roots + children for DataTable
+  const rows: Row[] = roots.flatMap((root) => [
+    { kind: 'root' as const, cat: root },
+    ...childrenOf(root.id).map((c) => ({ kind: 'child' as const, cat: c })),
+  ]);
 
-      {/* New / Edit form */}
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      header: '카테고리명',
+      cell: (r) =>
+        r.kind === 'root' ? (
+          <span className="text-[13px] font-medium text-foreground">{r.cat.name_ko}</span>
+        ) : (
+          <span className="pl-5 text-[13px] text-muted-foreground">└ {r.cat.name_ko}</span>
+        ),
+    },
+    {
+      key: 'slug',
+      header: '슬러그',
+      cell: (r) => <span className="font-mono text-[12px] text-muted-foreground">{r.cat.slug}</span>,
+    },
+    {
+      key: 'sort',
+      header: '정렬',
+      align: 'center',
+      width: '70px',
+      cell: (r) => (
+        <span className="font-mono text-[12.5px] text-muted-foreground">{r.cat.sort_order}</span>
+      ),
+    },
+    {
+      key: 'status',
+      header: '상태',
+      align: 'center',
+      width: '90px',
+      cell: (r) => (
+        <Badge variant={r.cat.is_active ? 'success' : 'muted'}>
+          {r.cat.is_active ? '활성' : '비활성'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      width: '180px',
+      cell: (r) => (
+        <div className="flex items-center justify-end gap-3 text-[12px]">
+          {r.kind === 'root' && (
+            <button
+              type="button"
+              onClick={() => setMode({ type: 'new', parentId: r.cat.id })}
+              className="text-[var(--mz-accent)] hover:underline"
+            >
+              하위 추가
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setMode({ type: 'edit', category: r.cat })}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            수정
+          </button>
+          <DeleteButton category={r.cat} />
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      <PageHeader
+        title="카테고리 관리"
+        description={`총 ${categories.length.toLocaleString()}개`}
+        actions={
+          <Button
+            size="sm"
+            onClick={() => setMode({ type: 'new', parentId: null })}
+            disabled={mode !== 'list'}
+          >
+            <Plus className="mr-1.5 h-4 w-4" /> 카테고리 추가
+          </Button>
+        }
+      />
+
       {mode !== 'list' && (
-        <CategoryFormPanel
-          title={mode.type === 'new' ? '새 카테고리' : '카테고리 수정'}
-          initial={mode.type === 'new' ? blankInput(mode.parentId) : categoryToInput(mode.category)}
-          categoryId={mode.type === 'edit' ? mode.category.id : null}
-          roots={roots}
-          onDone={() => setMode('list')}
-        />
+        <div className="mb-4">
+          <CategoryFormPanel
+            title={mode.type === 'new' ? '새 카테고리' : '카테고리 수정'}
+            initial={mode.type === 'new' ? blankInput(mode.parentId) : categoryToInput(mode.category)}
+            categoryId={mode.type === 'edit' ? mode.category.id : null}
+            roots={roots}
+            onDone={() => setMode('list')}
+          />
+        </div>
       )}
 
-      {/* Category tree */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        {categories.length === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-[var(--color-text-tertiary)]">
-            카테고리가 없습니다.
-          </p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                  카테고리명
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                  슬러그
-                </th>
-                <th className="px-4 py-3 text-center font-medium text-[var(--color-text-secondary)]">
-                  정렬
-                </th>
-                <th className="px-4 py-3 text-center font-medium text-[var(--color-text-secondary)]">
-                  상태
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">
-                  작업
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--color-border)]">
-              {roots.map((root) => (
-                <>
-                  {/* Root row */}
-                  <tr key={root.id} className="bg-gray-50/50 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-[var(--color-text-primary)]">
-                      {root.name_ko}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)]">
-                      {root.slug}
-                    </td>
-                    <td className="px-4 py-3 text-center text-[var(--color-text-secondary)]">
-                      {root.sort_order}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          root.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {root.is_active ? '활성' : '비활성'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setMode({ type: 'new', parentId: root.id })}
-                          className="text-xs text-blue-500 hover:text-blue-700"
-                        >
-                          하위 추가
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMode({ type: 'edit', category: root })}
-                          className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                        >
-                          수정
-                        </button>
-                        <DeleteButton categoryId={root.id} />
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* Children rows */}
-                  {childrenOf(root.id).map((child) => (
-                    <tr key={child.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <span className="pl-5 text-[var(--color-text-secondary)]">
-                          └ {child.name_ko}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-xs text-[var(--color-text-tertiary)]">
-                        {child.slug}
-                      </td>
-                      <td className="px-4 py-3 text-center text-[var(--color-text-secondary)]">
-                        {child.sort_order}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            child.is_active
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-500'
-                          }`}
-                        >
-                          {child.is_active ? '활성' : '비활성'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setMode({ type: 'edit', category: child })}
-                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                          >
-                            수정
-                          </button>
-                          <DeleteButton categoryId={child.id} />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <DataTable<Row>
+        columns={columns}
+        rows={rows}
+        rowKey={(r, i) => `${r.kind}-${r.cat.id}-${i}`}
+        empty="카테고리가 없습니다. 새로 추가해보세요."
+      />
     </div>
   );
 }

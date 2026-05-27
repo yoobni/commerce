@@ -2,10 +2,37 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { AlertCircle, ArrowLeft, Plus, Trash2, X } from 'lucide-react';
 import type { Category, Size, ProductStatus } from '@commerce/types';
 import type { ProductDetail } from '@/lib/queries/products';
 import type { SaveOptionInput } from '@/lib/actions/products';
 import { uploadProductImage, saveProduct, deleteProduct } from '@/lib/actions/products';
+import {
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  InfoSection,
+  Input,
+  Label,
+  PageHeader,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  toast,
+} from '@/components/ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -132,7 +159,7 @@ function productToForm(p: ProductDetail): FormState {
   };
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
   product: ProductDetail | null;
@@ -140,14 +167,12 @@ interface Props {
   sizes: Size[];
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function ProductForm({ product, categories, sizes }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [langTab, setLangTab] = useState<Lang>('ko');
   const [form, setForm] = useState<FormState>(() =>
-    product ? productToForm(product) : makeDefault()
+    product ? productToForm(product) : makeDefault(),
   );
   const [options, setOptions] = useState<SaveOptionInput[]>(
     () =>
@@ -164,13 +189,12 @@ export function ProductForm({ product, categories, sizes }: Props) {
         stock: o.stock,
         low_stock_threshold: o.low_stock_threshold,
         is_active: o.is_active,
-      })) ?? []
+      })) ?? [],
   );
   const [error, setError] = useState<string | null>(null);
   const [thumbLoading, setThumbLoading] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
-
-  // ─── Helpers ───────────────────────────────────────────────────────────────
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   function patch<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -184,7 +208,9 @@ export function ProductForm({ product, categories, sizes }: Props) {
       const url = await uploadProductImage(fd);
       patch('thumbnail_url', url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '업로드 실패');
+      const msg = e instanceof Error ? e.message : '업로드 실패';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setThumbLoading(false);
     }
@@ -198,7 +224,9 @@ export function ProductForm({ product, categories, sizes }: Props) {
       const url = await uploadProductImage(fd);
       patch('images', [...form.images, url]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '업로드 실패');
+      const msg = e instanceof Error ? e.message : '업로드 실패';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setImgLoading(false);
     }
@@ -234,20 +262,23 @@ export function ProductForm({ product, categories, sizes }: Props) {
           if (i !== idx) return o;
           return o.id ? { ...o, toDelete: true } : null;
         })
-        .filter((o): o is SaveOptionInput => o !== null)
+        .filter((o): o is SaveOptionInput => o !== null),
     );
   }
 
   function handleDelete() {
     if (!product) return;
-    if (!window.confirm('상품을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
     startTransition(async () => {
       try {
         await deleteProduct(product.id);
+        toast.success('상품을 삭제했습니다.');
         router.push('/products');
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : '삭제 실패');
+        const msg = e instanceof Error ? e.message : '삭제 실패';
+        setError(msg);
+        toast.error(msg);
+        setDeleteOpen(false);
       }
     });
   }
@@ -276,10 +307,13 @@ export function ProductForm({ product, categories, sizes }: Props) {
           weight_g: form.weight_g || null,
         };
         const id = await saveProduct(product?.id ?? null, input, options);
+        toast.success(product ? '상품을 수정했습니다.' : '상품을 등록했습니다.');
         router.push(`/products/${id}`);
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : '저장 실패');
+        const msg = e instanceof Error ? e.message : '저장 실패';
+        setError(msg);
+        toast.error(msg);
       }
     });
   }
@@ -287,182 +321,164 @@ export function ProductForm({ product, categories, sizes }: Props) {
   const visibleOptions = options.filter((o) => !o.toDelete);
   const { name: nameKey, desc: descKey } = LANG_KEYS[langTab];
 
-  // ─── Render ────────────────────────────────────────────────────────────────
-
   return (
-    <div className="max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.push('/products')}
-            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-          >
-            ← 상품 목록
-          </button>
-          <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
-            {product ? '상품 수정' : '상품 등록'}
-          </h1>
-        </div>
-        <div className="flex gap-2">
-          {product && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isPending}
-              className="px-4 py-2 text-sm font-medium border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-60"
-            >
-              삭제
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isPending}
-            className="px-5 py-2 text-sm font-medium bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90 disabled:opacity-60"
-          >
-            {isPending ? '저장 중...' : '저장'}
-          </button>
-        </div>
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/products">
+            <ArrowLeft className="mr-1 h-3.5 w-3.5" /> 상품 목록
+          </Link>
+        </Button>
       </div>
 
+      <PageHeader
+        title={product ? '상품 수정' : '상품 등록'}
+        description={product ? product.name_ko : '새 상품의 기본 정보와 옵션을 입력합니다.'}
+        actions={
+          <>
+            {product && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteOpen(true)}
+                disabled={isPending}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                삭제
+              </Button>
+            )}
+            <Button onClick={handleSubmit} disabled={isPending} size="sm">
+              {isPending ? '저장 중…' : '저장'}
+            </Button>
+          </>
+        }
+      />
+
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
+        <div
+          role="alert"
+          className="mb-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Basic info */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="font-medium text-[var(--color-text-primary)] mb-4">기본 정보</h2>
+        <InfoSection title="기본 정보">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                카테고리 *
-              </label>
-              <select
+            <div className="space-y-1.5">
+              <Label>카테고리 *</Label>
+              <Select
                 value={form.category_id}
-                onChange={(e) => patch('category_id', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onValueChange={(v) => patch('category_id', v)}
               >
-                <option value="">선택</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name_ko}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name_ko}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                슬러그 *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="slug">슬러그 *</Label>
+              <Input
+                id="slug"
                 value={form.slug}
                 onChange={(e) => patch('slug', e.target.value)}
                 placeholder="product-slug"
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="font-mono"
               />
             </div>
           </div>
-        </section>
+        </InfoSection>
 
         {/* Multilingual content */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="font-medium text-[var(--color-text-primary)]">상품명 / 설명</h2>
-            <div className="ml-auto flex gap-1 p-1 bg-gray-100 rounded-lg">
-              {LANG_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setLangTab(tab.key)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                    langTab === tab.key
-                      ? 'bg-white text-[var(--color-text-primary)] shadow-sm'
-                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <InfoSection
+          title="상품명 / 설명"
+          actions={
+            <Tabs value={langTab} onValueChange={(v) => setLangTab(v as Lang)}>
+              <TabsList className="h-8">
+                {LANG_TABS.map((tab) => (
+                  <TabsTrigger key={tab.key} value={tab.key} className="h-6 px-2.5 text-[11px]">
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          }
+        >
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+            <div className="space-y-1.5">
+              <Label htmlFor={`name-${langTab}`}>
                 상품명 ({langTab.toUpperCase()}){langTab === 'ko' && ' *'}
-              </label>
-              <input
-                type="text"
+              </Label>
+              <Input
+                id={`name-${langTab}`}
                 value={form[nameKey]}
                 onChange={(e) => patch(nameKey, e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                설명 ({langTab.toUpperCase()})
-              </label>
-              <textarea
+            <div className="space-y-1.5">
+              <Label htmlFor={`desc-${langTab}`}>설명 ({langTab.toUpperCase()})</Label>
+              <Textarea
+                id={`desc-${langTab}`}
                 value={form[descKey]}
                 onChange={(e) => patch(descKey, e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="resize-none"
               />
             </div>
           </div>
-        </section>
+        </InfoSection>
 
         {/* Pricing */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="font-medium text-[var(--color-text-primary)] mb-4">기본 가격</h2>
+        <InfoSection title="기본 가격">
           <div className="grid grid-cols-4 gap-4">
             {PRICE_FIELDS.map(({ key, label }) => (
-              <div key={key}>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  {label}
-                </label>
-                <input
+              <div key={key} className="space-y-1.5">
+                <Label htmlFor={key}>{label}</Label>
+                <Input
+                  id={key}
                   type="number"
                   value={form[key]}
                   onChange={(e) => patch(key, Number(e.target.value))}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min={0}
+                  step={0.01}
+                  className="font-mono"
                 />
               </div>
             ))}
           </div>
-        </section>
+        </InfoSection>
 
         {/* Images */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="font-medium text-[var(--color-text-primary)] mb-4">이미지</h2>
+        <InfoSection title="이미지">
           <div className="grid grid-cols-2 gap-6">
             {/* Thumbnail */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-2">
-                썸네일 *
-              </label>
-              <div className="flex gap-3 items-start">
+              <Label className="mb-2 block">썸네일 *</Label>
+              <div className="flex items-start gap-3">
                 {form.thumbnail_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={form.thumbnail_url}
                     alt="thumbnail"
-                    className="w-20 h-20 object-cover rounded-lg border border-[var(--color-border)]"
+                    className="h-20 w-20 rounded-md border border-border object-cover"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-lg bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-md border border-dashed border-input bg-muted text-[11px] text-muted-foreground">
                     없음
                   </div>
                 )}
                 <div className="space-y-2">
-                  <label className="cursor-pointer block">
+                  <label className="block cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
@@ -473,15 +489,15 @@ export function ProductForm({ product, categories, sizes }: Props) {
                         e.target.value = '';
                       }}
                     />
-                    <span className="px-3 py-1.5 text-xs border border-[var(--color-border)] rounded-lg hover:bg-gray-50 inline-block">
-                      {thumbLoading ? '업로드 중...' : '파일 선택'}
+                    <span className="inline-flex h-8 items-center rounded-md border border-input bg-card px-3 text-[12px] hover:bg-secondary">
+                      {thumbLoading ? '업로드 중…' : '파일 선택'}
                     </span>
                   </label>
                   {form.thumbnail_url && (
                     <button
                       type="button"
                       onClick={() => patch('thumbnail_url', '')}
-                      className="text-xs text-red-500 hover:text-red-700 block"
+                      className="block text-[11px] text-destructive hover:underline"
                     >
                       제거
                     </button>
@@ -492,9 +508,7 @@ export function ProductForm({ product, categories, sizes }: Props) {
 
             {/* Gallery */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-2">
-                갤러리
-              </label>
+              <Label className="mb-2 block">갤러리</Label>
               <div className="flex flex-wrap gap-2">
                 {form.images.map((url, i) => (
                   <div key={i} className="relative">
@@ -502,23 +516,24 @@ export function ProductForm({ product, categories, sizes }: Props) {
                     <img
                       src={url}
                       alt={`gallery-${i}`}
-                      className="w-16 h-16 object-cover rounded-lg border border-[var(--color-border)]"
+                      className="h-16 w-16 rounded-md border border-border object-cover"
                     />
                     <button
                       type="button"
                       onClick={() =>
                         patch(
                           'images',
-                          form.images.filter((_, j) => j !== i)
+                          form.images.filter((_, j) => j !== i),
                         )
                       }
-                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none"
+                      className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] leading-none text-white"
+                      aria-label="이미지 제거"
                     >
-                      ×
+                      <X className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
-                <label className="cursor-pointer w-16 h-16 rounded-lg bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xl hover:bg-gray-50">
+                <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-md border border-dashed border-input bg-muted text-lg text-muted-foreground hover:bg-secondary">
                   <input
                     type="file"
                     accept="image/*"
@@ -534,192 +549,174 @@ export function ProductForm({ product, categories, sizes }: Props) {
               </div>
             </div>
           </div>
-        </section>
+        </InfoSection>
 
         {/* Details */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="font-medium text-[var(--color-text-primary)] mb-4">상세 정보</h2>
+        <InfoSection title="상세 정보">
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                소재
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="material">소재</Label>
+              <Input
+                id="material"
                 value={form.material}
                 onChange={(e) => patch('material', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                세탁 방법
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="care">세탁 방법</Label>
+              <Input
+                id="care"
                 value={form.care_instruction}
                 onChange={(e) => patch('care_instruction', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                무게 (g)
-              </label>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="weight">무게 (g)</Label>
+              <Input
+                id="weight"
                 type="number"
                 value={form.weight_g}
                 onChange={(e) => patch('weight_g', Number(e.target.value))}
-                min="0"
-                className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min={0}
+                className="font-mono"
               />
             </div>
           </div>
-        </section>
+        </InfoSection>
 
         {/* Status */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <h2 className="font-medium text-[var(--color-text-primary)] mb-4">상태 설정</h2>
-          <div className="flex gap-6 items-center">
-            <div>
-              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                판매 상태
-              </label>
-              <select
+        <InfoSection title="상태 설정">
+          <div className="flex items-end gap-6">
+            <div className="space-y-1.5">
+              <Label>판매 상태</Label>
+              <Select
                 value={form.status}
-                onChange={(e) => patch('status', e.target.value as ProductStatus)}
-                className="px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onValueChange={(v) => patch('status', v as ProductStatus)}
               >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
+            <label className="flex cursor-pointer items-center gap-2 pb-2">
+              <Checkbox
                 checked={form.is_featured}
-                onChange={(e) => patch('is_featured', e.target.checked)}
-                className="w-4 h-4 rounded"
+                onCheckedChange={(c) => patch('is_featured', c === true)}
               />
-              <span className="text-sm text-[var(--color-text-secondary)]">추천 상품으로 표시</span>
+              <span className="text-[13px] text-foreground">추천 상품으로 표시</span>
             </label>
           </div>
-        </section>
+        </InfoSection>
 
         {/* Options */}
-        <section className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-medium text-[var(--color-text-primary)]">
+        <InfoSection
+          title={
+            <span>
               옵션 / 재고
               {visibleOptions.length > 0 && (
-                <span className="ml-2 text-xs font-normal text-[var(--color-text-secondary)]">
-                  ({visibleOptions.length}개)
-                </span>
+                <Badge variant="muted" className="ml-2">
+                  {visibleOptions.length}개
+                </Badge>
               )}
-            </h2>
-            <button
-              type="button"
-              onClick={addOption}
-              className="px-3 py-1.5 text-xs border border-[var(--color-border)] rounded-lg hover:bg-gray-50"
-            >
-              + 옵션 추가
-            </button>
-          </div>
-
+            </span>
+          }
+          actions={
+            <Button variant="outline" size="sm" onClick={addOption}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> 옵션 추가
+            </Button>
+          }
+        >
           {visibleOptions.length === 0 ? (
-            <p className="text-sm text-[var(--color-text-tertiary)]">
-              옵션이 없습니다. 추가해주세요.
-            </p>
+            <p className="text-[13px] text-muted-foreground">옵션이 없습니다. 추가해주세요.</p>
           ) : (
             <div className="space-y-4">
               {options.map((opt, idx) =>
                 opt.toDelete ? null : (
                   <div
                     key={idx}
-                    className="border border-[var(--color-border)] rounded-lg p-4 space-y-3"
+                    className="space-y-3 rounded-md border border-border bg-muted/30 p-4"
                   >
-                    {/* Row 1: size, color, sku, stock, active, delete */}
-                    <div className="grid grid-cols-6 gap-3 items-end">
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          사이즈
-                        </label>
-                        <select
+                    {/* Row 1: size, color, color_hex, sku, stock, active/delete */}
+                    <div className="grid grid-cols-6 items-end gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">사이즈</Label>
+                        <Select
                           value={opt.size_id}
-                          onChange={(e) => patchOption(idx, { size_id: e.target.value })}
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"
+                          onValueChange={(v) => patchOption(idx, { size_id: v })}
                         >
-                          {sizes.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="h-8 text-[12px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {sizes.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                {s.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          색상
-                        </label>
-                        <input
-                          type="text"
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">색상</Label>
+                        <Input
                           value={opt.color}
                           onChange={(e) => patchOption(idx, { color: e.target.value })}
                           placeholder="Black"
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"
+                          className="h-8 text-[12px]"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          색상코드
-                        </label>
-                        <input
-                          type="text"
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">색상 코드</Label>
+                        <Input
                           value={opt.color_hex ?? ''}
-                          onChange={(e) => patchOption(idx, { color_hex: e.target.value || null })}
+                          onChange={(e) =>
+                            patchOption(idx, { color_hex: e.target.value || null })
+                          }
                           placeholder="#000000"
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded font-mono focus:outline-none"
+                          className="h-8 font-mono text-[12px]"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          SKU
-                        </label>
-                        <input
-                          type="text"
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">SKU</Label>
+                        <Input
                           value={opt.sku}
                           onChange={(e) => patchOption(idx, { sku: e.target.value })}
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded font-mono focus:outline-none"
+                          className="h-8 font-mono text-[12px]"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          재고
-                        </label>
-                        <input
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">재고</Label>
+                        <Input
                           type="number"
                           value={opt.stock}
-                          onChange={(e) => patchOption(idx, { stock: Number(e.target.value) })}
-                          min="0"
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"
+                          onChange={(e) =>
+                            patchOption(idx, { stock: Number(e.target.value) })
+                          }
+                          min={0}
+                          className="h-8 font-mono text-[12px]"
                         />
                       </div>
-                      <div className="flex items-center gap-3 pb-1">
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input
-                            type="checkbox"
+                      <div className="flex items-center gap-3 pb-1.5">
+                        <label className="flex cursor-pointer items-center gap-1">
+                          <Checkbox
                             checked={opt.is_active}
-                            onChange={(e) => patchOption(idx, { is_active: e.target.checked })}
-                            className="w-3.5 h-3.5"
+                            onCheckedChange={(c) =>
+                              patchOption(idx, { is_active: c === true })
+                            }
                           />
-                          <span className="text-xs text-[var(--color-text-secondary)]">활성</span>
+                          <span className="text-[11px] text-foreground">활성</span>
                         </label>
                         <button
                           type="button"
                           onClick={() => removeOption(idx)}
-                          className="text-xs text-red-500 hover:text-red-700"
+                          className="text-[11px] text-destructive hover:underline"
                         >
                           삭제
                         </button>
@@ -729,11 +726,9 @@ export function ProductForm({ product, categories, sizes }: Props) {
                     {/* Row 2: additional prices + low_stock_threshold */}
                     <div className="grid grid-cols-5 gap-3">
                       {OPT_PRICE_FIELDS.map(({ key, label }) => (
-                        <div key={key}>
-                          <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                            {label}
-                          </label>
-                          <input
+                        <div key={key} className="space-y-1">
+                          <Label className="text-[11px]">{label}</Label>
+                          <Input
                             type="number"
                             value={opt[key]}
                             onChange={(e) =>
@@ -741,33 +736,54 @@ export function ProductForm({ product, categories, sizes }: Props) {
                                 [key]: Number(e.target.value),
                               } as Partial<SaveOptionInput>)
                             }
-                            step="0.01"
-                            className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"
+                            step={0.01}
+                            className="h-8 font-mono text-[12px]"
                           />
                         </div>
                       ))}
-                      <div>
-                        <label className="block text-xs text-[var(--color-text-secondary)] mb-1">
-                          부족 알림 기준
-                        </label>
-                        <input
+                      <div className="space-y-1">
+                        <Label className="text-[11px]">부족 알림 기준</Label>
+                        <Input
                           type="number"
                           value={opt.low_stock_threshold}
                           onChange={(e) =>
-                            patchOption(idx, { low_stock_threshold: Number(e.target.value) })
+                            patchOption(idx, {
+                              low_stock_threshold: Number(e.target.value),
+                            })
                           }
-                          min="0"
-                          className="w-full px-2 py-1.5 text-xs border border-[var(--color-border)] rounded focus:outline-none"
+                          min={0}
+                          className="h-8 font-mono text-[12px]"
                         />
                       </div>
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           )}
-        </section>
+        </InfoSection>
       </div>
+
+      {/* Delete confirm dialog */}
+      <Dialog open={deleteOpen} onOpenChange={(open) => !isPending && setDeleteOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>상품 삭제</DialogTitle>
+            <DialogDescription>
+              <strong className="text-foreground">{product?.name_ko}</strong>을(를) 삭제합니다. 이
+              작업은 되돌릴 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={isPending}>
+              취소
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
+              {isPending ? '삭제 중…' : '삭제 확정'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

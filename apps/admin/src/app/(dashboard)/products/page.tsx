@@ -1,35 +1,40 @@
 import Link from 'next/link';
+import { Search, Plus, FolderTree } from 'lucide-react';
 import type { ProductStatus } from '@commerce/types';
-import { adminListProducts, adminListCategories } from '@/lib/queries/products';
+import {
+  adminListProducts,
+  adminListCategories,
+  PRODUCT_STATUS_LABEL,
+  PRODUCT_STATUS_VARIANT,
+} from '@/lib/queries/products';
+import {
+  Badge,
+  Button,
+  DataTable,
+  type DataTableColumn,
+  DataTablePagination,
+  FilterPills,
+  Input,
+  PageHeader,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui';
 
-// ─── Labels & badges ──────────────────────────────────────────────────────────
+export const metadata = { title: '상품 관리' };
 
-const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
-  DRAFT: '임시저장',
-  ACTIVE: '판매중',
-  SOLD_OUT: '품절',
-  HIDDEN: '숨김',
-  DISCONTINUED: '단종',
-};
-
-const PRODUCT_STATUS_BADGE: Record<ProductStatus, string> = {
-  DRAFT: 'bg-gray-100 text-gray-600',
-  ACTIVE: 'bg-green-100 text-green-700',
-  SOLD_OUT: 'bg-orange-100 text-orange-700',
-  HIDDEN: 'bg-yellow-100 text-yellow-700',
-  DISCONTINUED: 'bg-red-100 text-red-700',
-};
-
-const STATUS_TABS: Array<{ value: ProductStatus | 'ALL'; label: string }> = [
+const STATUS_TABS = [
   { value: 'ALL', label: '전체' },
   { value: 'ACTIVE', label: '판매중' },
   { value: 'DRAFT', label: '임시저장' },
   { value: 'SOLD_OUT', label: '품절' },
   { value: 'HIDDEN', label: '숨김' },
   { value: 'DISCONTINUED', label: '단종' },
-];
+] as const;
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+type AdminProduct = Awaited<ReturnType<typeof adminListProducts>>['data'][number];
 
 interface PageProps {
   searchParams: Promise<{
@@ -45,7 +50,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const status = (params.status as ProductStatus | 'ALL') ?? 'ALL';
   const categoryId = params.category ?? '';
   const search = params.search ?? '';
-  const page = Number(params.page ?? 1);
+  const page = Math.max(1, Number(params.page ?? 1));
 
   const [result, categories] = await Promise.all([
     adminListProducts({
@@ -67,200 +72,168 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       ...overrides,
     };
     Object.entries(merged).forEach(([k, v]) => {
-      if (v !== undefined) q.set(k, v);
+      if (v !== undefined && v !== '' && v !== 'ALL') q.set(k, v);
     });
     const str = q.toString();
-    return str ? '?' + str : '';
+    return str ? `/products?${str}` : '/products';
   }
+
+  const columns: DataTableColumn<AdminProduct>[] = [
+    {
+      key: 'product',
+      header: '상품',
+      cell: (p) => (
+        <Link href={`/products/${p.id}`} className="group flex items-center gap-3">
+          {p.thumbnail_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={p.thumbnail_url}
+              alt={p.name_ko}
+              className="h-10 w-10 shrink-0 rounded-md border border-border object-cover"
+            />
+          ) : (
+            <div className="h-10 w-10 shrink-0 rounded-md border border-border bg-muted" />
+          )}
+          <div className="min-w-0">
+            <div className="text-[13px] font-medium text-foreground group-hover:text-[var(--mz-accent)] group-hover:underline">
+              {p.name_ko}
+            </div>
+            <div className="font-mono text-[11px] text-muted-foreground">{p.slug}</div>
+          </div>
+        </Link>
+      ),
+    },
+    {
+      key: 'category',
+      header: '카테고리',
+      width: '140px',
+      cell: (p) => (
+        <span className="text-[12.5px] text-muted-foreground">
+          {p.category?.name_ko ?? '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'price',
+      header: '가격 (KRW)',
+      align: 'right',
+      width: '120px',
+      cell: (p) => (
+        <span className="font-mono text-[13px] font-medium">
+          ₩{p.base_price_krw.toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: '상태',
+      width: '140px',
+      cell: (p) => (
+        <div className="flex items-center gap-1.5">
+          <Badge variant={PRODUCT_STATUS_VARIANT[p.status]}>
+            {PRODUCT_STATUS_LABEL[p.status]}
+          </Badge>
+          {p.is_featured && <Badge variant="accent">추천</Badge>}
+        </div>
+      ),
+    },
+    {
+      key: 'created',
+      header: '등록일',
+      align: 'right',
+      width: '110px',
+      cell: (p) => (
+        <span className="text-[12.5px] text-muted-foreground">
+          {new Date(p.created_at).toLocaleDateString('ko-KR')}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">상품 관리</h1>
-        <div className="flex gap-2">
-          <Link
-            href="/products/categories"
-            className="px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg hover:bg-gray-50 text-[var(--color-text-secondary)]"
-          >
-            카테고리 관리
-          </Link>
-          <Link
-            href="/products/new"
-            className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90"
-          >
-            + 상품 등록
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="상품 관리"
+        description={`총 ${result.total.toLocaleString()}건`}
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/products/categories">
+                <FolderTree className="mr-1.5 h-4 w-4" />
+                카테고리 관리
+              </Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/products/new">
+                <Plus className="mr-1.5 h-4 w-4" />
+                상품 등록
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {/* Status tabs */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-          {STATUS_TABS.map((tab) => (
-            <Link
-              key={tab.value}
-              href={`/products${buildQuery({ status: tab.value, page: '1' })}`}
-              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap ${
-                status === tab.value
-                  ? 'bg-white text-[var(--color-text-primary)] shadow-sm'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Category filter */}
-        <form method="GET" className="flex gap-2 ml-auto">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <FilterPills
+          pills={STATUS_TABS}
+          activeValue={status}
+          buildHref={(v) => buildQuery({ status: v, page: '1' })}
+        />
+        <form method="GET" action="/products" className="ml-auto flex gap-2">
           <input type="hidden" name="status" value={status} />
-          <select
-            name="category"
-            defaultValue={categoryId}
-            className="px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none"
-          >
-            <option value="">전체 카테고리</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name_ko}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            name="search"
-            defaultValue={search}
-            placeholder="상품명 검색"
-            className="px-3 py-1.5 text-sm border border-[var(--color-border)] rounded-lg w-44 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-4 py-1.5 text-sm bg-[var(--color-sidebar)] text-white rounded-lg hover:opacity-90"
-          >
+          <Select name="category" defaultValue={categoryId || 'ALL'}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="전체 카테고리" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">전체 카테고리</SelectItem>
+              {categories
+                .filter((c) => c.parent_id === null)
+                .map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name_ko}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <div className="relative w-56">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              name="search"
+              defaultValue={search}
+              placeholder="상품명 검색"
+              className="pl-9"
+            />
+          </div>
+          <Button type="submit" variant="outline" size="md">
             검색
-          </button>
+          </Button>
+          {(search || categoryId) && (
+            <Button type="button" variant="ghost" size="md" asChild>
+              <Link href={buildQuery({ search: undefined, category: undefined, page: '1' })}>
+                초기화
+              </Link>
+            </Button>
+          )}
         </form>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상품
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                카테고리
-              </th>
-              <th className="px-4 py-3 text-right font-medium text-[var(--color-text-secondary)]">
-                가격 (KRW)
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상태
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                등록일
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {result.data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-12 text-center text-[var(--color-text-tertiary)]"
-                >
-                  상품이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              result.data.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/products/${product.id}`}
-                      className="flex items-center gap-3 group"
-                    >
-                      {product.thumbnail_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={product.thumbnail_url}
-                          alt={product.name_ko}
-                          className="w-10 h-10 object-cover rounded-lg border border-[var(--color-border)]"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 border border-[var(--color-border)]" />
-                      )}
-                      <div>
-                        <p className="font-medium text-[var(--color-text-primary)] group-hover:text-blue-600">
-                          {product.name_ko}
-                        </p>
-                        <p className="text-xs text-[var(--color-text-tertiary)] font-mono">
-                          {product.slug}
-                        </p>
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {product.category?.name_ko ?? '-'}
-                  </td>
-                  <td className="px-4 py-3 text-right font-medium text-[var(--color-text-primary)]">
-                    {product.base_price_krw.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          PRODUCT_STATUS_BADGE[product.status]
-                        }`}
-                      >
-                        {PRODUCT_STATUS_LABEL[product.status]}
-                      </span>
-                      {product.is_featured && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                          추천
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {new Date(product.created_at).toLocaleDateString('ko-KR')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {result.total > result.per_page && (
-        <div className="flex items-center justify-between mt-4 text-sm text-[var(--color-text-secondary)]">
-          <span>
-            총 {result.total.toLocaleString()}건 · {page}페이지
-          </span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <Link
-                href={`/products${buildQuery({ page: String(page - 1) })}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                이전
-              </Link>
-            )}
-            {result.has_next && (
-              <Link
-                href={`/products${buildQuery({ page: String(page + 1) })}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                다음
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+      <DataTable<AdminProduct>
+        columns={columns}
+        rows={result.data}
+        rowKey={(p) => p.id}
+        empty="조건에 맞는 상품이 없습니다. 새 상품을 등록해보세요."
+        footer={
+          <DataTablePagination
+            page={page}
+            total={result.total}
+            perPage={result.per_page}
+            displayed={result.data.length}
+            unit="건"
+            buildHref={(p) => buildQuery({ page: String(p) })}
+          />
+        }
+      />
     </div>
   );
 }

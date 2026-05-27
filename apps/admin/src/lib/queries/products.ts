@@ -12,6 +12,27 @@ import type {
 } from '@commerce/types';
 import { createServiceClient } from '@/lib/supabase/service';
 
+// ─── UI labels & Badge variants (어드민 페이지 공용) ────────────────────────
+
+export const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
+  DRAFT: '임시저장',
+  ACTIVE: '판매중',
+  SOLD_OUT: '품절',
+  HIDDEN: '숨김',
+  DISCONTINUED: '단종',
+};
+
+export const PRODUCT_STATUS_VARIANT: Record<
+  ProductStatus,
+  'success' | 'muted' | 'warning' | 'info' | 'destructive'
+> = {
+  ACTIVE: 'success',
+  DRAFT: 'muted',
+  SOLD_OUT: 'warning',
+  HIDDEN: 'info',
+  DISCONTINUED: 'destructive',
+};
+
 // ─── Extended types ───────────────────────────────────────────────────────────
 
 export interface ProductRow {
