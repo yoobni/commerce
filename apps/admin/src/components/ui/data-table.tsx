@@ -6,8 +6,10 @@
  *
  * 컬럼 정의는 React Table 같은 라이브러리 없이 단순한 객체 배열로 가벼움 유지.
  * 정렬/필터 같은 고급 기능은 페이지에서 직접 처리.
+ *
+ * Note: 'use client' 없음 — 서버/클라이언트 양쪽에서 import 가능.
+ * onRowClick은 호출 측이 client component일 때만 동작.
  */
-'use client';
 
 import * as React from 'react';
 import { cn } from '@/lib/cn';
