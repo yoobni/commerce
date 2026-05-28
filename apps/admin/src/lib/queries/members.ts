@@ -26,12 +26,6 @@ export const MEMBER_STATUS_LABEL: Record<UserStatus, string> = {
   WITHDRAWN: '탈퇴',
 };
 
-export const MEMBER_STATUS_BADGE: Record<UserStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  SUSPENDED: 'bg-red-100 text-red-700',
-  WITHDRAWN: 'bg-gray-100 text-gray-500',
-};
-
 export const AUTH_PROVIDER_LABEL: Record<AuthProvider, string> = {
   email: '이메일',
   google: 'Google',
@@ -41,16 +35,7 @@ export const AUTH_PROVIDER_LABEL: Record<AuthProvider, string> = {
   twitter: 'Twitter/X',
 };
 
-export const AUTH_PROVIDER_BADGE: Record<AuthProvider, string> = {
-  email: 'bg-gray-100 text-gray-600',
-  google: 'bg-blue-50 text-blue-600',
-  apple: 'bg-gray-900 text-white',
-  kakao: 'bg-yellow-100 text-yellow-800',
-  naver: 'bg-green-100 text-green-700',
-  twitter: 'bg-sky-100 text-sky-700',
-};
-
-/* ─── 새 UI Badge variant 매핑 (어드민 페이지에서 사용) ───────────────── */
+/* ─── UI Badge variant 매핑 (어드민 페이지에서 사용) ───────────────── */
 
 export const MEMBER_STATUS_VARIANT: Record<
   UserStatus,

@@ -1,44 +1,27 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import type { BoardType, PostStatus, UserStatus } from '@commerce/types';
-import { adminGetPost } from '@/lib/queries/community';
+import { ArrowLeft, Eye, Heart, MessageSquare } from 'lucide-react';
+import type { PostStatus, UserStatus } from '@commerce/types';
+import {
+  adminGetPost,
+  BOARD_TYPE_LABEL,
+  POST_STATUS_LABEL,
+  POST_STATUS_VARIANT,
+} from '@/lib/queries/community';
+import { MEMBER_STATUS_LABEL, MEMBER_STATUS_VARIANT } from '@/lib/queries/members';
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  InfoRow,
+  InfoSection,
+  PageHeader,
+} from '@/components/ui';
 import { PostActions } from './_components/PostActions';
 import { CommentRow } from './_components/CommentRow';
 
-// ─── Labels ───────────────────────────────────────────────────────────────────
-
-const BOARD_TYPE_LABEL: Record<BoardType, string> = {
-  DAILY: '일상',
-  STYLE: '스타일',
-  TIP: '팁',
-  QUESTION: '질문',
-};
-
-const POST_STATUS_BADGE: Record<PostStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  HIDDEN: 'bg-orange-100 text-orange-700',
-  DELETED: 'bg-red-100 text-red-700',
-};
-
-const POST_STATUS_LABEL: Record<PostStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
-const USER_STATUS_BADGE: Record<UserStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  SUSPENDED: 'bg-red-100 text-red-700',
-  WITHDRAWN: 'bg-gray-100 text-gray-500',
-};
-
-const USER_STATUS_LABEL: Record<UserStatus, string> = {
-  ACTIVE: '활성',
-  SUSPENDED: '정지',
-  WITHDRAWN: '탈퇴',
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+export const metadata = { title: '게시글 상세' };
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -49,176 +32,152 @@ export default async function CommunityPostDetailPage({ params }: PageProps) {
   const post = await adminGetPost(id);
   if (!post) notFound();
 
-  // Fetch author status for sanction UI — user field has limited fields; fallback to ACTIVE
   const authorStatus: UserStatus =
     (post.user as (typeof post.user & { status?: UserStatus }) | null)?.status ?? 'ACTIVE';
 
   return (
-    <div className="max-w-5xl">
-      <Link
-        href="/community"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-6"
-      >
-        ← 커뮤니티 목록
-      </Link>
-
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
-          {BOARD_TYPE_LABEL[post.board_type]}
-        </span>
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">{post.title}</h1>
-        <span
-          className={`px-2.5 py-1 rounded-full text-sm font-medium ${POST_STATUS_BADGE[post.status]}`}
-        >
-          {POST_STATUS_LABEL[post.status]}
-        </span>
-        {post.is_pinned && (
-          <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
-            상단 고정
-          </span>
-        )}
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/community">
+            <ArrowLeft className="mr-1 h-3.5 w-3.5" /> 커뮤니티 목록
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* ── Main ── */}
-        <div className="col-span-2 space-y-6">
-          {/* Post content */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-500">
-                  {post.user?.name?.[0] ?? '?'}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {post.user?.name ?? '-'}
-                  </p>
-                  <p className="text-xs text-[var(--color-text-tertiary)]">
-                    {new Date(post.created_at).toLocaleString('ko-KR')}
-                  </p>
-                </div>
-              </div>
-              <div className="ml-auto flex gap-3 text-xs text-[var(--color-text-tertiary)]">
-                <span>좋아요 {post.like_count}</span>
-                <span>댓글 {post.comment_count}</span>
-                <span>조회 {post.view_count}</span>
-              </div>
-            </div>
+      <PageHeader
+        title={post.title}
+        description={
+          <span className="inline-flex items-center gap-2">
+            <Badge variant="outline">{BOARD_TYPE_LABEL[post.board_type]}</Badge>
+            <span className="text-muted-foreground">{post.user?.name ?? '—'}</span>
+            <span className="text-muted-foreground">
+              · {new Date(post.created_at).toLocaleString('ko-KR')}
+            </span>
+          </span>
+        }
+        actions={
+          <>
+            <Badge variant={POST_STATUS_VARIANT[post.status as PostStatus]}>
+              {POST_STATUS_LABEL[post.status as PostStatus]}
+            </Badge>
+            {post.is_pinned && <Badge variant="accent">상단 고정</Badge>}
+          </>
+        }
+      />
 
-            <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Left column */}
+        <div className="space-y-4 lg:col-span-2">
+          <InfoSection
+            title="본문"
+            actions={
+              <div className="flex items-center gap-3 text-[11.5px] text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <Heart className="h-3 w-3" /> {post.like_count}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <MessageSquare className="h-3 w-3" /> {post.comment_count}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Eye className="h-3 w-3" /> {post.view_count}
+                </span>
+              </div>
+            }
+          >
+            <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-foreground">
               {post.content}
             </p>
 
             {post.images && post.images.length > 0 && (
-              <div className="flex gap-2 mt-4 flex-wrap">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {post.images.map((url, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={i}
                     src={url}
                     alt={`첨부 이미지 ${i + 1}`}
-                    className="w-32 h-32 object-cover rounded-lg border border-[var(--color-border)]"
+                    className="h-32 w-32 rounded-md border border-border object-cover"
                   />
                 ))}
               </div>
             )}
 
             {post.dog_breed && (
-              <p className="mt-3 text-xs text-[var(--color-text-tertiary)]">
-                견종: {post.dog_breed}
-              </p>
+              <p className="mt-3 text-[12px] text-muted-foreground">견종: {post.dog_breed}</p>
             )}
-          </div>
+          </InfoSection>
 
-          {/* Comments */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-[var(--color-border)]">
-              <h2 className="font-medium text-[var(--color-text-primary)]">
-                댓글 ({post.comments.length}개)
-              </h2>
-            </div>
+          <InfoSection title={`댓글 · ${post.comments.length}개`}>
             {post.comments.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-[var(--color-text-tertiary)]">
+              <p className="py-2 text-center text-[13px] text-muted-foreground">
                 댓글이 없습니다.
               </p>
             ) : (
-              <div className="divide-y divide-[var(--color-border)]">
+              <div className="-mx-2 divide-y divide-border">
                 {post.comments.map((comment) => (
                   <CommentRow key={comment.id} comment={comment} postId={post.id} />
                 ))}
               </div>
             )}
-          </div>
+          </InfoSection>
         </div>
 
-        {/* ── Right sidebar ── */}
-        <div className="col-span-1 space-y-4">
-          {/* Post actions */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-4">게시글 관리</h2>
+        {/* Right column */}
+        <div className="space-y-4">
+          <InfoSection title="게시글 관리">
             <PostActions
               postId={post.id}
-              currentStatus={post.status}
+              currentStatus={post.status as PostStatus}
               isPinned={post.is_pinned}
               authorId={post.user_id}
               authorStatus={authorStatus}
             />
-          </div>
+          </InfoSection>
 
-          {/* Author */}
           {post.user && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-3">작성자</h2>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-500">
-                  {post.user.name?.[0] ?? '?'}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {post.user.name}
-                  </p>
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-xs font-medium ${USER_STATUS_BADGE[authorStatus]}`}
-                  >
-                    {USER_STATUS_LABEL[authorStatus]}
-                  </span>
+            <InfoSection title="작성자">
+              <div className="mb-3 flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback>{post.user.name?.[0] ?? '?'}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">{post.user.name}</p>
+                  <Badge variant={MEMBER_STATUS_VARIANT[authorStatus]}>
+                    {MEMBER_STATUS_LABEL[authorStatus]}
+                  </Badge>
                 </div>
               </div>
               <Link
                 href={`/members/${post.user_id}`}
-                className="text-xs text-blue-500 hover:underline"
+                className="text-[12px] text-[var(--mz-accent)] hover:underline"
               >
                 회원 상세 →
               </Link>
-            </div>
+            </InfoSection>
           )}
 
-          {/* Meta */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-3">메타</h2>
-            <dl className="space-y-2 text-xs text-[var(--color-text-secondary)]">
-              <div className="flex justify-between">
-                <dt>게시판</dt>
-                <dd>{BOARD_TYPE_LABEL[post.board_type]}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>좋아요</dt>
-                <dd>{post.like_count.toLocaleString()}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>조회수</dt>
-                <dd>{post.view_count.toLocaleString()}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>작성</dt>
-                <dd>{new Date(post.created_at).toLocaleString('ko-KR')}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>수정</dt>
-                <dd>{new Date(post.updated_at).toLocaleString('ko-KR')}</dd>
-              </div>
+          <InfoSection title="메타">
+            <dl>
+              <InfoRow label="게시판">{BOARD_TYPE_LABEL[post.board_type]}</InfoRow>
+              <InfoRow label="좋아요">
+                <span className="font-mono">{post.like_count.toLocaleString()}</span>
+              </InfoRow>
+              <InfoRow label="조회수">
+                <span className="font-mono">{post.view_count.toLocaleString()}</span>
+              </InfoRow>
+              <InfoRow label="작성">
+                <span className="text-[12px]">
+                  {new Date(post.created_at).toLocaleString('ko-KR')}
+                </span>
+              </InfoRow>
+              <InfoRow label="수정">
+                <span className="text-[12px]">
+                  {new Date(post.updated_at).toLocaleString('ko-KR')}
+                </span>
+              </InfoRow>
             </dl>
-          </div>
+          </InfoSection>
         </div>
       </div>
     </div>

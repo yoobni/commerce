@@ -1,96 +1,94 @@
 'use client';
 
 import { useTransition } from 'react';
-import { setCommentStatus } from '@/lib/actions/community';
+import { Eye, EyeOff, Trash2 } from 'lucide-react';
 import type { PostStatus } from '@commerce/types';
+import { Avatar, AvatarFallback, Badge, toast } from '@/components/ui';
+import { POST_STATUS_LABEL, POST_STATUS_VARIANT } from '@/lib/queries/community';
 import type { AdminCommentRow } from '@/lib/queries/community';
+import { setCommentStatus } from '@/lib/actions/community';
+import { cn } from '@/lib/cn';
 
 interface Props {
   comment: AdminCommentRow;
   postId: string;
 }
 
-const STATUS_BADGE: Record<PostStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  HIDDEN: 'bg-orange-100 text-orange-700',
-  DELETED: 'bg-red-100 text-red-700',
-};
-
-const STATUS_LABEL: Record<PostStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
 export function CommentRow({ comment, postId }: Props) {
   const [pending, startTransition] = useTransition();
 
-  function handleStatus(status: PostStatus) {
-    startTransition(() => {
-      setCommentStatus(comment.id, postId, status).catch(console.error);
+  function handleStatus(status: PostStatus, label: string) {
+    startTransition(async () => {
+      try {
+        await setCommentStatus(comment.id, postId, status);
+        toast.success(`댓글을 ${label} 처리했습니다.`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '상태 변경 실패');
+      }
     });
   }
 
   return (
     <div
-      className={`px-4 py-3 flex gap-3 ${
-        comment.parent_id ? 'ml-8 border-l-2 border-gray-100 pl-4' : ''
-      } ${comment.status !== 'ACTIVE' ? 'opacity-60' : ''}`}
+      className={cn(
+        'flex gap-3 px-4 py-3',
+        comment.parent_id && 'ml-8 border-l-2 border-border pl-4',
+        comment.status !== 'ACTIVE' && 'opacity-60',
+      )}
     >
-      {/* Avatar */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-500 mt-0.5">
-        {comment.user?.name?.[0] ?? '?'}
-      </div>
+      <Avatar className="mt-0.5 h-8 w-8">
+        <AvatarFallback>{comment.user?.name?.[0] ?? '?'}</AvatarFallback>
+      </Avatar>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">
-            {comment.user?.name ?? '-'}
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex items-center gap-2">
+          <span className="text-[13px] font-medium text-foreground">
+            {comment.user?.name ?? '—'}
           </span>
-          <span
-            className={`px-1.5 py-0.5 rounded text-xs font-medium ${STATUS_BADGE[comment.status as PostStatus]}`}
-          >
-            {STATUS_LABEL[comment.status as PostStatus]}
-          </span>
+          <Badge variant={POST_STATUS_VARIANT[comment.status as PostStatus]}>
+            {POST_STATUS_LABEL[comment.status as PostStatus]}
+          </Badge>
           {comment.parent_id && (
-            <span className="text-xs text-[var(--color-text-tertiary)]">답글</span>
+            <Badge variant="muted" className="text-[10px]">
+              답글
+            </Badge>
           )}
-          <span className="text-xs text-[var(--color-text-tertiary)] ml-auto">
+          <span className="ml-auto text-[11px] text-muted-foreground">
             {new Date(comment.created_at).toLocaleString('ko-KR')}
           </span>
         </div>
-        <p className="text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap">
-          {comment.content}
-        </p>
+        <p className="whitespace-pre-wrap text-[13px] text-foreground">{comment.content}</p>
       </div>
 
-      {/* Actions */}
-      <div className="flex-shrink-0 flex flex-col gap-1">
-        {comment.status === 'ACTIVE' ? (
+      <div className="flex shrink-0 flex-col gap-1">
+        {comment.status === 'ACTIVE' && (
           <button
-            onClick={() => handleStatus('HIDDEN')}
+            type="button"
+            onClick={() => handleStatus('HIDDEN', '숨김')}
             disabled={pending}
-            className="px-2 py-1 text-xs border border-orange-200 text-orange-600 rounded hover:bg-orange-50 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded border border-input bg-card px-2 py-1 text-[11px] text-foreground hover:bg-secondary disabled:opacity-60"
           >
-            숨김
+            <EyeOff className="h-3 w-3" /> 숨김
           </button>
-        ) : comment.status === 'HIDDEN' ? (
+        )}
+        {comment.status === 'HIDDEN' && (
           <button
-            onClick={() => handleStatus('ACTIVE')}
+            type="button"
+            onClick={() => handleStatus('ACTIVE', '복구')}
             disabled={pending}
-            className="px-2 py-1 text-xs border border-green-200 text-green-600 rounded hover:bg-green-50 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded border border-input bg-card px-2 py-1 text-[11px] text-foreground hover:bg-secondary disabled:opacity-60"
           >
-            복구
+            <Eye className="h-3 w-3" /> 복구
           </button>
-        ) : null}
+        )}
         {comment.status !== 'DELETED' && (
           <button
-            onClick={() => handleStatus('DELETED')}
+            type="button"
+            onClick={() => handleStatus('DELETED', '삭제')}
             disabled={pending}
-            className="px-2 py-1 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded border border-destructive/30 bg-card px-2 py-1 text-[11px] text-destructive hover:bg-destructive/10 disabled:opacity-60"
           >
-            삭제
+            <Trash2 className="h-3 w-3" /> 삭제
           </button>
         )}
       </div>

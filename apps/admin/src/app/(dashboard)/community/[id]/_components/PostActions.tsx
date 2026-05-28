@@ -1,8 +1,10 @@
 'use client';
 
 import { useTransition } from 'react';
-import { setPostStatus, setPostPinned, setUserStatus } from '@/lib/actions/community';
+import { Eye, EyeOff, Pin, PinOff, Trash2, UserX, UserCheck } from 'lucide-react';
 import type { PostStatus, UserStatus } from '@commerce/types';
+import { Button, toast } from '@/components/ui';
+import { setPostStatus, setPostPinned, setUserStatus } from '@/lib/actions/community';
 
 interface Props {
   postId: string;
@@ -12,94 +14,130 @@ interface Props {
   authorStatus: UserStatus;
 }
 
-export function PostActions({ postId, currentStatus, isPinned, authorId, authorStatus }: Props) {
+export function PostActions({
+  postId,
+  currentStatus,
+  isPinned,
+  authorId,
+  authorStatus,
+}: Props) {
   const [pending, startTransition] = useTransition();
 
-  function handlePostStatus(status: PostStatus) {
-    startTransition(() => {
-      setPostStatus(postId, status).catch(console.error);
+  function handlePostStatus(status: PostStatus, label: string) {
+    startTransition(async () => {
+      try {
+        await setPostStatus(postId, status);
+        toast.success(`게시글을 ${label} 처리했습니다.`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '상태 변경 실패');
+      }
     });
   }
 
   function handlePin() {
-    startTransition(() => {
-      setPostPinned(postId, !isPinned).catch(console.error);
+    startTransition(async () => {
+      try {
+        await setPostPinned(postId, !isPinned);
+        toast.success(isPinned ? '상단 고정을 해제했습니다.' : '상단에 고정했습니다.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '고정 토글 실패');
+      }
     });
   }
 
-  function handleUserStatus(status: UserStatus) {
-    startTransition(() => {
-      setUserStatus(authorId, status, postId).catch(console.error);
+  function handleUserStatus(status: UserStatus, label: string) {
+    startTransition(async () => {
+      try {
+        await setUserStatus(authorId, status, postId);
+        toast.success(`회원을 ${label} 처리했습니다.`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '회원 상태 변경 실패');
+      }
     });
   }
 
   return (
     <div className="space-y-2">
-      {/* Post visibility */}
       {currentStatus === 'ACTIVE' && (
-        <button
-          onClick={() => handlePostStatus('HIDDEN')}
+        <Button
+          variant="outline"
+          size="md"
+          className="w-full"
+          onClick={() => handlePostStatus('HIDDEN', '숨김')}
           disabled={pending}
-          className="w-full py-2 text-sm font-medium border border-orange-200 text-orange-600 rounded-lg hover:bg-orange-50 disabled:opacity-60 transition-colors"
         >
-          게시글 숨김
-        </button>
+          <EyeOff className="mr-1.5 h-4 w-4" /> 게시글 숨김
+        </Button>
       )}
       {currentStatus === 'HIDDEN' && (
-        <button
-          onClick={() => handlePostStatus('ACTIVE')}
+        <Button
+          variant="accent"
+          size="md"
+          className="w-full"
+          onClick={() => handlePostStatus('ACTIVE', '복구')}
           disabled={pending}
-          className="w-full py-2 text-sm font-medium border border-green-200 text-green-600 rounded-lg hover:bg-green-50 disabled:opacity-60 transition-colors"
         >
-          게시글 복구
-        </button>
+          <Eye className="mr-1.5 h-4 w-4" /> 게시글 복구
+        </Button>
       )}
       {currentStatus !== 'DELETED' && (
-        <button
-          onClick={() => handlePostStatus('DELETED')}
+        <Button
+          variant="destructive"
+          size="md"
+          className="w-full"
+          onClick={() => handlePostStatus('DELETED', '삭제')}
           disabled={pending}
-          className="w-full py-2 text-sm font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-60 transition-colors"
         >
-          게시글 삭제
-        </button>
+          <Trash2 className="mr-1.5 h-4 w-4" /> 게시글 삭제
+        </Button>
       )}
 
-      {/* Pin */}
-      <button
+      <Button
+        variant={isPinned ? 'accent' : 'outline'}
+        size="md"
+        className="w-full"
         onClick={handlePin}
         disabled={pending}
-        className={`w-full py-2 text-sm font-medium rounded-lg border transition-colors disabled:opacity-60 ${
-          isPinned
-            ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
-            : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-gray-50'
-        }`}
       >
-        {isPinned ? '상단 고정 해제' : '상단 고정'}
-      </button>
+        {isPinned ? (
+          <>
+            <PinOff className="mr-1.5 h-4 w-4" /> 상단 고정 해제
+          </>
+        ) : (
+          <>
+            <Pin className="mr-1.5 h-4 w-4" /> 상단 고정
+          </>
+        )}
+      </Button>
 
-      {/* User sanction */}
-      <div className="border-t border-[var(--color-border)] pt-3 mt-3 space-y-2">
-        <p className="text-xs text-[var(--color-text-tertiary)] font-medium uppercase">
+      <div className="space-y-2 border-t border-border pt-3">
+        <p className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
           작성자 제재
         </p>
-        {authorStatus === 'ACTIVE' ? (
-          <button
-            onClick={() => handleUserStatus('SUSPENDED')}
+        {authorStatus === 'ACTIVE' && (
+          <Button
+            variant="destructive"
+            size="md"
+            className="w-full"
+            onClick={() => handleUserStatus('SUSPENDED', '정지')}
             disabled={pending}
-            className="w-full py-2 text-sm font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-60 transition-colors"
           >
-            회원 정지
-          </button>
-        ) : authorStatus === 'SUSPENDED' ? (
-          <button
-            onClick={() => handleUserStatus('ACTIVE')}
+            <UserX className="mr-1.5 h-4 w-4" /> 회원 정지
+          </Button>
+        )}
+        {authorStatus === 'SUSPENDED' && (
+          <Button
+            variant="accent"
+            size="md"
+            className="w-full"
+            onClick={() => handleUserStatus('ACTIVE', '정지 해제')}
             disabled={pending}
-            className="w-full py-2 text-sm font-medium border border-green-200 text-green-600 rounded-lg hover:bg-green-50 disabled:opacity-60 transition-colors"
           >
-            회원 정지 해제
-          </button>
-        ) : (
-          <p className="text-xs text-[var(--color-text-tertiary)]">탈퇴 회원</p>
+            <UserCheck className="mr-1.5 h-4 w-4" /> 회원 정지 해제
+          </Button>
+        )}
+        {authorStatus === 'WITHDRAWN' && (
+          <p className="text-[12px] text-muted-foreground">탈퇴 회원</p>
         )}
       </div>
     </div>

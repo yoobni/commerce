@@ -47,21 +47,6 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   DELIVERY_FAILED: '배송실패',
 };
 
-export const ORDER_STATUS_BADGE: Record<OrderStatus, string> = {
-  PENDING_PAYMENT: 'bg-yellow-100 text-yellow-700',
-  PAID: 'bg-blue-100 text-blue-700',
-  PREPARING: 'bg-indigo-100 text-indigo-700',
-  SHIPPED: 'bg-violet-100 text-violet-700',
-  DELIVERED: 'bg-green-100 text-green-700',
-  CONFIRMED: 'bg-emerald-100 text-emerald-700',
-  RETURN_REQUESTED: 'bg-orange-100 text-orange-700',
-  RETURNED: 'bg-amber-100 text-amber-700',
-  REFUND_REQUESTED: 'bg-red-100 text-red-600',
-  REFUNDED: 'bg-gray-100 text-gray-500',
-  CANCELLED: 'bg-gray-100 text-gray-500',
-  DELIVERY_FAILED: 'bg-red-100 text-red-700',
-};
-
 /**
  * 어드민 UI Badge variant 매핑. 새 Badge 색 신호(info/processing 등)에 맞춤.
  * - info: 결제됨/확정됨 (파랑) — 처리됐다는 신호
