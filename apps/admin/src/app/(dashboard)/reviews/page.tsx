@@ -1,29 +1,31 @@
 import Link from 'next/link';
+import { Camera, Sparkles, AlertTriangle } from 'lucide-react';
 import type { ReviewStatus } from '@commerce/types';
-import { adminListReviews } from '@/lib/queries/reviews';
+import {
+  adminListReviews,
+  REVIEW_STATUS_LABEL,
+  REVIEW_STATUS_VARIANT,
+} from '@/lib/queries/reviews';
+import {
+  Badge,
+  DataTable,
+  type DataTableColumn,
+  DataTablePagination,
+  FilterPills,
+  PageHeader,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
 
-// ─── Labels & badges ──────────────────────────────────────────────────────────
+export const metadata = { title: '리뷰 관리' };
 
-const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
-const REVIEW_STATUS_BADGE: Record<ReviewStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  HIDDEN: 'bg-orange-100 text-orange-700',
-  DELETED: 'bg-red-100 text-red-700',
-};
-
-const STATUS_TABS: Array<{ value: ReviewStatus | 'ALL'; label: string }> = [
+const STATUS_TABS = [
   { value: 'ALL', label: '전체' },
   { value: 'ACTIVE', label: '노출' },
   { value: 'HIDDEN', label: '숨김' },
   { value: 'DELETED', label: '삭제' },
-];
+] as const;
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+type AdminReview = Awaited<ReturnType<typeof adminListReviews>>['data'][number];
 
 interface PageProps {
   searchParams: Promise<{
@@ -41,15 +43,9 @@ export default async function ReviewsPage({ searchParams }: PageProps) {
   const isBest = params.best === '1' ? true : params.best === '0' ? false : undefined;
   const isPhoto = params.photo === '1' ? true : params.photo === '0' ? false : undefined;
   const minRating = params.rating ? Number(params.rating) : undefined;
-  const page = Number(params.page ?? 1);
+  const page = Math.max(1, Number(params.page ?? 1));
 
-  const result = await adminListReviews({
-    status,
-    isBest,
-    isPhoto,
-    minRating,
-    page,
-  });
+  const result = await adminListReviews({ status, isBest, isPhoto, minRating, page });
 
   function buildQuery(overrides: Record<string, string | undefined>) {
     const q = new URLSearchParams();
@@ -62,200 +58,177 @@ export default async function ReviewsPage({ searchParams }: PageProps) {
       ...overrides,
     };
     Object.entries(merged).forEach(([k, v]) => {
-      if (v !== undefined) q.set(k, v);
+      if (v !== undefined && v !== '' && v !== 'ALL') q.set(k, v);
     });
-    return '?' + q.toString();
+    const str = q.toString();
+    return str ? `/reviews?${str}` : '/reviews';
   }
+
+  const columns: DataTableColumn<AdminReview>[] = [
+    {
+      key: 'product',
+      header: '상품',
+      width: '180px',
+      cell: (r) =>
+        r.product ? (
+          <div className="flex items-center gap-2">
+            {r.product.thumbnail_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={r.product.thumbnail_url}
+                alt={r.product.name_ko}
+                className="h-8 w-8 shrink-0 rounded border border-border object-cover"
+              />
+            ) : (
+              <div className="h-8 w-8 shrink-0 rounded border border-border bg-muted" />
+            )}
+            <span className="truncate text-[13px] text-foreground">{r.product.name_ko}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: 'user',
+      header: '작성자',
+      width: '100px',
+      cell: (r) => <span className="text-[13px] text-foreground">{r.user?.name ?? '—'}</span>,
+    },
+    {
+      key: 'rating',
+      header: '평점',
+      align: 'center',
+      width: '110px',
+      cell: (r) => (
+        <span
+          className={cn(
+            'inline-flex items-center gap-0.5 text-[13px] font-semibold',
+            r.rating <= 2
+              ? 'text-destructive'
+              : r.rating === 3
+                ? 'text-[#92400e]'
+                : 'text-[#b3801a]',
+          )}
+        >
+          {'★'.repeat(r.rating)}
+          <span className="text-muted-foreground">{'★'.repeat(5 - r.rating)}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'content',
+      header: '내용 요약',
+      cell: (r) => (
+        <Link
+          href={`/reviews/${r.id}`}
+          className="line-clamp-2 text-[12.5px] text-muted-foreground hover:text-foreground"
+        >
+          {r.content}
+        </Link>
+      ),
+    },
+    {
+      key: 'status',
+      header: '상태',
+      width: '110px',
+      cell: (r) => (
+        <div className="flex flex-col gap-1">
+          <Badge variant={REVIEW_STATUS_VARIANT[r.status]}>
+            {REVIEW_STATUS_LABEL[r.status]}
+          </Badge>
+          {r.is_best && (
+            <Badge variant="warning" className="w-fit">
+              베스트
+            </Badge>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'date',
+      header: '작성일',
+      align: 'right',
+      width: '110px',
+      cell: (r) => (
+        <span className="text-[12px] text-muted-foreground">
+          {new Date(r.created_at).toLocaleDateString('ko-KR')}
+        </span>
+      ),
+    },
+  ];
+
+  const quickFilters = [
+    {
+      key: 'best',
+      label: '베스트',
+      icon: Sparkles,
+      active: isBest === true,
+      href: buildQuery({ best: isBest === true ? undefined : '1', page: '1' }),
+    },
+    {
+      key: 'photo',
+      label: '포토리뷰',
+      icon: Camera,
+      active: isPhoto === true,
+      href: buildQuery({ photo: isPhoto === true ? undefined : '1', page: '1' }),
+    },
+    {
+      key: 'rating1',
+      label: '1점',
+      icon: AlertTriangle,
+      active: minRating === 1,
+      href: buildQuery({ rating: minRating === 1 ? undefined : '1', page: '1' }),
+    },
+  ];
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6">리뷰 관리</h1>
+      <PageHeader title="리뷰 관리" description={`총 ${result.total.toLocaleString()}건`} />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {/* Status tabs */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-          {STATUS_TABS.map((tab) => (
-            <Link
-              key={tab.value}
-              href={`/reviews${buildQuery({ status: tab.value, page: '1' })}`}
-              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap ${
-                status === tab.value
-                  ? 'bg-white text-[var(--color-text-primary)] shadow-sm'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Quick filters */}
-        <div className="flex gap-2 flex-wrap">
-          <Link
-            href={`/reviews${buildQuery({ best: isBest === true ? undefined : '1', page: '1' })}`}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-              isBest === true
-                ? 'border-yellow-300 bg-yellow-50 text-yellow-700'
-                : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-gray-50'
-            }`}
-          >
-            베스트
-          </Link>
-          <Link
-            href={`/reviews${buildQuery({ photo: isPhoto === true ? undefined : '1', page: '1' })}`}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-              isPhoto === true
-                ? 'border-blue-300 bg-blue-50 text-blue-700'
-                : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-gray-50'
-            }`}
-          >
-            포토리뷰
-          </Link>
-          <Link
-            href={`/reviews${buildQuery({ rating: minRating === 1 ? undefined : '1', page: '1' })}`}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-              minRating === 1
-                ? 'border-red-200 bg-red-50 text-red-700'
-                : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-gray-50'
-            }`}
-          >
-            1점
-          </Link>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <FilterPills
+          pills={STATUS_TABS}
+          activeValue={status}
+          buildHref={(v) => buildQuery({ status: v, page: '1' })}
+        />
+        <div className="ml-auto flex flex-wrap gap-2">
+          {quickFilters.map((f) => {
+            const Icon = f.icon;
+            return (
+              <Link
+                key={f.key}
+                href={f.href}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
+                  f.active
+                    ? 'border-[var(--mz-accent)] bg-accent text-accent-foreground'
+                    : 'border-input bg-card text-foreground hover:bg-secondary',
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                {f.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상품
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                작성자
-              </th>
-              <th className="px-4 py-3 text-center font-medium text-[var(--color-text-secondary)]">
-                평점
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                내용 요약
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                상태
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                작성일
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-border)]">
-            {result.data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-12 text-center text-[var(--color-text-tertiary)]"
-                >
-                  리뷰가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              result.data.map((review) => (
-                <tr key={review.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    {review.product ? (
-                      <div className="flex items-center gap-2">
-                        {review.product.thumbnail_url && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={review.product.thumbnail_url}
-                            alt={review.product.name_ko}
-                            className="w-8 h-8 object-cover rounded border border-[var(--color-border)]"
-                          />
-                        )}
-                        <span className="text-[var(--color-text-primary)] truncate max-w-[140px]">
-                          {review.product.name_ko}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-[var(--color-text-tertiary)]">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-primary)]">
-                    {review.user?.name ?? '-'}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={`font-semibold ${
-                        review.rating <= 2
-                          ? 'text-red-600'
-                          : review.rating === 3
-                            ? 'text-orange-500'
-                            : 'text-yellow-500'
-                      }`}
-                    >
-                      {'★'.repeat(review.rating)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)] max-w-[200px]">
-                    <Link
-                      href={`/reviews/${review.id}`}
-                      className="hover:text-[var(--color-text-primary)] line-clamp-2"
-                    >
-                      {review.content}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium w-fit ${REVIEW_STATUS_BADGE[review.status]}`}
-                      >
-                        {REVIEW_STATUS_LABEL[review.status]}
-                      </span>
-                      {review.is_best && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 w-fit">
-                          베스트
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                    {new Date(review.created_at).toLocaleDateString('ko-KR')}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {result.total > result.per_page && (
-        <div className="flex items-center justify-between mt-4 text-sm text-[var(--color-text-secondary)]">
-          <span>
-            총 {result.total.toLocaleString()}건 · {page}페이지
-          </span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <Link
-                href={`/reviews${buildQuery({ page: String(page - 1) })}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                이전
-              </Link>
-            )}
-            {result.has_next && (
-              <Link
-                href={`/reviews${buildQuery({ page: String(page + 1) })}`}
-                className="px-3 py-1 border border-[var(--color-border)] rounded hover:bg-gray-50"
-              >
-                다음
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+      <DataTable<AdminReview>
+        columns={columns}
+        rows={result.data}
+        rowKey={(r) => r.id}
+        empty="조건에 맞는 리뷰가 없습니다."
+        footer={
+          <DataTablePagination
+            page={page}
+            total={result.total}
+            perPage={result.per_page}
+            displayed={result.data.length}
+            unit="건"
+            buildHref={(p) => buildQuery({ page: String(p) })}
+          />
+        }
+      />
     </div>
   );
 }

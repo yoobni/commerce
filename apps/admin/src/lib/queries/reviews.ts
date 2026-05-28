@@ -2,8 +2,37 @@
  * Admin review queries — uses service-role client (bypasses RLS).
  */
 
-import type { Review, ReviewStatus, User, PaginatedResponse } from '@commerce/types';
+import type {
+  Review,
+  ReviewStatus,
+  SizeFeedback,
+  User,
+  PaginatedResponse,
+} from '@commerce/types';
 import { createServiceClient } from '@/lib/supabase/service';
+
+// ─── UI labels & Badge variants (어드민 페이지 공용) ────────────────────────
+
+export const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
+  ACTIVE: '노출',
+  HIDDEN: '숨김',
+  DELETED: '삭제',
+};
+
+export const REVIEW_STATUS_VARIANT: Record<
+  ReviewStatus,
+  'success' | 'warning' | 'destructive'
+> = {
+  ACTIVE: 'success',
+  HIDDEN: 'warning',
+  DELETED: 'destructive',
+};
+
+export const SIZE_FEEDBACK_LABEL: Record<SizeFeedback, string> = {
+  SMALL: '작음',
+  PERFECT: '적합',
+  LARGE: '큼',
+};
 
 // ─── Extended types ───────────────────────────────────────────────────────────
 

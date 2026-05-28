@@ -1,30 +1,25 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import type { ReviewStatus, SizeFeedback } from '@commerce/types';
-import { adminGetReview } from '@/lib/queries/reviews';
+import { ArrowLeft } from 'lucide-react';
+import {
+  adminGetReview,
+  REVIEW_STATUS_LABEL,
+  REVIEW_STATUS_VARIANT,
+  SIZE_FEEDBACK_LABEL,
+} from '@/lib/queries/reviews';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
+  InfoRow,
+  InfoSection,
+  PageHeader,
+} from '@/components/ui';
 import { ReviewActionButtons } from './_components/ReviewActionButtons';
 
-// ─── Labels ───────────────────────────────────────────────────────────────────
-
-const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
-const REVIEW_STATUS_BADGE: Record<ReviewStatus, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  HIDDEN: 'bg-orange-100 text-orange-700',
-  DELETED: 'bg-red-100 text-red-700',
-};
-
-const SIZE_FEEDBACK_LABEL: Record<SizeFeedback, string> = {
-  SMALL: '작음',
-  PERFECT: '적합',
-  LARGE: '큼',
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+export const metadata = { title: '리뷰 상세' };
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -38,45 +33,39 @@ export default async function ReviewDetailPage({ params }: PageProps) {
   const stars = Array.from({ length: 5 }, (_, i) => i < review.rating);
 
   return (
-    <div className="max-w-4xl">
-      <Link
-        href="/reviews"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-6"
-      >
-        ← 리뷰 목록
-      </Link>
-
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">리뷰 상세</h1>
-        <span
-          className={`px-2.5 py-1 rounded-full text-sm font-medium ${REVIEW_STATUS_BADGE[review.status]}`}
-        >
-          {REVIEW_STATUS_LABEL[review.status]}
-        </span>
-        {review.is_best && (
-          <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
-            베스트
-          </span>
-        )}
-        {review.is_photo_review && (
-          <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-            포토리뷰
-          </span>
-        )}
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/reviews">
+            <ArrowLeft className="mr-1 h-3.5 w-3.5" /> 리뷰 목록
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* ── Main ── */}
-        <div className="col-span-2 space-y-6">
-          {/* Review content */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <div className="flex items-center gap-3 mb-4">
-              {/* Stars */}
+      <PageHeader
+        title="리뷰 상세"
+        description={review.product?.name_ko}
+        actions={
+          <>
+            <Badge variant={REVIEW_STATUS_VARIANT[review.status]}>
+              {REVIEW_STATUS_LABEL[review.status]}
+            </Badge>
+            {review.is_best && <Badge variant="warning">베스트</Badge>}
+            {review.is_photo_review && <Badge variant="info">포토리뷰</Badge>}
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Left column */}
+        <div className="space-y-4 lg:col-span-2">
+          <InfoSection title="리뷰 내용">
+            <div className="mb-3 flex items-center gap-3">
               <div className="flex gap-0.5">
                 {stars.map((filled, i) => (
                   <svg
                     key={i}
-                    className={`w-5 h-5 ${filled ? 'text-yellow-400' : 'text-gray-200'}`}
+                    className={filled ? 'h-5 w-5 text-[#e8a93b]' : 'h-5 w-5 text-muted'}
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -85,148 +74,127 @@ export default async function ReviewDetailPage({ params }: PageProps) {
                   </svg>
                 ))}
               </div>
-              <span className="text-lg font-semibold text-[var(--color-text-primary)]">
-                {review.rating}점
-              </span>
+              <span className="text-[15px] font-semibold text-foreground">{review.rating}점</span>
             </div>
-            <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
+            <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-foreground">
               {review.content}
             </p>
 
-            {/* Images */}
             {review.images && review.images.length > 0 && (
-              <div className="flex gap-2 mt-4 flex-wrap">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {review.images.map((url, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={i}
                     src={url}
                     alt={`리뷰 이미지 ${i + 1}`}
-                    className="w-24 h-24 object-cover rounded-lg border border-[var(--color-border)]"
+                    className="h-24 w-24 rounded-md border border-border object-cover"
                   />
                 ))}
               </div>
             )}
-          </div>
+          </InfoSection>
 
-          {/* Dog info */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-4">반려견 정보</h2>
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-[var(--color-text-secondary)]">구매 사이즈</dt>
-                <dd className="font-medium text-[var(--color-text-primary)]">
-                  {review.purchased_size}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[var(--color-text-secondary)]">사이즈 평가</dt>
-                <dd className="text-[var(--color-text-primary)]">
-                  {SIZE_FEEDBACK_LABEL[review.size_feedback]}
-                </dd>
-              </div>
-              {review.dog_breed && (
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">견종</dt>
-                  <dd className="text-[var(--color-text-primary)]">{review.dog_breed}</dd>
-                </div>
-              )}
+          <InfoSection title="반려견 정보">
+            <dl className="grid grid-cols-2 gap-x-4">
+              <InfoRow label="구매 사이즈">
+                <span className="font-mono">{review.purchased_size}</span>
+              </InfoRow>
+              <InfoRow label="사이즈 평가">
+                <Badge variant="outline">{SIZE_FEEDBACK_LABEL[review.size_feedback]}</Badge>
+              </InfoRow>
+              {review.dog_breed && <InfoRow label="견종">{review.dog_breed}</InfoRow>}
               {review.dog_weight_kg != null && (
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">체중</dt>
-                  <dd className="text-[var(--color-text-primary)]">{review.dog_weight_kg}kg</dd>
-                </div>
+                <InfoRow label="체중">
+                  <span className="font-mono">{review.dog_weight_kg}kg</span>
+                </InfoRow>
               )}
             </dl>
-          </div>
+          </InfoSection>
 
-          {/* Product */}
           {review.product && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-4">상품</h2>
-              <div className="flex items-center gap-3">
-                {review.product.thumbnail_url && (
+            <InfoSection title="상품">
+              <Link
+                href={`/products/${review.product.id}`}
+                className="group flex items-center gap-3"
+              >
+                {review.product.thumbnail_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={review.product.thumbnail_url}
                     alt={review.product.name_ko}
-                    className="w-14 h-14 object-cover rounded-lg border border-[var(--color-border)]"
+                    className="h-14 w-14 shrink-0 rounded-md border border-border object-cover"
                   />
+                ) : (
+                  <div className="h-14 w-14 shrink-0 rounded-md border border-border bg-muted" />
                 )}
                 <div>
-                  <p className="font-medium text-[var(--color-text-primary)]">
+                  <p className="text-[14px] font-medium text-foreground group-hover:text-[var(--mz-accent)] group-hover:underline">
                     {review.product.name_ko}
                   </p>
-                  <p className="text-xs text-[var(--color-text-secondary)] font-mono mt-0.5">
+                  <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
                     {review.product.id}
                   </p>
                 </div>
-              </div>
-            </div>
+              </Link>
+            </InfoSection>
           )}
         </div>
 
-        {/* ── Right sidebar ── */}
-        <div className="col-span-1 space-y-4">
-          {/* Actions */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-4">관리 액션</h2>
+        {/* Right column */}
+        <div className="space-y-4">
+          <InfoSection title="관리 액션">
             <ReviewActionButtons
               reviewId={review.id}
               currentStatus={review.status}
               isBest={review.is_best}
               pointRewarded={review.point_rewarded}
             />
-          </div>
+          </InfoSection>
 
-          {/* Author */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-3">작성자</h2>
+          <InfoSection title="작성자">
             <div className="flex items-center gap-3">
-              {review.user?.profile_image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={review.user.profile_image_url}
-                  alt={review.user.name}
-                  className="w-9 h-9 rounded-full object-cover border border-[var(--color-border)]"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-500">
-                  {review.user?.name?.[0] ?? '?'}
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {review.user?.name ?? '-'}
+              <Avatar className="h-10 w-10">
+                {review.user?.profile_image_url ? (
+                  <AvatarImage src={review.user.profile_image_url} alt={review.user.name} />
+                ) : null}
+                <AvatarFallback>{review.user?.name?.[0] ?? '?'}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="text-[13px] font-medium text-foreground">
+                  {review.user?.name ?? '—'}
                 </p>
                 <Link
                   href={`/members/${review.user_id}`}
-                  className="text-xs text-blue-500 hover:underline"
+                  className="text-[11px] text-[var(--mz-accent)] hover:underline"
                 >
                   회원 상세 →
                 </Link>
               </div>
             </div>
-          </div>
+          </InfoSection>
 
-          {/* Timestamps */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-            <h2 className="font-medium text-[var(--color-text-primary)] mb-3">타임스탬프</h2>
-            <dl className="space-y-2 text-xs text-[var(--color-text-secondary)]">
-              <div className="flex justify-between">
-                <dt>작성</dt>
-                <dd>{new Date(review.created_at).toLocaleString('ko-KR')}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>수정</dt>
-                <dd>{new Date(review.updated_at).toLocaleString('ko-KR')}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>포인트</dt>
-                <dd>{review.point_rewarded ? '지급 완료' : '미지급'}</dd>
-              </div>
+          <InfoSection title="타임스탬프">
+            <dl>
+              <InfoRow label="작성">
+                <span className="text-[12px]">
+                  {new Date(review.created_at).toLocaleString('ko-KR')}
+                </span>
+              </InfoRow>
+              <InfoRow label="수정">
+                <span className="text-[12px]">
+                  {new Date(review.updated_at).toLocaleString('ko-KR')}
+                </span>
+              </InfoRow>
+              <InfoRow label="포인트">
+                {review.point_rewarded ? (
+                  <Badge variant="success">지급 완료</Badge>
+                ) : (
+                  <Badge variant="muted">미지급</Badge>
+                )}
+              </InfoRow>
             </dl>
-          </div>
+          </InfoSection>
         </div>
       </div>
     </div>
