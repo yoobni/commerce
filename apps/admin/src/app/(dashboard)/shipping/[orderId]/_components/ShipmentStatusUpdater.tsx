@@ -1,8 +1,20 @@
 'use client';
 
-import { useActionState } from 'react';
-import { updateShipmentStatus, setReturnTracking } from '@/lib/actions/shipments';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  toast,
+} from '@/components/ui';
 import type { ShipmentStatus } from '@commerce/types';
+import { updateShipmentStatus, setReturnTracking } from '@/lib/actions/shipments';
 
 interface Props {
   shipmentId: string;
@@ -26,102 +38,97 @@ const NEXT_STATUSES: Partial<Record<ShipmentStatus, { value: ShipmentStatus; lab
   ],
 };
 
-function statusAction(
-  _: { error: string | null },
-  formData: FormData
-): Promise<{ error: string | null }> {
-  const shipmentId = formData.get('shipmentId') as string;
-  const newStatus = formData.get('newStatus') as ShipmentStatus;
-  return updateShipmentStatus(shipmentId, newStatus)
-    .then(() => ({ error: null }))
-    .catch((e: unknown) => ({
-      error: e instanceof Error ? e.message : '처리 중 오류가 발생했습니다.',
-    }));
-}
-
-function returnAction(
-  _: { error: string | null },
-  formData: FormData
-): Promise<{ error: string | null }> {
-  const shipmentId = formData.get('shipmentId') as string;
-  const returnNumber = formData.get('returnTrackingNumber') as string;
-  return setReturnTracking(shipmentId, returnNumber)
-    .then(() => ({ error: null }))
-    .catch((e: unknown) => ({
-      error: e instanceof Error ? e.message : '처리 중 오류가 발생했습니다.',
-    }));
-}
-
 export function ShipmentStatusUpdater({ shipmentId, currentStatus }: Props) {
-  const [statusState, statusFormAction, statusPending] = useActionState(statusAction, {
-    error: null,
-  });
-  const [returnState, returnFormAction, returnPending] = useActionState(returnAction, {
-    error: null,
-  });
-
+  const router = useRouter();
   const nextOptions = NEXT_STATUSES[currentStatus] ?? [];
+  const [newStatus, setNewStatus] = useState<ShipmentStatus | ''>(nextOptions[0]?.value ?? '');
+  const [returnNumber, setReturnNumber] = useState('');
+  const [statusPending, statusTransition] = useTransition();
+  const [returnPending, returnTransition] = useTransition();
+
+  function handleStatusUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newStatus) return;
+    statusTransition(async () => {
+      try {
+        await updateShipmentStatus(shipmentId, newStatus as ShipmentStatus);
+        toast.success('배송 상태를 변경했습니다.');
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '처리 실패');
+      }
+    });
+  }
+
+  function handleReturnTracking(e: React.FormEvent) {
+    e.preventDefault();
+    if (!returnNumber.trim()) return;
+    returnTransition(async () => {
+      try {
+        await setReturnTracking(shipmentId, returnNumber.trim());
+        toast.success('반송 운송장을 저장했습니다.');
+        setReturnNumber('');
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : '처리 실패');
+      }
+    });
+  }
 
   return (
     <div className="space-y-4">
       {nextOptions.length > 0 ? (
-        <form action={statusFormAction} className="space-y-3">
-          <input type="hidden" name="shipmentId" value={shipmentId} />
-          <div>
-            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-              상태 변경
-            </label>
-            <select
-              name="newStatus"
-              className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <form onSubmit={handleStatusUpdate} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label>다음 상태</Label>
+            <Select
+              value={newStatus}
+              onValueChange={(v) => setNewStatus(v as ShipmentStatus)}
             >
-              {nextOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {nextOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          {statusState.error && (
-            <p className="text-xs text-[var(--color-error)]">{statusState.error}</p>
-          )}
-          <button
-            type="submit"
-            disabled={statusPending}
-            className="w-full py-2 text-sm font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-60 transition-colors"
-          >
-            {statusPending ? '처리 중...' : '상태 업데이트'}
-          </button>
+          <Button type="submit" disabled={statusPending || !newStatus} className="w-full" size="md">
+            {statusPending ? '처리 중…' : '상태 업데이트'}
+          </Button>
         </form>
       ) : (
-        <p className="text-sm text-[var(--color-text-tertiary)]">더 이상 변경할 상태가 없습니다.</p>
+        <p className="text-[12.5px] text-muted-foreground">더 이상 변경할 상태가 없습니다.</p>
       )}
 
-      {/* Return tracking */}
       <form
-        action={returnFormAction}
-        className="space-y-2 pt-4 border-t border-[var(--color-border)]"
+        onSubmit={handleReturnTracking}
+        className="space-y-2 border-t border-border pt-4"
       >
-        <input type="hidden" name="shipmentId" value={shipmentId} />
-        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-          반송 운송장 번호
-        </label>
-        <input
-          type="text"
-          name="returnTrackingNumber"
-          placeholder="반송 운송장 번호 (선택)"
-          className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        {returnState.error && (
-          <p className="text-xs text-[var(--color-error)]">{returnState.error}</p>
-        )}
-        <button
+        <div className="space-y-1.5">
+          <Label htmlFor="return-tracking">반송 운송장 번호</Label>
+          <Input
+            id="return-tracking"
+            value={returnNumber}
+            onChange={(e) => setReturnNumber(e.target.value)}
+            placeholder="반송 운송장 번호 (선택)"
+            disabled={returnPending}
+            className="font-mono"
+          />
+        </div>
+        <Button
           type="submit"
-          disabled={returnPending}
-          className="w-full py-2 text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg hover:bg-gray-50 disabled:opacity-60 transition-colors"
+          variant="outline"
+          disabled={returnPending || !returnNumber}
+          className="w-full"
+          size="md"
         >
-          {returnPending ? '저장 중...' : '반송 운송장 저장'}
-        </button>
+          {returnPending ? '저장 중…' : '반송 운송장 저장'}
+        </Button>
       </form>
     </div>
   );

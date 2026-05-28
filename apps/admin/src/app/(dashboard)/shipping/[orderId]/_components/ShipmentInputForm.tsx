@@ -1,90 +1,110 @@
 'use client';
 
-import { useActionState } from 'react';
-import { startShipment } from '@/lib/actions/shipments';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
 import type { Carrier } from '@commerce/types';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  toast,
+} from '@/components/ui';
+import { CARRIER_LABEL } from '@/lib/queries/shipments';
+import { startShipment } from '@/lib/actions/shipments';
 
 interface Props {
   orderId: string;
   country: string;
 }
 
-const CARRIER_OPTIONS: { value: Carrier; label: string }[] = [
-  { value: 'CJ', label: 'CJ대한통운' },
-  { value: 'HANJIN', label: '한진택배' },
-  { value: 'LOGEN', label: '로젠택배' },
-  { value: 'EMS', label: 'EMS' },
-  { value: 'DHL', label: 'DHL' },
-  { value: 'FEDEX', label: 'FedEx' },
-  { value: 'UPS', label: 'UPS' },
-  { value: 'USPS', label: 'USPS' },
-  { value: 'YAMATO', label: '야마토' },
-  { value: 'SAGAWA', label: '사가와' },
-];
-
-function action(
-  _: { error: string | null },
-  formData: FormData
-): Promise<{ error: string | null }> {
-  return startShipment({
-    orderId: formData.get('orderId') as string,
-    carrier: formData.get('carrier') as Carrier,
-    trackingNumber: formData.get('trackingNumber') as string,
-    country: formData.get('country') as string,
-  })
-    .then(() => ({ error: null }))
-    .catch((e: unknown) => ({
-      error: e instanceof Error ? e.message : '처리 중 오류가 발생했습니다.',
-    }));
-}
+const CARRIERS = Object.keys(CARRIER_LABEL) as Carrier[];
 
 export function ShipmentInputForm({ orderId, country }: Props) {
-  const [state, formAction, pending] = useActionState(action, { error: null });
+  const router = useRouter();
+  const [carrier, setCarrier] = useState<Carrier>('CJ');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!trackingNumber.trim()) {
+      setError('운송장 번호를 입력해주세요.');
+      return;
+    }
+    startTransition(async () => {
+      try {
+        await startShipment({
+          orderId,
+          carrier,
+          trackingNumber: trackingNumber.trim(),
+          country,
+        });
+        toast.success('배송을 시작했습니다.');
+        setTrackingNumber('');
+        router.refresh();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : '처리 중 오류가 발생했습니다.';
+        setError(msg);
+        toast.error(msg);
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="space-y-4">
-      <input type="hidden" name="orderId" value={orderId} />
-      <input type="hidden" name="country" value={country} />
-
-      <div>
-        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-          택배사
-        </label>
-        <select
-          name="carrier"
-          required
-          className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {CARRIER_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="space-y-1.5">
+        <Label>택배사</Label>
+        <Select value={carrier} onValueChange={(v) => setCarrier(v as Carrier)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CARRIERS.map((c) => (
+              <SelectItem key={c} value={c}>
+                {CARRIER_LABEL[c]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-          운송장 번호
-        </label>
-        <input
-          type="text"
-          name="trackingNumber"
-          required
+      <div className="space-y-1.5">
+        <Label htmlFor="tracking-number">운송장 번호</Label>
+        <Input
+          id="tracking-number"
+          value={trackingNumber}
+          onChange={(e) => setTrackingNumber(e.target.value)}
           placeholder="운송장 번호 입력"
-          className="w-full px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+          disabled={isPending}
+          className="font-mono"
         />
       </div>
 
-      {state.error && <p className="text-xs text-[var(--color-error)]">{state.error}</p>}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-1.5 text-[11.5px] text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full py-2 text-sm font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-60 transition-colors"
-      >
-        {pending ? '처리 중...' : '배송 처리 (PREPARING → SHIPPED)'}
-      </button>
+      <Button type="submit" disabled={isPending || !trackingNumber} className="w-full" size="md">
+        {isPending ? '처리 중…' : '배송 처리'}
+      </Button>
+      <p className="text-[11px] text-muted-foreground">
+        상태가 <span className="font-medium">PREPARING → SHIPPED</span>로 전환됩니다.
+      </p>
     </form>
   );
 }

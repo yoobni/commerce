@@ -1,58 +1,26 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import type { Carrier, ShipmentStatus } from '@commerce/types';
-import { adminGetShippingOrder } from '@/lib/queries/shipments';
+import { ArrowLeft, Check } from 'lucide-react';
+import type { OrderStatus, ShipmentStatus } from '@commerce/types';
+import {
+  adminGetShippingOrder,
+  CARRIER_LABEL,
+  SHIPMENT_STATUS_LABEL,
+  SHIPMENT_STATUS_VARIANT,
+} from '@/lib/queries/shipments';
+import { ORDER_STATUS_LABEL, ORDER_STATUS_VARIANT } from '@/lib/queries/orders';
+import {
+  Badge,
+  Button,
+  InfoRow,
+  InfoSection,
+  PageHeader,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
 import { ShipmentInputForm } from './_components/ShipmentInputForm';
 import { ShipmentStatusUpdater } from './_components/ShipmentStatusUpdater';
 
-// ─── 배송 추적 외부 API 연동 계획 ─────────────────────────────────────────────
-// docs/shipping-tracking-plan.md 참고
-//
-// [나중에 구현] 이 페이지에서 외부 API 실시간 이벤트를 표시하려면:
-//   1. adminGetShippingOrder() 쿼리에 tracking_events JSONB 컬럼 포함
-//      → apps/admin/src/lib/queries/shipments.ts § adminGetShippingOrder()
-//   2. 아래 타임라인 섹션(Step timeline) 아래에 이벤트 목록 컴포넌트 추가
-//      → 각 이벤트: { timestamp, location, message, raw_status }
-//   3. "외부 조회" 버튼 추가 → POST /api/admin/shipments/[id]/sync 로 수동 동기화
-//      → apps/admin/src/app/api/admin/shipments/[id]/sync/route.ts 신규 작성
-//
-// Webhook 수신 엔드포인트: apps/commerce/src/app/api/webhooks/tracking/route.ts
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ─── Labels ───────────────────────────────────────────────────────────────────
-
-const CARRIER_LABEL: Partial<Record<Carrier, string>> = {
-  CJ: 'CJ대한통운',
-  HANJIN: '한진택배',
-  LOGEN: '로젠택배',
-  EMS: 'EMS',
-  DHL: 'DHL',
-  FEDEX: 'FedEx',
-  UPS: 'UPS',
-  USPS: 'USPS',
-  YAMATO: '야마토',
-  SAGAWA: '사가와',
-};
-
-const SHIPMENT_STATUS_LABEL: Record<ShipmentStatus, string> = {
-  PENDING: '대기',
-  PICKED_UP: '수거 완료',
-  IN_TRANSIT: '배송 중',
-  CUSTOMS_HELD: '통관 보류',
-  OUT_FOR_DELIVERY: '배달 중',
-  DELIVERED: '배달 완료',
-  RETURNED: '반송',
-};
-
-const SHIPMENT_STATUS_BADGE: Record<ShipmentStatus, string> = {
-  PENDING: 'bg-gray-100 text-gray-500',
-  PICKED_UP: 'bg-blue-100 text-blue-700',
-  IN_TRANSIT: 'bg-violet-100 text-violet-700',
-  CUSTOMS_HELD: 'bg-orange-100 text-orange-700',
-  OUT_FOR_DELIVERY: 'bg-indigo-100 text-indigo-700',
-  DELIVERED: 'bg-green-100 text-green-700',
-  RETURNED: 'bg-red-100 text-red-700',
-};
+export const metadata = { title: '배송 상세' };
 
 // Timeline step order
 const TIMELINE: ShipmentStatus[] = [
@@ -62,8 +30,6 @@ const TIMELINE: ShipmentStatus[] = [
   'OUT_FOR_DELIVERY',
   'DELIVERED',
 ];
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 interface PageProps {
   params: Promise<{ orderId: string }>;
@@ -79,268 +45,220 @@ export default async function ShippingDetailPage({ params }: PageProps) {
   const currentStepIndex = shipment ? TIMELINE.indexOf(shipment.status as ShipmentStatus) : -1;
 
   return (
-    <div className="max-w-5xl">
-      <Link
-        href="/shipping"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-6"
-      >
-        ← 배송 목록
-      </Link>
-
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)] font-mono">
-          {order.order_number}
-        </h1>
-        <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-700">
-          {order.status}
-        </span>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/shipping">
+            <ArrowLeft className="mr-1 h-3.5 w-3.5" /> 배송 목록
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* ── Main ── */}
-        <div className="col-span-2 space-y-6">
-          {/* Shipment timeline */}
-          {shipment && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-4">배송 추적</h2>
+      <PageHeader
+        title={<span className="font-mono">{order.order_number}</span>}
+        description={order.user?.name ?? '—'}
+        actions={
+          <Badge variant={ORDER_STATUS_VARIANT[order.status as OrderStatus]}>
+            {ORDER_STATUS_LABEL[order.status as OrderStatus]}
+          </Badge>
+        }
+      />
 
-              <div className="flex items-center gap-2 mb-5">
-                <span className="text-sm text-[var(--color-text-secondary)]">택배사:</span>
-                <span className="text-sm font-medium">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Left column */}
+        <div className="space-y-4 lg:col-span-2">
+          {shipment && (
+            <InfoSection
+              title="배송 추적"
+              actions={
+                <Badge variant={SHIPMENT_STATUS_VARIANT[shipment.status as ShipmentStatus]}>
+                  {SHIPMENT_STATUS_LABEL[shipment.status as ShipmentStatus]}
+                </Badge>
+              }
+            >
+              <div className="mb-5 flex items-center gap-3 text-[12.5px]">
+                <span className="text-muted-foreground">택배사</span>
+                <span className="font-medium text-foreground">
                   {CARRIER_LABEL[shipment.carrier] ?? shipment.carrier}
                 </span>
-                <span className="text-sm text-[var(--color-text-secondary)] ml-2">운송장:</span>
-                <span className="font-mono text-sm font-medium">{shipment.tracking_number}</span>
-                <span
-                  className={`ml-auto px-2 py-0.5 rounded-full text-xs font-medium ${SHIPMENT_STATUS_BADGE[shipment.status as ShipmentStatus]}`}
-                >
-                  {SHIPMENT_STATUS_LABEL[shipment.status as ShipmentStatus]}
+                <span className="mx-2 h-3 w-px bg-border" aria-hidden="true" />
+                <span className="text-muted-foreground">운송장</span>
+                <span className="font-mono font-medium text-foreground">
+                  {shipment.tracking_number}
                 </span>
               </div>
 
               {/* Step timeline */}
-              <ol className="flex items-center">
+              <ol className="relative flex items-start">
+                {/* Track line */}
+                <div
+                  className="absolute left-0 right-0 top-[14px] h-0.5 bg-border"
+                  aria-hidden="true"
+                />
+                {/* Progress line */}
+                {currentStepIndex > 0 && (
+                  <div
+                    className="absolute left-0 top-[14px] h-0.5 bg-[var(--mz-accent)] transition-all"
+                    style={{
+                      width: `${(currentStepIndex / (TIMELINE.length - 1)) * 100}%`,
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
                 {TIMELINE.map((step, idx) => {
-                  const done = idx <= currentStepIndex;
+                  const done = idx < currentStepIndex;
                   const active = idx === currentStepIndex;
                   return (
-                    <li key={step} className="flex-1 flex flex-col items-center gap-1">
+                    <li
+                      key={step}
+                      className="relative z-10 flex flex-1 flex-col items-center gap-1.5"
+                    >
                       <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${
-                          active
-                            ? 'border-violet-600 bg-violet-600 text-white'
-                            : done
-                              ? 'border-violet-300 bg-violet-100 text-violet-600'
-                              : 'border-gray-200 bg-gray-50 text-gray-300'
-                        }`}
+                        className={cn(
+                          'flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors',
+                          active &&
+                            'border-[var(--mz-accent)] bg-[var(--mz-accent)] text-white',
+                          done && 'border-[var(--mz-accent)] bg-[var(--mz-accent)] text-white',
+                          !active &&
+                            !done &&
+                            'border-border bg-card text-muted-foreground',
+                        )}
                       >
-                        {idx + 1}
+                        {done ? (
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                        ) : (
+                          <span className="text-[10.5px] font-semibold">{idx + 1}</span>
+                        )}
                       </div>
                       <span
-                        className={`text-xs text-center ${
-                          active
-                            ? 'text-violet-700 font-semibold'
-                            : done
-                              ? 'text-violet-500'
-                              : 'text-gray-400'
-                        }`}
+                        className={cn(
+                          'text-center text-[11px]',
+                          active && 'font-semibold text-foreground',
+                          done && 'text-foreground',
+                          !active && !done && 'text-muted-foreground',
+                        )}
                       >
                         {SHIPMENT_STATUS_LABEL[step]}
                       </span>
-                      {idx < TIMELINE.length - 1 && (
-                        <div
-                          className={`absolute h-0.5 w-full top-3.5 left-1/2 ${
-                            done ? 'bg-violet-300' : 'bg-gray-200'
-                          }`}
-                          aria-hidden="true"
-                        />
-                      )}
                     </li>
                   );
                 })}
               </ol>
 
-              {/* Timestamps */}
-              <dl className="mt-5 space-y-2 text-sm border-t border-[var(--color-border)] pt-4">
+              <dl className="mt-6 border-t border-border pt-4">
                 {shipment.shipped_at && (
-                  <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-secondary)]">발송 일시</dt>
-                    <dd className="text-[var(--color-text-primary)]">
-                      {new Date(shipment.shipped_at).toLocaleString('ko-KR')}
-                    </dd>
-                  </div>
+                  <InfoRow label="발송 일시">
+                    {new Date(shipment.shipped_at).toLocaleString('ko-KR')}
+                  </InfoRow>
                 )}
                 {shipment.estimated_delivery_at && (
-                  <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-secondary)]">예상 도착</dt>
-                    <dd className="text-[var(--color-text-primary)]">
-                      {new Date(shipment.estimated_delivery_at).toLocaleDateString('ko-KR')}
-                    </dd>
-                  </div>
+                  <InfoRow label="예상 도착">
+                    {new Date(shipment.estimated_delivery_at).toLocaleDateString('ko-KR')}
+                  </InfoRow>
                 )}
                 {shipment.delivered_at && (
-                  <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-secondary)]">배달 완료</dt>
-                    <dd className="text-[var(--color-text-primary)]">
-                      {new Date(shipment.delivered_at).toLocaleString('ko-KR')}
-                    </dd>
-                  </div>
+                  <InfoRow label="배달 완료">
+                    {new Date(shipment.delivered_at).toLocaleString('ko-KR')}
+                  </InfoRow>
                 )}
                 {shipment.return_tracking_number && (
-                  <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-secondary)]">반송 운송장</dt>
-                    <dd className="font-mono text-[var(--color-text-primary)]">
-                      {shipment.return_tracking_number}
-                    </dd>
-                  </div>
+                  <InfoRow label="반송 운송장">
+                    <span className="font-mono">{shipment.return_tracking_number}</span>
+                  </InfoRow>
                 )}
               </dl>
-            </div>
+            </InfoSection>
           )}
 
-          {/* Order items */}
-          <div className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-[var(--color-border)]">
-              <h2 className="font-medium text-[var(--color-text-primary)]">
-                주문 상품 ({order.items.length}개)
-              </h2>
-            </div>
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-[var(--color-border)]">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                    상품
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-[var(--color-text-secondary)]">
-                    옵션
-                  </th>
-                  <th className="px-4 py-3 text-center font-medium text-[var(--color-text-secondary)]">
-                    수량
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border)]">
-                {order.items.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        {item.product_snapshot.thumbnail_url && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.product_snapshot.thumbnail_url}
-                            alt={item.product_snapshot.name}
-                            className="w-10 h-10 object-cover rounded border border-[var(--color-border)]"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-[var(--color-text-primary)]">
-                            {item.product_snapshot.name}
-                          </p>
-                          <p className="text-xs text-[var(--color-text-secondary)] font-mono">
-                            {item.product_snapshot.sku}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-[var(--color-text-secondary)]">
+          <InfoSection title={`주문 상품 · ${order.items.length}개`}>
+            <div className="space-y-3">
+              {order.items.map((item) => (
+                <div key={item.id} className="flex items-center gap-3">
+                  {item.product_snapshot.thumbnail_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.product_snapshot.thumbnail_url}
+                      alt={item.product_snapshot.name}
+                      className="h-10 w-10 shrink-0 rounded border border-border object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 shrink-0 rounded border border-border bg-muted" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-medium text-foreground">
+                      {item.product_snapshot.name}
+                    </p>
+                    <p className="font-mono text-[11px] text-muted-foreground">
+                      {item.product_snapshot.sku}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-[12.5px] text-muted-foreground">
                       {item.product_snapshot.size} / {item.product_snapshot.color}
-                    </td>
-                    <td className="px-4 py-3 text-center text-[var(--color-text-primary)]">
-                      {item.quantity}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Shipping address */}
-          {addr && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-4">배송지</h2>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">수령인</dt>
-                  <dd className="text-[var(--color-text-primary)]">{addr.recipient_name}</dd>
+                    </p>
+                    <p className="font-mono text-[13px] font-medium text-foreground">
+                      × {item.quantity}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">연락처</dt>
-                  <dd className="text-[var(--color-text-primary)]">{addr.phone}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">국가</dt>
-                  <dd className="text-[var(--color-text-primary)]">{addr.country}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">주소</dt>
-                  <dd className="text-[var(--color-text-primary)] text-right max-w-[280px]">
-                    {[
-                      addr.postal_code,
-                      addr.state_province,
-                      addr.city,
-                      addr.address_line1,
-                      addr.address_line2,
-                    ]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </dd>
-                </div>
-              </dl>
+              ))}
             </div>
+          </InfoSection>
+
+          {addr && (
+            <InfoSection title="배송지">
+              <dl>
+                <InfoRow label="수령인">{addr.recipient_name}</InfoRow>
+                <InfoRow label="연락처">{addr.phone}</InfoRow>
+                <InfoRow label="국가">{addr.country}</InfoRow>
+                <InfoRow label="주소">
+                  <div className="space-y-0.5">
+                    <p className="font-mono text-[12px]">{addr.postal_code}</p>
+                    <p>
+                      {addr.city}
+                      {addr.state_province ? `, ${addr.state_province}` : ''}
+                    </p>
+                    <p>{addr.address_line1}</p>
+                    {addr.address_line2 && <p>{addr.address_line2}</p>}
+                  </div>
+                </InfoRow>
+              </dl>
+            </InfoSection>
           )}
         </div>
 
-        {/* ── Right sidebar ── */}
-        <div className="col-span-1 space-y-4">
-          {/* Invoice input (PREPARING) */}
+        {/* Right column */}
+        <div className="space-y-4">
           {order.status === 'PREPARING' && !shipment && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-4">송장 입력</h2>
+            <InfoSection title="송장 입력">
               <ShipmentInputForm orderId={order.id} country={addr?.country ?? 'KR'} />
-            </div>
+            </InfoSection>
           )}
 
-          {/* Status update (SHIPPED) */}
           {shipment && order.status === 'SHIPPED' && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-4">배송 상태 관리</h2>
+            <InfoSection title="배송 상태 관리">
               <ShipmentStatusUpdater
                 shipmentId={shipment.id}
                 currentStatus={shipment.status as ShipmentStatus}
               />
-            </div>
+            </InfoSection>
           )}
 
-          {/* Customer info */}
           {order.user && (
-            <div className="bg-white border border-[var(--color-border)] rounded-xl p-5">
-              <h2 className="font-medium text-[var(--color-text-primary)] mb-3">고객 정보</h2>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">이름</dt>
-                  <dd className="text-[var(--color-text-primary)]">{order.user.name}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--color-text-secondary)]">이메일</dt>
-                  <dd className="text-[var(--color-text-primary)] text-xs">{order.user.email}</dd>
-                </div>
-                {order.user.phone && (
-                  <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-secondary)]">전화</dt>
-                    <dd className="text-[var(--color-text-primary)]">{order.user.phone}</dd>
-                  </div>
-                )}
+            <InfoSection title="고객 정보">
+              <dl>
+                <InfoRow label="이름">{order.user.name}</InfoRow>
+                <InfoRow label="이메일">
+                  <span className="break-all text-[12px]">{order.user.email}</span>
+                </InfoRow>
+                {order.user.phone && <InfoRow label="전화">{order.user.phone}</InfoRow>}
               </dl>
-            </div>
+            </InfoSection>
           )}
 
-          {/* Link to full order */}
-          <Link
-            href={`/orders/${order.id}`}
-            className="block w-full py-2.5 text-center text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl hover:bg-gray-50 transition-colors"
-          >
-            전체 주문 보기 →
-          </Link>
+          <Button variant="outline" size="md" asChild className="w-full">
+            <Link href={`/orders/${order.id}`}>전체 주문 보기 →</Link>
+          </Button>
         </div>
       </div>
     </div>
