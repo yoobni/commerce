@@ -23,7 +23,14 @@ export default function SignUpPage() {
     signInWithTwitter,
   } = useAuth();
 
-  const next = searchParams.get('next') ?? `/${locale}`;
+  // next-intl's router auto-prefixes the locale, so paths passed in must be
+  // locale-relative. Strip an accidental leading locale from `next` to avoid
+  // the /ko/ko double-prefix.
+  const rawNext = searchParams.get('next') ?? '/';
+  const localePrefix = `/${locale}`;
+  const next = rawNext.startsWith(localePrefix)
+    ? rawNext.slice(localePrefix.length) || '/'
+    : rawNext;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

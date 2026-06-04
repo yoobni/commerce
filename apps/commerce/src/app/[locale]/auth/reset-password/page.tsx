@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +10,6 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function ResetPasswordPage() {
   const t = useTranslations('auth');
-  const locale = useLocale();
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -46,7 +45,8 @@ export default function ResetPasswordPage() {
       setError(t('error.generic'));
       setSubmitting(false);
     } else {
-      router.replace(`/${locale}` as Parameters<typeof router.replace>[0]);
+      // next-intl router auto-prefixes the locale — pass locale-relative path.
+      router.replace('/' as Parameters<typeof router.replace>[0]);
     }
   }
 
