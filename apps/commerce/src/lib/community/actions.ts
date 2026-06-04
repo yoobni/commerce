@@ -3,11 +3,15 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { BoardType } from '@commerce/types';
+import { generateSlug } from './slug';
 
 interface ActionResult {
   success: boolean;
   error?: string;
   id?: string;
+  /** Canonical URL components for client-side redirect after create. */
+  short_id?: string;
+  slug?: string;
 }
 
 // ─── Create post ───────────────────────────────────────────────────────────────
@@ -42,16 +46,18 @@ export async function createPostAction(input: CreatePostInput): Promise<ActionRe
       view_count: 0,
       is_pinned: false,
       status: 'ACTIVE',
+      slug: generateSlug(input.title.trim()),
+      // short_id is filled by DB default (gen_random_uuid first 8 hex chars)
     })
-    .select('id')
+    .select('id, short_id, slug')
     .single();
 
   if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const id = (data as any).id as string;
+  const row = data as { id: string; short_id: string; slug: string };
   revalidatePath('/[locale]/community', 'page');
-  return { success: true, id };
+  return { success: true, id: row.id, short_id: row.short_id, slug: row.slug };
 }
 
 // ─── Update post ───────────────────────────────────────────────────────────────
@@ -100,7 +106,7 @@ export async function updatePostAction(
   if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
   revalidatePath('/[locale]/community', 'page');
-  revalidatePath(`/[locale]/community/${postId}`, 'page');
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
   return { success: true };
 }
 
@@ -178,7 +184,7 @@ export async function createCommentAction(
       }
     });
 
-  revalidatePath(`/[locale]/community/${postId}`, 'page');
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return { success: true, id: (data as any).id as string };
 }
@@ -213,7 +219,7 @@ export async function deleteCommentAction(
 
   if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
 
-  revalidatePath(`/[locale]/community/${postId}`, 'page');
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
   return { success: true };
 }
 

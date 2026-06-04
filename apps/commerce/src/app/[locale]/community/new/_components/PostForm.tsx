@@ -50,12 +50,12 @@ export function PostForm({ locale }: PostFormProps) {
 
     setIsSubmitting(false);
 
-    if (!result.success) {
+    if (!result.success || !result.short_id || !result.slug) {
       setError(t('error.createFailed'));
       return;
     }
 
-    router.push(`/${locale}/community/${result.id}`);
+    router.push(`/${locale}/community/${result.short_id}/${result.slug}`);
   }
 
   return (

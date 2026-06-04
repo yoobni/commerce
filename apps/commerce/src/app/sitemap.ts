@@ -38,9 +38,31 @@ async function getActiveProductSlugs(): Promise<{ slug: string; updatedAt: strin
   }
 }
 
+async function getActivePosts(): Promise<
+  { shortId: string; slug: string; updatedAt: string }[]
+> {
+  try {
+    const supabase = await createClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('posts') as any)
+      .select('short_id, slug, updated_at')
+      .eq('status', 'ACTIVE')
+      .order('updated_at', { ascending: false })
+      .limit(5000);
+    if (error || !data) return [];
+    return (data as { short_id: string; slug: string; updated_at: string }[]).map((p) => ({
+      shortId: p.short_id,
+      slug: p.slug,
+      updatedAt: p.updated_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const products = await getActiveProductSlugs();
+  const [products, posts] = await Promise.all([getActiveProductSlugs(), getActivePosts()]);
 
   const entries: MetadataRoute.Sitemap = [];
 
@@ -64,6 +86,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(product.updatedAt),
         changeFrequency: 'weekly',
         priority: 0.8,
+        alternates: { languages: alternateLanguages(path) },
+      });
+    }
+  }
+
+  for (const post of posts) {
+    const path = `/community/${post.shortId}/${post.slug}`;
+    for (const locale of routing.locales) {
+      entries.push({
+        url: `${SITE_URL}/${locale}${path}`,
+        lastModified: new Date(post.updatedAt),
+        changeFrequency: 'weekly',
+        priority: 0.6,
         alternates: { languages: alternateLanguages(path) },
       });
     }

@@ -35,7 +35,7 @@ export default async function EditPostPage({ params }: Props) {
 
   // Only owner can edit
   if (post.user_id !== user.id) {
-    redirect(`/${locale}/community/${id}`);
+    redirect(`/${locale}/community/${post.short_id}/${post.slug}`);
   }
 
   const t = await getTranslations({ locale, namespace: 'community' });
@@ -45,7 +45,7 @@ export default async function EditPostPage({ params }: Props) {
       <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
         {/* Back */}
         <a
-          href={`/${locale}/community/${id}`}
+          href={`/${locale}/community/${post.short_id}/${post.slug}`}
           className="inline-flex items-center gap-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-6 transition-colors"
         >
           <ChevronLeftIcon />

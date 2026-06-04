@@ -97,13 +97,20 @@ export async function listPosts(
 
 // ─── Get single post (increments view_count) ─────────────────────────────────
 
-export async function getPost(id: string): Promise<PostWithUser | null> {
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Look up a post by either UUID (legacy URLs) or short_id (canonical URLs).
+ * Format-detects to avoid two round-trips. Returns null on miss.
+ */
+export async function getPost(idOrShortId: string): Promise<PostWithUser | null> {
   const supabase = await createClient();
+  const lookupColumn = UUID_REGEX.test(idOrShortId) ? 'id' : 'short_id';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('posts') as any)
     .select('*, user:users!user_id(id, name, profile_image_url)')
-    .eq('id', id)
+    .eq(lookupColumn, idOrShortId)
     .eq('status', 'ACTIVE')
     .single();
 
@@ -113,7 +120,7 @@ export async function getPost(id: string): Promise<PostWithUser | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   void (supabase.from('posts') as any)
     .update({ view_count: (data as PostWithUser).view_count + 1 })
-    .eq('id', id);
+    .eq('id', (data as PostWithUser).id);
 
   return sanitizePost(data as PostWithUser);
 }

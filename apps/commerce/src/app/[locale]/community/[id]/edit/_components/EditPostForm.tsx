@@ -57,7 +57,7 @@ export function EditPostForm({ post, locale }: EditPostFormProps) {
       return;
     }
 
-    router.push(`/${locale}/community/${post.id}`);
+    router.push(`/${locale}/community/${post.short_id}/${post.slug}`);
   }
 
   return (

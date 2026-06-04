@@ -32,7 +32,7 @@ export function PostCard({ post, locale }: PostCardProps) {
 
   return (
     <Link
-      href={`/${locale}/community/${post.id}`}
+      href={`/${locale}/community/${post.short_id}/${post.slug}`}
       className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-[var(--color-border-subtle)]"
     >
       {/* Image */}

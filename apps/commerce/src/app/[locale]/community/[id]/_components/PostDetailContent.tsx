@@ -163,7 +163,7 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
       {isOwner && (
         <div className="flex items-center gap-3 mt-4">
           <button
-            onClick={() => router.push(`/${locale}/community/${post.id}/edit`)}
+            onClick={() => router.push(`/${locale}/community/${post.short_id}/edit`)}
             className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           >
             {tCommon('edit')}

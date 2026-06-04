@@ -484,6 +484,10 @@ export type PostStatus = 'ACTIVE' | 'HIDDEN' | 'DELETED';
 
 export interface Post {
   id: UUID;
+  /** 8-hex-char public lookup key (SEO/UX). Routing uses this, not id. */
+  short_id: string;
+  /** URL-safe title derivative (decorative). Stable across title edits. */
+  slug: string;
   user_id: UUID;
   board_type: BoardType;
   title: string;

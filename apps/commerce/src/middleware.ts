@@ -87,6 +87,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
+    // Exclude API, Next.js internals, asset files, and crawler-targeted
+    // root files (sitemap.xml / robots.txt) which next-intl would otherwise
+    // try to locale-prefix and turn into 404s.
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
   ],
 };
