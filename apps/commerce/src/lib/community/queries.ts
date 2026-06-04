@@ -162,16 +162,21 @@ export async function listComments(postId: string): Promise<CommentWithUser[]> {
 }
 
 // ─── Check if user liked a post ───────────────────────────────────────────────
+//
+// Likes are stored polymorphically in the `likes` table keyed by
+// (user_id, target_type, target_id). target_type is the like_target_type enum
+// ('POST' | 'COMMENT').
 
 export async function checkUserLikedPost(postId: string, userId: string): Promise<boolean> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.from('post_likes') as any)
+  const { data } = await (supabase.from('likes') as any)
     .select('id')
-    .eq('post_id', postId)
     .eq('user_id', userId)
-    .single();
+    .eq('target_type', 'POST')
+    .eq('target_id', postId)
+    .maybeSingle();
 
   return !!data;
 }
@@ -181,12 +186,24 @@ export async function checkUserLikedPost(postId: string, userId: string): Promis
 export async function getUserLikedCommentIds(postId: string, userId: string): Promise<string[]> {
   const supabase = await createClient();
 
+  // Comments belonging to this post — used to scope the likes query.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.from('comment_likes') as any)
-    .select('comment_id')
-    .eq('user_id', userId);
+  const { data: commentRows } = await (supabase.from('comments') as any)
+    .select('id')
+    .eq('post_id', postId);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const commentIds = ((commentRows ?? []) as any[]).map((r) => r.id as string);
+  if (commentIds.length === 0) return [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase.from('likes') as any)
+    .select('target_id')
+    .eq('user_id', userId)
+    .eq('target_type', 'COMMENT')
+    .in('target_id', commentIds);
 
   if (!data) return [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data as any[]).map((r) => r.comment_id as string);
+  return (data as any[]).map((r) => r.target_id as string);
 }

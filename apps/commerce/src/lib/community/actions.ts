@@ -232,130 +232,37 @@ export interface LikeResult {
   error?: string;
 }
 
-export async function togglePostLikeAction(postId: string): Promise<LikeResult> {
+async function toggleLikeViaRpc(
+  targetType: 'POST' | 'COMMENT',
+  targetId: string,
+): Promise<LikeResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { success: false, liked: false, likeCount: 0, error: 'not_authenticated' };
 
-  // Check existing like
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase.from('post_likes') as any)
-    .select('id')
-    .eq('post_id', postId)
-    .eq('user_id', user.id)
-    .single();
+  const { data, error } = await (supabase.rpc as any)('toggle_like', {
+    p_target_type: targetType,
+    p_target_id: targetId,
+    p_user_id: user.id,
+  });
 
-  // Get current count
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: postData } = await (supabase.from('posts') as any)
-    .select('like_count')
-    .eq('id', postId)
-    .single();
-
-  const currentCount = (postData as { like_count: number } | null)?.like_count ?? 0;
-
-  if (existing) {
-    // Unlike
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('post_likes') as any)
-      .delete()
-      .eq('post_id', postId)
-      .eq('user_id', user.id);
-    if (error)
-      return {
-        success: false,
-        liked: true,
-        likeCount: currentCount,
-        error: 'COMMUNITY_DB_ERROR',
-      };
-
-    const newCount = Math.max(0, currentCount - 1);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (supabase.from('posts') as any).update({ like_count: newCount }).eq('id', postId);
-    return { success: true, liked: false, likeCount: newCount };
-  } else {
-    // Like
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('post_likes') as any).insert({
-      post_id: postId,
-      user_id: user.id,
-    });
-    if (error)
-      return {
-        success: false,
-        liked: false,
-        likeCount: currentCount,
-        error: 'COMMUNITY_DB_ERROR',
-      };
-
-    const newCount = currentCount + 1;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (supabase.from('posts') as any).update({ like_count: newCount }).eq('id', postId);
-    return { success: true, liked: true, likeCount: newCount };
+  if (error || !data || !data[0]) {
+    return { success: false, liked: false, likeCount: 0, error: 'COMMUNITY_DB_ERROR' };
   }
+
+  const row = data[0] as { out_liked: boolean; out_like_count: number };
+  return { success: true, liked: row.out_liked, likeCount: row.out_like_count };
+}
+
+export async function togglePostLikeAction(postId: string): Promise<LikeResult> {
+  return toggleLikeViaRpc('POST', postId);
 }
 
 // ─── Toggle comment like ───────────────────────────────────────────────────────
 
 export async function toggleCommentLikeAction(commentId: string): Promise<LikeResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { success: false, liked: false, likeCount: 0, error: 'not_authenticated' };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase.from('comment_likes') as any)
-    .select('id')
-    .eq('comment_id', commentId)
-    .eq('user_id', user.id)
-    .single();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: commentData } = await (supabase.from('comments') as any)
-    .select('like_count')
-    .eq('id', commentId)
-    .single();
-
-  const currentCount = (commentData as { like_count: number } | null)?.like_count ?? 0;
-
-  if (existing) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('comment_likes') as any)
-      .delete()
-      .eq('comment_id', commentId)
-      .eq('user_id', user.id);
-    if (error)
-      return {
-        success: false,
-        liked: true,
-        likeCount: currentCount,
-        error: 'COMMUNITY_DB_ERROR',
-      };
-
-    const newCount = Math.max(0, currentCount - 1);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (supabase.from('comments') as any).update({ like_count: newCount }).eq('id', commentId);
-    return { success: true, liked: false, likeCount: newCount };
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('comment_likes') as any).insert({
-      comment_id: commentId,
-      user_id: user.id,
-    });
-    if (error)
-      return {
-        success: false,
-        liked: false,
-        likeCount: currentCount,
-        error: 'COMMUNITY_DB_ERROR',
-      };
-
-    const newCount = currentCount + 1;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (supabase.from('comments') as any).update({ like_count: newCount }).eq('id', commentId);
-    return { success: true, liked: true, likeCount: newCount };
-  }
+  return toggleLikeViaRpc('COMMENT', commentId);
 }
