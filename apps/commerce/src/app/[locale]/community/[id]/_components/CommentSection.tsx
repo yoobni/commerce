@@ -243,6 +243,7 @@ export function CommentSection({
       status: 'ACTIVE',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      last_edited_at: null,
       user: null,
       replies: [],
     };

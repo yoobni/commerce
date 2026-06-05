@@ -91,6 +91,7 @@ export async function updatePostAction(
     return { success: false, error: 'forbidden' };
   }
 
+  const nowIso = new Date().toISOString();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from('posts') as any)
     .update({
@@ -99,7 +100,8 @@ export async function updatePostAction(
       content: input.content.trim(),
       dog_breed: input.dog_breed || null,
       images: input.images,
-      updated_at: new Date().toISOString(),
+      updated_at: nowIso,
+      last_edited_at: nowIso,
     })
     .eq('id', postId);
 

@@ -90,8 +90,19 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
             <p className="text-sm font-medium text-[var(--color-text-primary)]">
               {post.user?.name ?? ''}
             </p>
-            <p className="text-xs text-[var(--color-text-tertiary)]">
-              {formatDate(post.created_at)}
+            <p className="text-xs text-[var(--color-text-tertiary)] flex items-center gap-1.5">
+              <span>{formatDate(post.created_at)}</span>
+              {post.last_edited_at && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span
+                    title={`${tCommon('edited')}: ${formatDate(post.last_edited_at)}`}
+                    className="text-[var(--color-text-secondary)]"
+                  >
+                    {tCommon('edited')}
+                  </span>
+                </>
+              )}
             </p>
           </div>
         </div>

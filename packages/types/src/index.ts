@@ -502,6 +502,8 @@ export interface Post {
   status: PostStatus;
   created_at: ISODateTime;
   updated_at: ISODateTime;
+  /** Set by updatePostAction on each content edit; null if never edited. Drives "수정됨" badge. */
+  last_edited_at: ISODateTime | null;
   /** Resolved relation */
   user?: Pick<User, 'id' | 'name' | 'profile_image_url'>;
 }
@@ -516,6 +518,8 @@ export interface Comment {
   status: PostStatus;
   created_at: ISODateTime;
   updated_at: ISODateTime;
+  /** Set by updateCommentAction on edit; null if never edited. */
+  last_edited_at: ISODateTime | null;
   /** Resolved relation */
   user?: Pick<User, 'id' | 'name' | 'profile_image_url'>;
 }
