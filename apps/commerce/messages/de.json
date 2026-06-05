@@ -187,6 +187,7 @@
     "postTitlePlaceholder": "Titel eingeben",
     "postContentPlaceholder": "Teile deine Geschichte...",
     "postDogBreedPlaceholder": "z.B. Malamute, Deutsche Dogge",
+    "postImages": "Bilder",
     "postSubmit": "Veröffentlichen",
     "postUpdate": "Aktualisieren",
     "editTitle": "Beitrag bearbeiten",
@@ -202,6 +203,18 @@
     "reply": "Antworten",
     "replies": "{count} Antworten",
     "cancelReply": "Abbrechen",
+    "imageAdd": "Bild hinzufügen",
+    "imageUploading": "Wird hochgeladen...",
+    "imageRemove": "Bild entfernen",
+    "imageMoveLeft": "Nach links",
+    "imageMoveRight": "Nach rechts",
+    "imageAltPlaceholder": "Bildbeschreibung (optional)",
+    "imageMaxReached": "Maximal {max} Bilder erlaubt",
+    "imageError": {
+      "type": "Nur JPEG, PNG und WebP werden unterstützt",
+      "size": "Datei muss kleiner als {mb}MB sein",
+      "uploadFailed": "Bild-Upload fehlgeschlagen"
+    },
     "error": {
       "notFound": "Beitrag nicht gefunden",
       "createFailed": "Beitrag konnte nicht erstellt werden",

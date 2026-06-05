@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = extractExcerpt(post.content, 160);
   const canonical = canonicalPath(locale, post.short_id, post.slug);
-  const firstImage = post.images?.[0] ? safeImageSrc(post.images[0]) : null;
+  const firstImage = post.images?.[0]?.url ? safeImageSrc(post.images[0].url) : null;
   const ogImages = firstImage ? [{ url: firstImage }] : undefined;
 
   return {

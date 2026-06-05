@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import type { BoardType } from '@commerce/types';
+import type { BoardType, PostImage } from '@commerce/types';
 import { generateSlug } from './slug';
 
 interface ActionResult {
@@ -21,7 +21,7 @@ export interface CreatePostInput {
   title: string;
   content: string;
   dog_breed: string | null;
-  images: string[];
+  images: PostImage[];
 }
 
 export async function createPostAction(input: CreatePostInput): Promise<ActionResult> {
@@ -67,7 +67,7 @@ export interface UpdatePostInput {
   title: string;
   content: string;
   dog_breed: string | null;
-  images: string[];
+  images: PostImage[];
 }
 
 export async function updatePostAction(

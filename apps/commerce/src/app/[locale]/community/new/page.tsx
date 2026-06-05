@@ -47,7 +47,7 @@ export default async function NewPostPage({ params }: Props) {
         <h1 className="text-xl font-bold text-[var(--color-text-primary)] mb-8">{t('newTitle')}</h1>
 
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
-          <PostForm locale={locale} />
+          <PostForm locale={locale} userId={user.id} />
         </div>
       </div>
     </div>

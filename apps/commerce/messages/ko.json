@@ -212,6 +212,7 @@
     "postTitlePlaceholder": "제목을 입력해 주세요",
     "postContentPlaceholder": "자유롭게 이야기를 나눠보세요",
     "postDogBreedPlaceholder": "예: 말라뮤트, 그레이트 데인",
+    "postImages": "이미지 첨부",
     "postSubmit": "게시하기",
     "postUpdate": "수정하기",
     "editTitle": "게시글 수정",
@@ -227,6 +228,18 @@
     "reply": "답글",
     "replies": "답글 {count}개",
     "cancelReply": "취소",
+    "imageAdd": "이미지 추가",
+    "imageUploading": "업로드 중...",
+    "imageRemove": "이미지 삭제",
+    "imageMoveLeft": "왼쪽으로 이동",
+    "imageMoveRight": "오른쪽으로 이동",
+    "imageAltPlaceholder": "이미지 설명 (선택)",
+    "imageMaxReached": "최대 {max}장까지 첨부 가능",
+    "imageError": {
+      "type": "JPEG, PNG, WebP 형식만 업로드 가능합니다",
+      "size": "파일 크기는 {mb}MB 이하여야 합니다",
+      "uploadFailed": "이미지 업로드에 실패했습니다"
+    },
     "error": {
       "notFound": "게시글을 찾을 수 없습니다",
       "createFailed": "게시글 작성에 실패했습니다",

@@ -1,16 +1,35 @@
-import type { Post, Comment, User, BoardType, PaginatedResponse } from '@commerce/types';
+import type { Post, PostImage, Comment, User, BoardType, PaginatedResponse } from '@commerce/types';
 import { createClient } from '@/lib/supabase/server';
 import { safeImageSrc } from '@/lib/images/safeSrc';
 
-function sanitizePost<T extends { images?: string[] | null; user?: { profile_image_url?: string | null } | null }>(p: T): T {
-  let images = p.images;
+/**
+ * Backwards compatibility: pre-F8 rows stored `images` as `string[]`. Coerce
+ * those into the new {url, alt} object form so callers can rely on a single
+ * shape. New posts persist objects directly.
+ */
+function normalizeImage(raw: unknown): PostImage | null {
+  if (typeof raw === 'string') return { url: raw, alt: '' };
+  if (raw && typeof raw === 'object') {
+    const obj = raw as { url?: unknown; alt?: unknown };
+    if (typeof obj.url === 'string') {
+      return { url: obj.url, alt: typeof obj.alt === 'string' ? obj.alt : '' };
+    }
+  }
+  return null;
+}
+
+function sanitizePost<T extends { images?: unknown; user?: { profile_image_url?: string | null } | null }>(p: T): T {
+  let images = p.images as PostImage[] | null | undefined;
   if (Array.isArray(p.images)) {
     const seen = new Set<string>();
-    images = p.images
-      .map((s) => safeImageSrc(s))
-      .filter((s) => {
-        if (seen.has(s)) return false;
-        seen.add(s);
+    images = (p.images as unknown[])
+      .map(normalizeImage)
+      .filter((img): img is PostImage => {
+        if (!img) return false;
+        const url = safeImageSrc(img.url);
+        if (seen.has(url)) return false;
+        seen.add(url);
+        img.url = url;
         return true;
       });
   }

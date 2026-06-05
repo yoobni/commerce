@@ -187,6 +187,7 @@
     "postTitlePlaceholder": "タイトルを入力してください",
     "postContentPlaceholder": "自由に話し合いましょう",
     "postDogBreedPlaceholder": "例: マラミュート、グレートデーン",
+    "postImages": "画像",
     "postSubmit": "投稿する",
     "postUpdate": "更新する",
     "editTitle": "投稿を編集",
@@ -202,6 +203,18 @@
     "reply": "返信",
     "replies": "返信 {count}件",
     "cancelReply": "キャンセル",
+    "imageAdd": "画像を追加",
+    "imageUploading": "アップロード中...",
+    "imageRemove": "画像を削除",
+    "imageMoveLeft": "左に移動",
+    "imageMoveRight": "右に移動",
+    "imageAltPlaceholder": "画像の説明 (任意)",
+    "imageMaxReached": "最大{max}枚まで添付できます",
+    "imageError": {
+      "type": "JPEG・PNG・WebPのみアップロード可能です",
+      "size": "ファイルサイズは{mb}MB以下にしてください",
+      "uploadFailed": "画像のアップロードに失敗しました"
+    },
     "error": {
       "notFound": "投稿が見つかりません",
       "createFailed": "投稿の作成に失敗しました",

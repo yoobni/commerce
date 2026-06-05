@@ -187,6 +187,7 @@
     "postTitlePlaceholder": "Enter a title",
     "postContentPlaceholder": "Share your story...",
     "postDogBreedPlaceholder": "e.g. Malamute, Great Dane",
+    "postImages": "Images",
     "postSubmit": "Publish",
     "postUpdate": "Update",
     "editTitle": "Edit Post",
@@ -202,6 +203,18 @@
     "reply": "Reply",
     "replies": "{count} replies",
     "cancelReply": "Cancel",
+    "imageAdd": "Add image",
+    "imageUploading": "Uploading...",
+    "imageRemove": "Remove image",
+    "imageMoveLeft": "Move left",
+    "imageMoveRight": "Move right",
+    "imageAltPlaceholder": "Image description (optional)",
+    "imageMaxReached": "Up to {max} images allowed",
+    "imageError": {
+      "type": "Only JPEG, PNG, and WebP are supported",
+      "size": "File must be smaller than {mb}MB",
+      "uploadFailed": "Image upload failed"
+    },
     "error": {
       "notFound": "Post not found",
       "createFailed": "Failed to create post",

@@ -57,7 +57,7 @@ export default async function EditPostPage({ params }: Props) {
         </h1>
 
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
-          <EditPostForm post={post} locale={locale} />
+          <EditPostForm post={post} locale={locale} userId={user.id} />
         </div>
       </div>
     </div>

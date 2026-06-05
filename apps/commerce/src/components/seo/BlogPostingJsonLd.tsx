@@ -28,7 +28,7 @@ interface Props {
  */
 export function BlogPostingJsonLd({ post, url, excerpt }: Props) {
   const images = (post.images ?? [])
-    .map((src) => safeImageSrc(src))
+    .map((img) => safeImageSrc(img.url))
     .filter(Boolean);
 
   const authorName = post.user?.name ?? '익명';

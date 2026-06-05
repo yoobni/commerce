@@ -28,7 +28,8 @@ const BOARD_COLORS: Record<BoardType, string> = {
 
 export function PostCard({ post, locale }: PostCardProps) {
   const t = useTranslations('community');
-  const firstImage = post.images?.[0] ? safeImageSrc(post.images[0]) : null;
+  const firstImage = post.images?.[0]?.url ? safeImageSrc(post.images[0].url) : null;
+  const firstImageAlt = post.images?.[0]?.alt || post.title;
 
   return (
     <Link
@@ -40,7 +41,7 @@ export function PostCard({ post, locale }: PostCardProps) {
         {firstImage ? (
           <Image
             src={firstImage}
-            alt={post.title}
+            alt={firstImageAlt}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"

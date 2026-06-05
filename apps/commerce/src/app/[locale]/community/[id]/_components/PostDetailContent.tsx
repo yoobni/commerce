@@ -36,7 +36,10 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
   const [activeImage, setActiveImage] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const images = (post.images ?? []).map(safeImageSrc);
+  const images = (post.images ?? []).map((img) => ({
+    url: safeImageSrc(img.url),
+    alt: img.alt,
+  }));
 
   async function handleDelete() {
     if (!window.confirm(t('deletePostConfirm'))) return;
@@ -121,13 +124,13 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
           {/* Main image */}
           <div className="relative aspect-[4/3] bg-[var(--color-neutral-100)] rounded-2xl overflow-hidden mb-2">
             <Image
-              src={images[activeImage]}
-              alt={`${post.title} — ${activeImage + 1}`}
+              src={images[activeImage].url}
+              alt={images[activeImage].alt || `${post.title} — ${activeImage + 1}`}
               fill
               sizes="(max-width: 768px) 100vw, 720px"
               className="object-contain"
               priority={activeImage === 0}
-              unoptimized={isFallback(images[activeImage])}
+              unoptimized={isFallback(images[activeImage].url)}
             />
           </div>
 
@@ -145,12 +148,12 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
                   }`}
                 >
                   <Image
-                    src={img}
-                    alt={`thumbnail ${idx + 1}`}
+                    src={img.url}
+                    alt={img.alt || `thumbnail ${idx + 1}`}
                     fill
                     sizes="64px"
                     className="object-cover"
-                    unoptimized={isFallback(img)}
+                    unoptimized={isFallback(img.url)}
                   />
                 </button>
               ))}

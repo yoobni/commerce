@@ -6,10 +6,12 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createPostAction } from '@/lib/community/actions';
-import type { BoardType } from '@commerce/types';
+import type { BoardType, PostImage } from '@commerce/types';
+import { PostImageInput } from '../../_components/PostImageInput';
 
 interface PostFormProps {
   locale: string;
+  userId: string;
 }
 
 type BoardOption = { value: BoardType; labelKey: string };
@@ -21,7 +23,7 @@ const BOARD_OPTIONS: BoardOption[] = [
   { value: 'QUESTION', labelKey: 'boardQuestion' },
 ];
 
-export function PostForm({ locale }: PostFormProps) {
+export function PostForm({ locale, userId }: PostFormProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -30,6 +32,7 @@ export function PostForm({ locale }: PostFormProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [dogBreed, setDogBreed] = useState('');
+  const [images, setImages] = useState<PostImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +48,7 @@ export function PostForm({ locale }: PostFormProps) {
       title,
       content,
       dog_breed: dogBreed.trim() || null,
-      images: [],
+      images,
     });
 
     setIsSubmitting(false);
@@ -123,6 +126,19 @@ export function PostForm({ locale }: PostFormProps) {
         placeholder={t('postDogBreedPlaceholder')}
         maxLength={50}
       />
+
+      {/* Images */}
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          {t('postImages')}
+        </p>
+        <PostImageInput
+          value={images}
+          onChange={setImages}
+          userId={userId}
+          disabled={isSubmitting}
+        />
+      </div>
 
       {/* Error */}
       {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}

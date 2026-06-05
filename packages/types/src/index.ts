@@ -482,6 +482,13 @@ export interface Review {
 export type BoardType = 'DAILY' | 'STYLE' | 'TIP' | 'QUESTION';
 export type PostStatus = 'ACTIVE' | 'HIDDEN' | 'DELETED';
 
+/** One image attached to a community post. Stored as JSONB array element. */
+export interface PostImage {
+  url: string;
+  /** Alt text for a11y + SEO. Empty string allowed when user skips. */
+  alt: string;
+}
+
 export interface Post {
   id: UUID;
   /** 8-hex-char public lookup key (SEO/UX). Routing uses this, not id. */
@@ -492,7 +499,7 @@ export interface Post {
   board_type: BoardType;
   title: string;
   content: string;
-  images: string[] | null;
+  images: PostImage[];
   product_ids: UUID[];
   dog_breed: string | null;
   like_count: number;

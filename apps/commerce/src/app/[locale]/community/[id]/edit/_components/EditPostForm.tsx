@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updatePostAction } from '@/lib/community/actions';
 import type { PostWithUser } from '@/lib/community/queries';
-import type { BoardType } from '@commerce/types';
+import type { BoardType, PostImage } from '@commerce/types';
+import { PostImageInput } from '../../../_components/PostImageInput';
 
 interface EditPostFormProps {
   post: PostWithUser;
   locale: string;
+  userId: string;
 }
 
 type BoardOption = { value: BoardType; labelKey: string };
@@ -23,7 +25,7 @@ const BOARD_OPTIONS: BoardOption[] = [
   { value: 'QUESTION', labelKey: 'boardQuestion' },
 ];
 
-export function EditPostForm({ post, locale }: EditPostFormProps) {
+export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -32,6 +34,7 @@ export function EditPostForm({ post, locale }: EditPostFormProps) {
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
   const [dogBreed, setDogBreed] = useState(post.dog_breed ?? '');
+  const [images, setImages] = useState<PostImage[]>(post.images ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +50,7 @@ export function EditPostForm({ post, locale }: EditPostFormProps) {
       title,
       content,
       dog_breed: dogBreed.trim() || null,
-      images: post.images ?? [],
+      images,
     });
 
     setIsSubmitting(false);
@@ -125,6 +128,19 @@ export function EditPostForm({ post, locale }: EditPostFormProps) {
         placeholder={t('postDogBreedPlaceholder')}
         maxLength={50}
       />
+
+      {/* Images */}
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          {t('postImages')}
+        </p>
+        <PostImageInput
+          value={images}
+          onChange={setImages}
+          userId={userId}
+          disabled={isSubmitting}
+        />
+      </div>
 
       {/* Error */}
       {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}

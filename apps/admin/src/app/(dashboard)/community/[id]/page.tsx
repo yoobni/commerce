@@ -91,12 +91,12 @@ export default async function CommunityPostDetailPage({ params }: PageProps) {
 
             {post.images && post.images.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
-                {post.images.map((url, i) => (
+                {post.images.map((img, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={i}
-                    src={url}
-                    alt={`첨부 이미지 ${i + 1}`}
+                    src={img.url}
+                    alt={img.alt || `첨부 이미지 ${i + 1}`}
                     className="h-32 w-32 rounded-md border border-border object-cover"
                   />
                 ))}
