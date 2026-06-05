@@ -66,6 +66,11 @@ export interface PostListParams {
   sort?: 'newest' | 'popular';
   page?: number;
   per_page?: number;
+  /** Restrict to posts authored by this user. Used by "내 글" filter. */
+  authorId?: string;
+  /** Include user's own posts that are HIDDEN by moderation (so the author
+   *  can still see them in their own listing). Otherwise default = ACTIVE only. */
+  includeHidden?: boolean;
 }
 
 // ─── List posts ────────────────────────────────────────────────────────────────
@@ -73,15 +78,29 @@ export interface PostListParams {
 export async function listPosts(
   params: PostListParams = {}
 ): Promise<PaginatedResponse<PostWithUser>> {
-  const { boardType = 'ALL', search, sort = 'newest', page = 1, per_page = 12 } = params;
+  const {
+    boardType = 'ALL',
+    search,
+    sort = 'newest',
+    page = 1,
+    per_page = 12,
+    authorId,
+    includeHidden = false,
+  } = params;
   const supabase = await createClient();
   const offset = (page - 1) * per_page;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('posts') as any)
-    .select('*, user:users!user_id(id, name, profile_image_url)', { count: 'exact' })
-    .eq('status', 'ACTIVE');
+    .select('*, user:users!user_id(id, name, profile_image_url)', { count: 'exact' });
 
+  if (includeHidden) {
+    // Owner-only view: show ACTIVE + HIDDEN, exclude DELETED.
+    query = query.neq('status', 'DELETED');
+  } else {
+    query = query.eq('status', 'ACTIVE');
+  }
+  if (authorId) query = query.eq('user_id', authorId);
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
   if (search) {
     // Escape ilike wildcards so user input can't match unintended rows.

@@ -14,7 +14,13 @@ type SortOption = 'newest' | 'popular';
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ board?: string; sort?: string; q?: string; page?: string }>;
+  searchParams: Promise<{
+    board?: string;
+    sort?: string;
+    q?: string;
+    page?: string;
+    mine?: string;
+  }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -40,11 +46,16 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const currentSort: SortOption = sp.sort === 'popular' ? 'popular' : 'newest';
   const currentSearch = sp.q ?? '';
   const currentPage = Math.max(1, parseInt(sp.page ?? '1', 10));
+  const wantsMine = sp.mine === '1';
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // "내 글" filter requires auth. When unauthenticated, silently fall back to
+  // the global listing (the toggle button itself will route to login).
+  const currentMine = wantsMine && !!user;
 
   const result = await listPosts({
     boardType: currentBoard,
@@ -52,6 +63,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     sort: currentSort,
     page: currentPage,
     per_page: PER_PAGE,
+    authorId: currentMine ? user!.id : undefined,
+    // Own posts show ACTIVE + HIDDEN so the author can see what moderation
+    // hid; global listing only shows ACTIVE.
+    includeHidden: currentMine,
   });
 
   return (
@@ -64,6 +79,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
       currentBoard={currentBoard}
       currentSort={currentSort}
       currentSearch={currentSearch}
+      currentMine={currentMine}
       isAuthenticated={!!user}
     />
   );

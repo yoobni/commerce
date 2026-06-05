@@ -168,6 +168,7 @@
     "boardStyle": "スタイル",
     "boardTip": "ヒント",
     "boardQuestion": "Q&A",
+    "mineFilter": "自分の投稿",
     "likes": "いいね {count}",
     "comments": "コメント {count}",
     "views": "閲覧 {count}",

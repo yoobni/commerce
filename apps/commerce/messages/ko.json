@@ -193,6 +193,7 @@
     "boardStyle": "스타일",
     "boardTip": "팁",
     "boardQuestion": "질문",
+    "mineFilter": "내 글",
     "likes": "좋아요 {count}",
     "comments": "댓글 {count}",
     "views": "조회 {count}",

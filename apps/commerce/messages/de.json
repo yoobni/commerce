@@ -168,6 +168,7 @@
     "boardStyle": "Style",
     "boardTip": "Tipps",
     "boardQuestion": "Fragen",
+    "mineFilter": "Meine Beiträge",
     "likes": "{count} Likes",
     "comments": "{count} Kommentare",
     "views": "{count} Aufrufe",
