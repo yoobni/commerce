@@ -111,8 +111,8 @@ export default async function PostDetailPage({ params }: Props) {
     redirect(canonical);
   }
 
-  const [comments, userLiked, likedCommentIds] = await Promise.all([
-    listComments(post.id),
+  const [commentsResult, userLiked, likedCommentIds] = await Promise.all([
+    listComments(post.id, 1),
     user ? checkUserLikedPost(post.id, user.id) : Promise.resolve(false),
     user ? getUserLikedCommentIds(post.id, user.id) : Promise.resolve([]),
   ]);
@@ -155,7 +155,10 @@ export default async function PostDetailPage({ params }: Props) {
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
           <CommentSection
             postId={post.id}
-            initialComments={comments}
+            initialComments={commentsResult.data}
+            initialTotal={commentsResult.total}
+            initialPage={commentsResult.page}
+            initialHasNext={commentsResult.has_next}
             initialLikedCommentIds={likedCommentIds}
             isAuthenticated={!!user}
             currentUserId={user?.id ?? null}

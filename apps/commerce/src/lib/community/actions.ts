@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { BoardType, PostImage } from '@commerce/types';
 import { generateSlug } from './slug';
+import { listComments, type ListCommentsResult } from './queries';
 
 interface ActionResult {
   success: boolean;
@@ -267,4 +268,17 @@ export async function togglePostLikeAction(postId: string): Promise<LikeResult> 
 
 export async function toggleCommentLikeAction(commentId: string): Promise<LikeResult> {
   return toggleLikeViaRpc('COMMENT', commentId);
+}
+
+// ─── Load more comments (pagination) ──────────────────────────────────────────
+
+/**
+ * Server action used by CommentSection to fetch the next page of comments.
+ * No auth required — comments are public.
+ */
+export async function loadMoreCommentsAction(
+  postId: string,
+  page: number,
+): Promise<ListCommentsResult> {
+  return listComments(postId, page);
 }

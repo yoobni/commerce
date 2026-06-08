@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
   createCommentAction,
   deleteCommentAction,
+  loadMoreCommentsAction,
   toggleCommentLikeAction,
 } from '@/lib/community/actions';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
@@ -14,6 +15,9 @@ import type { CommentWithUser } from '@/lib/community/queries';
 interface CommentSectionProps {
   postId: string;
   initialComments: CommentWithUser[];
+  initialTotal: number;
+  initialPage: number;
+  initialHasNext: boolean;
   initialLikedCommentIds: string[];
   isAuthenticated: boolean;
   currentUserId: string | null;
@@ -161,6 +165,9 @@ function CommentRow({
 export function CommentSection({
   postId,
   initialComments,
+  initialTotal,
+  initialPage,
+  initialHasNext,
   initialLikedCommentIds,
   isAuthenticated,
   currentUserId,
@@ -168,12 +175,15 @@ export function CommentSection({
 }: CommentSectionProps) {
   const t = useTranslations('community');
   const [comments, setComments] = useState<CommentWithUser[]>(initialComments);
+  const [page, setPage] = useState(initialPage);
+  const [hasNext, setHasNext] = useState(initialHasNext);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set(initialLikedCommentIds));
   const [replyTo, setReplyTo] = useState<{ parentId: string; authorName: string } | null>(null);
   const [commentText, setCommentText] = useState('');
   const [replyText, setReplyText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [isLoadingMore, startLoadMore] = useTransition();
 
   function showToast(msg: string) {
     setToast(msg);
@@ -214,6 +224,19 @@ export function CommentSection({
   function handleReply(parentId: string, authorName: string) {
     setReplyTo({ parentId, authorName });
     setReplyText('');
+  }
+
+  function handleLoadMore() {
+    startLoadMore(async () => {
+      const next = page + 1;
+      const result = await loadMoreCommentsAction(postId, next);
+      // De-dupe in case a comment was added optimistically while paging.
+      const seen = new Set(comments.map((c) => c.id));
+      const fresh = result.data.filter((c) => !seen.has(c.id));
+      setComments((prev) => [...prev, ...fresh]);
+      setPage(result.page);
+      setHasNext(result.has_next);
+    });
   }
 
   async function submitComment(content: string, parentId: string | null) {
@@ -359,6 +382,20 @@ export function CommentSection({
           ))
         )}
       </div>
+
+      {/* Load more */}
+      {hasNext && (
+        <div className="flex justify-center mt-4">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="px-4 py-2 rounded-lg border border-[var(--color-border)] bg-white text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] transition-colors disabled:opacity-40"
+          >
+            {isLoadingMore ? t('loadingMore') : t('loadMoreComments', { remaining: initialTotal - comments.length })}
+          </button>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (

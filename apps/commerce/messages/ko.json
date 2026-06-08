@@ -226,6 +226,8 @@
     "commentPlaceholder": "댓글을 입력해 주세요",
     "commentSubmit": "등록",
     "noComments": "아직 댓글이 없습니다",
+    "loadingMore": "불러오는 중...",
+    "loadMoreComments": "댓글 {remaining}개 더 보기",
     "replyPlaceholder": "답글을 입력해 주세요",
     "reply": "답글",
     "replies": "답글 {count}개",

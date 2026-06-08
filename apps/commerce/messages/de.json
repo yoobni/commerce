@@ -201,6 +201,8 @@
     "commentPlaceholder": "Kommentar schreiben...",
     "commentSubmit": "Senden",
     "noComments": "Noch keine Kommentare",
+    "loadingMore": "Wird geladen...",
+    "loadMoreComments": "{remaining} weitere Kommentare anzeigen",
     "replyPlaceholder": "Antwort schreiben...",
     "reply": "Antworten",
     "replies": "{count} Antworten",

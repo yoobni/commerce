@@ -184,40 +184,77 @@ export async function getPost(idOrShortId: string): Promise<PostWithUser | null>
   return sanitizePost(data as PostWithUser);
 }
 
-// ─── List comments for a post ─────────────────────────────────────────────────
+// ─── List comments for a post (paginated by top-level) ──────────────────────
 
-export async function listComments(postId: string): Promise<CommentWithUser[]> {
+export interface ListCommentsResult {
+  data: CommentWithUser[];
+  /** Total top-level comment count (replies not counted here). */
+  total: number;
+  page: number;
+  per_page: number;
+  has_next: boolean;
+}
+
+const COMMENT_PAGE_SIZE = 20;
+
+/**
+ * Paginated by *top-level* comments — replies are always included with their
+ * parent. Pagination at the parent level avoids splitting threads across pages.
+ */
+export async function listComments(
+  postId: string,
+  page: number = 1,
+  perPage: number = COMMENT_PAGE_SIZE,
+): Promise<ListCommentsResult> {
   const supabase = await createClient();
+  const offset = (page - 1) * perPage;
 
+  // Step 1: paginate top-level comments + total count.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from('comments') as any)
-    .select('*, user:users!user_id(id, name, profile_image_url)')
+  const { data: topRows, count, error } = await (supabase.from('comments') as any)
+    .select('*, user:users!user_id(id, name, profile_image_url)', { count: 'exact' })
     .eq('post_id', postId)
     .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: true });
+    .is('parent_id', null)
+    .order('created_at', { ascending: true })
+    .range(offset, offset + perPage - 1);
 
   if (error) throw error;
 
-  const allComments = ((data ?? []) as CommentWithUser[]).map(sanitizeComment);
+  const topLevel = ((topRows ?? []) as CommentWithUser[]).map(sanitizeComment);
+  const total = count ?? 0;
 
-  // Build tree: top-level + nested replies
-  const topLevel: CommentWithUser[] = [];
-  const byParent: Record<string, CommentWithUser[]> = {};
-
-  for (const c of allComments) {
-    if (c.parent_id) {
-      if (!byParent[c.parent_id]) byParent[c.parent_id] = [];
-      byParent[c.parent_id].push(c);
-    } else {
-      topLevel.push(c);
-    }
+  if (topLevel.length === 0) {
+    return { data: [], total, page, per_page: perPage, has_next: false };
   }
 
+  // Step 2: fetch replies for *this* page's top-level comments.
+  const topIds = topLevel.map((c) => c.id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: replyRows } = await (supabase.from('comments') as any)
+    .select('*, user:users!user_id(id, name, profile_image_url)')
+    .in('parent_id', topIds)
+    .eq('status', 'ACTIVE')
+    .order('created_at', { ascending: true });
+
+  const replies = ((replyRows ?? []) as CommentWithUser[]).map(sanitizeComment);
+  const byParent: Record<string, CommentWithUser[]> = {};
+  for (const r of replies) {
+    if (!r.parent_id) continue;
+    if (!byParent[r.parent_id]) byParent[r.parent_id] = [];
+    byParent[r.parent_id].push(r);
+  }
   for (const c of topLevel) {
     c.replies = byParent[c.id] ?? [];
   }
 
-  return topLevel;
+  return {
+    data: topLevel,
+    total,
+    page,
+    per_page: perPage,
+    has_next: offset + perPage < total,
+  };
 }
 
 // ─── Check if user liked a post ───────────────────────────────────────────────
