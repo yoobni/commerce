@@ -73,6 +73,23 @@ export interface PostListParams {
   /** Include user's own posts that are HIDDEN by moderation (so the author
    *  can still see them in their own listing). Otherwise default = ACTIVE only. */
   includeHidden?: boolean;
+  /** User ids to exclude from the result (F10 user blocks). */
+  excludeAuthorIds?: string[];
+}
+
+/**
+ * Returns user_ids that `viewerId` has blocked. Empty array when unauthenticated
+ * or no blocks set. RLS ensures users can only read their own block list.
+ */
+export async function getBlockedUserIds(viewerId: string | null): Promise<string[]> {
+  if (!viewerId) return [];
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase.from('user_blocks') as any)
+    .select('blocked_id')
+    .eq('blocker_id', viewerId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data ?? []) as any[]).map((r) => r.blocked_id as string);
 }
 
 // ─── List posts ────────────────────────────────────────────────────────────────
@@ -89,6 +106,7 @@ export async function listPosts(
     authorId,
     likedByUserId,
     includeHidden = false,
+    excludeAuthorIds,
   } = params;
   const supabase = await createClient();
   const offset = (page - 1) * per_page;
@@ -122,6 +140,11 @@ export async function listPosts(
   }
   if (authorId) query = query.eq('user_id', authorId);
   if (likedPostIds) query = query.in('id', likedPostIds);
+  if (excludeAuthorIds && excludeAuthorIds.length > 0) {
+    // PostgREST `not.in.(...)` syntax via .not().in()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    query = (query as any).not('user_id', 'in', `(${excludeAuthorIds.join(',')})`);
+  }
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
   if (search) {
     // Escape ilike wildcards so user input can't match unintended rows.
@@ -205,17 +228,22 @@ export async function listComments(
   postId: string,
   page: number = 1,
   perPage: number = COMMENT_PAGE_SIZE,
+  excludeAuthorIds?: string[],
 ): Promise<ListCommentsResult> {
   const supabase = await createClient();
   const offset = (page - 1) * perPage;
 
   // Step 1: paginate top-level comments + total count.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: topRows, count, error } = await (supabase.from('comments') as any)
+  let topQuery = (supabase.from('comments') as any)
     .select('*, user:users!user_id(id, name, profile_image_url)', { count: 'exact' })
     .eq('post_id', postId)
     .eq('status', 'ACTIVE')
-    .is('parent_id', null)
+    .is('parent_id', null);
+  if (excludeAuthorIds && excludeAuthorIds.length > 0) {
+    topQuery = topQuery.not('user_id', 'in', `(${excludeAuthorIds.join(',')})`);
+  }
+  const { data: topRows, count, error } = await topQuery
     .order('created_at', { ascending: true })
     .range(offset, offset + perPage - 1);
 
@@ -231,11 +259,14 @@ export async function listComments(
   // Step 2: fetch replies for *this* page's top-level comments.
   const topIds = topLevel.map((c) => c.id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: replyRows } = await (supabase.from('comments') as any)
+  let replyQuery = (supabase.from('comments') as any)
     .select('*, user:users!user_id(id, name, profile_image_url)')
     .in('parent_id', topIds)
-    .eq('status', 'ACTIVE')
-    .order('created_at', { ascending: true });
+    .eq('status', 'ACTIVE');
+  if (excludeAuthorIds && excludeAuthorIds.length > 0) {
+    replyQuery = replyQuery.not('user_id', 'in', `(${excludeAuthorIds.join(',')})`);
+  }
+  const { data: replyRows } = await replyQuery.order('created_at', { ascending: true });
 
   const replies = ((replyRows ?? []) as CommentWithUser[]).map(sanitizeComment);
   const byParent: Record<string, CommentWithUser[]> = {};

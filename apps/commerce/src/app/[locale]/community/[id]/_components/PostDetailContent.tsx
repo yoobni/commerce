@@ -8,6 +8,7 @@ import { deletePostAction } from '@/lib/community/actions';
 import type { PostWithUser } from '@/lib/community/queries';
 import type { BoardType } from '@commerce/types';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
+import { BlockUserButton } from './BlockUserButton';
 
 const BOARD_COLORS: Record<BoardType, string> = {
   DAILY: 'bg-amber-100 text-amber-800',
@@ -26,10 +27,16 @@ const BOARD_LABEL_KEYS: Record<BoardType, string> = {
 interface PostDetailContentProps {
   post: PostWithUser;
   isOwner: boolean;
+  isAuthenticated: boolean;
   locale: string;
 }
 
-export function PostDetailContent({ post, isOwner, locale }: PostDetailContentProps) {
+export function PostDetailContent({
+  post,
+  isOwner,
+  isAuthenticated,
+  locale,
+}: PostDetailContentProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -90,9 +97,20 @@ export function PostDetailContent({ post, isOwner, locale }: PostDetailContentPr
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-[var(--color-text-primary)]">
-              {post.user?.name ?? ''}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                {post.user?.name ?? ''}
+              </p>
+              {post.user && (
+                <BlockUserButton
+                  targetUserId={post.user.id}
+                  targetUserName={post.user.name}
+                  isAuthenticated={isAuthenticated}
+                  locale={locale}
+                  isSelf={isOwner}
+                />
+              )}
+            </div>
             <p className="text-xs text-[var(--color-text-tertiary)] flex items-center gap-1.5">
               <span>{formatDate(post.created_at)}</span>
               {post.last_edited_at && (

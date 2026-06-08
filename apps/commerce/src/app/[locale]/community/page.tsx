@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { listPosts } from '@/lib/community/queries';
+import { listPosts, getBlockedUserIds } from '@/lib/community/queries';
 import { CommunityListClient } from './_components/CommunityListClient';
 import type { BoardType } from '@commerce/types';
 import { buildAlternates } from '@/lib/seo/alternates';
@@ -60,6 +60,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const currentMine = wantsMine && !!user;
   const currentLiked = wantsLiked && !!user;
 
+  // Posts authored by users this viewer has blocked are hidden globally.
+  // Skip the lookup when viewing own posts (no need — author is yourself).
+  const blockedIds = currentMine ? [] : await getBlockedUserIds(user?.id ?? null);
+
   const result = await listPosts({
     boardType: currentBoard,
     search: currentSearch || undefined,
@@ -68,6 +72,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     per_page: PER_PAGE,
     authorId: currentMine ? user!.id : undefined,
     likedByUserId: currentLiked ? user!.id : undefined,
+    excludeAuthorIds: blockedIds,
     // Own posts show ACTIVE + HIDDEN so the author can see what moderation
     // hid; global / liked listings only show ACTIVE.
     includeHidden: currentMine,

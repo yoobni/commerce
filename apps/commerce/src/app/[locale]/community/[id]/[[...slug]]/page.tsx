@@ -9,6 +9,7 @@ import {
   listComments,
   checkUserLikedPost,
   getUserLikedCommentIds,
+  getBlockedUserIds,
 } from '@/lib/community/queries';
 import { PostDetailContent } from '../_components/PostDetailContent';
 import { LikeButton } from '../_components/LikeButton';
@@ -111,8 +112,9 @@ export default async function PostDetailPage({ params }: Props) {
     redirect(canonical);
   }
 
+  const blockedIds = await getBlockedUserIds(user?.id ?? null);
   const [commentsResult, userLiked, likedCommentIds] = await Promise.all([
-    listComments(post.id, 1),
+    listComments(post.id, 1, undefined, blockedIds),
     user ? checkUserLikedPost(post.id, user.id) : Promise.resolve(false),
     user ? getUserLikedCommentIds(post.id, user.id) : Promise.resolve([]),
   ]);
@@ -137,7 +139,12 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Post */}
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)] mb-6">
-          <PostDetailContent post={post} isOwner={isOwner} locale={locale} />
+          <PostDetailContent
+            post={post}
+            isOwner={isOwner}
+            isAuthenticated={!!user}
+            locale={locale}
+          />
 
           {/* Like button */}
           <div className="flex justify-center mt-6 pt-6 border-t border-[var(--color-border-subtle)]">

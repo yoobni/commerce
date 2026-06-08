@@ -282,3 +282,47 @@ export async function loadMoreCommentsAction(
 ): Promise<ListCommentsResult> {
   return listComments(postId, page);
 }
+
+// ─── Block / unblock user ─────────────────────────────────────────────────────
+
+export async function blockUserAction(targetUserId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'not_authenticated' };
+  if (user.id === targetUserId) return { success: false, error: 'cannot_block_self' };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('user_blocks') as any)
+    .insert({ blocker_id: user.id, blocked_id: targetUserId });
+
+  // 23505 = unique_violation → already blocked → treat as success.
+  if (error && (error as { code?: string }).code !== '23505') {
+    return { success: false, error: 'COMMUNITY_DB_ERROR' };
+  }
+
+  revalidatePath('/[locale]/community', 'page');
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
+  return { success: true };
+}
+
+export async function unblockUserAction(targetUserId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'not_authenticated' };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('user_blocks') as any)
+    .delete()
+    .eq('blocker_id', user.id)
+    .eq('blocked_id', targetUserId);
+
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
+
+  revalidatePath('/[locale]/community', 'page');
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
+  return { success: true };
+}
