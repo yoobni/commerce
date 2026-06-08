@@ -219,6 +219,54 @@ export async function createCommentAction(
   return { success: true, id: (data as any).id as string };
 }
 
+// ─── Update comment ────────────────────────────────────────────────────────────
+
+export async function updateCommentAction(
+  commentId: string,
+  postId: string,
+  content: string,
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'not_authenticated' };
+
+  // Reuse the comment-create rate bucket — same author actor, similar cost.
+  const rl = rateLimit(`community:comment:${user.id}`, COMMENT_LIMIT);
+  if (!rl.ok) {
+    return { success: false, error: 'rate_limited', retryAfterSec: rl.retryAfterSec };
+  }
+
+  const trimmed = content.trim();
+  if (!trimmed) return { success: false, error: 'empty_content' };
+
+  // Verify ownership before mutating.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existing } = await (supabase.from('comments') as any)
+    .select('user_id')
+    .eq('id', commentId)
+    .single();
+  if (!existing || (existing as { user_id: string }).user_id !== user.id) {
+    return { success: false, error: 'forbidden' };
+  }
+
+  const nowIso = new Date().toISOString();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('comments') as any)
+    .update({
+      content: trimmed,
+      updated_at: nowIso,
+      last_edited_at: nowIso,
+    })
+    .eq('id', commentId);
+
+  if (error) return { success: false, error: 'COMMUNITY_DB_ERROR' };
+
+  revalidatePath('/[locale]/community/[id]/[[...slug]]', 'page');
+  return { success: true, id: commentId };
+}
+
 // ─── Delete comment ────────────────────────────────────────────────────────────
 
 export async function deleteCommentAction(

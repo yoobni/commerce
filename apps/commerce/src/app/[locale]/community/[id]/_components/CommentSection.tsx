@@ -8,6 +8,7 @@ import {
   deleteCommentAction,
   loadMoreCommentsAction,
   toggleCommentLikeAction,
+  updateCommentAction,
 } from '@/lib/community/actions';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 import type { CommentWithUser } from '@/lib/community/queries';
@@ -33,6 +34,7 @@ interface CommentRowProps {
   onDelete: (id: string) => void;
   onLikeToggle: (id: string, liked: boolean, count: number) => void;
   onReply: (parentId: string, parentAuthor: string) => void;
+  onEdit: (id: string, content: string, lastEditedAt: string) => void;
   locale: string;
   depth?: number;
 }
@@ -46,12 +48,17 @@ function CommentRow({
   onDelete,
   onLikeToggle,
   onReply,
+  onEdit,
   locale,
   depth = 0,
 }: CommentRowProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
   const [isLiking, setIsLiking] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.content);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   const isOwner = currentUserId === comment.user_id;
   const liked = likedIds.has(comment.id);
 
@@ -69,6 +76,35 @@ function CommentRow({
     if (!window.confirm(t('deleteCommentConfirm'))) return;
     await deleteCommentAction(comment.id, postId);
     onDelete(comment.id);
+  }
+
+  function startEdit() {
+    setEditText(comment.content);
+    setEditError(null);
+    setIsEditing(true);
+  }
+
+  function cancelEdit() {
+    setIsEditing(false);
+    setEditError(null);
+  }
+
+  async function saveEdit() {
+    if (!editText.trim() || isSavingEdit) return;
+    setIsSavingEdit(true);
+    setEditError(null);
+    const result = await updateCommentAction(comment.id, postId, editText);
+    setIsSavingEdit(false);
+    if (!result.success) {
+      setEditError(
+        result.error === 'rate_limited'
+          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
+          : t('error.updateFailed'),
+      );
+      return;
+    }
+    onEdit(comment.id, editText.trim(), new Date().toISOString());
+    setIsEditing(false);
   }
 
   return (
@@ -98,43 +134,93 @@ function CommentRow({
             <span className="text-xs text-[var(--color-text-tertiary)]">
               {formatRelativeTime(comment.created_at, locale)}
             </span>
+            {comment.last_edited_at && (
+              <span
+                title={`${tCommon('edited')}: ${formatRelativeTime(comment.last_edited_at, locale)}`}
+                className="text-xs text-[var(--color-text-tertiary)]"
+              >
+                · {tCommon('edited')}
+              </span>
+            )}
           </div>
 
-          <p className="text-sm text-[var(--color-text-primary)] leading-relaxed break-words">
-            {comment.content}
-          </p>
+          {isEditing ? (
+            <div>
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                maxLength={500}
+                rows={3}
+                className="w-full text-sm text-[var(--color-text-primary)] bg-[var(--color-neutral-50)] border border-[var(--color-border)] rounded-md p-2 resize-none focus:outline-none focus:border-[var(--color-brand-primary)]"
+              />
+              {editError && (
+                <p className="text-xs text-[var(--color-error)] mt-1">{editError}</p>
+              )}
+              <div className="flex justify-end gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                >
+                  {tCommon('cancel')}
+                </button>
+                <button
+                  type="button"
+                  onClick={saveEdit}
+                  disabled={!editText.trim() || isSavingEdit}
+                  className="px-3 py-1 text-xs rounded-md bg-[var(--color-brand-primary)] text-white disabled:opacity-40"
+                >
+                  {tCommon('save')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--color-text-primary)] leading-relaxed break-words whitespace-pre-wrap">
+              {comment.content}
+            </p>
+          )}
 
           {/* Actions */}
-          <div className="flex items-center gap-3 mt-2">
-            <button
-              onClick={handleLike}
-              disabled={!isAuthenticated || isLiking}
-              className={`flex items-center gap-1 text-xs transition-colors ${
-                liked ? 'text-rose-500' : 'text-[var(--color-text-tertiary)] hover:text-rose-400'
-              } disabled:opacity-40`}
-            >
-              <SmallHeartIcon filled={liked} />
-              {comment.like_count > 0 && comment.like_count}
-            </button>
-
-            {depth === 0 && isAuthenticated && (
+          {!isEditing && (
+            <div className="flex items-center gap-3 mt-2">
               <button
-                onClick={() => onReply(comment.id, comment.user?.name ?? '')}
-                className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
+                onClick={handleLike}
+                disabled={!isAuthenticated || isLiking}
+                className={`flex items-center gap-1 text-xs transition-colors ${
+                  liked ? 'text-rose-500' : 'text-[var(--color-text-tertiary)] hover:text-rose-400'
+                } disabled:opacity-40`}
               >
-                {t('reply')}
+                <SmallHeartIcon filled={liked} />
+                {comment.like_count > 0 && comment.like_count}
               </button>
-            )}
 
-            {isOwner && (
-              <button
-                onClick={handleDelete}
-                className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-colors"
-              >
-                {tCommon('delete')}
-              </button>
-            )}
-          </div>
+              {depth === 0 && isAuthenticated && (
+                <button
+                  onClick={() => onReply(comment.id, comment.user?.name ?? '')}
+                  className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
+                >
+                  {t('reply')}
+                </button>
+              )}
+
+              {isOwner && (
+                <>
+                  <button
+                    onClick={startEdit}
+                    className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
+                  >
+                    {tCommon('edit')}
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-colors"
+                  >
+                    {tCommon('delete')}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -152,6 +238,7 @@ function CommentRow({
               onDelete={onDelete}
               onLikeToggle={onLikeToggle}
               onReply={onReply}
+              onEdit={onEdit}
               locale={locale}
               depth={1}
             />
@@ -224,6 +311,21 @@ export function CommentSection({
   function handleReply(parentId: string, authorName: string) {
     setReplyTo({ parentId, authorName });
     setReplyText('');
+  }
+
+  function handleEdit(id: string, content: string, lastEditedAt: string) {
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, content, last_edited_at: lastEditedAt }
+          : {
+              ...c,
+              replies: c.replies?.map((r) =>
+                r.id === id ? { ...r, content, last_edited_at: lastEditedAt } : r,
+              ),
+            },
+      ),
+    );
   }
 
   function handleLoadMore() {
@@ -344,6 +446,7 @@ export function CommentSection({
                 onDelete={handleDelete}
                 onLikeToggle={handleLikeToggle}
                 onReply={handleReply}
+                onEdit={handleEdit}
                 locale={locale}
               />
 
