@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -43,6 +43,27 @@ export function PostDetailContent({
   const router = useRouter();
   const [activeImage, setActiveImage] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // Close kebab menu on click outside or Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuOpen(false);
+    }
+    document.addEventListener('mousedown', handleDown);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleDown);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [menuOpen]);
 
   const images = (post.images ?? []).map((img) => ({
     url: safeImageSrc(img.url),
@@ -61,7 +82,7 @@ export function PostDetailContent({
 
   return (
     <article>
-      {/* Board badge + pinned */}
+      {/* Board badge + pinned + owner kebab */}
       <div className="flex items-center gap-2 mb-4">
         <span
           className={`px-2.5 py-1 rounded-full text-xs font-semibold ${BOARD_COLORS[post.board_type]}`}
@@ -72,6 +93,50 @@ export function PostDetailContent({
           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
             {t('pinned')}
           </span>
+        )}
+        {isOwner && (
+          <div className="relative ml-auto" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={tCommon('more')}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="w-8 h-8 flex items-center justify-center rounded-full text-[var(--color-text-tertiary)] hover:bg-[var(--color-neutral-100)] hover:text-[var(--color-text-primary)] transition-colors"
+            >
+              <KebabIcon />
+            </button>
+            {menuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-9 z-10 min-w-[120px] rounded-lg border border-[var(--color-border)] bg-white shadow-lg py-1"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push(`/${locale}/community/${post.short_id}/edit`);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)]"
+                >
+                  {tCommon('edit')}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleDelete();
+                  }}
+                  disabled={isDeleting}
+                  className="w-full text-left px-3 py-2 text-sm text-[var(--color-error)] hover:bg-[var(--color-error)]/5 disabled:opacity-40"
+                >
+                  {isDeleting ? '...' : tCommon('delete')}
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -192,25 +257,23 @@ export function PostDetailContent({
         <span>{t('comments', { count: post.comment_count })}</span>
       </div>
 
-      {/* Owner actions */}
-      {isOwner && (
-        <div className="flex items-center gap-3 mt-4">
-          <button
-            onClick={() => router.push(`/${locale}/community/${post.short_id}/edit`)}
-            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-          >
-            {tCommon('edit')}
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="text-sm text-[var(--color-error)] hover:opacity-75 transition-opacity disabled:opacity-40"
-          >
-            {isDeleting ? '...' : tCommon('delete')}
-          </button>
-        </div>
-      )}
     </article>
+  );
+}
+
+function KebabIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="5" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="12" cy="19" r="2" />
+    </svg>
   );
 }
 

@@ -402,21 +402,24 @@ export function CommentSection({
 
       {/* Comment input */}
       {isAuthenticated ? (
-        <div className="bg-white rounded-xl border border-[var(--color-border)] p-3 mb-6">
+        <div className="mb-6 space-y-2">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder={t('commentPlaceholder')}
             rows={3}
             maxLength={1000}
-            className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none focus:outline-none"
+            className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 outline-none focus:border-[var(--color-brand-primary)] transition-colors"
           />
-          <div className="flex justify-end mt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[var(--color-text-tertiary)]">
+              {commentText.length} / 1000
+            </span>
             <button
               type="button"
               onClick={() => submitComment(commentText, null)}
               disabled={!commentText.trim() || isSubmitting}
-              className="px-4 py-1.5 bg-[var(--color-cta)] text-white text-sm rounded-lg disabled:opacity-40 transition-opacity hover:opacity-90"
+              className="px-5 py-2 bg-[var(--color-cta)] text-white text-sm font-medium rounded-lg disabled:opacity-40 transition-opacity hover:opacity-90"
             >
               {isSubmitting ? '...' : t('commentSubmit')}
             </button>
@@ -463,7 +466,7 @@ export function CommentSection({
                       placeholder={t('replyPlaceholder')}
                       rows={2}
                       maxLength={500}
-                      className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none bg-transparent focus:outline-none"
+                      className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none bg-transparent border-0 outline-none"
                     />
                     <div className="flex justify-end gap-2 mt-2">
                       <button
