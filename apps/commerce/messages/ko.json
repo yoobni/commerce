@@ -194,6 +194,7 @@
     "boardTip": "팁",
     "boardQuestion": "질문",
     "mineFilter": "내 글",
+    "likedFilter": "좋아요한 글",
     "likes": "좋아요 {count}",
     "comments": "댓글 {count}",
     "views": "조회 {count}",
@@ -342,6 +343,8 @@
       "orders": "주문 내역",
       "addresses": "배송 주소",
       "wishlist": "찜 목록",
+      "myPosts": "내 게시글",
+      "likedPosts": "좋아요한 글",
       "points": "포인트",
       "coupons": "쿠폰",
       "withdrawal": "회원 탈퇴"

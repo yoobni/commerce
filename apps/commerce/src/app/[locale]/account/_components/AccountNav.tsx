@@ -5,11 +5,16 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 
+// Community-related items deep-link into /community with auth-gated filters.
+// We don't carve out a separate /account/posts page — the community list
+// page already handles owner/liked filtering, just route there with params.
 const NAV_ITEMS = [
   { href: '/account' as const, key: 'profile' },
   { href: '/account/orders' as const, key: 'orders' },
   { href: '/account/addresses' as const, key: 'addresses' },
   { href: '/account/wishlist' as const, key: 'wishlist' },
+  { href: '/community?mine=1' as const, key: 'myPosts' },
+  { href: '/community?liked=1' as const, key: 'likedPosts' },
 ] as const;
 
 export function AccountNav() {

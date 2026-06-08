@@ -20,6 +20,7 @@ type Props = {
     q?: string;
     page?: string;
     mine?: string;
+    liked?: string;
   }>;
 };
 
@@ -47,15 +48,17 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const currentSearch = sp.q ?? '';
   const currentPage = Math.max(1, parseInt(sp.page ?? '1', 10));
   const wantsMine = sp.mine === '1';
+  const wantsLiked = sp.liked === '1';
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // "내 글" filter requires auth. When unauthenticated, silently fall back to
-  // the global listing (the toggle button itself will route to login).
+  // Auth-gated filters silently fall back to the global listing when
+  // unauthenticated; the toggle button itself routes to login.
   const currentMine = wantsMine && !!user;
+  const currentLiked = wantsLiked && !!user;
 
   const result = await listPosts({
     boardType: currentBoard,
@@ -64,8 +67,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     page: currentPage,
     per_page: PER_PAGE,
     authorId: currentMine ? user!.id : undefined,
+    likedByUserId: currentLiked ? user!.id : undefined,
     // Own posts show ACTIVE + HIDDEN so the author can see what moderation
-    // hid; global listing only shows ACTIVE.
+    // hid; global / liked listings only show ACTIVE.
     includeHidden: currentMine,
   });
 
@@ -80,6 +84,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
       currentSort={currentSort}
       currentSearch={currentSearch}
       currentMine={currentMine}
+      currentLiked={currentLiked}
       isAuthenticated={!!user}
     />
   );

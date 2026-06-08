@@ -169,6 +169,7 @@
     "boardTip": "ヒント",
     "boardQuestion": "Q&A",
     "mineFilter": "自分の投稿",
+    "likedFilter": "いいねした投稿",
     "likes": "いいね {count}",
     "comments": "コメント {count}",
     "views": "閲覧 {count}",
@@ -342,6 +343,8 @@
       "orders": "注文履歴",
       "addresses": "配送先住所",
       "wishlist": "お気に入り",
+      "myPosts": "自分の投稿",
+      "likedPosts": "いいねした投稿",
       "points": "ポイント",
       "coupons": "クーポン",
       "withdrawal": "退会"

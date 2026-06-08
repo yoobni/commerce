@@ -169,6 +169,7 @@
     "boardTip": "Tips",
     "boardQuestion": "Q&A",
     "mineFilter": "My posts",
+    "likedFilter": "Liked posts",
     "likes": "{count} likes",
     "comments": "{count} comments",
     "views": "{count} views",
@@ -342,6 +343,8 @@
       "orders": "Orders",
       "addresses": "Addresses",
       "wishlist": "Wishlist",
+      "myPosts": "My posts",
+      "likedPosts": "Liked posts",
       "points": "Points",
       "coupons": "Coupons",
       "withdrawal": "Delete Account"

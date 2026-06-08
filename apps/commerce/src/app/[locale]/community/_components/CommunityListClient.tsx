@@ -22,6 +22,8 @@ interface CommunityListClientProps {
   currentSearch: string;
   /** "내 글" filter active. Server already resolved auth requirement. */
   currentMine: boolean;
+  /** "좋아요한 글" filter active. */
+  currentLiked: boolean;
   isAuthenticated: boolean;
 }
 
@@ -43,6 +45,7 @@ export function CommunityListClient({
   currentSort,
   currentSearch,
   currentMine,
+  currentLiked,
   isAuthenticated,
 }: CommunityListClientProps) {
   const t = useTranslations('community');
@@ -61,6 +64,7 @@ export function CommunityListClient({
       sort: currentSort !== 'newest' ? currentSort : undefined,
       q: currentSearch || undefined,
       mine: currentMine ? '1' : undefined,
+      liked: currentLiked ? '1' : undefined,
       page: undefined,
       ...params,
     };
@@ -77,7 +81,24 @@ export function CommunityListClient({
       router.push(`/${locale}/auth/login?next=/${locale}/community?mine=1`);
       return;
     }
-    navigate({ mine: currentMine ? undefined : '1', page: undefined });
+    // mine and liked are mutually exclusive — toggling one clears the other.
+    navigate({
+      mine: currentMine ? undefined : '1',
+      liked: undefined,
+      page: undefined,
+    });
+  }
+
+  function handleLikedToggle() {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/auth/login?next=/${locale}/community?liked=1`);
+      return;
+    }
+    navigate({
+      liked: currentLiked ? undefined : '1',
+      mine: undefined,
+      page: undefined,
+    });
   }
 
   function handleBoardChange(board: BoardFilter) {
@@ -156,7 +177,7 @@ export function CommunityListClient({
             </button>
           ))}
 
-          {/* "내 글" — auth required; emphasized when active */}
+          {/* "내 글" / "좋아요한 글" — auth required, mutually exclusive */}
           <button
             type="button"
             onClick={handleMineToggle}
@@ -168,6 +189,18 @@ export function CommunityListClient({
           >
             <UserIcon />
             {t('mineFilter')}
+          </button>
+          <button
+            type="button"
+            onClick={handleLikedToggle}
+            className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
+              currentLiked
+                ? 'bg-[var(--color-brand-primary)] text-white'
+                : 'bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-neutral-50)]'
+            }`}
+          >
+            <HeartIcon />
+            {t('likedFilter')}
           </button>
 
           {/* Sort — right side */}
@@ -292,6 +325,14 @@ function UserIcon() {
     >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
 }

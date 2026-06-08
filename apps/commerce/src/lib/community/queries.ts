@@ -68,6 +68,8 @@ export interface PostListParams {
   per_page?: number;
   /** Restrict to posts authored by this user. Used by "내 글" filter. */
   authorId?: string;
+  /** Restrict to posts the user has liked. Used by "좋아요한 글" filter. */
+  likedByUserId?: string;
   /** Include user's own posts that are HIDDEN by moderation (so the author
    *  can still see them in their own listing). Otherwise default = ACTIVE only. */
   includeHidden?: boolean;
@@ -85,10 +87,28 @@ export async function listPosts(
     page = 1,
     per_page = 12,
     authorId,
+    likedByUserId,
     includeHidden = false,
   } = params;
   const supabase = await createClient();
   const offset = (page - 1) * per_page;
+
+  // "좋아요한 글" filter: two-step because the polymorphic likes table has no
+  // FK relationship to posts that PostgREST can join through. Fetch the
+  // user's liked post_ids first; if none, short-circuit with an empty page.
+  let likedPostIds: string[] | null = null;
+  if (likedByUserId) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase.from('likes') as any)
+      .select('target_id')
+      .eq('user_id', likedByUserId)
+      .eq('target_type', 'POST');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    likedPostIds = ((data ?? []) as any[]).map((r) => r.target_id as string);
+    if (likedPostIds.length === 0) {
+      return { data: [], total: 0, page, per_page, has_next: false };
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase.from('posts') as any)
@@ -101,6 +121,7 @@ export async function listPosts(
     query = query.eq('status', 'ACTIVE');
   }
   if (authorId) query = query.eq('user_id', authorId);
+  if (likedPostIds) query = query.in('id', likedPostIds);
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
   if (search) {
     // Escape ilike wildcards so user input can't match unintended rows.
