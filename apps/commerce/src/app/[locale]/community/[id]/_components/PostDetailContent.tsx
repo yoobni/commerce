@@ -8,6 +8,7 @@ import { deletePostAction } from '@/lib/community/actions';
 import type { PostWithUser } from '@/lib/community/queries';
 import type { BoardType } from '@commerce/types';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
+import { MarkdownContent } from '@/components/community/MarkdownContent';
 import { BlockUserButton } from './BlockUserButton';
 
 const BOARD_COLORS: Record<BoardType, string> = {
@@ -180,9 +181,9 @@ export function PostDetailContent({
         </div>
       )}
 
-      {/* Content */}
-      <div className="prose prose-sm max-w-none text-[var(--color-text-primary)] leading-relaxed mb-6 whitespace-pre-wrap">
-        {post.content}
+      {/* Content — markdown rendered, sanitized for UGC safety */}
+      <div className="mb-6">
+        <MarkdownContent content={post.content} />
       </div>
 
       {/* Stats row */}

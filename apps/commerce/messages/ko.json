@@ -213,6 +213,7 @@
     "postDogBreed": "내 강아지 견종",
     "postTitlePlaceholder": "제목을 입력해 주세요",
     "postContentPlaceholder": "자유롭게 이야기를 나눠보세요",
+    "markdownHint": "마크다운 지원 (**굵게**, *기울임*, [링크](url), 코드 등)",
     "postDogBreedPlaceholder": "예: 말라뮤트, 그레이트 데인",
     "postImages": "이미지 첨부",
     "postSubmit": "게시하기",

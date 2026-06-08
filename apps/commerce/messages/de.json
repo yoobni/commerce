@@ -188,6 +188,7 @@
     "postDogBreed": "Rasse meines Hundes",
     "postTitlePlaceholder": "Titel eingeben",
     "postContentPlaceholder": "Teile deine Geschichte...",
+    "markdownHint": "Markdown unterstützt (**fett**, *kursiv*, [Link](url), Code, etc.)",
     "postDogBreedPlaceholder": "z.B. Malamute, Deutsche Dogge",
     "postImages": "Bilder",
     "postSubmit": "Veröffentlichen",

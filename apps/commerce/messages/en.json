@@ -188,6 +188,7 @@
     "postDogBreed": "My dog's breed",
     "postTitlePlaceholder": "Enter a title",
     "postContentPlaceholder": "Share your story...",
+    "markdownHint": "Markdown supported (**bold**, *italic*, [link](url), code, etc.)",
     "postDogBreedPlaceholder": "e.g. Malamute, Great Dane",
     "postImages": "Images",
     "postSubmit": "Publish",

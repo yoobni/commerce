@@ -188,6 +188,7 @@
     "postDogBreed": "愛犬の犬種",
     "postTitlePlaceholder": "タイトルを入力してください",
     "postContentPlaceholder": "自由に話し合いましょう",
+    "markdownHint": "Markdown対応 (**太字**、*斜体*、[リンク](url)、コードなど)",
     "postDogBreedPlaceholder": "例: マラミュート、グレートデーン",
     "postImages": "画像",
     "postSubmit": "投稿する",

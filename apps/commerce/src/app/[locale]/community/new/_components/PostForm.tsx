@@ -117,9 +117,10 @@ export function PostForm({ locale, userId }: PostFormProps) {
           maxLength={5000}
           className="w-full px-3 py-2.5 rounded border border-[var(--color-border)] bg-white text-[var(--color-text-primary)] text-sm placeholder:text-[var(--color-text-tertiary)] resize-y focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-colors"
         />
-        <p className="text-xs text-[var(--color-text-tertiary)] text-right">
-          {content.length} / 5000
-        </p>
+        <div className="flex items-center justify-between text-xs text-[var(--color-text-tertiary)]">
+          <span>{t('markdownHint')}</span>
+          <span>{content.length} / 5000</span>
+        </div>
       </div>
 
       {/* Dog breed */}
