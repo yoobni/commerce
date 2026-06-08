@@ -251,7 +251,11 @@ export function CommentSection({
     setIsSubmitting(false);
 
     if (!result.success) {
-      showToast(t('error.commentFailed'));
+      showToast(
+        result.error === 'rate_limited'
+          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
+          : t('error.commentFailed'),
+      );
       return;
     }
 

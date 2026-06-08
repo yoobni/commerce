@@ -229,7 +229,8 @@
       "updateFailed": "投稿の更新に失敗しました",
       "deleteFailed": "削除に失敗しました",
       "commentFailed": "コメントの投稿に失敗しました",
-      "likeFailed": "いいねの処理に失敗しました"
+      "likeFailed": "いいねの処理に失敗しました",
+      "rateLimited": "リクエストが多すぎます。{sec}秒後にお試しください。"
     }
   },
   "plp": {

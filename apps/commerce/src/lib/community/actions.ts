@@ -3,8 +3,17 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { BoardType, PostImage } from '@commerce/types';
+import { rateLimit } from '@/lib/rate-limit';
 import { generateSlug } from './slug';
 import { listComments, type ListCommentsResult } from './queries';
+
+// ─── Rate-limit policies ──────────────────────────────────────────────────────
+// In-process token bucket keyed by user_id. Per-action quotas tuned to expected
+// human use: posts are infrequent (~once per session), comments more chatty,
+// likes burst-y.
+const POST_LIMIT = { windowMs: 5 * 60_000, max: 5 };
+const COMMENT_LIMIT = { windowMs: 5 * 60_000, max: 20 };
+const LIKE_LIMIT = { windowMs: 60_000, max: 30 };
 
 interface ActionResult {
   success: boolean;
@@ -13,6 +22,8 @@ interface ActionResult {
   /** Canonical URL components for client-side redirect after create. */
   short_id?: string;
   slug?: string;
+  /** Seconds to wait before retrying when error === 'rate_limited'. */
+  retryAfterSec?: number;
 }
 
 // ─── Create post ───────────────────────────────────────────────────────────────
@@ -31,6 +42,11 @@ export async function createPostAction(input: CreatePostInput): Promise<ActionRe
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
+
+  const rl = rateLimit(`community:post:${user.id}`, POST_LIMIT);
+  if (!rl.ok) {
+    return { success: false, error: 'rate_limited', retryAfterSec: rl.retryAfterSec };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('posts') as any)
@@ -80,6 +96,12 @@ export async function updatePostAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
+
+  // Same bucket as create — author can't bypass post quota by editing rapidly.
+  const rl = rateLimit(`community:post:${user.id}`, POST_LIMIT);
+  if (!rl.ok) {
+    return { success: false, error: 'rate_limited', retryAfterSec: rl.retryAfterSec };
+  }
 
   // Verify ownership
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -156,6 +178,11 @@ export async function createCommentAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'not_authenticated' };
+
+  const rl = rateLimit(`community:comment:${user.id}`, COMMENT_LIMIT);
+  if (!rl.ok) {
+    return { success: false, error: 'rate_limited', retryAfterSec: rl.retryAfterSec };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.from('comments') as any)
@@ -244,6 +271,11 @@ async function toggleLikeViaRpc(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { success: false, liked: false, likeCount: 0, error: 'not_authenticated' };
+
+  const rl = rateLimit(`community:like:${user.id}`, LIKE_LIMIT);
+  if (!rl.ok) {
+    return { success: false, liked: false, likeCount: 0, error: 'rate_limited' };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.rpc as any)('toggle_like', {

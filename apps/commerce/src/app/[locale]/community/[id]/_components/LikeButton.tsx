@@ -44,7 +44,7 @@ export function LikeButton({
       if (!result.success) {
         setLiked(prevLiked);
         setCount(prevCount);
-        setToast(t('error.likeFailed'));
+        setToast(t(result.error === 'rate_limited' ? 'error.rateLimited' : 'error.likeFailed'));
         setTimeout(() => setToast(null), 2500);
       } else {
         setLiked(result.liked);

@@ -202,7 +202,7 @@
     "commentSubmit": "Submit",
     "noComments": "No comments yet",
     "blockUser": "Block",
-    "blockConfirm": "Block "{name}"? You will no longer see this user's posts or comments.",
+    "blockConfirm": "Block {name}? You will no longer see this user's posts or comments.",
     "blockFailed": "Failed to block",
     "blockUnknownUser": "Unknown user",
     "loadingMore": "Loading...",
@@ -229,7 +229,8 @@
       "updateFailed": "Failed to update post",
       "deleteFailed": "Failed to delete",
       "commentFailed": "Failed to post comment",
-      "likeFailed": "Failed to update like"
+      "likeFailed": "Failed to update like",
+      "rateLimited": "Too many requests. Please try again in {sec}s."
     }
   },
   "plp": {

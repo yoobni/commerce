@@ -54,7 +54,11 @@ export function PostForm({ locale, userId }: PostFormProps) {
     setIsSubmitting(false);
 
     if (!result.success || !result.short_id || !result.slug) {
-      setError(t('error.createFailed'));
+      setError(
+        result.error === 'rate_limited'
+          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
+          : t('error.createFailed'),
+      );
       return;
     }
 

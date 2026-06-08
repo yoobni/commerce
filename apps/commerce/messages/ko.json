@@ -227,7 +227,7 @@
     "commentSubmit": "등록",
     "noComments": "아직 댓글이 없습니다",
     "blockUser": "차단",
-    "blockConfirm": ""{name}"님을 차단하시겠습니까? 이 사용자의 글과 댓글이 더 이상 보이지 않습니다.",
+    "blockConfirm": "{name}님을 차단하시겠습니까? 이 사용자의 글과 댓글이 더 이상 보이지 않습니다.",
     "blockFailed": "차단 처리에 실패했습니다",
     "blockUnknownUser": "알 수 없는 사용자",
     "loadingMore": "불러오는 중...",
@@ -254,7 +254,8 @@
       "updateFailed": "게시글 수정에 실패했습니다",
       "deleteFailed": "삭제에 실패했습니다",
       "commentFailed": "댓글 작성에 실패했습니다",
-      "likeFailed": "좋아요 처리에 실패했습니다"
+      "likeFailed": "좋아요 처리에 실패했습니다",
+      "rateLimited": "너무 자주 요청했습니다. {sec}초 후 다시 시도해 주세요."
     }
   },
   "checkout": {

@@ -202,7 +202,7 @@
     "commentSubmit": "Senden",
     "noComments": "Noch keine Kommentare",
     "blockUser": "Blockieren",
-    "blockConfirm": ""{name}" blockieren? Du siehst keine Beiträge oder Kommentare mehr von diesem Nutzer.",
+    "blockConfirm": "{name} blockieren? Du siehst keine Beiträge oder Kommentare mehr von diesem Nutzer.",
     "blockFailed": "Blockieren fehlgeschlagen",
     "blockUnknownUser": "Unbekannter Nutzer",
     "loadingMore": "Wird geladen...",
@@ -229,7 +229,8 @@
       "updateFailed": "Beitrag konnte nicht aktualisiert werden",
       "deleteFailed": "Löschen fehlgeschlagen",
       "commentFailed": "Kommentar konnte nicht gepostet werden",
-      "likeFailed": "Like konnte nicht aktualisiert werden"
+      "likeFailed": "Like konnte nicht aktualisiert werden",
+      "rateLimited": "Zu viele Anfragen. Bitte in {sec}s erneut versuchen."
     }
   },
   "plp": {

@@ -56,7 +56,11 @@ export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
     setIsSubmitting(false);
 
     if (!result.success) {
-      setError(t('error.updateFailed'));
+      setError(
+        result.error === 'rate_limited'
+          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
+          : t('error.updateFailed'),
+      );
       return;
     }
 
