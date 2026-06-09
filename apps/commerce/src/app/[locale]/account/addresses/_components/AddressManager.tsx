@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import {
-  createAddressAction,
-  updateAddressAction,
-  deleteAddressAction,
-  setDefaultAddressAction,
-} from '@/lib/account/actions';
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  setDefaultAddress,
+} from '@/lib/api/account-client';
 import type { Address, Country } from '@commerce/types';
 
 interface AddressManagerProps {
@@ -85,9 +85,9 @@ export function AddressManager({ addresses: initial }: AddressManagerProps) {
 
     startTransition(async () => {
       if (formState?.mode === 'add') {
-        await createAddressAction(input);
+        await createAddress(input);
       } else if (formState?.mode === 'edit' && formState.address) {
-        await updateAddressAction(formState.address.id, input);
+        await updateAddress(formState.address.id, input);
       }
       closeForm();
       router.refresh();
@@ -97,14 +97,14 @@ export function AddressManager({ addresses: initial }: AddressManagerProps) {
   function handleDelete(id: string) {
     if (!window.confirm('주소를 삭제하시겠습니까?')) return;
     startTransition(async () => {
-      await deleteAddressAction(id);
+      await deleteAddress(id);
       router.refresh();
     });
   }
 
   function handleSetDefault(id: string) {
     startTransition(async () => {
-      await setDefaultAddressAction(id);
+      await setDefaultAddress(id);
       router.refresh();
     });
   }

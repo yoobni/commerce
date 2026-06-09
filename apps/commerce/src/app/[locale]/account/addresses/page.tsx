@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getAddresses } from '@/lib/account/queries';
+import { getAddresses } from '@/lib/api/account';
 import { AddressManager } from './_components/AddressManager';
 
 type Props = {
@@ -27,7 +27,7 @@ export default async function AddressesPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const addresses = await getAddresses(user.id);
+  const addresses = await getAddresses();
 
   return (
     <div className="space-y-6">

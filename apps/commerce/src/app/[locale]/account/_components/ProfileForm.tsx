@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { updateProfileAction } from '@/lib/account/actions';
+import { updateProfile } from '@/lib/api/account-client';
 import type { User } from '@commerce/types';
 
 interface ProfileFormProps {
@@ -22,14 +22,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const result = await updateProfileAction({
-        name,
-        phone: phone || null,
-        marketing_agreed: marketing,
-      });
-      if (result.success) {
+      try {
+        await updateProfile({ name, phone: phone || null, marketing_agreed: marketing });
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+      } catch {
+        // Silent — keep form state, user can retry.
       }
     });
   }

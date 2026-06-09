@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getUserProfile } from '@/lib/account/queries';
+import { getUserProfile } from '@/lib/api/account';
 import { ProfileForm } from './_components/ProfileForm';
 
 type Props = {
@@ -29,7 +29,7 @@ export default async function AccountProfilePage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!authUser) notFound();
 
-  const profile = await getUserProfile(authUser.id);
+  const profile = await getUserProfile();
   if (!profile) notFound();
 
   return (
