@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
 import type { CartDisplay } from '@/lib/api/cart';
 import type { Address, Locale } from '@commerce/types';
-import type { UserCoupon } from '@/lib/coupons/queries';
+import type { UserCoupon } from '@/lib/api/coupons';
 import { formatPrice } from '@/lib/format';
 import { useTrack } from '@/hooks/useTrack';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';

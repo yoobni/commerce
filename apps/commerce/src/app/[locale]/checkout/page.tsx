@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCartWithItems } from '@/lib/api/cart';
 import { getAddresses } from '@/lib/account/queries';
 import { getUserPointBalance } from '@/lib/points/queries';
-import { getUserCoupons } from '@/lib/coupons/queries';
+import { getUserCoupons } from '@/lib/api/coupons';
 import { Container } from '@/components/layout/Container';
 import { CheckoutClient } from './_components/CheckoutClient';
 
@@ -40,7 +40,7 @@ export default async function CheckoutPage({ params }: Props) {
     getCartWithItems(),
     getAddresses(user.id),
     getUserPointBalance(user.id),
-    getUserCoupons(user.id),
+    getUserCoupons(),
   ]);
 
   if (!cart || cart.items.length === 0) {
