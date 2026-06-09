@@ -23,6 +23,8 @@ const intParam = z
   .transform((s) => (s ? parseInt(s, 10) : undefined))
   .pipe(z.number().int().positive().optional());
 
+// One unified list query — every filter & search & id-batch goes through here
+// per REST convention (no action-style endpoints like /search or /by-ids).
 export const ListProductsQuerySchema = z.object({
   category_slug: z.string().optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'SOLD_OUT', 'HIDDEN', 'DISCONTINUED']).optional(),
@@ -38,33 +40,16 @@ export const ListProductsQuerySchema = z.object({
   min_price_krw: intParam,
   max_price_krw: intParam,
   q: z.string().max(100).optional(),
+  /** Restrict to these product ids (used by community "mentioned products"). */
+  ids: csv,
+  /** Exclude these product ids (used by ProductSelector typeahead). */
+  exclude: csv,
 });
 
-export const FeaturedQuerySchema = z.object({
-  limit: intParam,
+export const SlugParamSchema = z.object({
+  slug: z.string().min(1).max(160),
 });
 
-export const ByIdsQuerySchema = z.object({
-  ids: z
-    .string()
-    .min(1, 'ids required')
-    .transform((s) =>
-      s
-        .split(',')
-        .map((v) => v.trim())
-        .filter(Boolean)
-    ),
+export const UuidParamSchema = z.object({
+  id: z.string().uuid(),
 });
-
-export const SearchForPostQuerySchema = z.object({
-  q: z.string().min(1).max(100),
-  exclude: csv.transform((arr) => arr ?? []),
-});
-
-export const IdOrSlugParamSchema = z.object({
-  idOrSlug: z.string().min(1).max(100),
-});
-
-// UUID detect helper for routes that accept either id or slug under the same path.
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const isUuid = (s: string): boolean => UUID_RE.test(s);

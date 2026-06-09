@@ -16,11 +16,10 @@ export interface ProductListParams {
   min_price_krw?: number;
   max_price_krw?: number;
   q?: string;
-}
-
-export interface ColorOption {
-  name: string;
-  hex: string;
+  /** Restrict result set to these ids (preserves caller order). */
+  ids?: string[];
+  /** Exclude these ids from result. */
+  exclude?: string[];
 }
 
 const SORT_MAP: Record<
@@ -66,7 +65,15 @@ export class ProductsService {
       min_price_krw,
       max_price_krw,
       q,
+      ids,
+      exclude,
     } = params;
+
+    // `ids` filter takes precedence (it's an explicit set). Empty ids short-
+    // circuits with empty page — saves a Supabase call.
+    if (ids && ids.length === 0) {
+      return { data: [], total: 0, page, per_page, has_next: false };
+    }
 
     const offset = (page - 1) * per_page;
 
@@ -137,6 +144,15 @@ export class ProductsService {
     if (categoryId) query = query.eq('category_id', categoryId);
     if (featured !== undefined) query = query.eq('is_featured', featured);
     if (combinedIds) query = query.in('id', combinedIds);
+    if (ids && ids.length > 0) {
+      // Cap at 100 so a runaway query string can't force a 5000-id IN clause.
+      query = query.in('id', ids.slice(0, 100));
+    }
+    if (exclude && exclude.length > 0) {
+      // PostgREST not.in.(...) — exclude these ids.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      query = (query as any).not('id', 'in', `(${exclude.slice(0, 100).join(',')})`);
+    }
     if (min_price_krw !== undefined) query = query.gte('base_price_krw', min_price_krw);
     if (max_price_krw !== undefined) query = query.lte('base_price_krw', max_price_krw);
     if (q && q.trim()) {
@@ -157,9 +173,18 @@ export class ProductsService {
     const { data, count, error } = await query;
     if (error) throw error;
 
+    let rows = ((data ?? []) as Product[]).map(sanitizeProductImages);
+    // If caller passed `ids`, preserve their order — the same contract as the
+    // old getByIds endpoint so community "mentioned products" still renders in
+    // the author's chosen order.
+    if (ids && ids.length > 0) {
+      const byId = new Map(rows.map((p) => [p.id, p] as const));
+      rows = ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+    }
+
     const total = count ?? 0;
     return {
-      data: ((data ?? []) as Product[]).map(sanitizeProductImages),
+      data: rows,
       total,
       page,
       per_page,
@@ -199,54 +224,4 @@ export class ProductsService {
     return sanitizeProductImages(data as Product);
   }
 
-  async getFeatured(limit = 8): Promise<Product[]> {
-    const result = await this.list({ featured: true, per_page: limit });
-    return result.data;
-  }
-
-  async searchForPost(query: string, excludeIds: string[] = []): Promise<Product[]> {
-    const trimmed = query.trim().slice(0, 100);
-    if (trimmed.length < 1) return [];
-    const result = await this.list({ q: trimmed, per_page: 8 });
-    if (excludeIds.length === 0) return result.data;
-    const exclude = new Set(excludeIds);
-    return result.data.filter((p) => !exclude.has(p.id));
-  }
-
-  async getByIds(ids: string[]): Promise<Product[]> {
-    if (!ids || ids.length === 0) return [];
-    const unique = Array.from(new Set(ids)).slice(0, 50);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (this.supabase.from('products') as any)
-      .select('*')
-      .in('id', unique)
-      .eq('status', 'ACTIVE');
-
-    if (error || !data) return [];
-
-    const rows = (data as Product[]).map((p) => sanitizeProductImages(p) as Product);
-    // Preserve caller order so the post author's curation stays intact.
-    const byId = new Map(rows.map((p) => [p.id, p]));
-    return unique.map((id) => byId.get(id)).filter((p): p is Product => !!p);
-  }
-
-  async listAvailableColors(): Promise<ColorOption[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (this.supabase.from('product_options') as any)
-      .select('color, color_hex')
-      .eq('is_active', true);
-
-    if (error || !data) return [];
-
-    const seen = new Set<string>();
-    const colors: ColorOption[] = [];
-    for (const row of data as { color: string; color_hex: string | null }[]) {
-      if (!seen.has(row.color)) {
-        seen.add(row.color);
-        colors.push({ name: row.color, hex: row.color_hex ?? '#cccccc' });
-      }
-    }
-    return colors;
-  }
 }

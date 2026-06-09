@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 import { ProductsModule } from './products/products.module';
+import { ProductOptionsModule } from './product-options/product-options.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ProductsModule } from './products/products.module';
     }),
     SupabaseModule,
     ProductsModule,
+    ProductOptionsModule,
   ],
   controllers: [AppController],
   providers: [
