@@ -250,6 +250,7 @@
   "plp": {
     "title": "Produkte",
     "all": "Alle",
+    "sort": "Sortieren",
     "sortNewest": "Neueste",
     "sortPriceAsc": "Preis: aufsteigend",
     "sortPriceDesc": "Preis: absteigend",

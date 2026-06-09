@@ -250,6 +250,7 @@
   "plp": {
     "title": "Products",
     "all": "All",
+    "sort": "Sort",
     "sortNewest": "Newest",
     "sortPriceAsc": "Price: Low to High",
     "sortPriceDesc": "Price: High to Low",

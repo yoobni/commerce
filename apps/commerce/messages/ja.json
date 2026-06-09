@@ -250,6 +250,7 @@
   "plp": {
     "title": "商品",
     "all": "すべて",
+    "sort": "並び替え",
     "sortNewest": "新着順",
     "sortPriceAsc": "価格の安い順",
     "sortPriceDesc": "価格の高い順",

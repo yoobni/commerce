@@ -165,6 +165,7 @@
   "plp": {
     "title": "상품",
     "all": "전체",
+    "sort": "정렬",
     "sortNewest": "최신순",
     "sortPriceAsc": "낮은 가격순",
     "sortPriceDesc": "높은 가격순",

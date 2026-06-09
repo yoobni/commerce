@@ -8,6 +8,7 @@ import { listProducts } from '@/lib/api/products';
 import { listCategories } from '@/lib/queries/categories';
 import { listAvailableColors } from '@/lib/api/products';
 import { ProductCard } from '@/components/product/ProductCard';
+import { SortSelect } from './_components/SortSelect';
 import { Container } from '@/components/layout/Container';
 import { Link } from '@/i18n/navigation';
 import { getCategoryName } from '@/lib/format';
@@ -323,27 +324,15 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   htmlFor="sort-select"
                   className="text-[12px] text-[var(--mz-ink-mute)] shrink-0"
                 >
-                  {t('sort') ?? 'Sort'}:
+                  {t('sort')}:
                 </label>
-                <div className="relative">
-                  <select
-                    id="sort-select"
-                    defaultValue={currentSort}
-                    className="appearance-none h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--mz-line-strong)] bg-[var(--mz-surface)] text-[12px] text-[var(--mz-ink)] focus:outline-none focus:border-[var(--mz-ink)] cursor-pointer transition-colors duration-150"
-                    onChange={(e) => {
-                      window.location.href = buildUrl({ sort: e.target.value, page: undefined });
-                    }}
-                  >
-                    {SORT_OPTIONS.map(({ value, labelKey }) => (
-                      <option key={value} value={value}>
-                        {t(labelKey)}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--mz-ink-mute)]">
-                    <ChevronIcon />
-                  </span>
-                </div>
+                <SortSelect
+                  current={currentSort}
+                  options={SORT_OPTIONS.map(({ value, labelKey }) => ({
+                    value,
+                    label: t(labelKey),
+                  }))}
+                />
               </div>
             </div>
 
