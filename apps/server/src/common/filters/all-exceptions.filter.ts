@@ -37,9 +37,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (typeof body === 'string') {
         code = body;
       } else if (body && typeof body === 'object') {
+        // Nest's HttpException stuffs `message` with what the caller passed
+        // (e.g. `throw new NotFoundException('product_not_found')`) and fills
+        // `error` with the generic status name ("Not Found"). Prefer message —
+        // that's the intentional, machine-readable code.
         const obj = body as { error?: unknown; message?: unknown; details?: unknown };
-        code = (typeof obj.error === 'string' && obj.error) ||
-               (typeof obj.message === 'string' && obj.message) ||
+        code = (typeof obj.message === 'string' && obj.message) ||
+               (typeof obj.error === 'string' && obj.error) ||
                'http_error';
         details = obj.details;
       } else {

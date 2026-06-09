@@ -6,6 +6,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { AppController } from './app.controller';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ResponseEnvelopeInterceptor } from './common/interceptors/response-enve
       load: [loadConfig],
     }),
     SupabaseModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -12,7 +12,8 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "rootDir": "./src",
+    "baseUrl": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -21,9 +22,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["src/*"],
-      "@commerce/types": ["../../packages/types/src"],
-      "@commerce/shared": ["../../packages/shared/src"]
+      "@/*": ["*"]
     }
   },
   "include": ["src/**/*.ts"],
