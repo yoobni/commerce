@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 import { ProductsModule } from './products/products.module';
 import { ProductOptionsModule } from './product-options/product-options.module';
+import { CommunityModule } from './community/community.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ProductOptionsModule } from './product-options/product-options.module';
     SupabaseModule,
     ProductsModule,
     ProductOptionsModule,
+    CommunityModule,
   ],
   controllers: [AppController],
   providers: [
