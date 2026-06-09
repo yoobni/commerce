@@ -7,6 +7,9 @@ export type { BadgeProps, BadgeVariant, TagProps } from './Badge';
 export { Input, PasswordInput } from './Input';
 export type { InputProps } from './Input';
 
+export { Textarea } from './Textarea';
+export type { TextareaProps } from './Textarea';
+
 export { Chip, ChipGroup } from './Chip';
 export type { ChipProps, ChipVariant } from './Chip';
 

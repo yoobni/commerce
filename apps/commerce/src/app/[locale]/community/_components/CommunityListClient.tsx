@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PostCard } from './PostCard';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Chip, ChipGroup } from '@/components/ui/Chip';
 import type { PostWithUser } from '@/lib/community/queries';
 import type { BoardType } from '@commerce/types';
 
@@ -127,8 +129,8 @@ export function CommunityListClient({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-neutral-50)]">
-      <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+    <div className="min-h-screen bg-[var(--mz-bg)]">
+      <div className="max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -144,94 +146,71 @@ export function CommunityListClient({
         </div>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className="relative mb-6">
-          <input
+        <form onSubmit={handleSearch} className="mb-6">
+          <Input
             type="search"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t('searchPlaceholder')}
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-[var(--color-border)] bg-white text-[var(--color-text-primary)] text-sm placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-colors"
-          />
-          <button
-            type="submit"
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]"
+            leadingIcon={<SearchIcon />}
             aria-label={tCommon('search')}
-          >
-            <SearchIcon />
-          </button>
+          />
         </form>
 
-        {/* Board filter tabs + "내 글" toggle */}
-        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Board filter chips */}
+        <ChipGroup className="mb-3">
           {BOARD_FILTERS.map(({ key, labelKey }) => (
-            <button
+            <Chip
               key={key}
+              selected={currentBoard === key}
               onClick={() => handleBoardChange(key)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                currentBoard === key
-                  ? 'bg-[var(--color-brand-primary)] text-white'
-                  : 'bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-neutral-50)]'
-              }`}
             >
               {t(labelKey)}
-            </button>
+            </Chip>
           ))}
 
           {/* "내 글" / "좋아요한 글" — auth required, mutually exclusive */}
-          <button
-            type="button"
-            onClick={handleMineToggle}
-            className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
-              currentMine
-                ? 'bg-[var(--color-brand-primary)] text-white'
-                : 'bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-neutral-50)]'
-            }`}
-          >
+          <Chip selected={currentMine} onClick={handleMineToggle}>
             <UserIcon />
             {t('mineFilter')}
-          </button>
-          <button
-            type="button"
-            onClick={handleLikedToggle}
-            className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
-              currentLiked
-                ? 'bg-[var(--color-brand-primary)] text-white'
-                : 'bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-neutral-50)]'
-            }`}
-          >
+          </Chip>
+          <Chip selected={currentLiked} onClick={handleLikedToggle}>
             <HeartIcon />
             {t('likedFilter')}
-          </button>
+          </Chip>
+        </ChipGroup>
 
-          {/* Sort — right side */}
-          <div className="ml-auto shrink-0 flex gap-1">
-            <button
-              onClick={() => handleSortChange('newest')}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                currentSort === 'newest'
-                  ? 'text-[var(--color-brand-primary)] font-bold'
-                  : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]'
-              }`}
-            >
-              {t('sortNewest')}
-            </button>
-            <button
-              onClick={() => handleSortChange('popular')}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                currentSort === 'popular'
-                  ? 'text-[var(--color-brand-primary)] font-bold'
-                  : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]'
-              }`}
-            >
-              {t('sortPopular')}
-            </button>
-          </div>
+        {/* Sort — quiet, right-aligned text toggle */}
+        <div className="flex justify-end mb-6 gap-1">
+          <button
+            type="button"
+            onClick={() => handleSortChange('newest')}
+            className={`px-2 py-1 text-[12px] font-medium transition-colors ${
+              currentSort === 'newest'
+                ? 'text-[var(--mz-ink)] underline underline-offset-4 decoration-[var(--mz-accent)] decoration-2'
+                : 'text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)]'
+            }`}
+          >
+            {t('sortNewest')}
+          </button>
+          <span className="text-[var(--mz-ink-mute)] text-[12px] self-center" aria-hidden="true">·</span>
+          <button
+            type="button"
+            onClick={() => handleSortChange('popular')}
+            className={`px-2 py-1 text-[12px] font-medium transition-colors ${
+              currentSort === 'popular'
+                ? 'text-[var(--mz-ink)] underline underline-offset-4 decoration-[var(--mz-accent)] decoration-2'
+                : 'text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)]'
+            }`}
+          >
+            {t('sortPopular')}
+          </button>
         </div>
 
         {/* Loading overlay */}
         {isPending && (
           <div className="flex justify-center py-8">
-            <div className="w-6 h-6 border-2 border-[var(--color-brand-primary)] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[var(--mz-ink)] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -250,7 +229,7 @@ export function CommunityListClient({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-8 md:gap-x-4 md:gap-y-12 pb-4">
                 {initialPosts.map((post) => (
                   <PostCard key={post.id} post={post} locale={locale} />
                 ))}

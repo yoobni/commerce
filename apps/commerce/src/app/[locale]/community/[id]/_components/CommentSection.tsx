@@ -12,6 +12,8 @@ import {
 } from '@/lib/community/actions';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 import type { CommentWithUser } from '@/lib/community/queries';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface CommentSectionProps {
   postId: string;
@@ -117,7 +119,7 @@ function CommentRow({
             alt={comment.user.name}
             width={32}
             height={32}
-            className="rounded-full shrink-0 object-cover"
+            className="w-8 h-8 rounded-full shrink-0 object-cover"
             unoptimized={isFallback(safeImageSrc(comment.user.profile_image_url))}
           />
         ) : (
@@ -132,11 +134,11 @@ function CommentRow({
               {comment.user?.name ?? ''}
             </span>
             <span className="text-xs text-[var(--color-text-tertiary)]">
-              {formatRelativeTime(comment.created_at, locale)}
+              {formatRelativeTime(comment.created_at, locale, tCommon('justNow'))}
             </span>
             {comment.last_edited_at && (
               <span
-                title={`${tCommon('edited')}: ${formatRelativeTime(comment.last_edited_at, locale)}`}
+                title={`${tCommon('edited')}: ${formatRelativeTime(comment.last_edited_at, locale, tCommon('justNow'))}`}
                 className="text-xs text-[var(--color-text-tertiary)]"
               >
                 · {tCommon('edited')}
@@ -145,33 +147,29 @@ function CommentRow({
           </div>
 
           {isEditing ? (
-            <div>
-              <textarea
+            <div className="space-y-2">
+              <Textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
                 maxLength={500}
                 rows={3}
-                className="w-full text-sm text-[var(--color-text-primary)] bg-[var(--color-neutral-50)] border border-[var(--color-border)] rounded-md p-2 resize-none focus:outline-none focus:border-[var(--color-brand-primary)]"
+                error={editError ?? undefined}
+                showCounter
               />
-              {editError && (
-                <p className="text-xs text-[var(--color-error)] mt-1">{editError}</p>
-              )}
-              <div className="flex justify-end gap-2 mt-1">
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  className="px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                >
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="quiet" size="sm" onClick={cancelEdit}>
                   {tCommon('cancel')}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="primary"
+                  size="sm"
+                  loading={isSavingEdit}
+                  disabled={!editText.trim()}
                   onClick={saveEdit}
-                  disabled={!editText.trim() || isSavingEdit}
-                  className="px-3 py-1 text-xs rounded-md bg-[var(--color-brand-primary)] text-white disabled:opacity-40"
                 >
                   {tCommon('save')}
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -400,34 +398,36 @@ export function CommentSection({
         })}
       </h2>
 
-      {/* Comment input */}
+      {/* Comment input — single magazine frame wrapping textarea + footer */}
       {isAuthenticated ? (
-        <div className="mb-6 space-y-2">
+        <div className="mb-8 rounded-[var(--radius-md)] border border-[var(--mz-line)] bg-[var(--mz-bg)] focus-within:border-[var(--mz-ink)] transition-colors">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder={t('commentPlaceholder')}
             rows={3}
             maxLength={1000}
-            className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 outline-none focus:border-[var(--color-brand-primary)] transition-colors"
+            className="w-full px-4 pt-3 pb-2 bg-transparent text-[14px] leading-relaxed text-[var(--mz-ink)] placeholder:text-[var(--mz-ink-mute)] resize-none border-0 outline-none focus:outline-none focus-visible:outline-none"
           />
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[var(--color-text-tertiary)]">
+          <div className="flex items-center justify-between gap-2 px-4 py-2 border-t border-[var(--mz-line)]">
+            <span className="text-[11px] text-[var(--mz-ink-mute)] tabular-nums">
               {commentText.length} / 1000
             </span>
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              loading={isSubmitting}
+              disabled={!commentText.trim()}
               onClick={() => submitComment(commentText, null)}
-              disabled={!commentText.trim() || isSubmitting}
-              className="px-5 py-2 bg-[var(--color-cta)] text-white text-sm font-medium rounded-lg disabled:opacity-40 transition-opacity hover:opacity-90"
             >
-              {isSubmitting ? '...' : t('commentSubmit')}
-            </button>
+              {t('commentSubmit')}
+            </Button>
           </div>
         </div>
       ) : (
-        <div className="bg-[var(--color-neutral-50)] rounded-xl border border-[var(--color-border)] p-4 mb-6 text-center">
-          <p className="text-sm text-[var(--color-text-secondary)]">{t('loginToComment')}</p>
+        <div className="bg-[var(--mz-surface)] rounded-[var(--radius-md)] border border-[var(--mz-line)] p-4 mb-8 text-center">
+          <p className="text-sm text-[var(--mz-ink-mute)]">{t('loginToComment')}</p>
         </div>
       )}
 
@@ -455,36 +455,35 @@ export function CommentSection({
 
               {/* Reply input inline */}
               {replyTo?.parentId === comment.id && (
-                <div className="ml-8 pl-4 border-l-2 border-[var(--color-border-subtle)] mb-3">
-                  <div className="bg-[var(--color-neutral-50)] rounded-lg border border-[var(--color-border)] p-3">
-                    <p className="text-xs text-[var(--color-text-tertiary)] mb-2">
-                      @{replyTo.authorName}
-                    </p>
-                    <textarea
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder={t('replyPlaceholder')}
-                      rows={2}
-                      maxLength={500}
-                      className="w-full text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] resize-none bg-transparent border-0 outline-none"
-                    />
-                    <div className="flex justify-end gap-2 mt-2">
-                      <button
-                        type="button"
-                        onClick={() => setReplyTo(null)}
-                        className="px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                      >
-                        {t('cancelReply')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => submitComment(replyText, comment.id)}
-                        disabled={!replyText.trim() || isSubmitting}
-                        className="px-3 py-1 bg-[var(--color-cta)] text-white text-xs rounded disabled:opacity-40 hover:opacity-90"
-                      >
-                        {t('commentSubmit')}
-                      </button>
-                    </div>
+                <div className="ml-8 pl-4 border-l-2 border-[var(--color-border-subtle)] mb-3 space-y-2">
+                  <p className="text-xs text-[var(--mz-ink-mute)]">@{replyTo.authorName}</p>
+                  <Textarea
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder={t('replyPlaceholder')}
+                    rows={2}
+                    maxLength={500}
+                    showCounter
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="quiet"
+                      size="sm"
+                      onClick={() => setReplyTo(null)}
+                    >
+                      {t('cancelReply')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      loading={isSubmitting}
+                      disabled={!replyText.trim()}
+                      onClick={() => submitComment(replyText, comment.id)}
+                    >
+                      {t('commentSubmit')}
+                    </Button>
                   </div>
                 </div>
               )}
@@ -496,14 +495,17 @@ export function CommentSection({
       {/* Load more */}
       {hasNext && (
         <div className="flex justify-center mt-4">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
+            loading={isLoadingMore}
             onClick={handleLoadMore}
-            disabled={isLoadingMore}
-            className="px-4 py-2 rounded-lg border border-[var(--color-border)] bg-white text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)] transition-colors disabled:opacity-40"
           >
-            {isLoadingMore ? t('loadingMore') : t('loadMoreComments', { remaining: initialTotal - comments.length })}
-          </button>
+            {isLoadingMore
+              ? t('loadingMore')
+              : t('loadMoreComments', { remaining: initialTotal - comments.length })}
+          </Button>
         </div>
       )}
 
@@ -511,7 +513,7 @@ export function CommentSection({
       {toast && (
         <div
           role="alert"
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[var(--color-brand-primary)] text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[var(--mz-ink)] text-[var(--mz-bg)] text-sm px-4 py-2 rounded-[var(--radius-md)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] z-50"
         >
           {toast}
         </div>
@@ -536,11 +538,13 @@ function SmallHeartIcon({ filled }: { filled: boolean }) {
   );
 }
 
-function formatRelativeTime(isoString: string, locale: string): string {
+function formatRelativeTime(isoString: string, locale: string, justNow: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
   const minutes = Math.floor(diff / 60000);
+  // `Intl.RelativeTimeFormat('ko').format(0, 'minute')` returns "현재 분" which
+  // reads as a noun phrase rather than "just now", so we provide our own copy.
+  if (minutes < 1) return justNow;
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
-  if (minutes < 1) return rtf.format(0, 'minute');
   if (minutes < 60) return rtf.format(-minutes, 'minute');
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return rtf.format(-hours, 'hour');

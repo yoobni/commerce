@@ -196,6 +196,17 @@ body {
   outline-offset: 2px;
 }
 
+/* Text-style form controls render their own focus signal (border-color change
+   in Input/Textarea, or focus-within on a wrapping frame). The global ring
+   above would double up the visual and create an ugly nested outline on these,
+   so we suppress it here. Checkboxes/radios still get the global ring because
+   they have no border to recolor. */
+input:not([type='checkbox']):not([type='radio']):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
 /* ===== Skeleton ===== */
 .skeleton {
   background-color: var(--mz-bg-deep);

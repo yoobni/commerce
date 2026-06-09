@@ -52,6 +52,15 @@ export function MarkdownContent({
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, schema]]}
+        components={{
+          // Soft 1px hairline for `---` sections — quiet, doesn't shout.
+          hr: () => (
+            <hr
+              className="my-8 border-0 h-px bg-[var(--mz-line)]"
+              aria-hidden="true"
+            />
+          ),
+        }}
       >
         {content}
       </ReactMarkdown>

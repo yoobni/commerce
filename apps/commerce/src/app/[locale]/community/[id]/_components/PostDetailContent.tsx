@@ -11,13 +11,6 @@ import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 import { MarkdownContent } from '@/components/community/MarkdownContent';
 import { BlockUserButton } from './BlockUserButton';
 
-const BOARD_COLORS: Record<BoardType, string> = {
-  DAILY: 'bg-amber-100 text-amber-800',
-  STYLE: 'bg-rose-100 text-rose-800',
-  TIP: 'bg-emerald-100 text-emerald-800',
-  QUESTION: 'bg-blue-100 text-blue-800',
-};
-
 const BOARD_LABEL_KEYS: Record<BoardType, string> = {
   DAILY: 'boardDaily',
   STYLE: 'boardStyle',
@@ -82,15 +75,17 @@ export function PostDetailContent({
 
   return (
     <article>
-      {/* Board badge + pinned + owner kebab */}
-      <div className="flex items-center gap-2 mb-4">
-        <span
-          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${BOARD_COLORS[post.board_type]}`}
-        >
+      {/* Eyebrow row — uppercase accent label (magazine "rubric") + pinned + kebab */}
+      <div className="flex items-center gap-4 mb-5">
+        <span className="text-eyebrow text-[var(--mz-accent)]">
           {t(BOARD_LABEL_KEYS[post.board_type])}
         </span>
         {post.is_pinned && (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--color-brand-accent)] text-[var(--color-brand-primary)]">
+          <span
+            className="text-eyebrow text-[var(--mz-ink-mute)] inline-flex items-center gap-1.5"
+            title={t('pinned')}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--mz-accent)]" aria-hidden="true" />
             {t('pinned')}
           </span>
         )}
@@ -102,14 +97,14 @@ export function PostDetailContent({
               aria-label={tCommon('more')}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
-              className="w-8 h-8 flex items-center justify-center rounded-full text-[var(--color-text-tertiary)] hover:bg-[var(--color-neutral-100)] hover:text-[var(--color-text-primary)] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-[var(--mz-ink-mute)] hover:bg-[var(--mz-bg-deep)] hover:text-[var(--mz-ink)] transition-colors"
             >
               <KebabIcon />
             </button>
             {menuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-9 z-10 min-w-[120px] rounded-lg border border-[var(--color-border)] bg-white shadow-lg py-1"
+                className="absolute right-0 top-9 z-10 min-w-[120px] rounded-[var(--radius-md)] border border-[var(--mz-line)] bg-[var(--mz-surface)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] py-1"
               >
                 <button
                   type="button"
@@ -118,7 +113,7 @@ export function PostDetailContent({
                     setMenuOpen(false);
                     router.push(`/${locale}/community/${post.short_id}/edit`);
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-neutral-50)]"
+                  className="w-full text-left px-3 py-2 text-[13px] text-[var(--mz-ink)] hover:bg-[var(--mz-bg-deep)]"
                 >
                   {tCommon('edit')}
                 </button>
@@ -130,7 +125,7 @@ export function PostDetailContent({
                     handleDelete();
                   }}
                   disabled={isDeleting}
-                  className="w-full text-left px-3 py-2 text-sm text-[var(--color-error)] hover:bg-[var(--color-error)]/5 disabled:opacity-40"
+                  className="w-full text-left px-3 py-2 text-[13px] text-[var(--color-error)] hover:bg-[var(--color-error)]/5 disabled:opacity-40"
                 >
                   {isDeleting ? '...' : tCommon('delete')}
                 </button>
@@ -140,31 +135,31 @@ export function PostDetailContent({
         )}
       </div>
 
-      {/* Title */}
-      <h1 className="text-xl md:text-2xl font-bold text-[var(--color-text-primary)] leading-snug mb-4">
+      {/* Title — Fraunces serif, regular weight (magazine displays are not bold) */}
+      <h1 className="font-serif text-[30px] md:text-[44px] font-[400] leading-[1.1] tracking-[-0.02em] text-[var(--mz-ink)] mb-8 md:mb-10">
         {post.title}
       </h1>
 
-      {/* Meta row */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+      {/* Meta row — author left, dog_breed right */}
+      <div className="flex items-center justify-between gap-3 pb-8 mb-10 md:mb-12 border-b border-[var(--mz-line)]">
+        <div className="flex items-center gap-3 min-w-0">
           {post.user?.profile_image_url ? (
             <Image
               src={safeImageSrc(post.user.profile_image_url)}
               alt={post.user.name}
               width={36}
               height={36}
-              className="rounded-full object-cover"
+              className="w-9 h-9 rounded-full shrink-0 object-cover"
               unoptimized={isFallback(safeImageSrc(post.user.profile_image_url))}
             />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-[var(--color-neutral-200)] flex items-center justify-center text-sm font-medium text-[var(--color-text-secondary)]">
+            <div className="w-9 h-9 rounded-full bg-[var(--mz-bg-deep)] flex items-center justify-center text-[13px] font-medium text-[var(--mz-ink-soft)] shrink-0">
               {post.user?.name?.charAt(0) ?? '?'}
             </div>
           )}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-[var(--color-text-primary)]">
+              <p className="text-[13px] font-[600] text-[var(--mz-ink)] truncate">
                 {post.user?.name ?? ''}
               </p>
               {post.user && (
@@ -177,14 +172,13 @@ export function PostDetailContent({
                 />
               )}
             </div>
-            <p className="text-xs text-[var(--color-text-tertiary)] flex items-center gap-1.5">
+            <p className="text-[12px] text-[var(--mz-ink-mute)] flex items-center gap-1.5 mt-0.5">
               <span>{formatDate(post.created_at)}</span>
               {post.last_edited_at && (
                 <>
                   <span aria-hidden="true">·</span>
                   <span
                     title={`${tCommon('edited')}: ${formatDate(post.last_edited_at)}`}
-                    className="text-[var(--color-text-secondary)]"
                   >
                     {tCommon('edited')}
                   </span>
@@ -194,9 +188,9 @@ export function PostDetailContent({
           </div>
         </div>
 
-        {/* Dog breed */}
+        {/* Dog breed — soft secondary line, no pill */}
         {post.dog_breed && (
-          <span className="text-xs text-[var(--color-brand-secondary)] font-medium bg-[var(--color-neutral-50)] px-3 py-1 rounded-full border border-[var(--color-border)]">
+          <span className="text-[12px] md:text-[13px] font-medium text-[var(--mz-ink-soft)] shrink-0">
             🐾 {post.dog_breed}
           </span>
         )}
@@ -204,9 +198,9 @@ export function PostDetailContent({
 
       {/* Image gallery */}
       {images.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-10 md:mb-12">
           {/* Main image */}
-          <div className="relative aspect-[4/3] bg-[var(--color-neutral-100)] rounded-2xl overflow-hidden mb-2">
+          <div className="relative aspect-[4/3] bg-[var(--mz-bg-deep)] rounded-[var(--radius-md)] overflow-hidden mb-3">
             <Image
               src={images[activeImage].url}
               alt={images[activeImage].alt || `${post.title} — ${activeImage + 1}`}
@@ -225,10 +219,10 @@ export function PostDetailContent({
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
-                  className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${
+                  className={`relative w-16 h-16 shrink-0 rounded-[var(--radius-sm)] overflow-hidden border-2 transition-colors ${
                     idx === activeImage
-                      ? 'border-[var(--color-brand-primary)]'
-                      : 'border-transparent'
+                      ? 'border-[var(--mz-ink)]'
+                      : 'border-transparent hover:border-[var(--mz-line-strong)]'
                   }`}
                 >
                   <Image
@@ -247,13 +241,14 @@ export function PostDetailContent({
       )}
 
       {/* Content — markdown rendered, sanitized for UGC safety */}
-      <div className="mb-6">
+      <div className="mb-10 md:mb-12 text-[17px] md:text-[18px] leading-[1.75] text-[var(--mz-ink-soft)]">
         <MarkdownContent content={post.content} />
       </div>
 
-      {/* Stats row */}
-      <div className="flex items-center gap-4 text-sm text-[var(--color-text-tertiary)] pb-6 border-b border-[var(--color-border-subtle)]">
+      {/* Stats row — magazine article footer */}
+      <div className="flex items-center gap-5 text-[12px] text-[var(--mz-ink-mute)] uppercase tracking-[0.06em] font-medium">
         <span>{t('views', { count: post.view_count })}</span>
+        <span aria-hidden="true">·</span>
         <span>{t('comments', { count: post.comment_count })}</span>
       </div>
 

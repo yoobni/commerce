@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { togglePostLikeAction } from '@/lib/community/actions';
+import { Button } from '@/components/ui/Button';
 
 interface LikeButtonProps {
   postId: string;
@@ -55,26 +56,23 @@ export function LikeButton({
 
   return (
     <div className="relative">
-      <button
+      <Button
         type="button"
+        variant={liked ? 'accent' : 'ghost'}
+        size="sm"
         onClick={handleClick}
-        disabled={isPending}
+        loading={isPending}
         aria-label={liked ? 'Unlike' : 'Like'}
-        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
-          liked
-            ? 'bg-rose-50 border-rose-300 text-rose-600'
-            : 'bg-white border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-neutral-50)]'
-        } ${isPending ? 'opacity-60' : ''}`}
+        leadingIcon={<HeartIcon filled={liked} />}
       >
-        <HeartIcon filled={liked} />
-        <span>{t('likes', { count })}</span>
-      </button>
+        {t('likes', { count })}
+      </Button>
 
       {/* Toast */}
       {toast && (
         <div
           role="alert"
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap bg-[var(--color-brand-primary)] text-white text-xs px-3 py-1.5 rounded-lg shadow-md"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap bg-[var(--mz-ink)] text-[var(--mz-bg)] text-xs px-3 py-1.5 rounded-[var(--radius-md)] shadow-[0_4px_18px_rgba(0,0,0,0.08)]"
         >
           {toast}
         </div>

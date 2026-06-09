@@ -121,45 +121,46 @@ export default async function PostDetailPage({ params }: Props) {
   const isOwner = user?.id === post.user_id;
 
   return (
-    <div className="min-h-screen bg-[var(--color-neutral-50)]">
+    <div className="min-h-screen bg-[var(--mz-bg)]">
       <BlogPostingJsonLd
         post={post}
         url={`${SITE_URL}${canonical}`}
         excerpt={extractExcerpt(post.content, 160)}
       />
-      <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
+
+      {/* ── Article chapter — page bg ── */}
+      <div className="max-w-2xl mx-auto px-6 md:px-8 pt-8 md:pt-14 pb-10 md:pb-14">
         {/* Back */}
         <a
           href={`/${locale}/community`}
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--mz-ink-mute)] hover:text-[var(--mz-ink)] mb-10 md:mb-14 transition-colors"
         >
           <ChevronLeftIcon />
           {t('title')}
         </a>
 
-        {/* Post */}
-        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)] mb-6">
-          <PostDetailContent
-            post={post}
-            isOwner={isOwner}
+        <PostDetailContent
+          post={post}
+          isOwner={isOwner}
+          isAuthenticated={!!user}
+          locale={locale}
+        />
+
+        {/* Like action — breathing room, no border */}
+        <div className="flex justify-center mt-10 md:mt-12">
+          <LikeButton
+            postId={post.id}
+            initialLiked={userLiked}
+            initialCount={post.like_count}
             isAuthenticated={!!user}
             locale={locale}
           />
-
-          {/* Like button */}
-          <div className="flex justify-center mt-6 pt-6 border-t border-[var(--color-border-subtle)]">
-            <LikeButton
-              postId={post.id}
-              initialLiked={userLiked}
-              initialCount={post.like_count}
-              isAuthenticated={!!user}
-              locale={locale}
-            />
-          </div>
         </div>
+      </div>
 
-        {/* Comments */}
-        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
+      {/* ── Comments chapter — full-bleed bg-deep for clear section break ── */}
+      <div className="bg-[var(--mz-bg-deep)] border-t border-[var(--mz-line)]">
+        <div className="max-w-2xl mx-auto px-6 md:px-8 py-12 md:py-16">
           <CommentSection
             postId={post.id}
             initialComments={commentsResult.data}
