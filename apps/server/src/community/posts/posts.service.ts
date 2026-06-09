@@ -3,6 +3,22 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { BoardType, PaginatedResponse, Post, PostImage, User } from '@commerce/types';
 import { SUPABASE_ADMIN } from '../../supabase/supabase.module';
 import { safeImageSrc } from '../../common/safe-image-src';
+import { generateSlug } from '../slug';
+
+export interface CreatePostInput {
+  board_type: BoardType;
+  title: string;
+  content: string;
+  dog_breed?: string | null;
+  images?: PostImage[];
+  product_ids?: string[];
+}
+
+export type UpdatePostInput = CreatePostInput;
+
+const MAX_PRODUCTS_PER_POST = 5;
+const dedupeProductIds = (ids: string[] | undefined): string[] =>
+  Array.from(new Set(ids ?? [])).slice(0, MAX_PRODUCTS_PER_POST);
 
 // NOTE: posts read needs to join `users` for the author profile (name,
 // profile_image_url). The users table has own-row-only SELECT RLS, so anon
@@ -190,6 +206,73 @@ export class PostsService {
       per_page,
       has_next: offset + per_page < total,
     };
+  }
+
+  /** Authorization helper — returns owner user_id or null if post doesn't exist. */
+  async getOwnerId(postId: string): Promise<string | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (this.supabase.from('posts') as any)
+      .select('user_id')
+      .eq('id', postId)
+      .single();
+    if (!data) return null;
+    return (data as { user_id: string }).user_id;
+  }
+
+  async create(
+    authorId: string,
+    input: CreatePostInput
+  ): Promise<{ id: string; short_id: string; slug: string }> {
+    const title = input.title.trim();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (this.supabase.from('posts') as any)
+      .insert({
+        user_id: authorId,
+        board_type: input.board_type,
+        title,
+        content: input.content.trim(),
+        dog_breed: input.dog_breed ?? null,
+        images: input.images ?? [],
+        product_ids: dedupeProductIds(input.product_ids),
+        like_count: 0,
+        comment_count: 0,
+        view_count: 0,
+        is_pinned: false,
+        status: 'ACTIVE',
+        slug: generateSlug(title),
+        // short_id is filled by DB default (gen_random_uuid first 8 hex chars).
+      })
+      .select('id, short_id, slug')
+      .single();
+
+    if (error || !data) throw error ?? new Error('community_db_error');
+    return data as { id: string; short_id: string; slug: string };
+  }
+
+  async update(postId: string, input: UpdatePostInput): Promise<void> {
+    const nowIso = new Date().toISOString();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (this.supabase.from('posts') as any)
+      .update({
+        board_type: input.board_type,
+        title: input.title.trim(),
+        content: input.content.trim(),
+        dog_breed: input.dog_breed ?? null,
+        images: input.images ?? [],
+        product_ids: dedupeProductIds(input.product_ids),
+        updated_at: nowIso,
+        last_edited_at: nowIso,
+      })
+      .eq('id', postId);
+    if (error) throw error;
+  }
+
+  async softDelete(postId: string): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (this.supabase.from('posts') as any)
+      .update({ status: 'DELETED', updated_at: new Date().toISOString() })
+      .eq('id', postId);
+    if (error) throw error;
   }
 
   /**
