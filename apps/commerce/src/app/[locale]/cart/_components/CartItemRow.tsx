@@ -7,7 +7,7 @@ import { useTransition } from 'react';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@/i18n/routing';
-import type { CartItemDisplay } from '@/lib/cart/queries';
+import type { CartItemDisplay } from '@/lib/api/cart';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
 type PriceKey =

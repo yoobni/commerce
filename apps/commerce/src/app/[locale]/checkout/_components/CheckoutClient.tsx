@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/cn';
-import type { CartDisplay } from '@/lib/cart/queries';
+import type { CartDisplay } from '@/lib/api/cart';
 import type { Address, Locale } from '@commerce/types';
 import type { UserCoupon } from '@/lib/coupons/queries';
 import { formatPrice } from '@/lib/format';

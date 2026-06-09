@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import { getGuestCart, removeFromGuestCart } from '@/lib/cart/guest';
-import { updateCartItemQuantityAction, removeCartItemAction } from '@/lib/cart/actions';
+import { updateCartItemQuantity, removeCartItem } from '@/lib/api/cart-client';
 import { createClient } from '@/lib/supabase/client';
-import type { CartDisplay, CartItemDisplay } from '@/lib/cart/queries';
+import type { CartDisplay, CartItemDisplay } from '@/lib/api/cart';
 import type { Locale } from '@/i18n/routing';
 import { CartItemRow } from './CartItemRow';
 import { CartSummary } from './CartSummary';
@@ -168,8 +168,9 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       setItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
 
       if (isAuthenticated) {
-        const result = await updateCartItemQuantityAction(id, quantity);
-        if (!result.success) {
+        try {
+          await updateCartItemQuantity(id, quantity);
+        } catch {
           // Revert on failure
           setItems((prev) =>
             prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity } : item))
@@ -208,10 +209,13 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       }
 
       if (isAuthenticated) {
-        const result = await removeCartItemAction(id);
-        if (!result.success && removedItem) {
-          // Revert
-          setItems((prev) => [...prev, removedItem]);
+        try {
+          await removeCartItem(id);
+        } catch {
+          if (removedItem) {
+            // Revert
+            setItems((prev) => [...prev, removedItem]);
+          }
         }
       } else {
         removeFromGuestCart(id);

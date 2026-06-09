@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getCartWithItems } from '@/lib/cart/queries';
+import { getCartWithItems } from '@/lib/api/cart';
 import { CartClient } from './_components/CartClient';
 
 type Props = {

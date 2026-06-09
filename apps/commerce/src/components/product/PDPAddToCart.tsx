@@ -7,7 +7,7 @@ import { useTrack } from '@/hooks/useTrack';
 import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { addToCartAction } from '@/lib/cart/actions';
+import { addToCart } from '@/lib/api/cart-client';
 import { addToGuestCart } from '@/lib/cart/guest';
 import type { ProductOption, Locale } from '@commerce/types';
 
@@ -56,7 +56,7 @@ export function PDPAddToCart({
     startTransition(async () => {
       try {
         if (isAuthenticated) {
-          await addToCartAction(selectedOption.id, 1, currency);
+          await addToCart(selectedOption.id, 1, currency);
         } else {
           addToGuestCart(selectedOption.id, 1, currency);
         }

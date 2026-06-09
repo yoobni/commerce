@@ -14,6 +14,7 @@ import { SizesModule } from './sizes/sizes.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { OrdersModule } from './orders/orders.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { OrdersModule } from './orders/orders.module';
     ReviewsModule,
     WishlistModule,
     OrdersModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [
