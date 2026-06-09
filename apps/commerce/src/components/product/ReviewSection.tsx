@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
 import { ReviewWriteForm } from './ReviewWriteForm';
-import { loadMoreReviewsAction } from '@/lib/reviews/actions';
-import type { ReviewWithUser, ReviewStats } from '@/lib/queries/reviews';
+import { loadMoreReviews } from '@/lib/api/reviews-client';
+import type { ReviewWithUser, ReviewStats } from '@/lib/api/reviews';
 import type { Locale } from '@commerce/types';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 
@@ -45,7 +45,7 @@ export function ReviewSection({
     setPhotoOnly(next);
     setFilterLoading(true);
     try {
-      const result = await loadMoreReviewsAction(productId, 1, next);
+      const result = await loadMoreReviews(productId, 1, next);
       setReviews(result.data);
       setPage(1);
       setHasMore(result.has_next);
@@ -59,7 +59,7 @@ export function ReviewSection({
     setLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const result = await loadMoreReviewsAction(productId, nextPage, photoOnly);
+      const result = await loadMoreReviews(productId, nextPage, photoOnly);
       setReviews((prev) => [...prev, ...result.data]);
       setPage(nextPage);
       setHasMore(result.has_next);

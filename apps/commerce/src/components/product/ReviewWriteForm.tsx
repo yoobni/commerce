@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/lib/cn';
-import { submitReviewAction } from '@/lib/reviews/actions';
+import { submitReview } from '@/lib/api/reviews-client';
 
 interface ReviewWriteFormProps {
   open: boolean;
@@ -56,7 +56,7 @@ export function ReviewWriteForm({
 
     startTransition(async () => {
       try {
-        await submitReviewAction({
+        await submitReview({
           productId,
           rating,
           content: content.trim(),

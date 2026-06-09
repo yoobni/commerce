@@ -11,6 +11,7 @@ import { ProductOptionsModule } from './product-options/product-options.module';
 import { CommunityModule } from './community/community.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SizesModule } from './sizes/sizes.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SizesModule } from './sizes/sizes.module';
     CommunityModule,
     CategoriesModule,
     SizesModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [
