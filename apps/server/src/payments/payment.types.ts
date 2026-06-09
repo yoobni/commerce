@@ -1,3 +1,6 @@
+// Wire-level types for the payment gateway abstraction. Stay close to the
+// previous lib/payment/types.ts so the mock provider's contract is unchanged.
+
 export interface CreateIntentParams {
   amount: number;
   currency: string;

@@ -18,6 +18,7 @@ import { CartModule } from './cart/cart.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { PointsModule } from './points/points.module';
 import { AccountModule } from './account/account.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AccountModule } from './account/account.module';
     CouponsModule,
     PointsModule,
     AccountModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
