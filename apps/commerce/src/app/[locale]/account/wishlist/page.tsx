@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { listUserWishlist } from '@/lib/queries/wishlist';
+import { listUserWishlist } from '@/lib/api/wishlist';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Link } from '@/i18n/navigation';
 
@@ -31,7 +31,7 @@ export default async function WishlistPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const items = await listUserWishlist(user.id);
+  const items = await listUserWishlist();
 
   return (
     <div className="space-y-6">

@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
-import { toggleWishlistAction, checkWishlistAction } from '@/lib/wishlist/actions';
+import { toggleWishlist, checkWishlist } from '@/lib/api/wishlist-client';
 import { toggleGuestWishlist, isGuestWishlisted } from '@/lib/wishlist/guest';
 import type { Locale } from '@commerce/types';
 
@@ -36,7 +36,7 @@ export function WishlistButton({
   // Initialize wishlist state
   useEffect(() => {
     if (isAuthenticated) {
-      checkWishlistAction(productId).then(({ isWishlisted: w }) => setIsWishlisted(w));
+      checkWishlist(productId).then((w) => setIsWishlisted(w)).catch(() => {});
     } else {
       setIsWishlisted(isGuestWishlisted(productId));
     }
@@ -45,10 +45,10 @@ export function WishlistButton({
   function handleToggle() {
     if (isAuthenticated) {
       startTransition(async () => {
-        const result = await toggleWishlistAction(productId);
-        if (result.success) {
-          setIsWishlisted(result.isWishlisted);
-          if (result.isWishlisted) {
+        try {
+          const next = await toggleWishlist(productId);
+          setIsWishlisted(next);
+          if (next) {
             track('wishlist_add', {
               product_id: productId,
               product_name: productName,
@@ -59,6 +59,8 @@ export function WishlistButton({
           } else {
             track('wishlist_remove', { product_id: productId });
           }
+        } catch {
+          // Silent — heart icon stays unchanged.
         }
       });
     } else {

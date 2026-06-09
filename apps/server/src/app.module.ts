@@ -12,6 +12,7 @@ import { CommunityModule } from './community/community.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SizesModule } from './sizes/sizes.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     CategoriesModule,
     SizesModule,
     ReviewsModule,
+    WishlistModule,
   ],
   controllers: [AppController],
   providers: [
