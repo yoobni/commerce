@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getOrderById } from '@/lib/queries/orders';
+import { getOrderById } from '@/lib/api/orders';
 import { Link } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@commerce/types';
@@ -49,7 +49,7 @@ export default async function OrderDetailPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const order = await getOrderById(id, user.id);
+  const order = await getOrderById(id);
   if (!order) notFound();
 
   const statusLabel = (t(`status.${order.status.toLowerCase()}`) as string) ?? order.status;

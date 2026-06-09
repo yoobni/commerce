@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { listUserOrders } from '@/lib/queries/orders';
+import { listUserOrders } from '@/lib/api/orders';
 import { Link } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/format';
 import type { Locale } from '@commerce/types';
@@ -46,7 +46,7 @@ export default async function OrdersPage({ params, searchParams }: Props) {
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const result = await listUserOrders(user.id, { page, per_page: 10 });
+  const result = await listUserOrders({ page, per_page: 10 });
   const totalPages = Math.ceil(result.total / 10);
 
   return (

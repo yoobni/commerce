@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { cancelOrderAction } from '@/lib/orders/actions';
+import { cancelOrder } from '@/lib/api/orders-client';
 import { Button } from '@/components/ui/Button';
 
 interface CancelOrderButtonProps {
@@ -18,7 +18,7 @@ export function CancelOrderButton({ orderId, label }: CancelOrderButtonProps) {
     setError(null);
     startTransition(async () => {
       try {
-        await cancelOrderAction(orderId);
+        await cancelOrder(orderId);
         setShowConfirm(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : '취소에 실패했습니다.');

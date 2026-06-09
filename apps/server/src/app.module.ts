@@ -13,6 +13,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { SizesModule } from './sizes/sizes.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     SizesModule,
     ReviewsModule,
     WishlistModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [

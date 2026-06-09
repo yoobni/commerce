@@ -6,7 +6,7 @@ import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/layout/Container';
 import { createClient } from '@/lib/supabase/server';
-import { getOrderById } from '@/lib/queries/orders';
+import { getOrderById } from '@/lib/api/orders';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -37,7 +37,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const order = await getOrderById(orderId, user.id);
+  const order = await getOrderById(orderId);
   if (!order) notFound();
   const paidStatuses = new Set(['PAID', 'PREPARING', 'SHIPPED', 'DELIVERED']);
   if (!paidStatuses.has((order as { status: string }).status)) notFound();
