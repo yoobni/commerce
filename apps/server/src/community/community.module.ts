@@ -3,11 +3,19 @@ import { PostsController } from './posts/posts.controller';
 import { PostsService } from './posts/posts.service';
 import { CommentsController } from './comments/comments.controller';
 import { CommentsService } from './comments/comments.service';
+import { LikesController } from './likes/likes.controller';
+import { LikesService } from './likes/likes.service';
+import { UserBlocksController } from './user-blocks/user-blocks.controller';
+import { UserBlocksService } from './user-blocks/user-blocks.service';
 
-// Community domain root. Likes + UserBlocks land in Phase 2.b.2.
 @Module({
-  controllers: [PostsController, CommentsController],
-  providers: [PostsService, CommentsService],
-  exports: [PostsService, CommentsService],
+  controllers: [
+    PostsController,
+    CommentsController,
+    LikesController,
+    UserBlocksController,
+  ],
+  providers: [PostsService, CommentsService, LikesService, UserBlocksService],
+  exports: [PostsService, CommentsService, LikesService, UserBlocksService],
 })
 export class CommunityModule {}
