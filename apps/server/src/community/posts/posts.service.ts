@@ -170,7 +170,10 @@ export class PostsService {
     }
     if (boardType !== 'ALL') query = query.eq('board_type', boardType);
     if (mentionsProductId) {
-      query = query.contains('product_ids', [mentionsProductId]);
+      // posts.product_ids is jsonb (not uuid[]). PostgREST array-contains via
+      // supabase-js would emit `cs.{uuid}` which jsonb rejects — pass the value
+      // as a JSON string so the operator matches the column type.
+      query = query.contains('product_ids', JSON.stringify([mentionsProductId]));
     }
     if (q && q.trim()) {
       const safe = q

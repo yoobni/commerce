@@ -26,11 +26,15 @@ export default function LoginPage() {
   // next-intl's router auto-prefixes the locale, so paths passed in must be
   // locale-relative (e.g. "/" → "/ko/", "/account" → "/ko/account"). Strip an
   // accidental leading locale from `next` to avoid the /ko/ko double-prefix.
+  // Match only `/{locale}` exactly or `/{locale}/...` — never `/koalas` etc.
   const rawNext = searchParams.get('next') ?? '/';
   const localePrefix = `/${locale}`;
-  const next = rawNext.startsWith(localePrefix)
-    ? rawNext.slice(localePrefix.length) || '/'
-    : rawNext;
+  const next =
+    rawNext === localePrefix
+      ? '/'
+      : rawNext.startsWith(`${localePrefix}/`)
+        ? rawNext.slice(localePrefix.length)
+        : rawNext;
   const hasOAuthError = searchParams.get('error') != null;
 
   const [email, setEmail] = useState('');

@@ -20,11 +20,18 @@ export async function RelatedCommunityPosts({
   locale,
   limit = 6,
 }: RelatedCommunityPostsProps) {
-  const result = await listPosts({
-    mentionsProductId: productId,
-    per_page: limit,
-    sort: 'newest',
-  });
+  // Best-effort surface — non-critical section. If the community API errors
+  // (transient 500, future schema drift), the PDP still renders without it.
+  let result;
+  try {
+    result = await listPosts({
+      mentionsProductId: productId,
+      per_page: limit,
+      sort: 'newest',
+    });
+  } catch {
+    return null;
+  }
   if (result.data.length === 0) return null;
 
   const t = await getTranslations({ locale, namespace: 'community' });
