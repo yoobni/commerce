@@ -7,7 +7,7 @@ import { routing, type Locale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { buildAlternates } from '@/lib/seo/alternates';
 import { createClient } from '@/lib/supabase/server';
-import { getFeaturedProducts, listProducts } from '@/lib/queries/products';
+import { getFeaturedProducts, listProducts } from '@/lib/api/products';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Container } from '@/components/layout/Container';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';

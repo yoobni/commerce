@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { searchProductsForPost } from '@/lib/queries/products';
+import { searchProductsForPost } from '@/lib/api/products';
 import { apiOk, parseSearchParams, z } from '@/lib/api/response';
 
 // GET /api/community/products/search?q=...&exclude=id1,id2

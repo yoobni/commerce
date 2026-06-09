@@ -4,15 +4,15 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { listProducts } from '@/lib/queries/products';
+import { listProducts } from '@/lib/api/products';
 import { listCategories } from '@/lib/queries/categories';
-import { listAvailableColors } from '@/lib/queries/products';
+import { listAvailableColors } from '@/lib/api/products';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Container } from '@/components/layout/Container';
 import { Link } from '@/i18n/navigation';
 import { getCategoryName } from '@/lib/format';
 import { cn } from '@/lib/cn';
-import type { ProductListParams } from '@/lib/queries/products';
+import type { ProductListParams } from '@/lib/api/products';
 import { buildAlternates } from '@/lib/seo/alternates';
 
 // SSR — dynamic filters

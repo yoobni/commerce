@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { listProducts } from '@/lib/queries/products';
+import { listProducts } from '@/lib/api/products';
 import { Container } from '@/components/layout/Container';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
