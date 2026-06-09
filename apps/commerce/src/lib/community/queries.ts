@@ -66,6 +66,8 @@ export interface PostListParams {
   sort?: 'newest' | 'popular';
   page?: number;
   per_page?: number;
+  /** Restrict to posts that mention this product (via posts.product_ids). */
+  mentionsProductId?: string;
   /** Restrict to posts authored by this user. Used by "내 글" filter. */
   authorId?: string;
   /** Restrict to posts the user has liked. Used by "좋아요한 글" filter. */
@@ -107,6 +109,7 @@ export async function listPosts(
     likedByUserId,
     includeHidden = false,
     excludeAuthorIds,
+    mentionsProductId,
   } = params;
   const supabase = await createClient();
   const offset = (page - 1) * per_page;
@@ -146,10 +149,28 @@ export async function listPosts(
     query = (query as any).not('user_id', 'in', `(${excludeAuthorIds.join(',')})`);
   }
   if (boardType !== 'ALL') query = query.eq('board_type', boardType);
+  if (mentionsProductId) {
+    // PostgreSQL array contains — `cs.{uuid}` selects posts whose
+    // product_ids array includes the given product.
+    query = query.contains('product_ids', [mentionsProductId]);
+  }
   if (search) {
-    // Escape ilike wildcards so user input can't match unintended rows.
-    const safeSearch = search.replace(/[%_\\]/g, (m) => `\\${m}`).slice(0, 100);
-    if (safeSearch) query = query.ilike('title', `%${safeSearch}%`);
+    // Escape ilike wildcards so user input can't match unintended rows,
+    // and strip PostgREST `or=` separators that would break parsing.
+    const safeSearch = search
+      .replace(/[,()]/g, ' ')
+      .replace(/[%_\\]/g, (m) => `\\${m}`)
+      .trim()
+      .slice(0, 100);
+    if (safeSearch) {
+      // Search title AND body (F#7). Korean text + `simple` FTS config can't
+      // do substring matches, so we use ilike OR across both columns — the
+      // search_vector GIN index stays in place for future websearch upgrades.
+      // PostgREST `or=` syntax uses `*` for the ilike wildcard, not `%`.
+      query = query.or(
+        `title.ilike.*${safeSearch}*,content.ilike.*${safeSearch}*`
+      );
+    }
   }
 
   if (sort === 'popular') {

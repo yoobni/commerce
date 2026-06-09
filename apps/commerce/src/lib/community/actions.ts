@@ -34,7 +34,13 @@ export interface CreatePostInput {
   content: string;
   dog_breed: string | null;
   images: PostImage[];
+  /** Product UUIDs mentioned in the post. Capped at MAX_PRODUCTS_PER_POST below. */
+  product_ids?: string[];
 }
+
+const MAX_PRODUCTS_PER_POST = 5;
+const sanitizeProductIds = (ids: string[] | undefined): string[] =>
+  Array.from(new Set(ids ?? [])).slice(0, MAX_PRODUCTS_PER_POST);
 
 export async function createPostAction(input: CreatePostInput): Promise<ActionResult> {
   const supabase = await createClient();
@@ -57,7 +63,7 @@ export async function createPostAction(input: CreatePostInput): Promise<ActionRe
       content: input.content.trim(),
       dog_breed: input.dog_breed || null,
       images: input.images,
-      product_ids: [],
+      product_ids: sanitizeProductIds(input.product_ids),
       like_count: 0,
       comment_count: 0,
       view_count: 0,
@@ -85,6 +91,7 @@ export interface UpdatePostInput {
   content: string;
   dog_breed: string | null;
   images: PostImage[];
+  product_ids?: string[];
 }
 
 export async function updatePostAction(
@@ -123,6 +130,7 @@ export async function updatePostAction(
       content: input.content.trim(),
       dog_breed: input.dog_breed || null,
       images: input.images,
+      product_ids: sanitizeProductIds(input.product_ids),
       updated_at: nowIso,
       last_edited_at: nowIso,
     })
@@ -362,6 +370,9 @@ export async function loadMoreCommentsAction(
 ): Promise<ListCommentsResult> {
   return listComments(postId, page);
 }
+
+// Note: client-side product search (typeahead) moved to a REST API route
+// at /api/community/products/search — see lib/queries/products#searchProductsForPost.
 
 // ─── Block / unblock user ─────────────────────────────────────────────────────
 

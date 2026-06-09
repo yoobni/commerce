@@ -210,6 +210,48 @@ export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
   return result.data;
 }
 
+/**
+ * Typeahead search for the community ProductSelector. Active products only,
+ * optionally excludes ids the caller has already chosen so the dropdown doesn't
+ * re-offer them. Empty / blank query short-circuits.
+ */
+export async function searchProductsForPost(
+  query: string,
+  excludeIds: string[] = []
+): Promise<Product[]> {
+  const trimmed = query.trim().slice(0, 100);
+  if (trimmed.length < 1) return [];
+  const result = await listProducts({ q: trimmed, per_page: 8 });
+  if (excludeIds.length === 0) return result.data;
+  const exclude = new Set(excludeIds);
+  return result.data.filter((p) => !exclude.has(p.id));
+}
+
+/**
+ * Batch-fetch products by id list (preserves caller-provided order).
+ * Used by community posts to render "products mentioned in this article."
+ * Empty/invalid lists short-circuit so callers don't pay for a round trip.
+ */
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (!ids || ids.length === 0) return [];
+  // Dedupe + cap to avoid runaway queries from corrupt input.
+  const unique = Array.from(new Set(ids)).slice(0, 50);
+  const supabase = await createClient();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from('products') as any)
+    .select('*')
+    .in('id', unique)
+    .eq('status', 'ACTIVE');
+
+  if (error || !data) return [];
+
+  const rows = (data as Product[]).map((p) => sanitizeProductImages(p) as Product);
+  // Restore caller order so the post author's curation is preserved.
+  const byId = new Map(rows.map((p) => [p.id, p]));
+  return unique.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+}
+
 export interface ColorOption {
   name: string;
   hex: string;
