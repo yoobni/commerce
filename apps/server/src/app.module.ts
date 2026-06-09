@@ -10,6 +10,7 @@ import { ProductsModule } from './products/products.module';
 import { ProductOptionsModule } from './product-options/product-options.module';
 import { CommunityModule } from './community/community.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SizesModule } from './sizes/sizes.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CategoriesModule } from './categories/categories.module';
     ProductOptionsModule,
     CommunityModule,
     CategoriesModule,
+    SizesModule,
   ],
   controllers: [AppController],
   providers: [
