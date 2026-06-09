@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { updatePostAction } from '@/lib/community/actions';
-import type { PostWithUser } from '@/lib/community/queries';
+import { updatePost } from '@/lib/api/community/client';
+import { ApiCallError } from '@/lib/api/client';
+import type { PostWithUser } from '@/lib/api/community/posts';
 import type { BoardType, PostImage } from '@commerce/types';
 import { PostImageInput } from '../../../_components/PostImageInput';
 
@@ -45,26 +46,29 @@ export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
     setIsSubmitting(true);
     setError(null);
 
-    const result = await updatePostAction(post.id, {
-      board_type: boardType,
-      title,
-      content,
-      dog_breed: dogBreed.trim() || null,
-      images,
-    });
-
-    setIsSubmitting(false);
-
-    if (!result.success) {
+    try {
+      await updatePost(post.id, {
+        board_type: boardType,
+        title,
+        content,
+        dog_breed: dogBreed.trim() || null,
+        images,
+      });
+      router.push(`/${locale}/community/${post.short_id}/${post.slug}`);
+    } catch (e) {
+      const code = e instanceof ApiCallError ? e.code : 'updateFailed';
+      const retry =
+        e instanceof ApiCallError && code === 'rate_limited'
+          ? (e.details as { retryAfterSec?: number } | undefined)?.retryAfterSec ?? 60
+          : 60;
       setError(
-        result.error === 'rate_limited'
-          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
-          : t('error.updateFailed'),
+        code === 'rate_limited'
+          ? t('error.rateLimited', { sec: retry })
+          : t('error.updateFailed')
       );
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push(`/${locale}/community/${post.short_id}/${post.slug}`);
   }
 
   return (

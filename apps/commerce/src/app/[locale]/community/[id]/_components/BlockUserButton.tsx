@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { blockUserAction } from '@/lib/community/actions';
+import { blockUser } from '@/lib/api/community/client';
 
 interface BlockUserButtonProps {
   /** Author of the content the viewer is looking at. */
@@ -46,12 +46,12 @@ export function BlockUserButton({
     const name = targetUserName ?? t('blockUnknownUser');
     if (!window.confirm(t('blockConfirm', { name }))) return;
     startTransition(async () => {
-      const result = await blockUserAction(targetUserId);
-      if (!result.success) {
+      try {
+        await blockUser(targetUserId);
+        router.refresh();
+      } catch {
         setError(t('blockFailed'));
-        return;
       }
-      router.refresh();
     });
   }
 

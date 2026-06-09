@@ -4,7 +4,7 @@ import { hasLocale } from 'next-intl';
 import { notFound, redirect } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import { getPost } from '@/lib/community/queries';
+import { getPost } from '@/lib/api/community/posts';
 import { EditPostForm } from './_components/EditPostForm';
 
 type Props = {

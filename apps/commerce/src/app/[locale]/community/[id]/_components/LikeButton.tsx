@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
-import { togglePostLikeAction } from '@/lib/community/actions';
+import { togglePostLike } from '@/lib/api/community/client';
+import { ApiCallError } from '@/lib/api/client';
 import { Button } from '@/components/ui/Button';
 
 interface LikeButtonProps {
@@ -41,15 +42,16 @@ export function LikeButton({
     setCount(liked ? count - 1 : count + 1);
 
     startTransition(async () => {
-      const result = await togglePostLikeAction(postId);
-      if (!result.success) {
+      try {
+        const result = await togglePostLike(postId);
+        setLiked(result.liked);
+        setCount(result.like_count);
+      } catch (e) {
         setLiked(prevLiked);
         setCount(prevCount);
-        setToast(t(result.error === 'rate_limited' ? 'error.rateLimited' : 'error.likeFailed'));
+        const code = e instanceof ApiCallError ? e.code : 'likeFailed';
+        setToast(t(code === 'rate_limited' ? 'error.rateLimited' : 'error.likeFailed'));
         setTimeout(() => setToast(null), 2500);
-      } else {
-        setLiked(result.liked);
-        setCount(result.likeCount);
       }
     });
   }

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import type { PostWithUser } from '@/lib/community/queries';
+import type { PostWithUser } from '@/lib/api/community/posts';
 import type { BoardType } from '@commerce/types';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 

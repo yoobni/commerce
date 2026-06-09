@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { deletePostAction } from '@/lib/community/actions';
-import type { PostWithUser } from '@/lib/community/queries';
+import { deletePost } from '@/lib/api/community/client';
+import type { PostWithUser } from '@/lib/api/community/posts';
 import type { BoardType } from '@commerce/types';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
 import { MarkdownContent } from '@/components/community/MarkdownContent';
@@ -66,10 +66,11 @@ export function PostDetailContent({
   async function handleDelete() {
     if (!window.confirm(t('deletePostConfirm'))) return;
     setIsDeleting(true);
-    const result = await deletePostAction(post.id);
-    setIsDeleting(false);
-    if (result.success) {
+    try {
+      await deletePost(post.id);
       router.push(`/${locale}/community`);
+    } finally {
+      setIsDeleting(false);
     }
   }
 

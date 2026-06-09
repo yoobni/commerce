@@ -7,7 +7,7 @@ import { PostCard } from './PostCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Chip, ChipGroup } from '@/components/ui/Chip';
-import type { PostWithUser } from '@/lib/community/queries';
+import type { PostWithUser } from '@/lib/api/community/posts';
 import type { BoardType } from '@commerce/types';
 
 type BoardFilter = BoardType | 'ALL';

@@ -4,14 +4,15 @@ import { useState, useTransition } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
-  createCommentAction,
-  deleteCommentAction,
-  loadMoreCommentsAction,
-  toggleCommentLikeAction,
-  updateCommentAction,
-} from '@/lib/community/actions';
+  createComment,
+  deleteComment,
+  loadMoreComments,
+  toggleCommentLike,
+  updateComment,
+} from '@/lib/api/community/client';
+import { ApiCallError } from '@/lib/api/client';
 import { safeImageSrc, isFallback } from '@/lib/images/safeSrc';
-import type { CommentWithUser } from '@/lib/community/queries';
+import type { CommentWithUser } from '@/lib/api/community/comments';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 
@@ -67,17 +68,24 @@ function CommentRow({
   async function handleLike() {
     if (!isAuthenticated || isLiking) return;
     setIsLiking(true);
-    const result = await toggleCommentLikeAction(comment.id);
-    setIsLiking(false);
-    if (result.success) {
-      onLikeToggle(comment.id, result.liked, result.likeCount);
+    try {
+      const result = await toggleCommentLike(comment.id);
+      onLikeToggle(comment.id, result.liked, result.like_count);
+    } catch {
+      // Silent — heart icon stays unchanged.
+    } finally {
+      setIsLiking(false);
     }
   }
 
   async function handleDelete() {
     if (!window.confirm(t('deleteCommentConfirm'))) return;
-    await deleteCommentAction(comment.id, postId);
-    onDelete(comment.id);
+    try {
+      await deleteComment(comment.id);
+      onDelete(comment.id);
+    } catch {
+      // Silent for now; the server already rejected so the row stays.
+    }
   }
 
   function startEdit() {
@@ -95,18 +103,24 @@ function CommentRow({
     if (!editText.trim() || isSavingEdit) return;
     setIsSavingEdit(true);
     setEditError(null);
-    const result = await updateCommentAction(comment.id, postId, editText);
-    setIsSavingEdit(false);
-    if (!result.success) {
+    try {
+      await updateComment(comment.id, editText);
+      onEdit(comment.id, editText.trim(), new Date().toISOString());
+      setIsEditing(false);
+    } catch (e) {
+      const code = e instanceof ApiCallError ? e.code : 'updateFailed';
+      const retry =
+        e instanceof ApiCallError && code === 'rate_limited'
+          ? (e.details as { retryAfterSec?: number } | undefined)?.retryAfterSec ?? 60
+          : 60;
       setEditError(
-        result.error === 'rate_limited'
-          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
-          : t('error.updateFailed'),
+        code === 'rate_limited'
+          ? t('error.rateLimited', { sec: retry })
+          : t('error.updateFailed')
       );
-      return;
+    } finally {
+      setIsSavingEdit(false);
     }
-    onEdit(comment.id, editText.trim(), new Date().toISOString());
-    setIsEditing(false);
   }
 
   return (
@@ -328,14 +342,18 @@ export function CommentSection({
 
   function handleLoadMore() {
     startLoadMore(async () => {
-      const next = page + 1;
-      const result = await loadMoreCommentsAction(postId, next);
-      // De-dupe in case a comment was added optimistically while paging.
-      const seen = new Set(comments.map((c) => c.id));
-      const fresh = result.data.filter((c) => !seen.has(c.id));
-      setComments((prev) => [...prev, ...fresh]);
-      setPage(result.page);
-      setHasNext(result.has_next);
+      try {
+        const next = page + 1;
+        const result = await loadMoreComments(postId, next);
+        // De-dupe in case a comment was added optimistically while paging.
+        const seen = new Set(comments.map((c) => c.id));
+        const fresh = result.data.filter((c) => !seen.has(c.id));
+        setComments((prev) => [...prev, ...fresh]);
+        setPage(result.page);
+        setHasNext(result.has_next);
+      } catch {
+        // Swallow — load-more is non-critical, user can retry.
+      }
     });
   }
 
@@ -347,21 +365,28 @@ export function CommentSection({
     }
 
     setIsSubmitting(true);
-    const result = await createCommentAction(postId, content, parentId);
-    setIsSubmitting(false);
-
-    if (!result.success) {
+    let created: { id: string } | null = null;
+    try {
+      created = await createComment(postId, content, parentId);
+    } catch (e) {
+      const code = e instanceof ApiCallError ? e.code : 'commentFailed';
+      const retry =
+        e instanceof ApiCallError && code === 'rate_limited'
+          ? (e.details as { retryAfterSec?: number } | undefined)?.retryAfterSec ?? 60
+          : 60;
       showToast(
-        result.error === 'rate_limited'
-          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
-          : t('error.commentFailed'),
+        code === 'rate_limited'
+          ? t('error.rateLimited', { sec: retry })
+          : t('error.commentFailed')
       );
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
+    if (!created) return;
 
     // Optimistic: add a temp comment (real data refreshes on next load)
     const tempComment: CommentWithUser = {
-      id: result.id ?? `temp-${Date.now()}`,
+      id: created.id,
       post_id: postId,
       user_id: currentUserId ?? '',
       parent_id: parentId,

@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { createPostAction } from '@/lib/community/actions';
+import { createPost } from '@/lib/api/community/client';
+import { ApiCallError } from '@/lib/api/client';
 import type { BoardType, PostImage } from '@commerce/types';
 import { PostImageInput } from '../../_components/PostImageInput';
 
@@ -43,26 +44,29 @@ export function PostForm({ locale, userId }: PostFormProps) {
     setIsSubmitting(true);
     setError(null);
 
-    const result = await createPostAction({
-      board_type: boardType,
-      title,
-      content,
-      dog_breed: dogBreed.trim() || null,
-      images,
-    });
-
-    setIsSubmitting(false);
-
-    if (!result.success || !result.short_id || !result.slug) {
+    try {
+      const result = await createPost({
+        board_type: boardType,
+        title,
+        content,
+        dog_breed: dogBreed.trim() || null,
+        images,
+      });
+      router.push(`/${locale}/community/${result.short_id}/${result.slug}`);
+    } catch (e) {
+      const code = e instanceof ApiCallError ? e.code : 'createFailed';
+      const retry =
+        e instanceof ApiCallError && code === 'rate_limited'
+          ? (e.details as { retryAfterSec?: number } | undefined)?.retryAfterSec ?? 60
+          : 60;
       setError(
-        result.error === 'rate_limited'
-          ? t('error.rateLimited', { sec: result.retryAfterSec ?? 60 })
-          : t('error.createFailed'),
+        code === 'rate_limited'
+          ? t('error.rateLimited', { sec: retry })
+          : t('error.createFailed')
       );
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.push(`/${locale}/community/${result.short_id}/${result.slug}`);
   }
 
   return (

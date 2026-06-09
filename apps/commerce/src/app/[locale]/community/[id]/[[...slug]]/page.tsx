@@ -4,13 +4,9 @@ import { getTranslations } from 'next-intl/server';
 import { notFound, redirect, permanentRedirect } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
-import {
-  getPost,
-  listComments,
-  checkUserLikedPost,
-  getUserLikedCommentIds,
-  getBlockedUserIds,
-} from '@/lib/community/queries';
+import { getPost } from '@/lib/api/community/posts';
+import { listComments } from '@/lib/api/community/comments';
+import { hasLikedPost, likedCommentIdsForPost } from '@/lib/api/community/likes';
 import { PostDetailContent } from '../_components/PostDetailContent';
 import { LikeButton } from '../_components/LikeButton';
 import { CommentSection } from '../_components/CommentSection';
@@ -112,11 +108,12 @@ export default async function PostDetailPage({ params }: Props) {
     redirect(canonical);
   }
 
-  const blockedIds = await getBlockedUserIds(user?.id ?? null);
+  // Block-list and viewer-scoped queries are resolved server-side from the
+  // forwarded access token. Anonymous viewers get [] / false naturally.
   const [commentsResult, userLiked, likedCommentIds] = await Promise.all([
-    listComments(post.id, 1, undefined, blockedIds),
-    user ? checkUserLikedPost(post.id, user.id) : Promise.resolve(false),
-    user ? getUserLikedCommentIds(post.id, user.id) : Promise.resolve([]),
+    listComments(post.id, 1),
+    user ? hasLikedPost(post.id) : Promise.resolve(false),
+    user ? likedCommentIdsForPost(post.id) : Promise.resolve([]),
   ]);
   const isOwner = user?.id === post.user_id;
 
