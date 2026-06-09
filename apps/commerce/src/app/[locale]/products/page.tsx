@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { listProducts } from '@/lib/api/products';
-import { listCategories } from '@/lib/queries/categories';
+import { listCategories } from '@/lib/api/categories';
 import { listAvailableColors } from '@/lib/api/products';
 import { ProductCard } from '@/components/product/ProductCard';
 import { SortSelect } from './_components/SortSelect';

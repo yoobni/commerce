@@ -9,6 +9,7 @@ import { ResponseEnvelopeInterceptor } from './common/interceptors/response-enve
 import { ProductsModule } from './products/products.module';
 import { ProductOptionsModule } from './product-options/product-options.module';
 import { CommunityModule } from './community/community.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CommunityModule } from './community/community.module';
     ProductsModule,
     ProductOptionsModule,
     CommunityModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [
