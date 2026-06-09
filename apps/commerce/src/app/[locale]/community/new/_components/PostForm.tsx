@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createPost } from '@/lib/api/community/client';
 import { ApiCallError } from '@/lib/api/client';
-import type { BoardType, PostImage } from '@commerce/types';
+import type { BoardType, Locale, PostImage, Product } from '@commerce/types';
 import { PostImageInput } from '../../_components/PostImageInput';
+import { ProductSelector } from '../../_components/ProductSelector';
 
 interface PostFormProps {
-  locale: string;
+  locale: Locale;
   userId: string;
 }
 
@@ -34,6 +35,7 @@ export function PostForm({ locale, userId }: PostFormProps) {
   const [content, setContent] = useState('');
   const [dogBreed, setDogBreed] = useState('');
   const [images, setImages] = useState<PostImage[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,7 @@ export function PostForm({ locale, userId }: PostFormProps) {
         content,
         dog_breed: dogBreed.trim() || null,
         images,
+        product_ids: products.map((p) => p.id),
       });
       router.push(`/${locale}/community/${result.short_id}/${result.slug}`);
     } catch (e) {
@@ -145,6 +148,19 @@ export function PostForm({ locale, userId }: PostFormProps) {
           value={images}
           onChange={setImages}
           userId={userId}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      {/* Products mentioned in the post (F#8) */}
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          {t('postProducts')}
+        </p>
+        <ProductSelector
+          value={products}
+          onChange={setProducts}
+          locale={locale}
           disabled={isSubmitting}
         />
       </div>

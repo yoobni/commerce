@@ -23,6 +23,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { FitForHanaCard } from '@/components/ui/FitForHanaCard';
 import { ProductGridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { PDPClient } from './_components/PDPClient';
+import { RelatedCommunityPosts } from '@/components/community/RelatedCommunityPosts';
 import { buildAlternates } from '@/lib/seo/alternates';
 
 type Props = {
@@ -322,6 +323,9 @@ export default async function ProductDetailPage({ params }: Props) {
             </Suspense>
           </section>
         )}
+
+        {/* Community posts featuring this product (F#8 reverse link) */}
+        <RelatedCommunityPosts productId={product.id} locale={locale as Locale} />
       </Container>
     </div>
   );

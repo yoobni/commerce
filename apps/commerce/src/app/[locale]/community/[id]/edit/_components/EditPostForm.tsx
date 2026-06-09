@@ -8,13 +8,16 @@ import { Input } from '@/components/ui/Input';
 import { updatePost } from '@/lib/api/community/client';
 import { ApiCallError } from '@/lib/api/client';
 import type { PostWithUser } from '@/lib/api/community/posts';
-import type { BoardType, PostImage } from '@commerce/types';
+import type { BoardType, Locale, PostImage, Product } from '@commerce/types';
 import { PostImageInput } from '../../../_components/PostImageInput';
+import { ProductSelector } from '../../../_components/ProductSelector';
 
 interface EditPostFormProps {
   post: PostWithUser;
-  locale: string;
+  locale: Locale;
   userId: string;
+  /** Resolved Product objects for post.product_ids, fetched server-side. */
+  initialProducts: Product[];
 }
 
 type BoardOption = { value: BoardType; labelKey: string };
@@ -26,7 +29,7 @@ const BOARD_OPTIONS: BoardOption[] = [
   { value: 'QUESTION', labelKey: 'boardQuestion' },
 ];
 
-export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
+export function EditPostForm({ post, locale, userId, initialProducts }: EditPostFormProps) {
   const t = useTranslations('community');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -36,6 +39,7 @@ export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
   const [content, setContent] = useState(post.content);
   const [dogBreed, setDogBreed] = useState(post.dog_breed ?? '');
   const [images, setImages] = useState<PostImage[]>(post.images ?? []);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +57,7 @@ export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
         content,
         dog_breed: dogBreed.trim() || null,
         images,
+        product_ids: products.map((p) => p.id),
       });
       router.push(`/${locale}/community/${post.short_id}/${post.slug}`);
     } catch (e) {
@@ -147,6 +152,19 @@ export function EditPostForm({ post, locale, userId }: EditPostFormProps) {
           value={images}
           onChange={setImages}
           userId={userId}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      {/* Products mentioned in the post (F#8) */}
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)] mb-2">
+          {t('postProducts')}
+        </p>
+        <ProductSelector
+          value={products}
+          onChange={setProducts}
+          locale={locale}
           disabled={isSubmitting}
         />
       </div>

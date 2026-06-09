@@ -10,6 +10,7 @@ import { hasLikedPost, likedCommentIdsForPost } from '@/lib/api/community/likes'
 import { PostDetailContent } from '../_components/PostDetailContent';
 import { LikeButton } from '../_components/LikeButton';
 import { CommentSection } from '../_components/CommentSection';
+import { MentionedProducts } from '../_components/MentionedProducts';
 import { buildAlternates } from '@/lib/seo/alternates';
 import { safeImageSrc } from '@/lib/images/safeSrc';
 import { extractExcerpt } from '@/lib/community/excerpt';
@@ -142,6 +143,13 @@ export default async function PostDetailPage({ params }: Props) {
           isAuthenticated={!!user}
           locale={locale}
         />
+
+        {/* Products mentioned (F#8) — server component, hidden if empty */}
+        {post.product_ids && post.product_ids.length > 0 && (
+          <div className="mt-10 md:mt-12">
+            <MentionedProducts productIds={post.product_ids} locale={locale} />
+          </div>
+        )}
 
         {/* Like action — breathing room, no border */}
         <div className="flex justify-center mt-10 md:mt-12">

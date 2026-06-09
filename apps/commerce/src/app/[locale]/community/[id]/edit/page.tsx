@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { getPost } from '@/lib/api/community/posts';
+import { getProductsByIds } from '@/lib/api/products';
 import { EditPostForm } from './_components/EditPostForm';
 
 type Props = {
@@ -39,6 +40,7 @@ export default async function EditPostPage({ params }: Props) {
   }
 
   const t = await getTranslations({ locale, namespace: 'community' });
+  const initialProducts = await getProductsByIds(post.product_ids ?? []);
 
   return (
     <div className="min-h-screen bg-[var(--color-neutral-50)]">
@@ -57,7 +59,12 @@ export default async function EditPostPage({ params }: Props) {
         </h1>
 
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[var(--color-border-subtle)]">
-          <EditPostForm post={post} locale={locale} userId={user.id} />
+          <EditPostForm
+            post={post}
+            locale={locale}
+            userId={user.id}
+            initialProducts={initialProducts}
+          />
         </div>
       </div>
     </div>
