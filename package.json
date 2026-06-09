@@ -8,8 +8,10 @@
   "scripts": {
     "dev:commerce": "npm -w apps/commerce run dev",
     "dev:admin": "npm -w apps/admin run dev",
+    "dev:server": "npm -w apps/server run dev",
     "build:commerce": "npm -w apps/commerce run build",
     "build:admin": "npm -w apps/admin run build",
+    "build:server": "npm -w apps/server run build",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",
