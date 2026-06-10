@@ -1,56 +1,57 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServiceClient } from '@/lib/supabase/service';
-import { getSession } from '@/lib/auth/session';
+import {
+  adminSetReviewStatus,
+  adminSetReviewBest,
+  adminSetReviewPointRewarded,
+} from '@/lib/api/reviews';
+import { ApiCallError } from '@/lib/api/client';
 import type { ReviewStatus } from '@commerce/types';
 
-// ─── Set review status (ACTIVE ↔ HIDDEN / DELETED) ───────────────────────────
+function mapError(e: unknown, fallback: string): Error {
+  if (e instanceof ApiCallError) {
+    const map: Record<string, string> = {
+      review_not_found: '리뷰를 찾을 수 없습니다.',
+      review_status_update_failed: '리뷰 상태 변경 실패',
+      review_best_update_failed: 'Best 설정 실패',
+      review_point_update_failed: '포인트 지급 상태 변경 실패',
+      unauthorized: '권한이 없습니다.',
+      forbidden: '권한이 없습니다.',
+    };
+    return new Error(map[e.code] ?? fallback);
+  }
+  return e instanceof Error ? e : new Error(fallback);
+}
 
 export async function setReviewStatus(id: string, status: ReviewStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('reviews') as any)
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq('id', id);
-  if (error) throw error;
-
+  try {
+    await adminSetReviewStatus(id, status);
+  } catch (e) {
+    throw mapError(e, '리뷰 상태 변경 실패');
+  }
   revalidatePath(`/reviews/${id}`);
   revalidatePath('/reviews');
 }
-
-// ─── Toggle best review flag ──────────────────────────────────────────────────
 
 export async function toggleReviewBest(id: string, isBest: boolean): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('reviews') as any)
-    .update({ is_best: isBest, updated_at: new Date().toISOString() })
-    .eq('id', id);
-  if (error) throw error;
-
+  try {
+    await adminSetReviewBest(id, isBest);
+  } catch (e) {
+    throw mapError(e, 'Best 설정 실패');
+  }
   revalidatePath(`/reviews/${id}`);
   revalidatePath('/reviews');
 }
 
-// ─── Toggle point rewarded flag ───────────────────────────────────────────────
-
-export async function setReviewPointRewarded(id: string, rewarded: boolean): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('reviews') as any)
-    .update({ point_rewarded: rewarded, updated_at: new Date().toISOString() })
-    .eq('id', id);
-  if (error) throw error;
-
+export async function setReviewPointRewarded(
+  id: string,
+  rewarded: boolean
+): Promise<void> {
+  try {
+    await adminSetReviewPointRewarded(id, rewarded);
+  } catch (e) {
+    throw mapError(e, '포인트 지급 상태 변경 실패');
+  }
   revalidatePath(`/reviews/${id}`);
 }
