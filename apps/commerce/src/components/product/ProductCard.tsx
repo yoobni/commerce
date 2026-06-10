@@ -89,8 +89,10 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Wishlist button — top:8 right:8, 28×28 circular surface-colored */}
-        <div className="absolute top-2 right-2">
+        {/* Wishlist button — top:8 right:8, 28×28 circular surface-colored.
+            z-10 forces this above the sibling Link/Image so clicks don't get
+            captured by the card-wide navigation link. */}
+        <div className="absolute top-2 right-2 z-10">
           <WishlistButton
             productId={product.id}
             productName={name}

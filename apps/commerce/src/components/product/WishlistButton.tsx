@@ -42,7 +42,11 @@ export function WishlistButton({
     }
   }, [productId, isAuthenticated]);
 
-  function handleToggle() {
+  function handleToggle(e: React.MouseEvent<HTMLButtonElement>) {
+    // ProductCard wraps the card in a navigation Link; without these guards
+    // the click can bubble up and trigger a navigation instead of the toggle.
+    e.preventDefault();
+    e.stopPropagation();
     if (isAuthenticated) {
       startTransition(async () => {
         try {
