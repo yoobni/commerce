@@ -59,22 +59,27 @@ export function WishlistButton({
     e.stopPropagation();
     if (authed) {
       startTransition(async () => {
-        try {
-          const next = await toggleWishlist(productId);
-          setIsWishlisted(next);
-          if (next) {
-            track('wishlist_add', {
-              product_id: productId,
-              product_name: productName,
-              price,
-              category,
-              source_page: sourcePage,
-            });
-          } else {
-            track('wishlist_remove', { product_id: productId });
+        const result = await toggleWishlist(productId);
+        if (!result.ok) {
+          if (result.reason === 'unauthorized') {
+            console.warn(
+              '[wishlist] click ignored — authed=true but no browser session token. ' +
+                'AuthProvider has a user but supabase.auth.getSession() returned no access_token.'
+            );
           }
-        } catch {
-          // Silent — heart icon stays unchanged.
+          return;
+        }
+        setIsWishlisted(result.is_wishlisted);
+        if (result.is_wishlisted) {
+          track('wishlist_add', {
+            product_id: productId,
+            product_name: productName,
+            price,
+            category,
+            source_page: sourcePage,
+          });
+        } else {
+          track('wishlist_remove', { product_id: productId });
         }
       });
     } else {

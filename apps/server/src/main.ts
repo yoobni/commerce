@@ -14,7 +14,15 @@ async function bootstrap() {
         : ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
-  app.use(helmet());
+  // helmet's default Cross-Origin-Resource-Policy=same-origin blocks browser
+  // fetches from web (4002) / admin (4003) origins even after CORS preflight
+  // succeeds. CORP is a separate enforcement layer from CORS; we relax it to
+  // cross-origin so credentialed XHR from approved origins can read responses.
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
 
   const config = app.get(ConfigService<AppConfig, true>);
   const port = config.get('port', { infer: true });
