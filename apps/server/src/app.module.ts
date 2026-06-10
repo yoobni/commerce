@@ -22,6 +22,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
 import { AdminProductsModule } from './admin/products/admin-products.module';
 import { AdminOrdersModule } from './admin/orders/admin-orders.module';
+import { AdminMembersModule } from './admin/members/admin-members.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AdminOrdersModule } from './admin/orders/admin-orders.module';
     AdminModule,
     AdminProductsModule,
     AdminOrdersModule,
+    AdminMembersModule,
   ],
   controllers: [AppController],
   providers: [

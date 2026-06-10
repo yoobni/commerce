@@ -1,22 +1,24 @@
 /**
- * Admin member (user) queries — uses service-role client (bypasses RLS).
+ * Admin member queries. Re-exports lib/api/members + UI labels/variants.
  */
 
-import type { User, UserStatus, AuthProvider, PaginatedResponse } from '@commerce/types';
-import { createServiceClient } from '@/lib/supabase/service';
+import type {
+  AuthProvider,
+  PaginatedResponse,
+  User,
+  UserStatus,
+} from '@commerce/types';
+import {
+  adminListMembers as apiListMembers,
+  adminGetMember as apiGetMember,
+  adminGetMemberOrders as apiGetMemberOrders,
+  type MemberRow as ApiMemberRow,
+  type MemberOrderRow as ApiMemberOrderRow,
+  type AdminListMembersParams,
+} from '@/lib/api/members';
 
-// ─── Extended types ───────────────────────────────────────────────────────────
-
-export interface MemberRow {
-  id: string;
-  email: string;
-  name: string;
-  provider: AuthProvider;
-  country: string;
-  status: UserStatus;
-  last_login_at: string | null;
-  created_at: string;
-}
+export type MemberRow = ApiMemberRow;
+export type { AdminListMembersParams };
 
 // ─── Status label & badge ─────────────────────────────────────────────────────
 
@@ -34,8 +36,6 @@ export const AUTH_PROVIDER_LABEL: Record<AuthProvider, string> = {
   naver: '네이버',
   twitter: 'Twitter/X',
 };
-
-/* ─── UI Badge variant 매핑 (어드민 페이지에서 사용) ───────────────── */
 
 export const MEMBER_STATUS_VARIANT: Record<
   UserStatus,
@@ -58,83 +58,21 @@ export const AUTH_PROVIDER_VARIANT: Record<
   twitter: 'info',
 };
 
-// ─── Params ───────────────────────────────────────────────────────────────────
-
-export interface AdminMemberListParams {
-  status?: UserStatus | 'ALL';
-  search?: string;
-  page?: number;
-  per_page?: number;
-}
-
-// ─── Member list ──────────────────────────────────────────────────────────────
+// ─── Re-exported queries ────────────────────────────────────────────────────
 
 export async function adminListMembers(
-  params: AdminMemberListParams = {}
+  params: AdminListMembersParams = {}
 ): Promise<PaginatedResponse<MemberRow>> {
-  const { status = 'ALL', search, page = 1, per_page = 20 } = params;
-  const supabase = createServiceClient();
-  const offset = (page - 1) * per_page;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase.from('users') as any).select(
-    'id, email, name, provider, country, status, last_login_at, created_at',
-    { count: 'exact' }
-  );
-
-  if (status !== 'ALL') query = query.eq('status', status);
-  if (search) query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
-
-  query = query.order('created_at', { ascending: false }).range(offset, offset + per_page - 1);
-
-  const { data, count, error } = await query;
-  if (error) throw error;
-
-  return {
-    data: (data ?? []) as MemberRow[],
-    total: count ?? 0,
-    page,
-    per_page,
-    has_next: offset + per_page < (count ?? 0),
-  };
+  return apiListMembers(params);
 }
-
-// ─── Member detail ────────────────────────────────────────────────────────────
 
 export async function adminGetMember(memberId: string): Promise<User | null> {
-  const supabase = createServiceClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from('users') as any)
-    .select('*')
-    .eq('id', memberId)
-    .single();
-
-  if (error || !data) return null;
-  return data as User;
+  return apiGetMember(memberId);
 }
-
-// ─── Member order history ─────────────────────────────────────────────────────
 
 export async function adminGetMemberOrders(
   userId: string,
   limit = 5
-): Promise<
-  Array<{
-    id: string;
-    order_number: string;
-    total_amount: number;
-    status: string;
-    ordered_at: string;
-  }>
-> {
-  const supabase = createServiceClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from('orders') as any)
-    .select('id, order_number, total_amount, status, ordered_at')
-    .eq('user_id', userId)
-    .order('ordered_at', { ascending: false })
-    .limit(limit);
-
-  if (error) return [];
-  return data ?? [];
+): Promise<ApiMemberOrderRow[]> {
+  return apiGetMemberOrders(userId, limit);
 }
