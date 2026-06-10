@@ -12,14 +12,17 @@
     "test": "jest"
   },
   "dependencies": {
-    "@commerce/types": "*",
     "@commerce/shared": "*",
+    "@commerce/types": "*",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@supabase/supabase-js": "^2.49.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
     "helmet": "^8.0.0",
+    "jose": "^5.10.0",
     "nestjs-zod": "^4.3.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
