@@ -21,6 +21,7 @@ import { AccountModule } from './account/account.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
 import { AdminProductsModule } from './admin/products/admin-products.module';
+import { AdminOrdersModule } from './admin/orders/admin-orders.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AdminProductsModule } from './admin/products/admin-products.module';
     PaymentsModule,
     AdminModule,
     AdminProductsModule,
+    AdminOrdersModule,
   ],
   controllers: [AppController],
   providers: [
