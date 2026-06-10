@@ -23,6 +23,7 @@ import { AdminModule } from './admin/admin.module';
 import { AdminProductsModule } from './admin/products/admin-products.module';
 import { AdminOrdersModule } from './admin/orders/admin-orders.module';
 import { AdminMembersModule } from './admin/members/admin-members.module';
+import { AdminCouponsModule } from './admin/coupons/admin-coupons.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AdminMembersModule } from './admin/members/admin-members.module';
     AdminProductsModule,
     AdminOrdersModule,
     AdminMembersModule,
+    AdminCouponsModule,
   ],
   controllers: [AppController],
   providers: [
