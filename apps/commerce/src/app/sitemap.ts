@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
-import { createClient } from '@/lib/supabase/server';
+import { listProducts } from '@/lib/api/products';
+import { listPosts } from '@/lib/api/community/posts';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:4002';
 
@@ -9,6 +10,10 @@ const STATIC_PATHS: { path: string; priority: number; changeFrequency: MetadataR
   { path: '/products', priority: 0.9, changeFrequency: 'daily' },
   { path: '/community', priority: 0.7, changeFrequency: 'daily' },
 ];
+
+// Sitemap cap — same as the previous direct-Supabase implementation. Build-
+// time fetch only, so a single per_page=5000 call is cheaper than paging.
+const SITEMAP_CAP = 5000;
 
 function alternateLanguages(path: string): Record<string, string> {
   const map: Record<string, string> = {};
@@ -19,38 +24,19 @@ function alternateLanguages(path: string): Record<string, string> {
   return map;
 }
 
-async function getActiveProductSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
+async function getActiveProducts(): Promise<{ slug: string; updatedAt: string }[]> {
   try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('products') as any)
-      .select('slug, updated_at')
-      .eq('status', 'ACTIVE')
-      .order('updated_at', { ascending: false })
-      .limit(5000);
-    if (error || !data) return [];
-    return (data as { slug: string; updated_at: string }[]).map((p) => ({
-      slug: p.slug,
-      updatedAt: p.updated_at,
-    }));
+    const result = await listProducts({ status: 'ACTIVE', per_page: SITEMAP_CAP, sort: 'newest' });
+    return result.data.map((p) => ({ slug: p.slug, updatedAt: p.updated_at }));
   } catch {
     return [];
   }
 }
 
-async function getActivePosts(): Promise<
-  { shortId: string; slug: string; updatedAt: string }[]
-> {
+async function getActivePosts(): Promise<{ shortId: string; slug: string; updatedAt: string }[]> {
   try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('posts') as any)
-      .select('short_id, slug, updated_at')
-      .eq('status', 'ACTIVE')
-      .order('updated_at', { ascending: false })
-      .limit(5000);
-    if (error || !data) return [];
-    return (data as { short_id: string; slug: string; updated_at: string }[]).map((p) => ({
+    const result = await listPosts({ per_page: SITEMAP_CAP, sort: 'newest' });
+    return result.data.map((p) => ({
       shortId: p.short_id,
       slug: p.slug,
       updatedAt: p.updated_at,
@@ -62,7 +48,7 @@ async function getActivePosts(): Promise<
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [products, posts] = await Promise.all([getActiveProductSlugs(), getActivePosts()]);
+  const [products, posts] = await Promise.all([getActiveProducts(), getActivePosts()]);
 
   const entries: MetadataRoute.Sitemap = [];
 

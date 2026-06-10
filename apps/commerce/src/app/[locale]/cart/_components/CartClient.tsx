@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import { getGuestCart, removeFromGuestCart } from '@/lib/cart/guest';
 import { updateCartItemQuantity, removeCartItem } from '@/lib/api/cart-client';
-import { createClient } from '@/lib/supabase/client';
+import { getOptionsByIds } from '@/lib/api/product-options';
 import type { CartDisplay, CartItemDisplay } from '@/lib/api/cart';
 import type { Locale } from '@/i18n/routing';
 import { CartItemRow } from './CartItemRow';
@@ -67,86 +67,47 @@ export function CartClient({ locale, initialCart, isAuthenticated }: CartClientP
       }
 
       const optionIds = guestCart.items.map((i) => i.option_id);
-      const supabase = createClient();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: rawOptions } = await (supabase as any)
-        .from('product_options')
-        .select(
-          `
-          id,
-          color,
-          color_hex,
-          sku,
-          additional_price_krw,
-          additional_price_usd,
-          additional_price_jpy,
-          additional_price_eur,
-          stock,
-          low_stock_threshold,
-          sizes ( label ),
-          products!inner (
-            id,
-            slug,
-            name_ko,
-            name_en,
-            name_ja,
-            name_de,
-            base_price_krw,
-            base_price_usd,
-            base_price_jpy,
-            base_price_eur,
-            thumbnail_url
-          )
-        `
-        )
-        .in('id', optionIds);
-
-      if (!rawOptions) {
+      let options;
+      try {
+        options = await getOptionsByIds(optionIds);
+      } catch {
         setGuestLoading(false);
         return;
       }
 
-      const displayItems: CartItemDisplay[] = (rawOptions as Record<string, unknown>[]).flatMap(
-        (opt) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const o = opt as any;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const prod = o.products as any;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const size = o.sizes as any;
-          const guestItem = guestCart.items.find((g) => g.option_id === o.id);
-          if (!guestItem) return [];
-          return [
-            {
-              id: o.id as string, // use option_id as display id for guest
-              quantity: guestItem.quantity,
-              product_option_id: o.id as string,
-              color: o.color as string,
-              color_hex: (o.color_hex as string | null) ?? null,
-              size_label: (size?.label as string | null) ?? null,
-              sku: o.sku as string,
-              stock: o.stock as number,
-              low_stock_threshold: o.low_stock_threshold as number,
-              additional_price_krw: o.additional_price_krw as number,
-              additional_price_usd: o.additional_price_usd as number,
-              additional_price_jpy: o.additional_price_jpy as number,
-              additional_price_eur: o.additional_price_eur as number,
-              product_id: prod.id as string,
-              product_slug: prod.slug as string,
-              product_name_ko: prod.name_ko as string,
-              product_name_en: prod.name_en as string,
-              product_name_ja: prod.name_ja as string,
-              product_name_de: prod.name_de as string,
-              product_base_price_krw: prod.base_price_krw as number,
-              product_base_price_usd: prod.base_price_usd as number,
-              product_base_price_jpy: prod.base_price_jpy as number,
-              product_base_price_eur: prod.base_price_eur as number,
-              product_thumbnail_url: prod.thumbnail_url as string,
-            },
-          ];
-        }
-      );
+      const displayItems: CartItemDisplay[] = options.flatMap((opt) => {
+        const guestItem = guestCart.items.find((g) => g.option_id === opt.id);
+        if (!guestItem) return [];
+        return [
+          {
+            id: opt.id, // use option_id as display id for guest
+            quantity: guestItem.quantity,
+            product_option_id: opt.id,
+            color: opt.color,
+            color_hex: opt.color_hex,
+            size_label: opt.size_label,
+            sku: opt.sku,
+            stock: opt.stock,
+            low_stock_threshold: opt.low_stock_threshold,
+            additional_price_krw: opt.additional_price_krw,
+            additional_price_usd: opt.additional_price_usd,
+            additional_price_jpy: opt.additional_price_jpy,
+            additional_price_eur: opt.additional_price_eur,
+            product_id: opt.product.id,
+            product_slug: opt.product.slug,
+            product_name_ko: opt.product.name_ko,
+            product_name_en: opt.product.name_en,
+            product_name_ja: opt.product.name_ja,
+            product_name_de: opt.product.name_de,
+            product_base_price_krw: opt.product.base_price_krw,
+            product_base_price_usd: opt.product.base_price_usd,
+            product_base_price_jpy: opt.product.base_price_jpy,
+            product_base_price_eur: opt.product.base_price_eur,
+            product_thumbnail_url: opt.product.thumbnail_url,
+          },
+        ];
+      });
 
       setItems(displayItems);
       setGuestLoading(false);

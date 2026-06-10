@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { useTrack } from '@/hooks/useTrack';
 import { toggleWishlist, checkWishlist } from '@/lib/api/wishlist-client';
 import { toggleGuestWishlist, isGuestWishlisted } from '@/lib/wishlist/guest';
+import { useAuth } from '@/components/providers/AuthProvider';
 import type { Locale } from '@commerce/types';
 
 interface WishlistButtonProps {
@@ -14,6 +15,8 @@ interface WishlistButtonProps {
   price: number;
   category: string;
   locale: Locale;
+  /** SSR-time auth hint. Used only before client AuthProvider hydrates;
+      once hydrated the client session is the source of truth. */
   isAuthenticated: boolean;
   sourcePage?: 'list' | 'detail' | 'community';
   className?: string;
@@ -30,24 +33,31 @@ export function WishlistButton({
 }: WishlistButtonProps) {
   const t = useTranslations('product');
   const track = useTrack();
+  const { user, loading: authLoading } = useAuth();
   const [isPending, startTransition] = useTransition();
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Initialize wishlist state
+  // Server-side getUser() in PLP/PDP can return null even when the browser
+  // session is alive (cookie refresh timing, expired access token, etc.).
+  // Trust the client session once AuthProvider has hydrated; fall back to
+  // the SSR prop only during the initial paint.
+  const authed = authLoading ? isAuthenticated : user != null;
+
   useEffect(() => {
-    if (isAuthenticated) {
+    if (authLoading) return;
+    if (authed) {
       checkWishlist(productId).then((w) => setIsWishlisted(w)).catch(() => {});
     } else {
       setIsWishlisted(isGuestWishlisted(productId));
     }
-  }, [productId, isAuthenticated]);
+  }, [productId, authed, authLoading]);
 
   function handleToggle(e: React.MouseEvent<HTMLButtonElement>) {
     // ProductCard wraps the card in a navigation Link; without these guards
     // the click can bubble up and trigger a navigation instead of the toggle.
     e.preventDefault();
     e.stopPropagation();
-    if (isAuthenticated) {
+    if (authed) {
       startTransition(async () => {
         try {
           const next = await toggleWishlist(productId);
