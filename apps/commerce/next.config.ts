@@ -7,13 +7,18 @@ const STATIC_IMMUTABLE = 'public, max-age=31536000, immutable';
 const NO_STORE = 'no-store, must-revalidate';
 const isProd = process.env.NODE_ENV === 'production';
 
+// Backend API origin — must be whitelisted in CSP connect-src so the browser
+// can fetch from @commerce/server. Read at build time from NEXT_PUBLIC_API_URL
+// (falls back to the local dev port).
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4005';
+
 const CSP = [
   "default-src 'self'",
   "img-src 'self' https: data: blob:",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
   "font-src 'self' data: https://cdn.jsdelivr.net",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  `connect-src 'self' ${API_ORIGIN} https://*.supabase.co wss://*.supabase.co`,
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
