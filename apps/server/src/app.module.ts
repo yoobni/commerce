@@ -24,6 +24,7 @@ import { AdminProductsModule } from './admin/products/admin-products.module';
 import { AdminOrdersModule } from './admin/orders/admin-orders.module';
 import { AdminMembersModule } from './admin/members/admin-members.module';
 import { AdminCouponsModule } from './admin/coupons/admin-coupons.module';
+import { AdminCommunityModule } from './admin/community/admin-community.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { AdminCouponsModule } from './admin/coupons/admin-coupons.module';
     AdminOrdersModule,
     AdminMembersModule,
     AdminCouponsModule,
+    AdminCommunityModule,
   ],
   controllers: [AppController],
   providers: [
