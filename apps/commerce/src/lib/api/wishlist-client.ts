@@ -13,12 +13,12 @@ async function browserToken(): Promise<string | undefined> {
       error,
     } = await supabase.auth.getSession();
     if (error) {
-      console.error('[wishlist] supabase.auth.getSession error:', error);
+      console.warn('[wishlist] supabase.auth.getSession error:', error);
       return undefined;
     }
     return session?.access_token;
   } catch (e) {
-    console.error('[wishlist] browserToken threw:', e);
+    console.warn('[wishlist] browserToken threw:', e);
     return undefined;
   }
 }
@@ -37,7 +37,7 @@ export async function checkWishlist(productId: string): Promise<boolean> {
     );
     return res.is_wishlisted;
   } catch (e) {
-    console.error('[wishlist] checkWishlist failed:', e);
+    console.warn('[wishlist] checkWishlist failed:', e);
     return false;
   }
 }
@@ -55,7 +55,7 @@ export async function toggleWishlist(productId: string): Promise<ToggleResult> {
     });
     return { ok: true, is_wishlisted: res.is_wishlisted };
   } catch (e) {
-    console.error('[wishlist] toggleWishlist failed:', e);
+    console.warn('[wishlist] toggleWishlist failed:', e);
     return { ok: false, reason: 'network', error: e };
   }
 }
