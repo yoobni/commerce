@@ -58,18 +58,29 @@ export function WishlistButton({
     e.preventDefault();
     e.stopPropagation();
     if (authed) {
+      // Optimistic — flip the heart immediately so the click feels instant.
+      // The server round-trip happens in the background; revert only on
+      // failure. Toggles are idempotent server-side, so a quick double-click
+      // can't desync.
+      const previous = isWishlisted;
+      const optimistic = !previous;
+      setIsWishlisted(optimistic);
+
       startTransition(async () => {
         const result = await toggleWishlist(productId);
         if (!result.ok) {
+          setIsWishlisted(previous);
           if (result.reason === 'unauthorized') {
             console.warn(
-              '[wishlist] click ignored — authed=true but no browser session token. ' +
-                'AuthProvider has a user but supabase.auth.getSession() returned no access_token.'
+              '[wishlist] click ignored — authed=true but no browser session token.'
             );
           }
           return;
         }
-        setIsWishlisted(result.is_wishlisted);
+        // Sync with authoritative server value (almost always === optimistic).
+        if (result.is_wishlisted !== optimistic) {
+          setIsWishlisted(result.is_wishlisted);
+        }
         if (result.is_wishlisted) {
           track('wishlist_add', {
             product_id: productId,
