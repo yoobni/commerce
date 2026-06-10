@@ -20,6 +20,7 @@ import { PointsModule } from './points/points.module';
 import { AccountModule } from './account/account.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
+import { AdminProductsModule } from './admin/products/admin-products.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AdminModule } from './admin/admin.module';
     AccountModule,
     PaymentsModule,
     AdminModule,
+    AdminProductsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -3,63 +3,26 @@
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/service';
 import { getSession } from '@/lib/auth/session';
+import {
+  adminSaveProduct,
+  adminUpdateProductStatus,
+  adminDeleteProduct,
+  adminSaveCategory,
+  adminDeleteCategory,
+  type SaveProductInput,
+  type SaveOptionInput,
+  type CategoryInput,
+} from '@/lib/api/products';
+import { ApiCallError } from '@/lib/api/client';
 import type { ProductStatus } from '@commerce/types';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Re-export the input shapes so existing callers (ProductForm, CategoryManager,
+// etc.) keep importing types from this module path.
+export type { SaveProductInput, SaveOptionInput, CategoryInput };
 
-export interface SaveOptionInput {
-  id?: string;
-  toDelete?: boolean;
-  size_id: string;
-  color: string;
-  color_hex: string | null;
-  sku: string;
-  additional_price_krw: number;
-  additional_price_usd: number;
-  additional_price_jpy: number;
-  additional_price_eur: number;
-  stock: number;
-  low_stock_threshold: number;
-  is_active: boolean;
-}
-
-export interface SaveProductInput {
-  category_id: string;
-  slug: string;
-  name_ko: string;
-  name_en: string;
-  name_ja: string;
-  name_de: string;
-  description_ko: string;
-  description_en: string;
-  description_ja: string;
-  description_de: string;
-  base_price_krw: number;
-  base_price_usd: number;
-  base_price_jpy: number;
-  base_price_eur: number;
-  material: string | null;
-  care_instruction: string | null;
-  weight_g: number | null;
-  thumbnail_url: string;
-  images: string[];
-  status: ProductStatus;
-  is_featured: boolean;
-}
-
-export interface CategoryInput {
-  parent_id: string | null;
-  slug: string;
-  name_ko: string;
-  name_en: string;
-  name_ja: string;
-  name_de: string;
-  sort_order: number;
-  is_active: boolean;
-}
-
-// ─── Image upload ─────────────────────────────────────────────────────────────
-// Requires a public Supabase Storage bucket named "product-images".
+// ─── Image upload (Storage 그대로 유지) ──────────────────────────────────────
+// product-images 버킷 업로드는 BaaS Storage 패턴이라 backend endpoint 로
+// 옮기지 않고 admin server-side 에서 service client 로 직접 호출.
 
 export async function uploadProductImage(formData: FormData): Promise<string> {
   const session = await getSession();
@@ -86,6 +49,31 @@ export async function uploadProductImage(formData: FormData): Promise<string> {
   return data.publicUrl;
 }
 
+// ─── Error mapping (server error code → 한국어 메시지) ──────────────────────
+
+function mapError(e: unknown, fallback: string): Error {
+  if (e instanceof ApiCallError) {
+    const map: Record<string, string> = {
+      product_create_failed: '상품 등록 실패',
+      product_update_failed: '상품 수정 실패',
+      product_delete_failed: '상품 삭제 실패',
+      option_delete_failed: '옵션 삭제 실패',
+      option_update_failed: '옵션 수정 실패',
+      option_insert_failed: '옵션 추가 실패',
+      status_update_failed: '상태 변경 실패',
+      category_create_failed: '카테고리 생성 실패',
+      category_update_failed: '카테고리 수정 실패',
+      category_delete_failed: '카테고리 삭제 실패',
+      category_in_use: '해당 카테고리를 사용 중인 상품이 있어 삭제할 수 없습니다.',
+      product_not_found: '상품을 찾을 수 없습니다.',
+      unauthorized: '권한이 없습니다.',
+      forbidden: '권한이 없습니다.',
+    };
+    return new Error(map[e.code] ?? fallback);
+  }
+  return e instanceof Error ? e : new Error(fallback);
+}
+
 // ─── Save product (create or update) ─────────────────────────────────────────
 
 export async function saveProduct(
@@ -93,129 +81,41 @@ export async function saveProduct(
   input: SaveProductInput,
   options: SaveOptionInput[]
 ): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-  const now = new Date().toISOString();
-
-  let id = productId;
-
-  if (!productId) {
-    // Create
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('products') as any)
-      .insert({
-        ...input,
-        view_count: 0,
-        review_count: 0,
-        review_avg_rating: 0,
-        published_at: input.status === 'ACTIVE' ? now : null,
-        created_at: now,
-        updated_at: now,
-      })
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error('[saveProduct/create]', error);
-      throw new Error('상품 등록 실패');
-    }
-    id = data.id as string;
-  } else {
-    // Update
-    const patch: Record<string, unknown> = { ...input, updated_at: now };
-    if (input.status === 'ACTIVE') patch.published_at = now;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
-
-    if (error) {
-      console.error('[saveProduct/update]', error);
-      throw new Error('상품 수정 실패');
-    }
+  let id: string;
+  try {
+    id = await adminSaveProduct(productId, input, options);
+  } catch (e) {
+    throw mapError(e, '상품 저장 실패');
   }
-
-  const finalId = id!;
-
-  // Batch options
-  const toDelete = options.filter((o) => o.toDelete && o.id).map((o) => o.id!);
-  const toUpsert = options.filter((o) => !o.toDelete);
-
-  if (toDelete.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('product_options') as any).delete().in('id', toDelete);
-    if (error) {
-      console.error('[saveProduct/option-delete]', error);
-      throw new Error('옵션 삭제 실패');
-    }
-  }
-
-  for (const opt of toUpsert) {
-    const row = {
-      product_id: finalId,
-      size_id: opt.size_id,
-      color: opt.color,
-      color_hex: opt.color_hex,
-      sku: opt.sku,
-      additional_price_krw: opt.additional_price_krw,
-      additional_price_usd: opt.additional_price_usd,
-      additional_price_jpy: opt.additional_price_jpy,
-      additional_price_eur: opt.additional_price_eur,
-      stock: opt.stock,
-      low_stock_threshold: opt.low_stock_threshold,
-      is_active: opt.is_active,
-      updated_at: now,
-    };
-
-    if (opt.id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from('product_options') as any)
-        .update(row)
-        .eq('id', opt.id);
-      if (error) {
-        console.error('[saveProduct/option-update]', error);
-        throw new Error('옵션 수정 실패');
-      }
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from('product_options') as any).insert({
-        ...row,
-        created_at: now,
-      });
-      if (error) {
-        console.error('[saveProduct/option-insert]', error);
-        throw new Error('옵션 추가 실패');
-      }
-    }
-  }
-
   revalidatePath('/products');
-  revalidatePath(`/products/${finalId}`);
-  return finalId;
+  revalidatePath(`/products/${id}`);
+  return id;
 }
 
 // ─── Update product status (quick action) ────────────────────────────────────
 
-export async function updateProductStatus(productId: string, status: ProductStatus): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-  const now = new Date().toISOString();
-  const patch: Record<string, unknown> = { status, updated_at: now };
-  if (status === 'ACTIVE') patch.published_at = now;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('products') as any).update(patch).eq('id', productId);
-
-  if (error) {
-    console.error('[setProductStatus]', error);
-    throw new Error('상태 변경 실패');
+export async function updateProductStatus(
+  productId: string,
+  status: ProductStatus
+): Promise<void> {
+  try {
+    await adminUpdateProductStatus(productId, status);
+  } catch (e) {
+    throw mapError(e, '상태 변경 실패');
   }
-
   revalidatePath('/products');
   revalidatePath(`/products/${productId}`);
+}
+
+// ─── Delete product ───────────────────────────────────────────────────────────
+
+export async function deleteProduct(productId: string): Promise<void> {
+  try {
+    await adminDeleteProduct(productId);
+  } catch (e) {
+    throw mapError(e, '상품 삭제 실패');
+  }
+  revalidatePath('/products');
 }
 
 // ─── Category CRUD ────────────────────────────────────────────────────────────
@@ -224,78 +124,21 @@ export async function saveCategory(
   categoryId: string | null,
   input: CategoryInput
 ): Promise<string> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-
-  if (!categoryId) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('categories') as any)
-      .insert({ ...input, created_at: new Date().toISOString() })
-      .select('id')
-      .single();
-    if (error) {
-      console.error('[saveCategory/create]', error);
-      throw new Error('카테고리 생성 실패');
-    }
-    revalidatePath('/products/categories');
-    return data.id as string;
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('categories') as any).update(input).eq('id', categoryId);
-    if (error) {
-      console.error('[saveCategory/update]', error);
-      throw new Error('카테고리 수정 실패');
-    }
-    revalidatePath('/products/categories');
-    return categoryId;
+  let id: string;
+  try {
+    id = await adminSaveCategory(categoryId, input);
+  } catch (e) {
+    throw mapError(e, '카테고리 저장 실패');
   }
+  revalidatePath('/products/categories');
+  return id;
 }
-
-// ─── Delete product ───────────────────────────────────────────────────────────
-
-export async function deleteProduct(productId: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('products') as any).delete().eq('id', productId);
-
-  if (error) {
-    console.error('[deleteProduct]', error);
-    throw new Error('상품 삭제 실패');
-  }
-
-  revalidatePath('/products');
-}
-
-// ─── Category CRUD ────────────────────────────────────────────────────────────
 
 export async function deleteCategory(categoryId: string): Promise<void> {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const supabase = createServiceClient();
-
-  // Guard: check products using this category
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count } = await (supabase.from('products') as any)
-    .select('id', { count: 'exact', head: true })
-    .eq('category_id', categoryId);
-
-  if ((count ?? 0) > 0) {
-    throw new Error('해당 카테고리를 사용 중인 상품이 있어 삭제할 수 없습니다.');
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase.from('categories') as any).delete().eq('id', categoryId);
-
-  if (error) {
-    console.error('[deleteCategory]', error);
-    throw new Error('카테고리 삭제 실패');
+  try {
+    await adminDeleteCategory(categoryId);
+  } catch (e) {
+    throw mapError(e, '카테고리 삭제 실패');
   }
   revalidatePath('/products/categories');
 }
