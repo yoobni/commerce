@@ -20,6 +20,7 @@ import { SupabaseAuthGuard } from '../common/guards/supabase-auth.guard';
 import {
   AddressIdParamSchema,
   CreateAddressBodySchema,
+  HoundProfileBodySchema,
   UpdateAddressBodySchema,
   UpdateProfileBodySchema,
 } from './account.schemas';
@@ -130,5 +131,25 @@ export class AccountController {
   ) {
     await this.account.setDefaultAddress(req.user!.id, params.id);
     return { id: params.id, is_default: true };
+  }
+
+  // ── Hound profile ──
+  //   GET  /account/me/hound-profile   현재 프로필 (없으면 null)
+  //   POST /account/me/hound-profile   upsert (onboarding 완료 또는 수정)
+
+  @Get('hound-profile')
+  async getHoundProfile(@Req() req: Request) {
+    const profile = await this.account.getHoundProfile(req.user!.id);
+    return profile;
+  }
+
+  @Post('hound-profile')
+  async saveHoundProfile(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(HoundProfileBodySchema))
+    body: typeof HoundProfileBodySchema._output
+  ) {
+    await this.account.upsertHoundProfile(req.user!.id, body);
+    return body;
   }
 }

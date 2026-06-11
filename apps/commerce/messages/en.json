@@ -4,6 +4,44 @@
     "title": "RAVI — Premium Large Dog Apparel",
     "description": "Thoughtfully designed apparel for large dogs. Premium quality, perfect fit."
   },
+  "onboarding": {
+    "title": "Hound profile",
+    "subtitle": "We'll recommend a fit that matches your hound's build.",
+    "step": "STEP {current} / {total}",
+    "skip": "Skip",
+    "back": "Back",
+    "continue": "Continue",
+    "submit": "Done",
+    "step1": {
+      "title": "Who are we styling?",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Hana",
+      "breedLabel": "Breed (optional)",
+      "breedPlaceholder": "e.g. Golden Retriever"
+    },
+    "step2": {
+      "title": "What's their build?",
+      "Sporty": "Sporty",
+      "SportyDesc": "Lean, long-legged",
+      "Sturdy": "Sturdy",
+      "SturdyDesc": "Broad chest, solid",
+      "Slim": "Slim",
+      "SlimDesc": "Narrow, tall",
+      "Cloud": "Cloud",
+      "CloudDesc": "Fluffy, double coat"
+    },
+    "step3": {
+      "title": "How much do they weigh?",
+      "weightLabel": "Weight",
+      "recommendedSize": "Recommended size"
+    },
+    "setupCta": "Set up your hound's profile →",
+    "savedTitle": "Profile saved",
+    "savedSubtitle": "Browse with your recommended size.",
+    "errorTitle": "Could not save",
+    "errorSubtitle": "Please try again in a moment.",
+    "authRequired": "Please log in first."
+  },
   "home": {
     "headline": "Made for the Big Ones",
     "headlineRich": "Outfitters for the <em>larger</em> hound.",

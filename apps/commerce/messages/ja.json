@@ -4,6 +4,44 @@
     "title": "RAVI — 大型犬プレミアムウェア",
     "description": "大型犬のために丁寧にデザインされたウェア。プレミアム品質、完璧なフィット。"
   },
+  "onboarding": {
+    "title": "愛犬プロフィール",
+    "subtitle": "体型に合うフィットをおすすめします。",
+    "step": "STEP {current} / {total}",
+    "skip": "スキップ",
+    "back": "戻る",
+    "continue": "次へ",
+    "submit": "完了",
+    "step1": {
+      "title": "どの子のお洋服を選びますか?",
+      "nameLabel": "名前",
+      "namePlaceholder": "例: ハナ",
+      "breedLabel": "犬種 (任意)",
+      "breedPlaceholder": "例: ゴールデンレトリバー"
+    },
+    "step2": {
+      "title": "体型はどうですか?",
+      "Sporty": "スポーティ",
+      "SportyDesc": "細身で脚が長い",
+      "Sturdy": "スターディ",
+      "SturdyDesc": "胸幅広めでがっしり",
+      "Slim": "スリム",
+      "SlimDesc": "細身で背が高い",
+      "Cloud": "クラウド",
+      "CloudDesc": "ふわふわダブルコート"
+    },
+    "step3": {
+      "title": "体重は何キロですか?",
+      "weightLabel": "体重",
+      "recommendedSize": "おすすめサイズ"
+    },
+    "setupCta": "愛犬プロフィールを設定する →",
+    "savedTitle": "プロフィールを保存しました",
+    "savedSubtitle": "おすすめサイズでお買い物できます。",
+    "errorTitle": "保存に失敗しました",
+    "errorSubtitle": "しばらくしてからもう一度お試しください。",
+    "authRequired": "ログインしてください。"
+  },
   "home": {
     "headline": "大きな子たちのために",
     "headlineRich": "<em>大きな子</em>たちのための一着。",

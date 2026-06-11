@@ -4,6 +4,44 @@
     "title": "RAVI — Premium-Kleidung für große Hunde",
     "description": "Sorgfältig gestaltete Kleidung für große Hunde. Premiumqualität, perfekter Sitz."
   },
+  "onboarding": {
+    "title": "Hundeprofil",
+    "subtitle": "Wir empfehlen die passende Passform für deinen Hund.",
+    "step": "SCHRITT {current} / {total}",
+    "skip": "Überspringen",
+    "back": "Zurück",
+    "continue": "Weiter",
+    "submit": "Fertig",
+    "step1": {
+      "title": "Für wen wählen wir aus?",
+      "nameLabel": "Name",
+      "namePlaceholder": "z. B. Hana",
+      "breedLabel": "Rasse (optional)",
+      "breedPlaceholder": "z. B. Golden Retriever"
+    },
+    "step2": {
+      "title": "Welche Statur hat dein Hund?",
+      "Sporty": "Sportlich",
+      "SportyDesc": "Schlank, langbeinig",
+      "Sturdy": "Kräftig",
+      "SturdyDesc": "Breite Brust, stabil",
+      "Slim": "Schlank",
+      "SlimDesc": "Schmal, hochgewachsen",
+      "Cloud": "Wolke",
+      "CloudDesc": "Flauschig, doppeltes Fell"
+    },
+    "step3": {
+      "title": "Wie viel wiegt dein Hund?",
+      "weightLabel": "Gewicht",
+      "recommendedSize": "Empfohlene Größe"
+    },
+    "setupCta": "Hundeprofil einrichten →",
+    "savedTitle": "Profil gespeichert",
+    "savedSubtitle": "Browse jetzt mit deiner empfohlenen Größe.",
+    "errorTitle": "Speichern fehlgeschlagen",
+    "errorSubtitle": "Bitte versuche es gleich noch einmal.",
+    "authRequired": "Bitte melde dich an."
+  },
   "home": {
     "headline": "Für die Großen",
     "headlineRich": "Mode für den <em>größeren</em> Hund.",

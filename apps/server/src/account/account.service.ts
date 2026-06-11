@@ -148,4 +148,24 @@ export class AccountService {
       .eq('user_id', userId);
     if (error) throw error;
   }
+
+  // ── Hound profile ────────────────────────────────────────────────────────
+  // Stored on users.hound_profile (jsonb). Single row 1:1 with the user.
+
+  async getHoundProfile(userId: string): Promise<unknown> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (this.supabase.from('users') as any)
+      .select('hound_profile')
+      .eq('id', userId)
+      .maybeSingle();
+    return (data as { hound_profile: unknown } | null)?.hound_profile ?? null;
+  }
+
+  async upsertHoundProfile(userId: string, profile: Record<string, unknown>): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (this.supabase.from('users') as any)
+      .update({ hound_profile: profile, updated_at: new Date().toISOString() })
+      .eq('id', userId);
+    if (error) throw error;
+  }
 }

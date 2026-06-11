@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { Link } from '@/i18n/navigation';
 
@@ -42,6 +43,8 @@ export function FitForHanaCard({
   setupHref = '/onboarding',
   className,
 }: FitForHanaCardProps) {
+  const t = useTranslations('onboarding');
+
   // ── Fallback: onboarding not completed ────────────────────────────────────
   if (!profile) {
     return (
@@ -59,7 +62,7 @@ export function FitForHanaCard({
           <PawPlaceholder />
         </div>
         <span className="text-[13px] text-[var(--mz-ink-mute)] flex-1 font-medium">
-          Set up your hound&apos;s profile →
+          {t('setupCta')}
         </span>
       </Link>
     );
