@@ -21,6 +21,8 @@ interface ProductCardProps {
   product: Product;
   locale: Locale;
   isAuthenticated: boolean;
+  /** SSR-resolved wishlist state (from bulk lookup). Forwarded to WishlistButton. */
+  initialIsWishlisted?: boolean;
   priority?: boolean;
   className?: string;
   /** Hound's recommended size from Fit-for-Hana profile — shows ★ FIT badge */
@@ -31,6 +33,7 @@ export function ProductCard({
   product,
   locale,
   isAuthenticated,
+  initialIsWishlisted,
   priority = false,
   className,
   fitSize = null,
@@ -115,6 +118,7 @@ export function ProductCard({
             category={product.category_id}
             locale={locale}
             isAuthenticated={isAuthenticated}
+            initialIsWishlisted={initialIsWishlisted}
             className="w-7 h-7 shadow-sm rounded-full bg-[var(--mz-surface)]"
           />
         </div>

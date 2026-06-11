@@ -68,6 +68,7 @@ export default async function WishlistPage({ params }: Props) {
               product={item.product}
               locale={locale as Locale}
               isAuthenticated={true}
+              initialIsWishlisted={true}
             />
           ))}
         </div>

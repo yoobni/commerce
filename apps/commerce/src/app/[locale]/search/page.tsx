@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { listProducts } from '@/lib/api/products';
+import { getWishlistedIds } from '@/lib/api/wishlist';
 import { Container } from '@/components/layout/Container';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
@@ -54,6 +55,10 @@ export default async function SearchPage({ params, searchParams }: Props) {
     page: currentPage,
     per_page: PER_PAGE,
   });
+
+  const wishlistedIds = user
+    ? await getWishlistedIds(result.data.map((p) => p.id))
+    : new Set<string>();
 
   const totalPages = Math.ceil(result.total / PER_PAGE);
 
@@ -126,6 +131,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
                     product={product}
                     locale={locale as Locale}
                     isAuthenticated={!!user}
+                    initialIsWishlisted={user ? wishlistedIds.has(product.id) : undefined}
                     priority={i < 4}
                   />
                 ))}

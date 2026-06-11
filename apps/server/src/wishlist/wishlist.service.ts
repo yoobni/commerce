@@ -45,6 +45,28 @@ export class WishlistService {
     return !!data;
   }
 
+  /**
+   * Bulk variant of isWishlisted — returns the subset of `productIds` the
+   * user has wishlisted. Used by PLP/search/home to hydrate ProductCard heart
+   * state in a single round-trip instead of N per-card checks.
+   *
+   * Capped at 200 ids per call to bound the URL length.
+   */
+  async listWishlistedIdsAmong(
+    userId: string,
+    productIds: string[]
+  ): Promise<string[]> {
+    if (!productIds || productIds.length === 0) return [];
+    const capped = productIds.slice(0, 200);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (this.supabase.from('wishlists') as any)
+      .select('product_id')
+      .eq('user_id', userId)
+      .in('product_id', capped);
+    if (error) throw error;
+    return ((data ?? []) as { product_id: string }[]).map((r) => r.product_id);
+  }
+
   /** Toggle returns the new state (`isWishlisted` after the operation). */
   async toggle(userId: string, productId: string): Promise<boolean> {
     const exists = await this.isWishlisted(userId, productId);

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { listProducts } from '@/lib/api/products';
 import { listCategories } from '@/lib/api/categories';
 import { listAvailableColors } from '@/lib/api/products';
+import { getWishlistedIds } from '@/lib/api/wishlist';
 import { ProductCard } from '@/components/product/ProductCard';
 import { SortSelect } from './_components/SortSelect';
 import { Container } from '@/components/layout/Container';
@@ -97,6 +98,13 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       per_page: PER_PAGE,
     }),
   ]);
+
+  // Hydrate wishlist state for the whole page in a single round-trip.
+  // Anonymous viewers get an empty set; ProductCard then falls back to guest
+  // localStorage state via its own useEffect.
+  const wishlistedIds = user
+    ? await getWishlistedIds(result.data.map((p) => p.id))
+    : new Set<string>();
 
   const totalPages = Math.ceil(result.total / PER_PAGE);
   const hasActiveFilters = !!(
@@ -364,6 +372,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     product={product}
                     locale={locale as Locale}
                     isAuthenticated={!!user}
+                    initialIsWishlisted={user ? wishlistedIds.has(product.id) : undefined}
                     priority={i < 6}
                   />
                 ))}

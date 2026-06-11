@@ -18,6 +18,14 @@ interface WishlistButtonProps {
   /** SSR-time auth hint. Used only before client AuthProvider hydrates;
       once hydrated the client session is the source of truth. */
   isAuthenticated: boolean;
+  /**
+   * SSR-resolved wishlist state from a bulk lookup (PLP / search / home).
+   * When set, the component skips the per-card checkWishlist round-trip —
+   * pages with many cards hydrate hearts in a single bulk call instead of
+   * N individual ones. Omit on the PDP / single-card surfaces where a
+   * per-id check is fine.
+   */
+  initialIsWishlisted?: boolean;
   sourcePage?: 'list' | 'detail' | 'community';
   className?: string;
 }
@@ -28,6 +36,7 @@ export function WishlistButton({
   price,
   category,
   isAuthenticated,
+  initialIsWishlisted,
   sourcePage = 'detail',
   className,
 }: WishlistButtonProps) {
@@ -35,7 +44,7 @@ export function WishlistButton({
   const track = useTrack();
   const { user, loading: authLoading } = useAuth();
   const [isPending, startTransition] = useTransition();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted ?? false);
 
   // Server-side getUser() in PLP/PDP can return null even when the browser
   // session is alive (cookie refresh timing, expired access token, etc.).
@@ -45,12 +54,14 @@ export function WishlistButton({
 
   useEffect(() => {
     if (authLoading) return;
+    // Page provided a bulk-resolved value — trust it. No per-card fetch.
+    if (initialIsWishlisted !== undefined) return;
     if (authed) {
       checkWishlist(productId).then((w) => setIsWishlisted(w)).catch(() => {});
     } else {
       setIsWishlisted(isGuestWishlisted(productId));
     }
-  }, [productId, authed, authLoading]);
+  }, [productId, authed, authLoading, initialIsWishlisted]);
 
   function handleToggle(e: React.MouseEvent<HTMLButtonElement>) {
     // ProductCard wraps the card in a navigation Link; without these guards

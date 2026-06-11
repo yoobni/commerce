@@ -8,6 +8,7 @@ import { Link } from '@/i18n/navigation';
 import { buildAlternates } from '@/lib/seo/alternates';
 import { createClient } from '@/lib/supabase/server';
 import { getFeaturedProducts, listProducts } from '@/lib/api/products';
+import { getWishlistedIds } from '@/lib/api/wishlist';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Container } from '@/components/layout/Container';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
@@ -46,6 +47,14 @@ export default async function HomePage({ params }: Props) {
     getFeaturedProducts(8),
     listProducts({ sort: 'newest', per_page: 8 }),
   ]);
+
+  // Bulk wishlist hydration across both rails — one call covers up to 16 ids.
+  const wishlistedIds = user
+    ? await getWishlistedIds([
+        ...featured.map((p) => p.id),
+        ...newArrivals.data.map((p) => p.id),
+      ])
+    : new Set<string>();
 
   return (
     <div className="bg-[var(--mz-bg)]">
@@ -126,6 +135,7 @@ export default async function HomePage({ params }: Props) {
                         product={product}
                         locale={locale as Locale}
                         isAuthenticated={!!user}
+                        initialIsWishlisted={user ? wishlistedIds.has(product.id) : undefined}
                         priority={i < 4}
                       />
                     </div>
@@ -201,6 +211,7 @@ export default async function HomePage({ params }: Props) {
                   product={product}
                   locale={locale as Locale}
                   isAuthenticated={!!user}
+                  initialIsWishlisted={user ? wishlistedIds.has(product.id) : undefined}
                 />
               ))}
             </div>

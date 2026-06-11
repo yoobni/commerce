@@ -7,6 +7,7 @@ import { routing, type Locale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getProductBySlug, listProducts } from '@/lib/api/products';
+import { getWishlistedIds } from '@/lib/api/wishlist';
 import { listProductReviews, getReviewStats } from '@/lib/api/reviews';
 import { ReviewSection } from '@/components/product/ReviewSection';
 import {
@@ -77,6 +78,11 @@ export default async function ProductDetailPage({ params }: Props) {
   ]);
 
   const relatedProducts = relatedResult.data.filter((p) => p.id !== product.id).slice(0, 4);
+
+  // Bulk wishlist hydration for the related rail.
+  const relatedWishlistedIds = user
+    ? await getWishlistedIds(relatedProducts.map((p) => p.id))
+    : new Set<string>();
 
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -319,6 +325,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     product={p}
                     locale={locale as Locale}
                     isAuthenticated={!!user}
+                    initialIsWishlisted={user ? relatedWishlistedIds.has(p.id) : undefined}
                   />
                 ))}
               </div>
