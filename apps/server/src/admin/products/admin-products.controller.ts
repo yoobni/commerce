@@ -23,28 +23,24 @@ import {
   UuidParamSchema,
 } from './admin-products.schemas';
 
-// Admin product, category, size resources. All routes require admin auth.
+// Admin product / category / size resources.
 //
-//   GET    /admin/products                    list (status/category/search filter)
-//   GET    /admin/products/:id                detail
-//   POST   /admin/products                    create (+ options batch)
-//   PATCH  /admin/products/:id                update (+ options batch)
-//   PATCH  /admin/products/:id/status         quick status flip
-//   DELETE /admin/products/:id                delete
-//   GET    /admin/categories                  list (incl. inactive)
-//   POST   /admin/categories                  create
-//   PATCH  /admin/categories/:id              update
-//   DELETE /admin/categories/:id              delete (rejects when in use)
-//   GET    /admin/sizes                       list
+// 같은 service (AdminProductsService) 가 세 도메인을 다루지만 외부 prefix 는
+// 도메인별로 나눠 다른 admin module 의 컨벤션과 일치시킴.
 
-@Controller('admin')
+@Controller('admin/products')
 @UseGuards(AdminAuthGuard)
 export class AdminProductsController {
   constructor(private readonly products: AdminProductsService) {}
 
-  // ─── Products ─────────────────────────────────────────────────────────────
+  //   GET    /admin/products            list (status/category/search filter)
+  //   GET    /admin/products/:id        detail
+  //   POST   /admin/products            create (+ options batch)
+  //   PATCH  /admin/products/:id        update (+ options batch)
+  //   PATCH  /admin/products/:id/status quick status flip
+  //   DELETE /admin/products/:id
 
-  @Get('products')
+  @Get()
   list(
     @Query(new ZodValidationPipe(AdminListProductsQuerySchema))
     query: typeof AdminListProductsQuerySchema._output
@@ -52,7 +48,7 @@ export class AdminProductsController {
     return this.products.list(query);
   }
 
-  @Get('products/:id')
+  @Get(':id')
   async getById(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output
   ) {
@@ -61,7 +57,7 @@ export class AdminProductsController {
     return row;
   }
 
-  @Post('products')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   create(
     @Body(new ZodValidationPipe(SaveProductBodySchema))
@@ -70,7 +66,7 @@ export class AdminProductsController {
     return this.products.save(null, body.product, body.options);
   }
 
-  @Patch('products/:id')
+  @Patch(':id')
   async update(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output,
     @Body(new ZodValidationPipe(SaveProductBodySchema))
@@ -80,7 +76,7 @@ export class AdminProductsController {
     return this.products.save(params.id, body.product, body.options);
   }
 
-  @Patch('products/:id/status')
+  @Patch(':id/status')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateStatus(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output,
@@ -91,32 +87,41 @@ export class AdminProductsController {
     await this.products.updateStatus(params.id, body.status);
   }
 
-  @Delete('products/:id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output
   ) {
     await this.products.delete(params.id);
   }
+}
 
-  // ─── Categories ───────────────────────────────────────────────────────────
+@Controller('admin/categories')
+@UseGuards(AdminAuthGuard)
+export class AdminCategoriesController {
+  constructor(private readonly products: AdminProductsService) {}
 
-  @Get('categories')
-  listCategories() {
+  //   GET    /admin/categories      list (incl. inactive)
+  //   POST   /admin/categories
+  //   PATCH  /admin/categories/:id
+  //   DELETE /admin/categories/:id  rejects when in use (→ 400 category_in_use)
+
+  @Get()
+  list() {
     return this.products.listCategories();
   }
 
-  @Post('categories')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
-  createCategory(
+  create(
     @Body(new ZodValidationPipe(SaveCategoryBodySchema))
     body: typeof SaveCategoryBodySchema._output
   ) {
     return this.products.saveCategory(null, body);
   }
 
-  @Patch('categories/:id')
-  updateCategory(
+  @Patch(':id')
+  update(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output,
     @Body(new ZodValidationPipe(SaveCategoryBodySchema))
     body: typeof SaveCategoryBodySchema._output
@@ -124,18 +129,24 @@ export class AdminProductsController {
     return this.products.saveCategory(params.id, body);
   }
 
-  @Delete('categories/:id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCategory(
+  async delete(
     @Param(new ZodValidationPipe(UuidParamSchema)) params: typeof UuidParamSchema._output
   ) {
     await this.products.deleteCategory(params.id);
   }
+}
 
-  // ─── Sizes ────────────────────────────────────────────────────────────────
+@Controller('admin/sizes')
+@UseGuards(AdminAuthGuard)
+export class AdminSizesController {
+  constructor(private readonly products: AdminProductsService) {}
 
-  @Get('sizes')
-  listSizes() {
+  //   GET /admin/sizes  list
+
+  @Get()
+  list() {
     return this.products.listSizes();
   }
 }
