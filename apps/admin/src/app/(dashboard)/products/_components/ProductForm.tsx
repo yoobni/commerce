@@ -46,13 +46,14 @@ type Lang = (typeof LANG_TABS)[number]['key'];
 
 type NameKey = 'name_ko' | 'name_en' | 'name_ja' | 'name_de';
 type DescKey = 'description_ko' | 'description_en' | 'description_ja' | 'description_de';
+type MaterialKey = 'material_ko' | 'material_en' | 'material_ja' | 'material_de';
 type PriceKey = 'base_price_krw' | 'base_price_usd' | 'base_price_jpy' | 'base_price_eur';
 
-const LANG_KEYS: Record<Lang, { name: NameKey; desc: DescKey }> = {
-  ko: { name: 'name_ko', desc: 'description_ko' },
-  en: { name: 'name_en', desc: 'description_en' },
-  ja: { name: 'name_ja', desc: 'description_ja' },
-  de: { name: 'name_de', desc: 'description_de' },
+const LANG_KEYS: Record<Lang, { name: NameKey; desc: DescKey; material: MaterialKey }> = {
+  ko: { name: 'name_ko', desc: 'description_ko', material: 'material_ko' },
+  en: { name: 'name_en', desc: 'description_en', material: 'material_en' },
+  ja: { name: 'name_ja', desc: 'description_ja', material: 'material_ja' },
+  de: { name: 'name_de', desc: 'description_de', material: 'material_de' },
 };
 
 const PRICE_FIELDS: Array<{ key: PriceKey; label: string }> = [
@@ -98,7 +99,10 @@ interface FormState {
   base_price_usd: number;
   base_price_jpy: number;
   base_price_eur: number;
-  material: string;
+  material_ko: string;
+  material_en: string;
+  material_ja: string;
+  material_de: string;
   care_instruction: string;
   weight_g: number;
   thumbnail_url: string;
@@ -123,7 +127,10 @@ function makeDefault(): FormState {
     base_price_usd: 0,
     base_price_jpy: 0,
     base_price_eur: 0,
-    material: '',
+    material_ko: '',
+    material_en: '',
+    material_ja: '',
+    material_de: '',
     care_instruction: '',
     weight_g: 0,
     thumbnail_url: '',
@@ -149,7 +156,10 @@ function productToForm(p: ProductDetail): FormState {
     base_price_usd: p.base_price_usd,
     base_price_jpy: p.base_price_jpy,
     base_price_eur: p.base_price_eur,
-    material: p.material ?? '',
+    material_ko: p.material_ko ?? '',
+    material_en: p.material_en ?? '',
+    material_ja: p.material_ja ?? '',
+    material_de: p.material_de ?? '',
     care_instruction: p.care_instruction ?? '',
     weight_g: p.weight_g ?? 0,
     thumbnail_url: p.thumbnail_url,
@@ -302,7 +312,10 @@ export function ProductForm({ product, categories, sizes }: Props) {
       try {
         const input = {
           ...form,
-          material: form.material || null,
+          material_ko: form.material_ko || null,
+          material_en: form.material_en || null,
+          material_ja: form.material_ja || null,
+          material_de: form.material_de || null,
           care_instruction: form.care_instruction || null,
           weight_g: form.weight_g || null,
         };
@@ -319,7 +332,7 @@ export function ProductForm({ product, categories, sizes }: Props) {
   }
 
   const visibleOptions = options.filter((o) => !o.toDelete);
-  const { name: nameKey, desc: descKey } = LANG_KEYS[langTab];
+  const { name: nameKey, desc: descKey, material: materialKey } = LANG_KEYS[langTab];
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -555,11 +568,11 @@ export function ProductForm({ product, categories, sizes }: Props) {
         <InfoSection title="상세 정보">
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="material">소재</Label>
+              <Label htmlFor={`material-${langTab}`}>소재 ({langTab.toUpperCase()})</Label>
               <Input
-                id="material"
-                value={form.material}
-                onChange={(e) => patch('material', e.target.value)}
+                id={`material-${langTab}`}
+                value={form[materialKey]}
+                onChange={(e) => patch(materialKey, e.target.value)}
               />
             </div>
             <div className="space-y-1.5">

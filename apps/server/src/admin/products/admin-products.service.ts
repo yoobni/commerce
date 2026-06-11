@@ -74,7 +74,10 @@ interface ProductFieldsInput {
   base_price_usd: number;
   base_price_jpy: number;
   base_price_eur: number;
-  material: string | null;
+  material_ko: string | null;
+  material_en: string | null;
+  material_ja: string | null;
+  material_de: string | null;
   care_instruction: string | null;
   weight_g: number | null;
   thumbnail_url: string;

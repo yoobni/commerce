@@ -12,6 +12,7 @@ import { ReviewSection } from '@/components/product/ReviewSection';
 import {
   getProductName,
   getProductDescription,
+  getProductMaterial,
   getProductPrice,
   formatPrice,
   getCategoryName,
@@ -108,8 +109,9 @@ export default async function ProductDetailPage({ params }: Props) {
 
   // Spec rows — Muzzle M8 "About this piece" 4-row table.
   // Source fields are optional; render only rows that have data.
+  const localizedMaterial = getProductMaterial(product, locale as Locale);
   const specRows: [string, string][] = [
-    product.material ? [t('material'), product.material] : null,
+    localizedMaterial ? [t('material'), localizedMaterial] : null,
     product.care_instruction ? [t('care'), product.care_instruction] : null,
     product.weight_g ? [t('weight'), `${product.weight_g}g`] : null,
   ].filter((row): row is [string, string] => row !== null);

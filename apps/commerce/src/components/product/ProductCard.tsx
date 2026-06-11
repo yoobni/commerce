@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/cn';
-import { getProductName, getProductPrice, formatPrice } from '@/lib/format';
+import { getProductName, getProductPrice, getProductMaterial, formatPrice } from '@/lib/format';
 import { WishlistButton } from './WishlistButton';
 import { FitBadge } from '@/components/ui/Badge';
 import type { Product, Locale } from '@commerce/types';
@@ -38,6 +38,7 @@ export function ProductCard({
   const name = getProductName(product, locale);
   const price = getProductPrice(product, locale);
   const formattedPrice = formatPrice(price, locale);
+  const material = getProductMaterial(product, locale);
   const isSoldOut = product.status === 'SOLD_OUT';
   const [imgError, setImgError] = useState(false);
   const initial = safeImageSrc(product.thumbnail_url);
@@ -131,8 +132,8 @@ export function ProductCard({
           {name}
         </h3>
 
-        {product.material && (
-          <p className="mt-0.5 text-[11px] text-[var(--mz-ink-mute)] truncate">{product.material}</p>
+        {material && (
+          <p className="mt-0.5 text-[11px] text-[var(--mz-ink-mute)] truncate">{material}</p>
         )}
 
         <p className="mt-1 text-[13px] font-[600] text-[var(--mz-ink)]">{formattedPrice}</p>

@@ -40,6 +40,33 @@ export function getProductDescription(fields: LocalizedDescFields, locale: Local
   return map[locale] || fields.description_en;
 }
 
+type LocalizedMaterialFields = Pick<
+  Product,
+  'material_ko' | 'material_en' | 'material_ja' | 'material_de'
+>;
+
+/**
+ * Resolve material text for the active locale, falling back through
+ * ko → en when the requested locale's column is empty. Returns null when no
+ * material has been entered in any locale (caller hides the row).
+ */
+export function getProductMaterial(
+  fields: LocalizedMaterialFields,
+  locale: Locale
+): string | null {
+  const direct =
+    locale === 'ko'
+      ? fields.material_ko
+      : locale === 'en'
+        ? fields.material_en
+        : locale === 'ja'
+          ? fields.material_ja
+          : fields.material_de;
+  if (direct && direct.trim()) return direct;
+  // Fallback chain so a Korean-only entry still shows in en/ja/de pages.
+  return fields.material_ko || fields.material_en || null;
+}
+
 // ─── Price ────────────────────────────────────────────────────────────────────
 
 type PriceFields = Pick<
