@@ -312,6 +312,7 @@
       "bankTransfer": "Überweisung",
       "kakaoPay": "Kakao Pay",
       "naverPay": "Naver Pay",
+      "tossPay": "Toss Pay",
       "cardNumber": "Kartennummer",
       "expiry": "Ablaufdatum",
       "cvv": "CVV",

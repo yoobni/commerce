@@ -312,6 +312,7 @@
       "bankTransfer": "銀行振込",
       "kakaoPay": "カカオペイ",
       "naverPay": "ネイバーペイ",
+      "tossPay": "トスペイ",
       "cardNumber": "カード番号",
       "expiry": "有効期限",
       "cvv": "CVV",

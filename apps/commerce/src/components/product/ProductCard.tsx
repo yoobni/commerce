@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/cn';
@@ -43,26 +43,41 @@ export function ProductCard({
   const initial = safeImageSrc(product.thumbnail_url);
   const thumbSrc = imgError ? FALLBACK_THUMB : initial;
 
+  // NEW badge depends on Date.now() vs published_at — server and client
+  // resolve at different instants, so deciding during SSR (or eagerly during
+  // initial render) leaks a hydration mismatch on items near the 30-day edge.
+  // Default to hidden, flip on after mount so the first paint is consistent.
+  const [showNew, setShowNew] = useState(false);
+  useEffect(() => {
+    setShowNew(isNew(product.published_at));
+  }, [product.published_at]);
+
   return (
     <article className={cn('group relative flex flex-col', className)}>
+      {/* Card-wide click target. WishlistButton stops propagation, so the
+          heart still toggles instead of navigating. */}
+      <Link
+        href={`/products/${product.slug}`}
+        aria-label={name}
+        className="absolute inset-0 z-0"
+      />
+
       {/* ── Image container — 1:1 aspect ratio ── */}
       <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)]">
-        <Link href={`/products/${product.slug}`} className="block w-full h-full" aria-label={name}>
-          <Image
-            src={thumbSrc}
-            alt={name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className={cn(
-              'object-cover transition-transform duration-500',
-              !isSoldOut && 'group-hover:scale-[1.03]',
-              isSoldOut && 'opacity-60'
-            )}
-            priority={priority}
-            onError={() => setImgError(true)}
-            unoptimized={isFallback(thumbSrc)}
-          />
-        </Link>
+        <Image
+          src={thumbSrc}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className={cn(
+            'object-cover transition-transform duration-500',
+            !isSoldOut && 'group-hover:scale-[1.03]',
+            isSoldOut && 'opacity-60'
+          )}
+          priority={priority}
+          onError={() => setImgError(true)}
+          unoptimized={isFallback(thumbSrc)}
+        />
 
         {/* Fit badge — top:8 left:8 per dir-b-ds spec */}
         {fitSize && !isSoldOut && (
@@ -71,8 +86,8 @@ export function ProductCard({
           </div>
         )}
 
-        {/* New badge — same slot when no Fit badge — bg ink, color bg, 9/700/0.08em, padding 3/7 */}
-        {!fitSize && isNew(product.published_at) && !isSoldOut && (
+        {/* New badge — same slot when no Fit badge */}
+        {!fitSize && showNew && !isSoldOut && (
           <div className="absolute top-2 left-2 pointer-events-none">
             <span className="inline-flex items-center px-[7px] py-[3px] rounded-[var(--radius-pill)] text-[9px] font-[700] tracking-[0.08em] bg-[var(--mz-ink)] text-[var(--mz-bg)]">
               NEW
@@ -89,9 +104,8 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Wishlist button — top:8 right:8, 28×28 circular surface-colored.
-            z-10 forces this above the sibling Link/Image so clicks don't get
-            captured by the card-wide navigation link. */}
+        {/* Wishlist button — sits above the absolute Link overlay so taps land
+            on the button. Its handler also calls stopPropagation. */}
         <div className="absolute top-2 right-2 z-10">
           <WishlistButton
             productId={product.id}
@@ -106,28 +120,23 @@ export function ProductCard({
       </div>
 
       {/* ── Product meta — gap 8px from image ── */}
-      <div className="mt-2">
-        {/* Name — Fraunces 14/500 */}
-        <Link
-          href={`/products/${product.slug}`}
+      <div className="mt-2 relative">
+        <h3
           className={cn(
             'block text-[14px] font-[500] leading-[18px] font-serif',
             'text-[var(--mz-ink)] line-clamp-2',
-            'hover:text-[var(--mz-ink-soft)] transition-colors duration-150'
+            'group-hover:text-[var(--mz-ink-soft)] transition-colors duration-150'
           )}
         >
           {name}
-        </Link>
+        </h3>
 
-        {/* Material / spec line — Inter 11/inkMute, mt 2 (when available) */}
         {product.material && (
           <p className="mt-0.5 text-[11px] text-[var(--mz-ink-mute)] truncate">{product.material}</p>
         )}
 
-        {/* Price — Inter 13/600, mt 4 */}
         <p className="mt-1 text-[13px] font-[600] text-[var(--mz-ink)]">{formattedPrice}</p>
 
-        {/* Rating — Inter 11/inkMute (kept as a small enhancement) */}
         {product.review_count > 0 && (
           <div
             className="flex items-center gap-1 mt-0.5"

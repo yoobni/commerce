@@ -312,6 +312,7 @@
       "bankTransfer": "무통장입금",
       "kakaoPay": "카카오페이",
       "naverPay": "네이버페이",
+      "tossPay": "토스페이",
       "cardNumber": "카드 번호",
       "expiry": "유효 기간",
       "cvv": "CVV",
