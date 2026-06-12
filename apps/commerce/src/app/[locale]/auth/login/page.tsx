@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Input, PasswordInput } from '@/components/ui/Input';
@@ -11,6 +11,9 @@ import { Input, PasswordInput } from '@/components/ui/Input';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const locale = useLocale();
+  // next-intl's router wraps replace() and in some path shapes ends up
+  // double-prefixing ("/" → "/ko/ko"). Use the raw Next.js router with an
+  // explicit locale prefix so the target URL is unambiguous.
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -23,18 +26,23 @@ export default function LoginPage() {
     signInWithTwitter,
   } = useAuth();
 
-  // next-intl's router auto-prefixes the locale, so paths passed in must be
-  // locale-relative (e.g. "/" → "/ko/", "/account" → "/ko/account"). Strip an
-  // accidental leading locale from `next` to avoid the /ko/ko double-prefix.
-  // Match only `/{locale}` exactly or `/{locale}/...` — never `/koalas` etc.
+  // `next` accepts either an absolute locale-prefixed path ("/ko/account")
+  // or a locale-relative path ("/account"). Normalize to a *fully-qualified*
+  // target so the router always lands on the right URL.
+  //   raw "/ko"     → "/ko/"
+  //   raw "/ko/..." → "/ko/..."
+  //   raw "/..."    → "/{locale}/..."
+  //   raw "/"       → "/{locale}/"
   const rawNext = searchParams.get('next') ?? '/';
   const localePrefix = `/${locale}`;
   const next =
     rawNext === localePrefix
-      ? '/'
+      ? `${localePrefix}/`
       : rawNext.startsWith(`${localePrefix}/`)
-        ? rawNext.slice(localePrefix.length)
-        : rawNext;
+        ? rawNext
+        : rawNext === '/'
+          ? `${localePrefix}/`
+          : `${localePrefix}${rawNext.startsWith('/') ? rawNext : `/${rawNext}`}`;
   const hasOAuthError = searchParams.get('error') != null;
 
   const [email, setEmail] = useState('');
@@ -44,7 +52,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace(next as Parameters<typeof router.replace>[0]);
+      router.replace(next);
     }
   }, [user, loading, router, next]);
 
@@ -57,7 +65,7 @@ export default function LoginPage() {
       setError(t('error.invalidCredentials'));
       setSubmitting(false);
     } else {
-      router.replace(next as Parameters<typeof router.replace>[0]);
+      router.replace(next);
     }
   }
 

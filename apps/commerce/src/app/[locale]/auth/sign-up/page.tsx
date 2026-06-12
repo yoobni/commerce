@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Input, PasswordInput } from '@/components/ui/Input';
@@ -11,6 +11,8 @@ import { Input, PasswordInput } from '@/components/ui/Input';
 export default function SignUpPage() {
   const t = useTranslations('auth');
   const locale = useLocale();
+  // Use the raw Next.js router with an explicit locale prefix to avoid
+  // next-intl wrapping replace() into a "/ko/ko" double-prefix.
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -23,14 +25,22 @@ export default function SignUpPage() {
     signInWithTwitter,
   } = useAuth();
 
-  // next-intl's router auto-prefixes the locale, so paths passed in must be
-  // locale-relative. Strip an accidental leading locale from `next` to avoid
-  // the /ko/ko double-prefix.
+  // Normalize `next` to a fully-qualified locale-prefixed path so the router
+  // never has to guess. Edge cases:
+  //   raw "/ko"     → "/ko/"
+  //   raw "/ko/..." → "/ko/..."
+  //   raw "/"       → "/{locale}/"
+  //   raw "/..."    → "/{locale}/..."
   const rawNext = searchParams.get('next') ?? '/';
   const localePrefix = `/${locale}`;
-  const next = rawNext.startsWith(localePrefix)
-    ? rawNext.slice(localePrefix.length) || '/'
-    : rawNext;
+  const next =
+    rawNext === localePrefix
+      ? `${localePrefix}/`
+      : rawNext.startsWith(`${localePrefix}/`)
+        ? rawNext
+        : rawNext === '/'
+          ? `${localePrefix}/`
+          : `${localePrefix}${rawNext.startsWith('/') ? rawNext : `/${rawNext}`}`;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -42,7 +52,7 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace(next as Parameters<typeof router.replace>[0]);
+      router.replace(next);
     }
   }, [user, loading, router, next]);
 
