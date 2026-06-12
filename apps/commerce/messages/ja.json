@@ -351,6 +351,7 @@
       "kakaoPay": "カカオペイ",
       "naverPay": "ネイバーペイ",
       "tossPay": "トスペイ",
+      "cardPending": "決済処理中…",
       "cardNumber": "カード番号",
       "expiry": "有効期限",
       "cvv": "CVV",
@@ -427,12 +428,18 @@
       "orderDate": "注文日",
       "status": {
         "pending": "入金待ち",
+        "pending_payment": "入金待ち",
         "paid": "入金完了",
         "preparing": "準備中",
         "shipped": "発送済み",
         "delivered": "配達完了",
+        "confirmed": "購入確定",
+        "return_requested": "返品リクエスト",
+        "returned": "返品完了",
+        "refund_requested": "返金リクエスト",
+        "refunded": "返金済み",
         "cancelled": "キャンセル済み",
-        "refunded": "返金済み"
+        "delivery_failed": "配送失敗"
       },
       "total": "合計",
       "viewDetail": "詳細を見る",

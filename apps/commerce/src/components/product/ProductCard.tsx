@@ -57,15 +57,18 @@ export function ProductCard({
   }, [product.published_at]);
 
   return (
-    <article className={cn('group relative flex flex-col', className)}>
-      {/* Card-wide click target. WishlistButton stops propagation, so the
-          heart still toggles instead of navigating. */}
-      <Link
-        href={`/products/${product.slug}`}
-        aria-label={name}
-        className="absolute inset-0 z-0"
-      />
-
+    // 전체 카드를 Link 로 wrap — image / name / material / price / rating
+    // 어디를 눌러도 detail 로 이동. WishlistButton 은 <button> 이라
+    // nested anchor 위반이 아니고, handler 가 stopPropagation/preventDefault
+    // 로 navigation 을 차단한다.
+    <Link
+      href={`/products/${product.slug}`}
+      aria-label={name}
+      className={cn(
+        'group relative flex flex-col no-underline text-inherit',
+        className
+      )}
+    >
       {/* ── Image container — 1:1 aspect ratio ── */}
       <div className="relative aspect-square overflow-hidden rounded-[var(--radius-md)] bg-[var(--mz-bg-deep)]">
         <Image
@@ -108,8 +111,7 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Wishlist button — sits above the absolute Link overlay so taps land
-            on the button. Its handler also calls stopPropagation. */}
+        {/* Wishlist button — <button> 이라 nested anchor 위반 없음. */}
         <div className="absolute top-2 right-2 z-10">
           <WishlistButton
             productId={product.id}
@@ -125,7 +127,7 @@ export function ProductCard({
       </div>
 
       {/* ── Product meta — gap 8px from image ── */}
-      <div className="mt-2 relative">
+      <div className="mt-2">
         <h3
           className={cn(
             'block text-[14px] font-[500] leading-[18px] font-serif',
@@ -155,7 +157,7 @@ export function ProductCard({
           </div>
         )}
       </div>
-    </article>
+    </Link>
   );
 }
 

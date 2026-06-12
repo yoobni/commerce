@@ -351,6 +351,7 @@
       "kakaoPay": "Kakao Pay",
       "naverPay": "Naver Pay",
       "tossPay": "Toss Pay",
+      "cardPending": "Processing payment…",
       "cardNumber": "Card number",
       "expiry": "Expiry date",
       "cvv": "CVV",
@@ -427,12 +428,18 @@
       "orderDate": "Order date",
       "status": {
         "pending": "Pending Payment",
+        "pending_payment": "Pending Payment",
         "paid": "Payment Complete",
         "preparing": "Preparing",
         "shipped": "Shipped",
         "delivered": "Delivered",
+        "confirmed": "Confirmed",
+        "return_requested": "Return Requested",
+        "returned": "Returned",
+        "refund_requested": "Refund Requested",
+        "refunded": "Refunded",
         "cancelled": "Cancelled",
-        "refunded": "Refunded"
+        "delivery_failed": "Delivery Failed"
       },
       "total": "Total",
       "viewDetail": "View Details",
