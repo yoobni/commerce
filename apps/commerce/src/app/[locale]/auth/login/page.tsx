@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -11,10 +11,6 @@ import { Input, PasswordInput } from '@/components/ui/Input';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const locale = useLocale();
-  // next-intl's router wraps replace() and in some path shapes ends up
-  // double-prefixing ("/" → "/ko/ko"). Use the raw Next.js router with an
-  // explicit locale prefix so the target URL is unambiguous.
-  const router = useRouter();
   const searchParams = useSearchParams();
   const {
     user,
@@ -26,13 +22,13 @@ export default function LoginPage() {
     signInWithTwitter,
   } = useAuth();
 
-  // `next` accepts either an absolute locale-prefixed path ("/ko/account")
-  // or a locale-relative path ("/account"). Normalize to a *fully-qualified*
-  // target so the router always lands on the right URL.
+  // Normalize `next` to a fully-qualified locale-prefixed path. This value
+  // is fed straight into window.location — no Next.js router wrapper
+  // between us and the browser URL bar, so locale prefixing is unambiguous.
   //   raw "/ko"     → "/ko/"
   //   raw "/ko/..." → "/ko/..."
-  //   raw "/..."    → "/{locale}/..."
   //   raw "/"       → "/{locale}/"
+  //   raw "/..."    → "/{locale}/..."
   const rawNext = searchParams.get('next') ?? '/';
   const localePrefix = `/${locale}`;
   const next =
@@ -50,11 +46,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(hasOAuthError ? t('error.generic') : null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Either router (next-intl wrapper or raw next/navigation) ends up
+  // re-prefixing the locale on /ko/auth/login → produces /ko/ko. Bypass the
+  // whole client router and let the browser take the URL verbatim.
   useEffect(() => {
     if (!loading && user) {
-      router.replace(next);
+      window.location.replace(next);
     }
-  }, [user, loading, router, next]);
+  }, [user, loading, next]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -65,7 +64,7 @@ export default function LoginPage() {
       setError(t('error.invalidCredentials'));
       setSubmitting(false);
     } else {
-      router.replace(next);
+      window.location.assign(next);
     }
   }
 

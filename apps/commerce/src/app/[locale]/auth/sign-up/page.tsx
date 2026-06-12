@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -11,9 +11,6 @@ import { Input, PasswordInput } from '@/components/ui/Input';
 export default function SignUpPage() {
   const t = useTranslations('auth');
   const locale = useLocale();
-  // Use the raw Next.js router with an explicit locale prefix to avoid
-  // next-intl wrapping replace() into a "/ko/ko" double-prefix.
-  const router = useRouter();
   const searchParams = useSearchParams();
   const {
     user,
@@ -50,11 +47,14 @@ export default function SignUpPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Either router (next-intl wrapper or raw next/navigation) ends up
+  // re-prefixing the locale on /ko/auth/sign-up → produces /ko/ko. Bypass
+  // the client router and let the browser take the URL verbatim.
   useEffect(() => {
     if (!loading && user) {
-      router.replace(next);
+      window.location.replace(next);
     }
-  }, [user, loading, router, next]);
+  }, [user, loading, next]);
 
   function validate(): string | null {
     if (!name.trim()) return t('error.nameRequired');
