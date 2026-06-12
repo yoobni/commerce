@@ -68,6 +68,21 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Friendly aliases — 사용자가 흔히 입력하는 단축 경로를 실제 라우트
+  // (/[locale]/auth/login, /auth/sign-up) 로 HTTP 307 redirect. localePrefix
+  // 'always' 와 함께 동작하도록 모든 locale 변형 + locale 없는 root level
+  // 둘 다 커버. 검색엔진은 noindex 시그널을 page 메타가 아닌 라우트
+  // 단순 redirect 라 본 URL 만 인덱스.
+  async redirects() {
+    return [
+      { source: '/login', destination: '/ko/auth/login', permanent: false },
+      { source: '/signup', destination: '/ko/auth/sign-up', permanent: false },
+      { source: '/sign-up', destination: '/ko/auth/sign-up', permanent: false },
+      { source: '/:locale(en|ko|ja|de)/login', destination: '/:locale/auth/login', permanent: false },
+      { source: '/:locale(en|ko|ja|de)/signup', destination: '/:locale/auth/sign-up', permanent: false },
+      { source: '/:locale(en|ko|ja|de)/sign-up', destination: '/:locale/auth/sign-up', permanent: false },
+    ];
+  },
   experimental: {
     ppr: false,
   },
