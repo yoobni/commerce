@@ -2,30 +2,41 @@
 @import 'tw-animate-css';
 
 /* ============================================================
-   Admin Design Tokens — Muzzle Direction B · Olive (no serif)
+   Admin Design Tokens — Toss-inspired minimal palette
    ─────────────────────────────────────────────────────────────
-   Commerce(/design-demo)와 동일한 토큰을 사용하되:
-   - 어드민은 sans-serif만 사용 (Fraunces 사용 금지)
-   - 정보 밀도 우선 (테이블/폼 패딩 작게)
-   - 사이드바는 --mz-ink 톤
+   - Clean white surfaces, subtle gray borders
+   - Toss blue as the single accent (#3182f6)
+   - Sans-serif only (Pretendard / Inter)
+   - 4px / 8px spacing grid, 8px / 12px radius
+   - Light sidebar (no more dark magazine vibe)
+
+   Token names keep the legacy `mz-*` prefix so existing pages
+   keep working — values are repainted to the new palette. The
+   old "olive" magazine values live in git history if a rollback
+   is ever needed.
    ============================================================ */
 
 @theme {
-  /* ----- Muzzle 토큰 (Tailwind utility 노출: bg-mz-ink, text-mz-accent 등) ----- */
-  --color-mz-bg: #f7f6f3;
-  --color-mz-bg-deep: #efede7;
-  --color-mz-surface: #ffffff;
-  --color-mz-ink: #0e0e0c;
-  --color-mz-ink-soft: #4d4d48;
-  --color-mz-ink-mute: #8f8f88;
-  --color-mz-line: rgba(14, 14, 12, 0.08);
-  --color-mz-line-strong: rgba(14, 14, 12, 0.18);
-  --color-mz-accent: #4a5237;
-  --color-mz-accent-soft: #e5e7d8;
-  --color-mz-accent-ink: #2e3422;
+  /* ----- Surface ----- */
+  --color-mz-bg: #f9fafb; /* page background — barely-off-white */
+  --color-mz-bg-deep: #f2f4f6; /* panel / hover backdrop */
+  --color-mz-surface: #ffffff; /* card / form surface */
 
-  /* ----- shadcn/ui semantic 토큰 (Tailwind v4 — `--color-*` 접두사) ----- */
-  /* shadcn 컴포넌트가 직접 참조하는 변수. Muzzle 토큰에 매핑. */
+  /* ----- Text ----- */
+  --color-mz-ink: #191f28; /* near-black headings/labels */
+  --color-mz-ink-soft: #4e5968; /* body */
+  --color-mz-ink-mute: #8b95a1; /* meta / placeholder */
+
+  /* ----- Lines ----- */
+  --color-mz-line: #e5e8eb; /* divider, table row, default border */
+  --color-mz-line-strong: #d1d6db; /* form input outline */
+
+  /* ----- Accent (Toss blue) ----- */
+  --color-mz-accent: #3182f6;
+  --color-mz-accent-soft: #e8f3ff;
+  --color-mz-accent-ink: #1b64da;
+
+  /* ----- shadcn semantic tokens — mapped to the toss palette ----- */
   --color-background: var(--color-mz-bg);
   --color-foreground: var(--color-mz-ink);
 
@@ -35,8 +46,8 @@
   --color-popover: var(--color-mz-surface);
   --color-popover-foreground: var(--color-mz-ink);
 
-  --color-primary: var(--color-mz-ink);
-  --color-primary-foreground: var(--color-mz-bg);
+  --color-primary: var(--color-mz-accent);
+  --color-primary-foreground: #ffffff;
 
   --color-secondary: var(--color-mz-bg-deep);
   --color-secondary-foreground: var(--color-mz-ink);
@@ -47,30 +58,31 @@
   --color-accent: var(--color-mz-accent-soft);
   --color-accent-foreground: var(--color-mz-accent-ink);
 
-  --color-destructive: #c0392b;
+  --color-destructive: #f04438;
   --color-destructive-foreground: #ffffff;
 
   --color-border: var(--color-mz-line);
   --color-input: var(--color-mz-line-strong);
   --color-ring: var(--color-mz-accent);
 
-  /* ----- Legacy admin alias (기존 페이지 호환) ----- */
+  /* ----- Legacy admin aliases (kept so existing pages compile) ----- */
   --color-bg: var(--color-mz-bg);
   --color-surface: var(--color-mz-surface);
-  --color-sidebar: var(--color-mz-ink);
-  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --color-sidebar-active: var(--color-mz-accent);
-  --color-sidebar-text: rgba(255, 255, 255, 0.72);
-  --color-sidebar-text-muted: rgba(255, 255, 255, 0.45);
-  --color-brand-primary: var(--color-mz-ink);
+  /* Light sidebar — was dark in the magazine direction. */
+  --color-sidebar: #ffffff;
+  --color-sidebar-hover: var(--color-mz-bg-deep);
+  --color-sidebar-active: var(--color-mz-accent-soft);
+  --color-sidebar-text: var(--color-mz-ink-soft);
+  --color-sidebar-text-muted: var(--color-mz-ink-mute);
+  --color-brand-primary: var(--color-mz-accent);
   --color-brand-accent: var(--color-mz-accent);
   --color-text-primary: var(--color-mz-ink);
   --color-text-secondary: var(--color-mz-ink-soft);
   --color-text-tertiary: var(--color-mz-ink-mute);
-  --color-error: #dc2626;
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-info: #2563eb;
+  --color-error: #f04438;
+  --color-success: #12b76a;
+  --color-warning: #f59e0b;
+  --color-info: #3182f6;
   --color-border-subtle: var(--color-mz-bg-deep);
 
   /* ----- Breakpoints ----- */
@@ -80,16 +92,16 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1440px;
 
-  /* ----- Radius ----- */
-  --radius-sm: 4px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
+  /* ----- Radius (slightly tighter — toss feel) ----- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-pill: 999px;
 }
 
 :root {
-  /* ----- 폰트 (sans-serif 전용 — 어드민은 Fraunces 안 씀) ----- */
+  /* ----- Font stack ----- */
   --font-sans:
     var(--font-inter), 'Pretendard Variable', 'Noto Sans JP', -apple-system, BlinkMacSystemFont,
     sans-serif;
@@ -103,21 +115,21 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
 
-  /* ----- Muzzle 토큰의 `--mz-*` 별칭 (커머스와 동일 네이밍 유지) ----- */
-  --mz-bg: #f7f6f3;
-  --mz-bg-deep: #efede7;
+  /* ----- `--mz-*` mirror (matches the @theme tokens above) ----- */
+  --mz-bg: #f9fafb;
+  --mz-bg-deep: #f2f4f6;
   --mz-surface: #ffffff;
-  --mz-ink: #0e0e0c;
-  --mz-ink-soft: #4d4d48;
-  --mz-ink-mute: #8f8f88;
-  --mz-line: rgba(14, 14, 12, 0.08);
-  --mz-line-strong: rgba(14, 14, 12, 0.18);
-  --mz-accent: #4a5237;
-  --mz-accent-soft: #e5e7d8;
-  --mz-accent-ink: #2e3422;
+  --mz-ink: #191f28;
+  --mz-ink-soft: #4e5968;
+  --mz-ink-mute: #8b95a1;
+  --mz-line: #e5e8eb;
+  --mz-line-strong: #d1d6db;
+  --mz-accent: #3182f6;
+  --mz-accent-soft: #e8f3ff;
+  --mz-accent-ink: #1b64da;
 
-  /* ----- shadcn radius (cn에서 rounded-md 등 참조) ----- */
-  --radius: 0.625rem; /* 10px */
+  /* ----- shadcn radius ----- */
+  --radius: 0.5rem; /* 8px */
 }
 
 *,
@@ -141,7 +153,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--mz-ink);
+  outline: 2px solid var(--mz-accent);
   outline-offset: 2px;
 }
 
@@ -169,7 +181,7 @@ body {
 
 .skeleton {
   background-color: var(--mz-bg-deep);
-  border-radius: 4px;
+  border-radius: 6px;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
@@ -181,7 +193,7 @@ body {
   display: none;
 }
 
-/* ── Legacy admin utility classes (기존 페이지 호환 — 점진적으로 래퍼로 마이그레이션) ──── */
+/* ── Legacy admin utility classes (still used by some pages) ──── */
 .card {
   background: var(--mz-surface);
   border: 1px solid var(--mz-line);
@@ -194,14 +206,16 @@ body {
   border-collapse: collapse;
 }
 .admin-table thead tr {
-  background: var(--mz-bg-deep);
+  background: var(--mz-bg);
   border-bottom: 1px solid var(--mz-line);
 }
 .admin-table thead th {
-  padding: 0.625rem 0.875rem;
+  padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 500;
-  color: var(--mz-ink-soft);
+  font-size: 0.8125rem;
+  color: var(--mz-ink-mute);
+  letter-spacing: 0.01em;
 }
 .admin-table tbody tr {
   border-bottom: 1px solid var(--mz-line);
@@ -211,18 +225,19 @@ body {
   border-bottom: none;
 }
 .admin-table tbody tr:hover {
-  background: var(--mz-bg-deep);
+  background: var(--mz-bg);
 }
 .admin-table tbody td {
-  padding: 0.625rem 0.875rem;
+  padding: 0.875rem 1rem;
   color: var(--mz-ink);
+  font-size: 0.875rem;
 }
 
 .admin-input {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  border: 1px solid var(--mz-line-strong);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--mz-line);
   border-radius: var(--radius-md);
   background: var(--mz-surface);
   color: var(--mz-ink);
@@ -232,8 +247,8 @@ body {
   outline: none;
 }
 .admin-input:focus {
-  border-color: var(--mz-ink);
-  box-shadow: 0 0 0 3px rgba(74, 82, 55, 0.18);
+  border-color: var(--mz-accent);
+  box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.15);
 }
 .admin-input::placeholder {
   color: var(--mz-ink-mute);
@@ -249,20 +264,22 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  padding: 0.375rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
   transition:
-    opacity var(--transition-fast),
-    background var(--transition-fast);
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
   outline: none;
   white-space: nowrap;
 }
 .btn:focus-visible {
-  outline: 2px solid var(--mz-ink);
+  outline: 2px solid var(--mz-accent);
   outline-offset: 2px;
 }
 .btn:disabled {
@@ -271,26 +288,25 @@ body {
 }
 
 .btn-primary {
-  background: var(--mz-ink);
-  color: var(--mz-bg);
+  background: var(--mz-accent);
+  color: #ffffff;
 }
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--mz-accent-ink);
 }
 
 .btn-secondary {
-  background: var(--mz-surface);
+  background: var(--mz-bg-deep);
   color: var(--mz-ink);
-  border-color: var(--mz-line-strong);
 }
 .btn-secondary:hover:not(:disabled) {
-  background: var(--mz-bg-deep);
+  background: var(--mz-line);
 }
 
 .btn-danger {
   background: var(--mz-surface);
   color: var(--color-error);
-  border-color: #fca5a5;
+  border-color: #fecdd3;
 }
 .btn-danger:hover:not(:disabled) {
   background: #fef2f2;
