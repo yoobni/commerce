@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, Plus, Trash2, X } from 'lucide-react';
+import { AlertCircle, Plus, Trash2, X } from 'lucide-react';
 import type { Category, Size, ProductStatus } from '@commerce/types';
 import type { ProductDetail } from '@/lib/queries/products';
 import type { SaveOptionInput } from '@/lib/actions/products';
@@ -335,36 +335,11 @@ export function ProductForm({ product, categories, sizes }: Props) {
   const { name: nameKey, desc: descKey, material: materialKey } = LANG_KEYS[langTab];
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/products">
-            <ArrowLeft className="mr-1 h-3.5 w-3.5" /> 상품 목록
-          </Link>
-        </Button>
-      </div>
-
+    <div className="mx-auto max-w-5xl pb-28">
       <PageHeader
         title={product ? '상품 수정' : '상품 등록'}
         description={product ? product.name_ko : '새 상품의 기본 정보와 옵션을 입력합니다.'}
-        actions={
-          <>
-            {product && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setDeleteOpen(true)}
-                disabled={isPending}
-              >
-                <Trash2 className="mr-1.5 h-4 w-4" />
-                삭제
-              </Button>
-            )}
-            <Button onClick={handleSubmit} disabled={isPending} size="sm">
-              {isPending ? '저장 중…' : '저장'}
-            </Button>
-          </>
-        }
+        back={{ href: '/products', label: '상품 목록' }}
       />
 
       {error && (
@@ -775,6 +750,30 @@ export function ProductForm({ product, categories, sizes }: Props) {
             </div>
           )}
         </InfoSection>
+      </div>
+
+      {/* Sticky save bar — sidebar 폭(240px) 만큼 left 오프셋 */}
+      <div className="fixed bottom-0 left-60 right-0 z-10 border-t border-[var(--mz-line)] bg-[var(--mz-surface)]">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3 lg:px-8">
+          <div className="text-[13px] text-[var(--mz-ink-mute)]">
+            {product ? '변경 사항은 저장 후 즉시 반영됩니다.' : '필수 항목 입력 후 저장하세요.'}
+          </div>
+          <div className="flex items-center gap-2">
+            {product && (
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteOpen(true)}
+                disabled={isPending}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                삭제
+              </Button>
+            )}
+            <Button onClick={handleSubmit} disabled={isPending} size="lg">
+              {isPending ? '저장 중…' : '저장'}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Delete confirm dialog */}
