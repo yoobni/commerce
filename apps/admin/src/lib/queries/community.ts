@@ -2,11 +2,7 @@
  * Admin community queries. Re-exports lib/api/community + UI labels/variants.
  */
 
-import type {
-  BoardType,
-  PaginatedResponse,
-  PostStatus,
-} from '@commerce/types';
+import type { PaginatedResponse } from '@commerce/types';
 import {
   adminListPosts as apiListPosts,
   adminGetPost as apiGetPost,
@@ -18,29 +14,12 @@ import {
 
 export type { AdminPostRow, AdminPostDetail, AdminCommentRow, AdminPostListParams };
 
-// ─── UI labels & Badge variants (어드민 페이지 공용) ────────────────────────
-
-export const POST_STATUS_LABEL: Record<PostStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
-export const POST_STATUS_VARIANT: Record<
-  PostStatus,
-  'success' | 'warning' | 'destructive'
-> = {
-  ACTIVE: 'success',
-  HIDDEN: 'warning',
-  DELETED: 'destructive',
-};
-
-export const BOARD_TYPE_LABEL: Record<BoardType, string> = {
-  DAILY: '일상',
-  STYLE: '스타일',
-  TIP: '팁',
-  QUESTION: '질문',
-};
+// UI labels live in lib/admin-ui/community-labels.ts (safe for client imports).
+export {
+  POST_STATUS_LABEL,
+  POST_STATUS_VARIANT,
+  BOARD_TYPE_LABEL,
+} from '@/lib/admin-ui/community-labels';
 
 // ─── Re-exported queries ────────────────────────────────────────────────────
 

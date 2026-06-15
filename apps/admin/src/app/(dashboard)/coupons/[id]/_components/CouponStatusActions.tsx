@@ -15,7 +15,7 @@ import {
   DialogTitle,
   toast,
 } from '@/components/ui';
-import { COUPON_STATUS_LABEL, COUPON_STATUS_VARIANT } from '@/lib/queries/coupons';
+import { COUPON_STATUS_LABEL, COUPON_STATUS_VARIANT } from '@/lib/admin-ui/coupons-labels';
 import { updateCouponStatus } from '@/lib/actions/coupons';
 
 const NEXT_STATUS: Partial<Record<CouponStatus, CouponStatus[]>> = {

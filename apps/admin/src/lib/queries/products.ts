@@ -2,12 +2,13 @@
  * Admin product / category / size queries. Forwards to @commerce/server via
  * apps/admin/src/lib/api/products.ts. Keeps the original export names so
  * page-level callers don't need to change their imports.
+ *
+ * UI labels live in lib/admin-ui/products-labels.ts so Client Components can
+ * import them without pulling the server-only api chain. This file re-exports
+ * them for backward compatibility with server-side callers.
  */
 
-import type {
-  PaginatedResponse,
-  ProductStatus,
-} from '@commerce/types';
+import type { PaginatedResponse } from '@commerce/types';
 import {
   adminListProducts as apiListProducts,
   adminGetProduct as apiGetProduct,
@@ -19,26 +20,10 @@ import {
   type ProductOptionWithSize,
 } from '@/lib/api/products';
 
-// ─── UI labels & Badge variants (어드민 페이지 공용) ────────────────────────
-
-export const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
-  DRAFT: '임시저장',
-  ACTIVE: '판매중',
-  SOLD_OUT: '품절',
-  HIDDEN: '숨김',
-  DISCONTINUED: '단종',
-};
-
-export const PRODUCT_STATUS_VARIANT: Record<
-  ProductStatus,
-  'success' | 'muted' | 'warning' | 'info' | 'destructive'
-> = {
-  ACTIVE: 'success',
-  DRAFT: 'muted',
-  SOLD_OUT: 'warning',
-  HIDDEN: 'info',
-  DISCONTINUED: 'destructive',
-};
+export {
+  PRODUCT_STATUS_LABEL,
+  PRODUCT_STATUS_VARIANT,
+} from '@/lib/admin-ui/products-labels';
 
 // ─── Re-exported types (callers still import from queries/products) ─────────
 

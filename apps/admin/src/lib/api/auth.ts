@@ -1,4 +1,8 @@
 // Auth wrappers. Server-side only — call from server actions or RSC.
+// 'server-only' marker fails the build immediately if a Client Component
+// accidentally pulls this module into its bundle, so the chain is visible
+// at compile time instead of erupting at runtime.
+import 'server-only';
 
 import { cookies } from 'next/headers';
 import { COOKIE_NAME, type AdminRole } from '../auth/session';

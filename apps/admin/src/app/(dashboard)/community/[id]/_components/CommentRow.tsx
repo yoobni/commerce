@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { Eye, EyeOff, Trash2 } from 'lucide-react';
 import type { PostStatus } from '@commerce/types';
 import { Avatar, AvatarFallback, Badge, toast } from '@/components/ui';
-import { POST_STATUS_LABEL, POST_STATUS_VARIANT } from '@/lib/queries/community';
+import { POST_STATUS_LABEL, POST_STATUS_VARIANT } from '@/lib/admin-ui/community-labels';
 import type { AdminCommentRow } from '@/lib/queries/community';
 import { setCommentStatus } from '@/lib/actions/community';
 import { cn } from '@/lib/cn';

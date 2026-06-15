@@ -2,7 +2,7 @@
  * Admin review queries. Re-exports lib/api/reviews + UI labels/variants.
  */
 
-import type { PaginatedResponse, ReviewStatus, SizeFeedback } from '@commerce/types';
+import type { PaginatedResponse } from '@commerce/types';
 import {
   adminListReviews as apiListReviews,
   adminGetReview as apiGetReview,
@@ -12,28 +12,12 @@ import {
 
 export type { AdminReviewRow, AdminReviewListParams };
 
-// ─── UI labels & Badge variants (어드민 페이지 공용) ────────────────────────
-
-export const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
-  ACTIVE: '노출',
-  HIDDEN: '숨김',
-  DELETED: '삭제',
-};
-
-export const REVIEW_STATUS_VARIANT: Record<
-  ReviewStatus,
-  'success' | 'warning' | 'destructive'
-> = {
-  ACTIVE: 'success',
-  HIDDEN: 'warning',
-  DELETED: 'destructive',
-};
-
-export const SIZE_FEEDBACK_LABEL: Record<SizeFeedback, string> = {
-  SMALL: '작음',
-  PERFECT: '적합',
-  LARGE: '큼',
-};
+// UI labels live in lib/admin-ui/reviews-labels.ts (safe for client imports).
+export {
+  REVIEW_STATUS_LABEL,
+  REVIEW_STATUS_VARIANT,
+  SIZE_FEEDBACK_LABEL,
+} from '@/lib/admin-ui/reviews-labels';
 
 // ─── Re-exported queries ────────────────────────────────────────────────────
 

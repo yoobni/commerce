@@ -15,7 +15,7 @@ import {
   SelectValue,
   toast,
 } from '@/components/ui';
-import { CARRIER_LABEL } from '@/lib/queries/shipments';
+import { CARRIER_LABEL } from '@/lib/admin-ui/shipments-labels';
 import { startShipment } from '@/lib/actions/shipments';
 
 interface Props {

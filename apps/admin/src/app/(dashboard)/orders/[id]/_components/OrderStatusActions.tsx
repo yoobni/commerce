@@ -13,7 +13,7 @@ import {
   DialogTitle,
   toast,
 } from '@/components/ui';
-import { ORDER_STATUS_LABEL } from '@/lib/queries/orders';
+import { ORDER_STATUS_LABEL } from '@/lib/admin-ui/orders-labels';
 import { updateOrderStatus } from '@/lib/actions/orders';
 
 const ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {

@@ -13,7 +13,7 @@ import {
   DialogTitle,
   toast,
 } from '@/components/ui';
-import { MEMBER_STATUS_LABEL } from '@/lib/queries/members';
+import { MEMBER_STATUS_LABEL } from '@/lib/admin-ui/members-labels';
 import { updateMemberStatus } from '@/lib/actions/members';
 
 const NEXT_STATUSES: Record<UserStatus, UserStatus[]> = {
